@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="number_button_height">55dp</dimen>
+    <dimen name="number_button_width">80dp</dimen>
+    <!--8*margin + 4*bHeight -->
+    <dimen name="number_field_height">228dp</dimen>
+    <dimen name="number_button_margin">1dp</dimen>
+    <dimen name="number_button_textSize">30sp</dimen>
+</resources>
