@@ -8,6 +8,12 @@
 
 </h2>
 
+<p align="center">
+  <img loading="lazy" src="img/Banner_playstore_named_transparent.png" height="400"/>
+</p>
+<p align="center">
+  <img loading="lazy" src="img/icon.png" height="100"/>
+</p>
 
 
 # NAK Buch (Gesang und Chorbuch)
