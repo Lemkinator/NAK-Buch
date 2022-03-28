@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">NAK Buch</string>
+    <string name="app_name" translatable="false">NAK Buch</string>
+    <string name="preference_file_default" translatable="false">de.lemke.nakbuch_preferences</string>
+
+    <string name="aboutPageOptionalText">Die inoffizielle Gesang und Chorbuch-App der NAK.</string>
+    <string name="about_app">Über NAK Buch</string>
+    <string name="help">Hilfe</string>
+    <string name="title_Gesangbuch" translatable="false">Gesangbuch</string>
+    <string name="title_Chorbuch" translatable="false">Chorbuch</string>
+
+    <string name="oneui_libary_github">OneUI-Library Github</string>
+    <string name="check_update">Auf Update überprüfen…</string>
+    <string name="supportMe">Unterstütz mich</string>
+    <string name="about_me">Über mich</string>
 </resources>

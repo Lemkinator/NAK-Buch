@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    app:layout_location="drawer_panel">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <de.dlyt.yanndroid.oneui.view.OptionGroup
+                android:id="@+id/optiongroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <de.dlyt.yanndroid.oneui.widget.OptionButton
+                    android:id="@+id/ob_gesangbuch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_oui4_audio"
+                    app:text="@string/title_Gesangbuch" />
+
+                <de.dlyt.yanndroid.oneui.widget.OptionButton
+                    android:id="@+id/ob_chorbuch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_oui3_audio"
+                    app:text="@string/title_Chorbuch" />
+
+                <View style="@style/DrawerDividerStyle" />
+
+                <de.dlyt.yanndroid.oneui.widget.OptionButton
+                    android:id="@+id/ob_help"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_oui4_help"
+                    app:text="@string/help" />
+
+                <de.dlyt.yanndroid.oneui.widget.OptionButton
+                    android:id="@+id/ob_about"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_oui4_info"
+                    app:text="@string/about_app" />
+
+                <View style="@style/DrawerDividerStyle" />
+
+                <de.dlyt.yanndroid.oneui.widget.OptionButton
+                    android:id="@+id/ob_about_me"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_oui4_contact"
+                    app:text="@string/about_me" />
+
+                <de.dlyt.yanndroid.oneui.widget.OptionButton
+                    android:id="@+id/ob_support_me"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_oui3_gift"
+                    app:text="@string/supportMe" />
+
+                <View style="@style/DrawerDividerStyle" />
+
+                <de.dlyt.yanndroid.oneui.widget.OptionButton
+                    android:id="@+id/ob_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_oui4_settings_2"
+                    app:text="@string/action_settings" />
+
+            </de.dlyt.yanndroid.oneui.view.OptionGroup>
+
+            <!--LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <de.dlyt.yanndroid.oneui.view.SeekBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="10dp"
+                    app:seslSeekBarMode="expand_vertical" />
+                <de.dlyt.yanndroid.oneui.view.SeekBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="10dp"
+                    app:seslSeekBarMode="vertical" />
+            </LinearLayout-->
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

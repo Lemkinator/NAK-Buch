@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-// Load keystore
+// Load keystore, dont wanna share my pw :D
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -82,8 +82,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 dependencies {
     //implementation 'io.github.yanndroid:oneui:2.3.0'
     implementation fileTree(include: ['*.aar'], dir: 'libs')
-    implementation 'nl.dionsegijn:konfetti-compose:2.0.2'
-    implementation 'nl.dionsegijn:konfetti-xml:2.0.2'
     implementation 'id.zelory:compressor:2.1.1'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
     implementation 'androidx.core:core:1.7.0'
