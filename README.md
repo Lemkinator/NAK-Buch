@@ -9,7 +9,7 @@
 </h2>
 
 <p align="center">
-  <img loading="lazy" src="img/Banner_playstore_named_transparent.png" height="400"/>
+  <img loading="lazy" src="img/Banner_playstore_named_transparent.png"/>
 </p>
 <p align="center">
   <img loading="lazy" src="img/icon.png" height="100"/>
