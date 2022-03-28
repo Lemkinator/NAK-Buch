@@ -13,3 +13,6 @@
 # NAK Buch (Gesang und Chorbuch)
 Die neue nicht-offizielle Gesang- und Chorbuch-App der Neuapostolischen Kirche.
 
+
+---
+Projekt in Mobile-App-Development an der HFU
