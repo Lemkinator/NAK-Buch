@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:drawer_icon="@drawable/ic_oui4_info"
-    app:title="@string/title_Gesangbuch"
     app:subtitle="@string/app_name"
     >
 
@@ -25,7 +24,7 @@
         app:srcCompat="@drawable/ic_oui4_help"
         app:layout_location="root"
         android:contentDescription="@string/help"
-        />
+        android:visibility="gone"/>
 
     <de.dlyt.yanndroid.oneui.widget.TabLayout
         android:id="@+id/main_tabs"

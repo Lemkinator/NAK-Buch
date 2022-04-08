@@ -1,11 +1,727 @@
 package de.lemke.nakbuch
 
-import androidx.appcompat.app.AppCompatActivity
+import android.annotation.SuppressLint
+import android.app.NotificationManager
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.res.ColorStateList
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.graphics.Color
+import android.media.AudioManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.provider.Settings
+import android.text.Editable
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.util.SeslMisc
+import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.UpdateAvailability
+import de.dlyt.yanndroid.oneui.dialog.AlertDialog
+import de.dlyt.yanndroid.oneui.dialog.ClassicColorPickerDialog
+import de.dlyt.yanndroid.oneui.dialog.DetailedColorPickerDialog
+import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
+import de.dlyt.yanndroid.oneui.layout.DrawerLayout
+import de.dlyt.yanndroid.oneui.layout.ToolbarLayout
+import de.dlyt.yanndroid.oneui.menu.MenuItem
+import de.dlyt.yanndroid.oneui.sesl.support.ViewSupport
+import de.dlyt.yanndroid.oneui.sesl.tabs.SamsungTabLayout
+import de.dlyt.yanndroid.oneui.utils.ThemeUtil
+import de.dlyt.yanndroid.oneui.view.OptionGroup
+import de.dlyt.yanndroid.oneui.view.Snackbar
+import de.dlyt.yanndroid.oneui.view.TipPopup
+import de.dlyt.yanndroid.oneui.view.Tooltip
+import de.dlyt.yanndroid.oneui.widget.OptionButton
+import de.dlyt.yanndroid.oneui.widget.TabLayout
+import de.lemke.nakbuch.utils.TabsManager
 
 class MainActivity : AppCompatActivity() {
+    private var mContext: Context = this
+    private lateinit var mFragmentManager: FragmentManager
+    private var mFragment: Fragment? = null
+    private lateinit var mTabsManager: TabsManager
+    private lateinit var sp: SharedPreferences
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var tabLayout: TabLayout
+    private lateinit var og1: OptionGroup
+    private lateinit var searchHelpFAB: FloatingActionButton
+    private lateinit var tipPopupDrawer: TipPopup
+    private lateinit var tipPopupSearch: TipPopup
+    private lateinit var tipPopupSwitchBuchMode: TipPopup
+    private lateinit var tipPopupMenuButton: TipPopup
+    private var time: Long = 0
+    private var activityResultLauncher: ActivityResultLauncher<Intent>? = null
+    private val mHandler = Handler()
+    private val showSearchRunnable = Runnable { setFragment(3) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtil(this, "4099ff")
         super.onCreate(savedInstanceState)
+        time = System.currentTimeMillis()
+        res = resources
+        mContext = this
+        sp = getSharedPreferences(
+            getString(R.string.preference_file_default),
+            Context.MODE_PRIVATE
+        )
         setContentView(R.layout.activity_main)
+        activityResultLauncher =
+            registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->
+                drawerLayout.onSearchModeVoiceInputResult(result)
+            }
+        init()
+        val hints: MutableSet<String> = HashSet(
+            sp.getStringSet(
+                "hints",
+                HashSet(HashSet(mutableListOf(*resources.getStringArray(R.array.hint_values))))
+            )!!
+        )
+        if (hints.contains("appIntroduction")) {
+            sp.edit().putBoolean("showMainTips", true).apply()
+            sp.edit().putBoolean("showTextviewTips", true).apply()
+            sp.edit().putBoolean("showImageviewTips", true).apply()
+            hints.remove("appIntroduction")
+            sp.edit().putStringSet("hints", hints).apply()
+        }
+        if (hints.contains("appHint")) {
+            val dialog = AlertDialog.Builder(this)
+                .setTitle(getString(R.string.app_hint_short))
+                .setMessage(getString(R.string.app_hint_text))
+                .setNegativeButton("Nicht erneut zeigen") { _: DialogInterface?, _: Int ->
+                    hints.remove("appHint")
+                    sp.edit().putStringSet("hints", hints).apply()
+                }
+                .setPositiveButton("OK", null)
+                .setOnDismissListener { easterEggDialog(findViewById(R.id.drawer_view)) }
+                .create()
+            dialog.show()
+        } else {
+            easterEggDialog(findViewById(R.id.drawer_view))
+        }
+        val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (mTabsManager.currentTab != 0) {
+                    mTabsManager.setTabPosition(0)
+                    setCurrentItem()
+                } else {
+                    if (sp.getBoolean("confirmExit", true)) {
+                        if (System.currentTimeMillis() - time < 3000) {
+                            finishAffinity()
+                        } else {
+                            Toast.makeText(
+                                mContext,
+                                resources.getString(R.string.pressAgainToExit),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            time = System.currentTimeMillis()
+                        }
+                    } else {
+                        finishAffinity()
+                    }
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        val appUpdateManager = AppUpdateManagerFactory.create(this)
+        // Returns an intent object that you use to check for an update.
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                //&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                //&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
+            }
+        }
     }
+
+    public override fun attachBaseContext(context: Context) {
+        // pre-OneUI
+        if (Build.VERSION.SDK_INT <= 28) {
+            super.attachBaseContext(ThemeUtil.createDarkModeContextWrapper(context))
+        } else super.attachBaseContext(context)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // pre-OneUI
+        if (Build.VERSION.SDK_INT <= 28) {
+            val res = resources
+            res.configuration.setTo(ThemeUtil.createDarkModeConfig(mContext, newConfig))
+        }
+    }
+
+    public override fun onPause() {
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (colorSettingChanged) {
+            colorSettingChanged = false
+            recreate()
+        }
+        if (modeChanged) {
+            modeChanged = false
+            setCurrentItem()
+        }
+    }
+
+    companion object {
+        @JvmField
+        var colorSettingChanged = false
+
+        @JvmField
+        var modeChanged = false
+        const val GESANGBUCHMODE = true
+        const val CHORBUCHMODE = false
+        var res: Resources? = null
+            private set
+
+        @JvmStatic
+        fun mute(context: Context?) {
+            try {
+                val mAudioManager = context!!.getSystemService(AUDIO_SERVICE) as AudioManager
+                val audioManagerFlag = AudioManager.FLAG_SHOW_UI
+                mAudioManager.adjustStreamVolume(
+                    AudioManager.STREAM_NOTIFICATION,
+                    AudioManager.ADJUST_MUTE,
+                    audioManagerFlag
+                )
+                mAudioManager.adjustStreamVolume(
+                    AudioManager.STREAM_ALARM,
+                    AudioManager.ADJUST_MUTE,
+                    audioManagerFlag
+                )
+                mAudioManager.adjustStreamVolume(
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.ADJUST_MUTE,
+                    audioManagerFlag
+                )
+                mAudioManager.adjustStreamVolume(
+                    AudioManager.STREAM_RING,
+                    AudioManager.ADJUST_MUTE,
+                    audioManagerFlag
+                )
+                mAudioManager.adjustStreamVolume(
+                    AudioManager.STREAM_SYSTEM,
+                    AudioManager.ADJUST_MUTE,
+                    audioManagerFlag
+                )
+            } catch (se: SecurityException) {
+                Toast.makeText(
+                    context,
+                    "Hoppla, ich habs nicht geschafft alles Stummzuschalten...",
+                    Toast.LENGTH_SHORT
+                ).show()
+                se.printStackTrace()
+            }
+        }
+
+        @JvmStatic
+        fun dnd(context: Context) {
+            val mNotificationManager =
+                context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            if (mNotificationManager.isNotificationPolicyAccessGranted) {
+                mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+            } else {
+                showNotificationAccessMissing(context)
+            }
+        }
+
+        private fun showNotificationAccessMissing(context: Context) {
+            val dialog = AlertDialog.Builder(context)
+                .setTitle("Berechtigung benötigt")
+                .setMessage(
+                    "Um den \"Bitte-Nicht-Stören\"-Modus zu aktivieren, " +
+                            "benötigt die App die \"Nicht-Stören\"-Berechtigung"
+                )
+                .setNegativeButton(R.string.sesl_cancel, null)
+                .setPositiveButton("Berechtigung erteilen") { _: DialogInterface?, _: Int ->
+                    val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                    val showArgs = context.packageName
+                    val bundle = Bundle()
+                    bundle.putString(":settings:fragment_args_key", showArgs)
+                    intent.putExtra(":settings:show_fragment_args", showArgs)
+                    intent.putExtra(":settings:show_fragment_args", bundle)
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                //.setNegativeButtonColor(context.resources.getColor(R.color.sesl_functional_red, context.theme))
+                //.setPositiveButtonColor(context.resources.getColor(R.color.sesl_functional_green, context.theme))
+                .create()
+            dialog.show()
+        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun init() {
+        ViewSupport.semSetRoundedCorners(window.decorView, 0)
+        drawerLayout = findViewById(R.id.drawer_view)
+        tabLayout = findViewById(R.id.main_tabs)
+        val mode = intent.getIntExtra("Modus", -1)
+        if (mode == 1) {
+            sp.edit().putBoolean("gesangbuchSelected", false).apply()
+        } else if (mode == 0) {
+            sp.edit().putBoolean("gesangbuchSelected", true).apply()
+        }
+        mTabsManager = TabsManager(mContext, getString(R.string.preference_file_default))
+        mTabsManager.initTabPosition()
+        mTabsManager.setTabPosition(0)
+        mFragmentManager = supportFragmentManager
+
+        //DrawerLayout
+        /*drawerLayout.setDrawerButtonOnClickListener {
+            startActivity(
+                Intent().setClass(
+                    mContext,
+                    AboutActivity::class
+                )
+            )
+        }*/
+        //drawerLayout.setDrawerButtonTooltip(getText(R.string.app_info))
+        drawerLayout.inflateToolbarMenu(R.menu.main)
+        drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.search -> {
+                    drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener() {
+                        override fun onSearchOpened(search_edittext: EditText) {
+                            search_edittext.setText(sp.getString("search", ""))
+                            search_edittext.setSelection(search_edittext.length())
+                            setFragment(3)
+                            searchHelpFAB.visibility = View.VISIBLE
+                        }
+
+                        override fun onSearchDismissed(search_edittext: EditText) {
+                            setCurrentItem()
+                            searchHelpFAB.visibility = View.GONE
+                        }
+
+                        override fun beforeTextChanged(
+                            s: CharSequence,
+                            start: Int,
+                            count: Int,
+                            after: Int
+                        ) {
+                        }
+
+                        override fun onTextChanged(
+                            s: CharSequence,
+                            start: Int,
+                            before: Int,
+                            count: Int
+                        ) {
+                        }
+
+                        override fun afterTextChanged(s: Editable) {
+                            if (s.toString().isNotEmpty()) sp.edit()
+                                .putString("search", s.toString()).apply()
+                            if (s.toString().replace(" ".toRegex(), "")
+                                    .equals("easteregg", ignoreCase = true)
+                            ) {
+                                setFragment(3)
+                                Handler().postDelayed({ s.clear() }, 1500)
+                                val inputManager =
+                                    getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                                inputManager.hideSoftInputFromWindow(
+                                    currentFocus!!.windowToken,
+                                    InputMethodManager.HIDE_NOT_ALWAYS
+                                )
+                            }
+                            mHandler.removeCallbacks(showSearchRunnable)
+                            mHandler.postDelayed(showSearchRunnable, 700)
+                        }
+
+                        override fun onKeyboardSearchClick(s: CharSequence) {
+                            sp.edit().putString("search", s.toString()).apply()
+                            setFragment(3)
+                        }
+
+                        override fun onVoiceInputClick(intent: Intent) {
+                            activityResultLauncher!!.launch(intent)
+                        }
+                    })
+                    drawerLayout.showSearchMode()
+                }
+                R.id.switchBuchMode -> {
+                    sp.edit().putBoolean(
+                        "gesangbuchSelected",
+                        !sp.getBoolean("gesangbuchSelected", true)
+                    ).apply()
+                    setCurrentItem()
+                }
+                R.id.mute -> {
+                    mute(mContext)
+                }
+                R.id.dnd -> {
+                    dnd(mContext)
+                }
+                /*R.id.info -> {
+                    startActivity(Intent().setClass(mContext, AboutActivity::class.java))
+                }
+                R.id.settings -> {
+                    startActivity(
+                        Intent().setClass(
+                            applicationContext,
+                            SettingsActivity::class
+                        )
+                    )
+                }*/
+            }
+            true
+        }
+        searchHelpFAB = findViewById(R.id.searchHelpFAB)
+        //searchHelpFAB.rippleColor = resources.getColor(R.color.sesl4_ripple_color)
+        //searchHelpFAB.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.sesl_swipe_refresh_background))
+        //searchHelpFAB.supportImageTintList = ResourcesCompat.getColorStateList(resources, R.color.sesl_tablayout_selected_indicator_color, theme)
+        Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
+        searchHelpFAB.setOnClickListener {
+            val dialog = AlertDialog.Builder(mContext)
+                .setTitle(R.string.help)
+                .setMessage(R.string.searchHelp)
+                .setNeutralButton(R.string.ok, null)
+                .create()
+            dialog.show()
+        }
+
+        og1 = findViewById(R.id.optiongroup)
+        og1.setOnOptionButtonClickListener { _: OptionButton, checkedId: Int, _: Int ->
+            when (checkedId) {
+                R.id.ob_gesangbuch -> {
+                    sp.edit().putBoolean("gesangbuchSelected", true).apply()
+                    setCurrentItem()
+                }
+                R.id.ob_chorbuch -> {
+                    sp.edit().putBoolean("gesangbuchSelected", false).apply()
+                    setCurrentItem()
+                }
+                R.id.ob_settings -> {
+                    //startActivity(Intent(mContext, SettingsActivity::class))
+                }
+                R.id.ob_about -> {
+                    //startActivity(Intent(mContext, AboutActivity::class))
+                }
+                R.id.ob_help -> {
+                    //startActivity(Intent(mContext, HelpActivity::class))
+                }
+                R.id.ob_about_me -> {
+                    startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website)))
+                    )
+                }
+                R.id.ob_support_me -> {
+                    //startActivity(Intent(mContext, SupportMeActivity::class))
+                }
+            }
+            drawerLayout.setDrawerOpen(false, true)
+            updateOptionbuttons()
+        }
+
+        // TabLayout
+        tabLayout.addTab(
+            tabLayout.newTab().setText("Nummer")
+        )
+        tabLayout.addTab(
+            tabLayout.newTab().setText("Liste")
+        )
+        tabLayout.addTab(
+            tabLayout.newTab().setText("Favoriten")
+        )
+
+        tabLayout.addOnTabSelectedListener(object : SamsungTabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: SamsungTabLayout.Tab) {
+                val tabPosition = tab.position
+                mTabsManager.setTabPosition(tabPosition)
+                setCurrentItem()
+            }
+
+            override fun onTabUnselected(tab: SamsungTabLayout.Tab) {}
+            override fun onTabReselected(tab: SamsungTabLayout.Tab) {}
+        })
+        setCurrentItem()
+    }
+
+    fun setCurrentItem() {
+        if (tabLayout.isEnabled) {
+            val tabPosition = mTabsManager.currentTab
+            val tab = tabLayout.getTabAt(tabPosition)
+            if (tab != null) {
+                tab.select()
+                setFragment(tabPosition)
+                //toolbarLayout.inflateToolbarMenu(R.menu.main);
+                //((androidx.drawerlayout.widget.DrawerLayout) drawerLayout.findViewById(R.id.drawerLayout)).setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED);
+            }
+        }
+        updateOptionbuttons()
+    }
+
+    private fun updateOptionbuttons() {
+        if (sp.getBoolean("gesangbuchSelected", true)) {
+            drawerLayout.setTitle(getString(R.string.title_Gesangbuch))
+            og1.selectedOptionButton = findViewById(R.id.ob_gesangbuch)
+        } else {
+            drawerLayout.setTitle(getString(R.string.title_Chorbuch))
+            og1.selectedOptionButton = findViewById(R.id.ob_chorbuch)
+        }
+    }
+
+    private fun setFragment(tabPosition: Int) {
+        val mTabsTagName: Array<String> = resources.getStringArray(R.array.mainactivity_tab_tag)
+        val mTabsClassName: Array<String> = resources.getStringArray(R.array.mainactivity_tab_class)
+        val tabName = mTabsTagName[tabPosition]
+        val fragment = mFragmentManager.findFragmentByTag(tabName)
+        mFragment?.let { mFragmentManager.beginTransaction().detach(it).commit() }
+        if (fragment != null) {
+            mFragment = fragment
+            mFragmentManager.beginTransaction().attach(fragment).commit()
+        } else {
+            //Toast.makeText(applicationContext, "New instance for " + mTabsClassName[tabPosition], Toast.LENGTH_SHORT).show();
+            try {
+                mFragment = Class.forName(mTabsClassName[tabPosition]).newInstance() as Fragment
+            } catch (e: IllegalAccessException) {
+                Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+            } catch (e: InstantiationException) {
+                Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+            } catch (e: ClassNotFoundException) {
+                Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+            }
+            mFragment?.let { mFragmentManager.beginTransaction().add(R.id.fragment_container, it, tabName).commit() }
+        }
+    }
+
+    // onClick
+    fun classicColorPickerDialog(view: View?) {
+        val mClassicColorPickerDialog: ClassicColorPickerDialog
+        val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
+        val stringColor = sharedPreferences.getString("color", "0381fe")
+        val currentColor = Color.parseColor("#$stringColor")
+        try {
+            mClassicColorPickerDialog = ClassicColorPickerDialog(
+                this,
+                { i ->
+                    if (currentColor != i) ThemeUtil.setColor(
+                        this@MainActivity,
+                        Color.red(i),
+                        Color.green(i),
+                        Color.blue(i)
+                    )
+                },
+                currentColor
+            )
+            mClassicColorPickerDialog.show()
+        } catch (throwable: Throwable) {
+            throwable.printStackTrace()
+        }
+    }
+
+    fun detailedColorPickerDialog(view: View?) {
+        val mDetailedColorPickerDialog: DetailedColorPickerDialog
+        val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
+        val stringColor = sharedPreferences.getString("color", "0381fe")
+        val currentColor = Color.parseColor("#$stringColor")
+        try {
+            mDetailedColorPickerDialog = DetailedColorPickerDialog(
+                this,
+                { i ->
+                    if (currentColor != i) ThemeUtil.setColor(
+                        this@MainActivity,
+                        Color.red(i),
+                        Color.green(i),
+                        Color.blue(i)
+                    )
+                },
+                currentColor
+            )
+            mDetailedColorPickerDialog.show()
+        } catch (throwable: Throwable) {
+            throwable.printStackTrace()
+        }
+    }
+
+    private fun easterEggDialog(view: View?) {
+        if (sp.getBoolean("easterEggHint", true)) {
+            val dialog = AlertDialog.Builder(this)
+                .setTitle(getString(R.string.easterEggs))
+                .setMessage(getString(R.string.easterEggsText))
+                .setNegativeButton("Deaktivieren") { dialogInterface: DialogInterface, _: Int ->
+                    sp.edit().putBoolean("easterEggs", false).apply()
+                    Handler().postDelayed({ dialogInterface.dismiss() }, 700)
+                }
+                .setPositiveButton("Ok", null)
+                //.setNegativeButtonColor(resources.getColor(R.color.sesl_functional_red, mContext.theme))
+                .setNegativeButtonProgress(true)
+                .setOnDismissListener { /*showTipPopup()*/ }
+                .create()
+            dialog.show()
+            sp.edit().putBoolean("easterEggHint", false).apply()
+        } else { //showTipPopup()
+        }
+    }
+
+    fun standardDialog(view: View?) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Title")
+            .setMessage("Message")
+            .setNeutralButton("Maybe", null)
+            .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
+                Handler().postDelayed(
+                    { dialogInterface.dismiss() },
+                    700
+                )
+            }
+            .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
+                Handler().postDelayed(
+                    { dialogInterface.dismiss() },
+                    700
+                )
+            }
+            //.setNegativeButtonColor(resources.getColor(R.color.sesl_functional_red, mContext.theme))
+            //.setPositiveButtonColor(resources.getColor(R.color.sesl_functional_green, mContext.theme))
+            .setPositiveButtonProgress(true)
+            .setNegativeButtonProgress(true)
+            .create()
+        dialog.show()
+    }
+
+    fun singleChoiceDialog(view: View?) {
+        val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
+        AlertDialog.Builder(this)
+            .setTitle("Title")
+            .setNeutralButton("Maybe", null)
+            .setNegativeButton("No", null)
+            .setPositiveButton("Yes", null)
+            .setSingleChoiceItems(charSequences, 0, null)
+            .show()
+    }
+
+    fun multiChoiceDialog(view: View?) {
+        val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
+        val booleans = booleanArrayOf(true, false, true)
+        AlertDialog.Builder(this)
+            .setTitle("Title")
+            .setNeutralButton("Maybe", null)
+            .setNegativeButton("No", null)
+            .setPositiveButton("Yes", null)
+            .setMultiChoiceItems(charSequences, booleans, null)
+            .show()
+    }
+
+    fun progressDialog(view: View) {
+        val dialog = ProgressDialog(mContext)
+        dialog.isIndeterminate = true
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.setTitle("Title")
+        dialog.setMessage("ProgressDialog")
+        dialog.setButton(
+            ProgressDialog.BUTTON_NEGATIVE,
+            "Cancel",
+            null as DialogInterface.OnClickListener?
+        )
+        dialog.setOnCancelListener { progressDialogCircleOnly(view) }
+        dialog.show()
+    }
+
+    private fun progressDialogCircleOnly(view: View) {
+        val dialog = ProgressDialog(mContext)
+        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.setOnCancelListener {
+            Snackbar.make(view, "Text label", Snackbar.LENGTH_SHORT).setAction("Action") { }.show()
+        }
+        dialog.show()
+    }
+
+    /*private fun initTipPopup() {
+        val toolbarMenuItemContainer = drawerLayout.findViewById<ViewGroup>(R.id.toolbar_layout_action_menu_item_container)
+        val drawerButtonView = drawerLayout.findViewById<View>(R.id.toolbar_layout_navigationButton)
+        val searchItemView = toolbarMenuItemContainer.getChildAt(0)
+        val switchBuchModeItemView = toolbarMenuItemContainer.getChildAt(1)
+        val menuItemView = toolbarMenuItemContainer.getChildAt(2)
+        tipPopupDrawer = TipPopup(drawerButtonView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupSearch = TipPopup(searchItemView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupSwitchBuchMode = TipPopup(switchBuchModeItemView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupMenuButton = TipPopup(menuItemView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupDrawer.setBackgroundColor(
+            resources.getColor(
+                R.color.oui_tip_popup_background_color,
+                theme
+            )
+        )
+        tipPopupSearch.setBackgroundColor(
+            resources.getColor(
+                R.color.oui_tip_popup_background_color,
+                theme
+            )
+        )
+        tipPopupSwitchBuchMode.setBackgroundColor(
+            resources.getColor(
+                R.color.oui_tip_popup_background_color,
+                theme
+            )
+        )
+        tipPopupMenuButton.setBackgroundColor(
+            resources.getColor(
+                R.color.oui_tip_popup_background_color,
+                theme
+            )
+        )
+        tipPopupDrawer.setExpanded(true)
+        tipPopupSearch.setExpanded(true)
+        tipPopupSwitchBuchMode.setExpanded(true)
+        tipPopupMenuButton.setExpanded(true)
+        tipPopupDrawer.setOnDismissListener { tipPopupSearch.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
+        tipPopupSearch.setOnDismissListener { tipPopupSwitchBuchMode.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
+        tipPopupSwitchBuchMode.setOnDismissListener { tipPopupMenuButton.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
+        tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
+        tipPopupSearch.setMessage(getString(R.string.searchTip))
+        tipPopupSwitchBuchMode.setMessage(getString(R.string.switchModeDescription))
+        tipPopupMenuButton.setMessage(getString(R.string.mute) + " oder " + getString(R.string.dnd_mode))
+
+        //tipPopup2 = new TipPopup(Objects.requireNonNull(tabLayout.getTabAt(0)).seslGetTextView());
+        //tipPopup2.setExpanded(true);
+        //tipPopup2.setMessage("This is the Number tab");
+    }
+
+    private fun showTipPopup() {
+        if (sp!!.getBoolean("showMainTips", true)) {
+            Handler().postDelayed({
+                initTipPopup()
+                val drawerButtonView = drawerLayout.findViewById<View>(R.id.toolbar_layout_navigationButton)
+                val outLocation = IntArray(2)
+                drawerButtonView.getLocationOnScreen(outLocation)
+                tipPopupDrawer.setTargetPosition(
+                    outLocation[0] + drawerButtonView.width / 2,
+                    outLocation[1] + drawerButtonView.height / 2 + resources.getDimensionPixelSize(R.dimen.sesl_action_button_icon_size)
+                )
+                tipPopupDrawer.show(TipPopup.DIRECTION_BOTTOM_RIGHT)
+                sp.edit().putBoolean("showMainTips", false).apply()
+            }, 50)
+        }
+    }*/
 }
