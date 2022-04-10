@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<de.dlyt.yanndroid.oneui.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Design">
+    <HorizontalRadioPreference
+        android:key="dark_mode"
+        android:title="Dark mode settings"
+        app:entries="@array/preferences_darkmode_entries"
+        app:entriesImage="@array/preferences_darkmode_entries_image"
+        app:entryValues="@array/preferences_darkmode_values"
+        app:viewType="image" />
+    <SwitchPreference
+        android:key="dark_mode_auto"
+        android:title="@string/system_default" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Farbe">
+        <ColorPickerPreference
+            android:key="color"
+            android:summary="@string/theme_color_summary"
+            android:title="@string/theme_color"
+            app:pickerType="detailed"
+            app:icon="@drawable/ic_oui4_brush"
+            />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="Telefon-Einstellungen">
+        <Preference
+            android:key="audio_streams"
+            android:title="@string/mute"
+            android:summary="@string/mute_all_audio_streams"
+            app:icon="@drawable/ic_oui4_volume_mute"
+            />
+        <Preference
+            android:key="dnd"
+            android:title="@string/dnd"
+            android:summary="@string/dnd_mode"
+            app:icon="@drawable/ic_oui4_remove"
+            />
+        <SwitchPreference
+            android:key="confirmExit"
+            android:title="@string/confirmExit"
+            android:summary="@string/pressAgainToExit"
+            app:icon="@drawable/ic_oui_power"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Shortcuts">
+        <Preference
+            android:key="shortcut_gesangbuch"
+            android:title="Gesangbuch shortcut"
+            android:summary="Shortcut zum Gesangbuch auf dem Homebildschirm erstellen"
+            app:icon="@drawable/ic_oui3_home_shortcut"
+            />
+        <Preference
+            android:key="shortcut_chorbuch"
+            android:title="Chorbuch shortcut"
+            android:summary="Shortcut zum Chorbuch auf dem Homebildschirm erstellen"
+            app:icon="@drawable/ic_oui3_home_shortcut"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/history">
+        <SwitchPreferenceScreen
+            android:key="historyEnabled"
+            android:title="@string/history"
+            android:summary="@string/historySummary"
+            app:icon="@drawable/ic_oui3_recent"
+            >
+            <intent
+                android:targetPackage="de.lemke.nakbuch" android:targetClass="de.lemke.nakbuch.HistorySwitchBarActivity" />
+        </SwitchPreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Easter Eggs">
+        <SwitchPreferenceScreen
+            android:key="easterEggs"
+            android:title="Easter Eggs"
+            android:summary="Scoreboard ansehen"
+            app:icon="@drawable/ic_oui_biometric_face"
+            >
+            <intent
+                android:targetPackage="de.lemke.nakbuch" android:targetClass="de.lemke.nakbuch.EasterEggSwitchBarActivity" />
+        </SwitchPreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Hinweise">
+        <TipsCardViewPreference
+            android:key="tip_card_preference"
+            android:summary="@string/app_hint_text"
+            android:title="@string/app_hint"
+            />
+        <PreferenceCategory android:key="spacing_tip_card" />
+
+        <MultiSelectListPreference
+            android:key="hints"
+            android:title="Hinweise"
+            android:summary="Hinweise aktivieren/deaktivieren"
+            app:icon="@drawable/ic_oui3_light_bulb_settings"
+            android:dialogTitle="Beim nächsten App-Start aktiv:"
+            android:dialogIcon="@drawable/ic_oui3_light_bulb_settings"
+            android:entries="@array/hint_entries" android:entryValues="@array/hint_values"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Foto-Qualität">
+        <SeekBarPreference
+            android:key="imgQuality"
+            android:title="Foto Qualität"
+            android:summary="Je besser die Qualität, umso mehr Speicher wird benötigt"
+            app:min="1" app:max="100"
+            android:defaultValue="25"
+            app:seekBarMode="expand"
+            app:showSeekBarValue="true"
+            app:units="%"
+            />
+        <SeekBarPreference
+            android:key="imgMaxWidthHeight"
+            android:title="Maximale Foto-Auflösung"
+            android:summary="Angabe*512"
+            app:min="1" app:max="10"
+            android:defaultValue="2"
+            app:seekBarMode="expand"
+            app:showSeekBarValue="true"
+            app:seekBarSeamless="true"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Datenschutz">
+        <!--TipsCardViewPreference
+            android:key="tip_card_preference_privacy"
+            android:summary="Datenschutz"
+            android:title="Datenschutz"
+            /-->
+        <PreferenceScreen
+            android:key="privacy"
+            android:title="Informationen zum Datenschutz"
+            app:icon="@drawable/ic_oui3_privacy">
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Über">
+        <PreferenceScreen
+            android:key="about_app"
+            android:title="@string/about_app"
+            app:icon="@drawable/ic_oui3_info"
+            >
+            <intent
+                android:targetClass="de.lemke.nakbuch.AboutActivity"
+                android:targetPackage="de.lemke.nakbuch" />
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:key="version_activateAllTexts"
+            android:title="@string/sesl_version"
+            app:icon="@drawable/ic_oui4_info"
+            >
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+</de.dlyt.yanndroid.oneui.preference.PreferenceScreen>

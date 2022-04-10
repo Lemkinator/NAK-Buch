@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<de.dlyt.yanndroid.oneui.layout.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_help"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:expanded="false"
+    app:title="@string/help"
+    app:subtitle="@string/app_name"
+    >
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_location="main_content">
+
+        <de.dlyt.yanndroid.oneui.widget.NestedScrollView
+            android:id="@+id/nestedScrollViewHelp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvHelpText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_hint_text"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/tvHelpTextBischoff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:text="@string/app_hint_text_bischoff"
+                    android:textSize="17sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openPlaystoreBischoffGesangbuch"
+                        style="@style/ButtonStyle.Transparent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:text="@string/title_Gesangbuch"
+                        app:icon="@drawable/ic_oui4_store" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openPlaystoreBischoffChorbuch"
+                        style="@style/ButtonStyle.Transparent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/title_Chorbuch"
+                        app:icon="@drawable/ic_oui4_store" />
+
+                </LinearLayout>
+
+                <View
+                    style="@style/DrawerDividerStyle"
+                    android:layout_margin="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/contactMeButton"
+                    style="@style/ButtonStyle.Filled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/contact_me"
+                    app:icon="@drawable/ic_oui4_mail" />
+
+            </LinearLayout>
+
+        </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
+
+    </FrameLayout>
+
+</de.dlyt.yanndroid.oneui.layout.DrawerLayout>
+
+

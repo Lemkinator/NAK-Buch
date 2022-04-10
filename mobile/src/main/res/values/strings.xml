@@ -111,5 +111,7 @@
     <string name="fotoTip">Die App enthält aus urheberrechtlichen Gründen keine Noten und hat außerdem keinen Zugriff auf die Kamera. Bei klicken dieser Schaltfläche, kann jedoch auf eine vorinstallierte Kamera-App weitergeleitet werden. Das dort gemachte Foto (nur für den privaten Gebrauch) wird dann (komprimiert) hier in der integrierten Bildergallerie anzeigt.</string>
     <string name="deleteFotoTip">Aktuell angezeigtes Foto löschen</string>
     <string name="notFound">Nicht gefunden</string>
+    <string name="okButtonTip">"Nach der Eingabe der Liednummer, wird im unteren Bereich eine Vorschau angezeigt. \nMithilfe dieser Schaltfäche kann die Lied-Ansicht geöffnet werden. "</string>
+    <string name="changeSearchMode">Suchmodus ändern</string>
 
 </resources>

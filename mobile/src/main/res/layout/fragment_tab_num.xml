@@ -25,6 +25,8 @@
             android:layout_marginBottom="5dp"
             android:textSize="20sp"
             android:textColor="@color/sesl_tooltip_foreground"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:gravity="center"
             android:layout_alignParentTop="true"
             />

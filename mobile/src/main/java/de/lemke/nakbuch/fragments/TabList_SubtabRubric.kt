@@ -1,26 +1,17 @@
 package de.lemke.nakbuch.fragments
 
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.utils.AssetsHelper.getRubricListItemArrayList
-import de.lemke.nakbuch.utils.AssetsHelper.getRubricTitlesArrayList
-import android.view.View
 import android.content.Context
 import android.content.SharedPreferences
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.os.Bundle
-import de.lemke.nakbuch.R
-import android.util.TypedValue
-import android.graphics.drawable.Drawable
-import androidx.appcompat.content.res.AppCompatResources
-import android.widget.CompoundButton
-import android.widget.RelativeLayout
-import android.widget.TextView
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.os.Bundle
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.*
 import androidx.activity.OnBackPressedCallback
-import android.widget.CheckBox
-import android.widget.SectionIndexer
-import android.widget.ImageView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
@@ -28,7 +19,10 @@ import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
-import java.util.*
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.utils.AssetsHelper.getRubricListItemArrayList
+import de.lemke.nakbuch.utils.AssetsHelper.getRubricTitlesArrayList
 
 class TabList_SubtabRubric : Fragment() {
     private lateinit var listView: RecyclerView
@@ -203,6 +197,22 @@ class TabList_SubtabRubric : Fragment() {
         private var mSections: MutableList<String> = ArrayList()
         private var mPositionForSection: MutableList<Int> = ArrayList()
         private var mSectionForPosition: MutableList<Int> = ArrayList()
+
+        init {
+            if (rubrikIndex == 0) {
+                for (i in rubList.indices) {
+                    val rubName: String =
+                        if (i != rubList.size - 1 && rubList[i].containsKey("mainRub")) { rubList[i]["hymnNrAndTitle"]!! }
+                        else { mSections[mSections.size - 1] }
+                    if (i == 0 || mSections[mSections.size - 1] != rubName) {
+                        mSections.add(rubName)
+                        mPositionForSection.add(i)
+                    }
+                    mSectionForPosition.add(mSections.size - 1)
+                }
+            }
+        }
+
         override fun getItemCount(): Int {
             return rubList.size
         }
@@ -263,7 +273,7 @@ class TabList_SubtabRubric : Fragment() {
                             }
                         } else if (rubList[position].containsKey("hymnNr")) {
                             /* TODO startActivity(
-                                Intent(mRootView.context, TextviewActivity::class)
+                                Intent(mRootView.context, TextviewActivity::class.java)
                                     .putExtra(
                                         "nr",
                                         rubList[position]["hymnNr"]?.toInt() ?: -1
@@ -336,24 +346,6 @@ class TabList_SubtabRubric : Fragment() {
                     imageView = parentView.findViewById(R.id.icon_tab_item_image)
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
                     //checkBox = parentView.findViewById(R.id.checkbox);
-                }
-            }
-        }
-
-        init {
-            if (rubrikIndex == 0) {
-                for (i in rubList.indices) {
-                    val rubName: String =
-                        if (i != rubList.size - 1 && rubList[i].containsKey("mainRub")) ({
-                            rubList[i]["hymnNrAndTitle"]
-                        }).toString() else {
-                            mSections[mSections.size - 1]
-                        }
-                    if (i == 0 || mSections[mSections.size - 1] != rubName) {
-                        mSections.add(rubName)
-                        mPositionForSection.add(i)
-                    }
-                    mSectionForPosition.add(mSections.size - 1)
                 }
             }
         }

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<de.dlyt.yanndroid.oneui.layout.SwitchBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/switchbarlayout_easteregg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:navigationIcon="@drawable/ic_oui_back"
+    app:title="Easter Eggs"
+    app:subtitle="@string/app_name"
+    >
+
+    <de.dlyt.yanndroid.oneui.widget.RoundNestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background_color"
+        android:fillViewport="true"
+        android:orientation="vertical"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior"
+        app:roundedCorners="top_left|top_right">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:descendantFocusability="afterDescendants"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/discoveredEasterEggsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sesl_list_item_padding_horizontal"
+                    android:layout_marginTop="@dimen/sesl_list_divider_inset"
+                    android:layout_marginEnd="@dimen/sesl_list_item_padding_horizontal"
+                    android:layout_marginBottom="@dimen/sesl_list_divider_inset"
+                    android:lineSpacingExtra="4.0sp"
+                    android:text="@string/discoveredEasterEggs"
+                    android:textAppearance="?android:textAppearanceListItem"
+                    android:textColor="@color/sesl_dialog_body_text_color"
+                    android:textSize="20.0sp" />
+
+                <de.dlyt.yanndroid.oneui.view.RecyclerView
+                    android:id="@+id/easterEggList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/item_background_color"
+                    android:scrollbars="vertical"
+                    android:visibility="gone"/>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/spacing_vertical_tiny" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/easterEggCommentButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/ButtonStyle.Transparent"
+                    android:gravity="center"
+                    android:textSize="20.0sp"
+                    android:maxLines="5"
+                    />
+
+            </LinearLayout>
+
+            <!--nl.dionsegijn.konfetti.xml.KonfettiView
+                android:id="@+id/konfettiViewEasterEgg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" /-->
+
+        </RelativeLayout>
+
+    </de.dlyt.yanndroid.oneui.widget.RoundNestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/easterEgg_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24.0dip"
+        android:elevation="4.0dip"
+        app:srcCompat="@drawable/ic_oui4_help"
+        app:layout_location="root"
+        android:contentDescription="@string/help" />
+
+</de.dlyt.yanndroid.oneui.layout.SwitchBarLayout>

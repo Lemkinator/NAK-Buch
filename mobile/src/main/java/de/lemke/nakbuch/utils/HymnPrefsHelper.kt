@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import java.util.*
 
 object HymnPrefsHelper {
     private lateinit var hymnAdditions: ArrayList<HashMap<String, String>>
@@ -79,7 +78,7 @@ object HymnPrefsHelper {
         val hymns = getHymnArrayList(mContext, sp, gesangbuchSelected)
         val favHymns = ArrayList<HashMap<String, String>>()
         hymnAdditions = getHymnAdditionsList(gesangbuchSelected, spHymns)
-        for (i in hymns!!.indices) {
+        for (i in hymns.indices) {
             if (hymnAdditions[i]["fav"] == "1") {
                 favHymns.add(hymns[i])
             }

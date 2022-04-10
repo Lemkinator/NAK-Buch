@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="chorbuch"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/title_Chorbuch"
+        android:shortcutDisabledMessage="@string/shortcut_disabled_msg"
+        android:icon="@drawable/ic_launcher_shortcut_chorbuch"
+        >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="de.lemke.nakbuch"
+            android:targetClass="de.lemke.nakbuch.SplashActivityChorbuch">
+        </intent>
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>android
+    <shortcut
+        android:shortcutId="gesangbuch"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/title_Gesangbuch"
+        android:shortcutDisabledMessage="@string/shortcut_disabled_msg"
+        android:icon="@drawable/ic_launcher_shortcut_gesangbuch">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="de.lemke.nakbuch"
+            android:targetClass="de.lemke.nakbuch.SplashActivityGesangbuch">
+        </intent>
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+</shortcuts>

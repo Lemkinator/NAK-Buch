@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -78,7 +79,7 @@ class MainActivitySearchFragment : Fragment() {
 
     private fun setSearchList(search: String) {
         if (sp.getBoolean("easterEggs", true)) {
-            if (search.replace(" ".toRegex(), "").equals("easteregg", ignoreCase = true)) {
+            if (search.replace(" ", "").equals("easteregg", ignoreCase = true)) {
                 val set: MutableSet<String> =
                     HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
                 if (!set.contains(getString(R.string.easterEggEntrySearch))) {
@@ -106,31 +107,36 @@ class MainActivitySearchFragment : Fragment() {
             if (search.startsWith("\"") && search.endsWith("\"")) {
                 if (search.length > 2) {
                     val s = search.substring(1, search.length - 1)
-                    for (hm in hymns) {
-                        if (hm["hymnText"]?.contains(s, ignoreCase = true) == true ||
-                            hm["hymnNrAndTitle"]?.contains(s, ignoreCase = true) == true ||
-                            hm["hymnCopyright"]?.contains(s, ignoreCase = true) == true
-                        ) {
-                            searchList.add(hm)
-                        }
+                    if (sp.getBoolean("searchAlternativeMode", false)) {
+                        addToSearchWithKeywords(HashSet(listOf(s)))
+                    } else {
+                        addToSearchWithKeywords(HashSet(s.trim().split(" ")))
                     }
                 }
             } else {
-                val searchs =
-                    HashSet(listOf(*search.trim { it <= ' ' }.split(" ").toTypedArray()))
-                for (s in searchs) {
-                    for (hm in hymns) {
-                        if (hm["hymnText"]?.contains(s, ignoreCase = true) == true ||
-                            hm["hymnNrAndTitle"]?.contains(s, ignoreCase = true) == true ||
-                            hm["hymnCopyright"]?.contains(s, ignoreCase = true) == true
-                        ) {
-                            searchList.add(hm)
-                        }
-                    }
+                if (sp.getBoolean("searchAlternativeMode", false)) {
+                    addToSearchWithKeywords(HashSet(search.trim().split(" ")))
+                } else {
+                    addToSearchWithKeywords(HashSet(listOf(search)))
                 }
             }
         }
         searchList.add(HashMap()) //Placeholder
+    }
+
+    private fun addToSearchWithKeywords(searchs: HashSet<String>) {
+        for (s in searchs) {
+            if (s.isNotBlank()) {
+                for (hm in hymns) {
+                    if (hm["hymnText"]!!.contains(s, ignoreCase = true) ||
+                        hm["hymnNrAndTitle"]!!.contains(s, ignoreCase = true) ||
+                        hm["hymnCopyright"]!!.contains(s, ignoreCase = true)
+                    ) {
+                        searchList.add(hm)
+                    }
+                }
+            }
+        }
     }
 
     private fun initList() {
@@ -241,23 +247,35 @@ class MainActivitySearchFragment : Fragment() {
                 //holder.checkBox.setChecked(selected.get(position));
 
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                val search = sp.getString("search", "undefined")
+                val search = sp.getString("search", "")!!
                 val hymn = searchList[position]
-                holder.textView.text =
-                    TextHelper.makeSectionOfTextBold(
-                        mContext,
-                        hymn["hymnNrAndTitle"]!!,
-                        search!!,
-                        -1
-                    )
-                holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(
-                    mContext, hymn["hymnText"]
-                        ?.replace("</p><p>".toRegex(), " ")
-                        ?.replace("<br>".toRegex(), "") ?: "", search, 20
-                )
-                holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(
-                    mContext, hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: "", search, 20
-                )
+                if (search.isNotEmpty()) {
+                    if (search.startsWith("\"") && search.endsWith("\"")) {
+                        if (search.length > 2) {
+                            val s = search.substring(1, search.length - 1)
+                            if (sp.getBoolean("searchAlternativeMode", false)) {
+                                holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), s, -1)
+                                holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), s, 20)
+                                holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), s, 2)
+                            } else {
+                                holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), HashSet(s.trim().split(" ")), -1)
+                                holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), HashSet(s.trim().split(" ")), 20)
+                                holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), HashSet(s.trim().split(" ")), 2)
+                            }
+                        }
+                    } else {
+                        if (sp.getBoolean("searchAlternativeMode", false)) {
+                            holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), HashSet(search.trim().split(" ")), -1)
+                            holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), HashSet(search.trim().split(" ")), 20)
+                            holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), HashSet(search.trim().split(" ")), 2)
+                        } else {
+                            holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), search, -1)
+                            holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), search, 20)
+                            holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), search, 2)
+                        }
+                    }
+                }
+
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         if (hymn.containsKey("hymnNr")) {

@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
@@ -27,7 +26,6 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.util.SeslMisc
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -53,7 +51,7 @@ import de.dlyt.yanndroid.oneui.widget.OptionButton
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.utils.TabsManager
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var mContext: Context = this
     private lateinit var mFragmentManager: FragmentManager
     private var mFragment: Fragment? = null
@@ -67,6 +65,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tipPopupSearch: TipPopup
     private lateinit var tipPopupSwitchBuchMode: TipPopup
     private lateinit var tipPopupMenuButton: TipPopup
+    private lateinit var tipPopupOkButton: TipPopup
     private var time: Long = 0
     private var activityResultLauncher: ActivityResultLauncher<Intent>? = null
     private val mHandler = Handler()
@@ -82,6 +81,7 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.preference_file_default),
             Context.MODE_PRIVATE
         )
+        sp.edit().putBoolean("showMainTips", true).apply()
         setContentView(R.layout.activity_main)
         activityResultLauncher =
             registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->
@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity() {
                     "Um den \"Bitte-Nicht-Stören\"-Modus zu aktivieren, " +
                             "benötigt die App die \"Nicht-Stören\"-Berechtigung"
                 )
-                .setNegativeButton(R.string.sesl_cancel, null)
+                .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
                 .setPositiveButton("Berechtigung erteilen") { _: DialogInterface?, _: Int ->
                     val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
                     val showArgs = context.packageName
@@ -268,8 +268,8 @@ class MainActivity : AppCompatActivity() {
                         e.printStackTrace()
                     }
                 }
-                //.setNegativeButtonColor(context.resources.getColor(R.color.sesl_functional_red, context.theme))
-                //.setPositiveButtonColor(context.resources.getColor(R.color.sesl_functional_green, context.theme))
+                .setNegativeButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
+                .setPositiveButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, context.theme))
                 .create()
             dialog.show()
         }
@@ -280,10 +280,10 @@ class MainActivity : AppCompatActivity() {
         ViewSupport.semSetRoundedCorners(window.decorView, 0)
         drawerLayout = findViewById(R.id.drawer_view)
         tabLayout = findViewById(R.id.main_tabs)
-        val mode = intent.getIntExtra("Modus", -1)
-        if (mode == 1) {
+        val mode = intent.getBooleanExtra("Modus", GESANGBUCHMODE)
+        if (mode == CHORBUCHMODE) {
             sp.edit().putBoolean("gesangbuchSelected", false).apply()
-        } else if (mode == 0) {
+        } else if (mode == GESANGBUCHMODE) {
             sp.edit().putBoolean("gesangbuchSelected", true).apply()
         }
         mTabsManager = TabsManager(mContext, getString(R.string.preference_file_default))
@@ -292,15 +292,8 @@ class MainActivity : AppCompatActivity() {
         mFragmentManager = supportFragmentManager
 
         //DrawerLayout
-        /*drawerLayout.setDrawerButtonOnClickListener {
-            startActivity(
-                Intent().setClass(
-                    mContext,
-                    AboutActivity::class
-                )
-            )
-        }*/
-        //drawerLayout.setDrawerButtonTooltip(getText(R.string.app_info))
+        drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(mContext, AboutActivity::class.java)) }
+        drawerLayout.setDrawerButtonTooltip(getText(R.string.about_app))
         drawerLayout.inflateToolbarMenu(R.menu.main)
         drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
@@ -393,16 +386,28 @@ class MainActivity : AppCompatActivity() {
         }
         searchHelpFAB = findViewById(R.id.searchHelpFAB)
         //searchHelpFAB.rippleColor = resources.getColor(R.color.sesl4_ripple_color)
-        //searchHelpFAB.backgroundTintList = ColorStateList.valueOf(resources.getColor(R.color.sesl_swipe_refresh_background))
-        //searchHelpFAB.supportImageTintList = ResourcesCompat.getColorStateList(resources, R.color.sesl_tablayout_selected_indicator_color, theme)
+        searchHelpFAB.backgroundTintList = ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_swipe_refresh_background, theme)
+        searchHelpFAB.supportImageTintList = ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_tablayout_selected_indicator_color, theme)
         Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
         searchHelpFAB.setOnClickListener {
+            val searchModes = arrayOf<CharSequence>("Nur exakter Suchtext", "Nach allen Teilwörtern suchen")
             val dialog = AlertDialog.Builder(mContext)
                 .setTitle(R.string.help)
                 .setMessage(R.string.searchHelp)
                 .setNeutralButton(R.string.ok, null)
+                .setNegativeButton(R.string.changeSearchMode) { _: DialogInterface, _: Int ->
+                    AlertDialog.Builder(mContext)
+                        .setTitle("Standard-Suchmodus auswählen")
+                        .setNeutralButton(R.string.ok, null)
+                        .setSingleChoiceItems(searchModes, if (sp.getBoolean("searchAlternativeMode", false)) 1 else 0) { _: DialogInterface, i: Int ->
+                            sp.edit().putBoolean("searchAlternativeMode", (i == 1)).apply()
+                        }
+                        .show()
+                }
                 .create()
             dialog.show()
+
+
         }
 
         og1 = findViewById(R.id.optiongroup)
@@ -417,13 +422,13 @@ class MainActivity : AppCompatActivity() {
                     setCurrentItem()
                 }
                 R.id.ob_settings -> {
-                    //startActivity(Intent(mContext, SettingsActivity::class))
+                    startActivity(Intent(mContext, SettingsActivity::class.java))
                 }
                 R.id.ob_about -> {
-                    //startActivity(Intent(mContext, AboutActivity::class))
+                    startActivity(Intent(mContext, AboutActivity::class.java))
                 }
                 R.id.ob_help -> {
-                    //startActivity(Intent(mContext, HelpActivity::class))
+                    startActivity(Intent(mContext, HelpActivity::class.java))
                 }
                 R.id.ob_about_me -> {
                     startActivity(
@@ -431,7 +436,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
                 R.id.ob_support_me -> {
-                    //startActivity(Intent(mContext, SupportMeActivity::class))
+                    startActivity(Intent(mContext, SupportMeActivity::class.java))
                 }
             }
             drawerLayout.setDrawerOpen(false, true)
@@ -496,7 +501,7 @@ class MainActivity : AppCompatActivity() {
             mFragment = fragment
             mFragmentManager.beginTransaction().attach(fragment).commit()
         } else {
-            //Toast.makeText(applicationContext, "New instance for " + mTabsClassName[tabPosition], Toast.LENGTH_SHORT).show();
+            //Toast.makeText(applicationContext, "New instance for " + mTabsClassName[tabPosition], Toast.LENGTH_SHORT).show()
             try {
                 mFragment = Class.forName(mTabsClassName[tabPosition]).newInstance() as Fragment
             } catch (e: IllegalAccessException) {
@@ -572,13 +577,14 @@ class MainActivity : AppCompatActivity() {
                     Handler().postDelayed({ dialogInterface.dismiss() }, 700)
                 }
                 .setPositiveButton("Ok", null)
-                //.setNegativeButtonColor(resources.getColor(R.color.sesl_functional_red, mContext.theme))
+                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
                 .setNegativeButtonProgress(true)
-                .setOnDismissListener { /*showTipPopup()*/ }
+                .setOnDismissListener { // TODO crashes showTipPopup()
+                }
                 .create()
             dialog.show()
             sp.edit().putBoolean("easterEggHint", false).apply()
-        } else { //showTipPopup()
+        } else { //TODO crashes showTipPopup()
         }
     }
 
@@ -599,8 +605,8 @@ class MainActivity : AppCompatActivity() {
                     700
                 )
             }
-            //.setNegativeButtonColor(resources.getColor(R.color.sesl_functional_red, mContext.theme))
-            //.setPositiveButtonColor(resources.getColor(R.color.sesl_functional_green, mContext.theme))
+            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
+            .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, mContext.theme))
             .setPositiveButtonProgress(true)
             .setNegativeButtonProgress(true)
             .create()
@@ -657,37 +663,45 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    /*private fun initTipPopup() {
-        val toolbarMenuItemContainer = drawerLayout.findViewById<ViewGroup>(R.id.toolbar_layout_action_menu_item_container)
-        val drawerButtonView = drawerLayout.findViewById<View>(R.id.toolbar_layout_navigationButton)
+    private fun initTipPopup() {
+        val toolbarMenuItemContainer = drawerLayout.findViewById<ViewGroup>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_action_menu_item_container)
+        val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
         val searchItemView = toolbarMenuItemContainer.getChildAt(0)
         val switchBuchModeItemView = toolbarMenuItemContainer.getChildAt(1)
         val menuItemView = toolbarMenuItemContainer.getChildAt(2)
+        val okButtonView = drawerLayout.findViewById<View>(R.id.b_ok)
         tipPopupDrawer = TipPopup(drawerButtonView) //,TipPopup.MODE_TRANSLUCENT);
         tipPopupSearch = TipPopup(searchItemView) //,TipPopup.MODE_TRANSLUCENT);
         tipPopupSwitchBuchMode = TipPopup(switchBuchModeItemView) //,TipPopup.MODE_TRANSLUCENT);
         tipPopupMenuButton = TipPopup(menuItemView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupOkButton = TipPopup(okButtonView) //,TipPopup.MODE_TRANSLUCENT);
         tipPopupDrawer.setBackgroundColor(
             resources.getColor(
-                R.color.oui_tip_popup_background_color,
+                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
                 theme
             )
         )
         tipPopupSearch.setBackgroundColor(
             resources.getColor(
-                R.color.oui_tip_popup_background_color,
+                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
                 theme
             )
         )
         tipPopupSwitchBuchMode.setBackgroundColor(
             resources.getColor(
-                R.color.oui_tip_popup_background_color,
+                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
                 theme
             )
         )
         tipPopupMenuButton.setBackgroundColor(
             resources.getColor(
-                R.color.oui_tip_popup_background_color,
+                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
+                theme
+            )
+        )
+        tipPopupOkButton.setBackgroundColor(
+            resources.getColor(
+                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
                 theme
             )
         )
@@ -695,13 +709,16 @@ class MainActivity : AppCompatActivity() {
         tipPopupSearch.setExpanded(true)
         tipPopupSwitchBuchMode.setExpanded(true)
         tipPopupMenuButton.setExpanded(true)
+        tipPopupOkButton.setExpanded(true)
         tipPopupDrawer.setOnDismissListener { tipPopupSearch.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
         tipPopupSearch.setOnDismissListener { tipPopupSwitchBuchMode.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
         tipPopupSwitchBuchMode.setOnDismissListener { tipPopupMenuButton.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
+        tipPopupMenuButton.setOnDismissListener { tipPopupOkButton.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
         tipPopupSearch.setMessage(getString(R.string.searchTip))
         tipPopupSwitchBuchMode.setMessage(getString(R.string.switchModeDescription))
         tipPopupMenuButton.setMessage(getString(R.string.mute) + " oder " + getString(R.string.dnd_mode))
+        tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
 
         //tipPopup2 = new TipPopup(Objects.requireNonNull(tabLayout.getTabAt(0)).seslGetTextView());
         //tipPopup2.setExpanded(true);
@@ -709,19 +726,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showTipPopup() {
-        if (sp!!.getBoolean("showMainTips", true)) {
+        if (sp.getBoolean("showMainTips", true)) {
             Handler().postDelayed({
                 initTipPopup()
-                val drawerButtonView = drawerLayout.findViewById<View>(R.id.toolbar_layout_navigationButton)
+                val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
                 val outLocation = IntArray(2)
                 drawerButtonView.getLocationOnScreen(outLocation)
                 tipPopupDrawer.setTargetPosition(
                     outLocation[0] + drawerButtonView.width / 2,
-                    outLocation[1] + drawerButtonView.height / 2 + resources.getDimensionPixelSize(R.dimen.sesl_action_button_icon_size)
+                    outLocation[1] + drawerButtonView.height / 2 + resources.getDimensionPixelSize(de.dlyt.yanndroid.oneui.R.dimen.sesl_action_button_icon_size)
                 )
                 tipPopupDrawer.show(TipPopup.DIRECTION_BOTTOM_RIGHT)
                 sp.edit().putBoolean("showMainTips", false).apply()
             }, 50)
         }
-    }*/
+    }
 }

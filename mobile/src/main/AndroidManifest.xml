@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.lemke.nakbuch">
 
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" /> <!-- uses-permission android:name="com.android.vending.BILLING" / -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <!-- uses-permission android:name="com.android.vending.BILLING" / -->
+
     <!--
     TODO
         91
@@ -45,6 +47,14 @@
             android:name="com.samsung.android.icon_container.feature_appicon"
             android:value="ADAPTIVEICON_SHADOW" />
 
+        <activity android:name=".EasterEggSwitchBarActivity" />
+        <activity android:name=".HistorySwitchBarActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".HelpActivity" />
+        <activity android:name=".SupportMeActivity" />
+        <activity
+            android:name=".AboutActivity"
+            android:theme="@style/OneUIAboutTheme" />
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
@@ -57,11 +67,32 @@
             <meta-data
                 android:name="com.sec.android.app.launcher.icon_theme"
                 android:value="themeColor" /> <!-- new (only Samsung, >Android 12) Themed Icon -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SplashActivityGesangbuch"
+            android:exported="true"
+            android:theme="@style/OneUISplashTheme" />
+        <activity
+            android:name=".SplashActivityChorbuch"
+            android:exported="true"
+            android:theme="@style/OneUISplashTheme" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="de.lemke.nakbuch.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>
