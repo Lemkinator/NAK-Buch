@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.os.Bundle
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.utils.ViewPager2Adapter_TabList_Subtabs
+import de.lemke.nakbuch.utils.ViewPager2AdapterTabListSubtabs
 import androidx.fragment.app.Fragment
 import de.dlyt.yanndroid.oneui.sesl.tabs.TabLayoutMediator
 import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2
@@ -36,7 +36,7 @@ class MainActivityTabList : Fragment() {
         subTabs.seslSetSubTabStyle()
         subTabs.tabMode = TabLayout.SESL_MODE_WEIGHT_AUTO
         val viewPager2: ViewPager2 = mRootView.findViewById(R.id.viewPager2Lists)
-        viewPager2.adapter = ViewPager2Adapter_TabList_Subtabs(this)
+        viewPager2.adapter = ViewPager2AdapterTabListSubtabs(this)
         viewPager2.registerOnPageChangeCallback(object : SeslViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int,

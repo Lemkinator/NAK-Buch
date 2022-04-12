@@ -8,6 +8,7 @@ import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
+import de.lemke.nakbuch.utils.Constants
 
 class SplashActivityChorbuch : AppCompatActivity() {
     private var launchCanceled = false
@@ -33,7 +34,7 @@ class SplashActivityChorbuch : AppCompatActivity() {
     private fun launchApp() {
         startActivity(
             Intent().setClass(applicationContext, MainActivity::class.java)
-                .putExtra("Modus", MainActivity.CHORBUCHMODE)
+                .putExtra("Modus", Constants.CHORBUCHMODE)
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()

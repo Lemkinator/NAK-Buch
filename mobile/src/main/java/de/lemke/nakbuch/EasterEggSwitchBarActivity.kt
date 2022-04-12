@@ -8,6 +8,8 @@ import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -28,13 +30,15 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.Switch
 import de.dlyt.yanndroid.oneui.widget.SwitchBar
+import de.lemke.nakbuch.utils.Constants
+import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
     private lateinit var discoveredEasterEggs: ArrayList<String>
     private lateinit var easterEggCommentButton: MaterialButton
     private lateinit var easterEggsHeader: TextView
     private lateinit var fab: FloatingActionButton
-    //private lateinit var konfettiView: KonfettiView
+    private lateinit var konfettiView: KonfettiView
     private lateinit var listView: RecyclerView
     private lateinit var sp: SharedPreferences
     private lateinit var mContext: Context
@@ -49,7 +53,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         sp = getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
         easterEggComments = resources.getStringArray(R.array.easterEggComments)
         setContentView(R.layout.activity_easteregg)
-        //konfettiView = findViewById(R.id.konfettiViewEasterEgg)
+        konfettiView = findViewById(R.id.konfettiViewEasterEgg)
         listView = findViewById(R.id.easterEggList)
         easterEggsHeader = findViewById(R.id.discoveredEasterEggsText)
         easterEggCommentButton = findViewById(R.id.easterEggCommentButton)
@@ -64,15 +68,15 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                         if (!set.contains(getString(R.string.easterEggEntryComment))) {
                             set.add(getString(R.string.easterEggEntryComment))
                             sp.edit().putStringSet("discoveredEasterEggs", set).commit()
-                            /*konfettiView.start(MainActivity.party1)
-                            Handler().postDelayed(
-                                { konfettiView.start(MainActivity.party2) },
-                                MainActivity.partyDelay2
+                            konfettiView.start(Constants.party1())
+                            Handler(Looper.getMainLooper()).postDelayed(
+                                { konfettiView.start(Constants.party2()) },
+                                Constants.partyDelay2.toLong()
                             )
-                            Handler().postDelayed(
-                                { konfettiView.start(MainActivity.party3) },
-                                MainActivity.partyDelay3
-                            )*/
+                            Handler(Looper.getMainLooper()).postDelayed(
+                                { konfettiView.start(Constants.party3()) },
+                                Constants.partyDelay3.toLong()
+                            )
                             Toast.makeText(
                                 mContext,
                                 getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryComment),
@@ -173,15 +177,15 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                 if (!set.contains(getString(R.string.easterEggEntryHelp))) {
                     set.add(getString(R.string.easterEggEntryHelp))
                     sp.edit().putStringSet("discoveredEasterEggs", set).commit()
-                    /*konfettiView.start(MainActivity.party1)
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party2) },
-                        MainActivity.partyDelay2
+                    konfettiView.start(Constants.party1())
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party2()) },
+                        Constants.partyDelay2.toLong()
                     )
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party3) },
-                        MainActivity.partyDelay3
-                    )*/
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party3()) },
+                        Constants.partyDelay3.toLong()
+                    )
                     Toast.makeText(
                         mContext,
                         getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryHelp),

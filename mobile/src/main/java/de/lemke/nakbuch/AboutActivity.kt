@@ -8,6 +8,8 @@ import android.content.IntentSender.SendIntentException
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,8 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
 import de.dlyt.yanndroid.oneui.layout.AboutPage
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
+import de.lemke.nakbuch.utils.Constants
+import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class AboutActivity : AppCompatActivity() {
     private lateinit var mActivity: Activity
@@ -29,14 +33,14 @@ class AboutActivity : AppCompatActivity() {
     private lateinit var appUpdateInfoTask: Task<AppUpdateInfo>
     private val UPDATEREQUESTCODE = 5
     private lateinit var sp: SharedPreferences
-    //private lateinit var konfettiView: KonfettiView
+    private lateinit var konfettiView: KonfettiView
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
         mContext = this
         sp = mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
-        //konfettiView = findViewById(R.id.konfettiViewAboutPage)
+        konfettiView = findViewById(R.id.konfettiViewAboutPage)
         aboutPage = findViewById(R.id.about_page)
         aboutPage.setToolbarExpandable(true)
         aboutPage.setUpdateState(AboutPage.LOADING)
@@ -99,15 +103,15 @@ class AboutActivity : AppCompatActivity() {
             if (!s.contains(getString(R.string.easterEggEntryTikTok))) {
                 s.add(getString(R.string.easterEggEntryTikTok))
                 sp.edit().putStringSet("discoveredEasterEggs", s).apply()
-                /*konfettiView.start(MainActivity.party1)
-                Handler().postDelayed(
-                    { konfettiView.start(MainActivity.party2) },
-                    MainActivity.partyDelay2
+                konfettiView.start(Constants.party1())
+                Handler(Looper.getMainLooper()).postDelayed(
+                    { konfettiView.start(Constants.party2()) },
+                    Constants.partyDelay2.toLong()
                 )
-                Handler().postDelayed(
-                    { konfettiView.start(MainActivity.party3) },
-                    MainActivity.partyDelay3
-                )*/
+                Handler(Looper.getMainLooper()).postDelayed(
+                    { konfettiView.start(Constants.party3()) },
+                    Constants.partyDelay3.toLong()
+                )
                 Toast.makeText(
                     mContext,
                     getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryTikTok),

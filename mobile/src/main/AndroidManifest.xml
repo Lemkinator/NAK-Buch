@@ -19,6 +19,12 @@
         (theme farbe) currently not supported
     -->
 
+    <queries>
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -50,6 +56,8 @@
         <activity android:name=".EasterEggSwitchBarActivity" />
         <activity android:name=".HistorySwitchBarActivity" />
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".TextviewActivity" />
+        <activity android:name=".ImgviewActivity" />
         <activity android:name=".HelpActivity" />
         <activity android:name=".SupportMeActivity" />
         <activity

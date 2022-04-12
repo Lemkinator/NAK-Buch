@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.text.Editable
 import android.view.View
@@ -49,6 +50,7 @@ import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.view.Tooltip
 import de.dlyt.yanndroid.oneui.widget.OptionButton
 import de.dlyt.yanndroid.oneui.widget.TabLayout
+import de.lemke.nakbuch.utils.Constants
 import de.lemke.nakbuch.utils.TabsManager
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -68,7 +70,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var tipPopupOkButton: TipPopup
     private var time: Long = 0
     private var activityResultLauncher: ActivityResultLauncher<Intent>? = null
-    private val mHandler = Handler()
+    private val mHandler = Handler(Looper.getMainLooper())
     private val showSearchRunnable = Runnable { setFragment(3) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -191,8 +193,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         @JvmField
         var modeChanged = false
-        const val GESANGBUCHMODE = true
-        const val CHORBUCHMODE = false
         var res: Resources? = null
             private set
 
@@ -280,10 +280,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ViewSupport.semSetRoundedCorners(window.decorView, 0)
         drawerLayout = findViewById(R.id.drawer_view)
         tabLayout = findViewById(R.id.main_tabs)
-        val mode = intent.getBooleanExtra("Modus", GESANGBUCHMODE)
-        if (mode == CHORBUCHMODE) {
+        val mode = intent.getBooleanExtra("Modus", Constants.GESANGBUCHMODE)
+        if (mode == Constants.CHORBUCHMODE) {
             sp.edit().putBoolean("gesangbuchSelected", false).apply()
-        } else if (mode == GESANGBUCHMODE) {
+        } else if (mode == Constants.GESANGBUCHMODE) {
             sp.edit().putBoolean("gesangbuchSelected", true).apply()
         }
         mTabsManager = TabsManager(mContext, getString(R.string.preference_file_default))
@@ -334,7 +334,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                                     .equals("easteregg", ignoreCase = true)
                             ) {
                                 setFragment(3)
-                                Handler().postDelayed({ s.clear() }, 1500)
+                                Handler(Looper.getMainLooper()).postDelayed({ s.clear() }, 1500)
                                 val inputManager =
                                     getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                                 inputManager.hideSoftInputFromWindow(
@@ -574,7 +574,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .setMessage(getString(R.string.easterEggsText))
                 .setNegativeButton("Deaktivieren") { dialogInterface: DialogInterface, _: Int ->
                     sp.edit().putBoolean("easterEggs", false).apply()
-                    Handler().postDelayed({ dialogInterface.dismiss() }, 700)
+                    Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
                 }
                 .setPositiveButton("Ok", null)
                 .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
@@ -594,13 +594,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setMessage("Message")
             .setNeutralButton("Maybe", null)
             .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
-                Handler().postDelayed(
+                Handler(Looper.getMainLooper()).postDelayed(
                     { dialogInterface.dismiss() },
                     700
                 )
             }
             .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
-                Handler().postDelayed(
+                Handler(Looper.getMainLooper()).postDelayed(
                     { dialogInterface.dismiss() },
                     700
                 )
@@ -727,7 +727,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun showTipPopup() {
         if (sp.getBoolean("showMainTips", true)) {
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 initTipPopup()
                 val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
                 val outLocation = IntArray(2)

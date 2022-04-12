@@ -1,23 +1,20 @@
 package de.lemke.nakbuch.fragments
 
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
-import de.lemke.nakbuch.utils.HymnPrefsHelper.getFavList
-import android.view.View
 import android.content.Context
-import android.content.SharedPreferences
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.os.Bundle
-import de.lemke.nakbuch.R
-import java.lang.Runnable
-import android.util.TypedValue
-import android.graphics.drawable.Drawable
-import androidx.appcompat.content.res.AppCompatResources
-import android.graphics.Canvas
-import androidx.activity.OnBackPressedCallback
 import android.content.Intent
+import android.content.SharedPreferences
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
@@ -25,7 +22,10 @@ import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.TabLayout
-import java.util.*
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.TextviewActivity
+import de.lemke.nakbuch.utils.HymnPrefsHelper.getFavList
+import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
 
 class MainActivityTabFav : Fragment() {
     //private ArrayList<HashMap<String, String>> hymns;
@@ -41,7 +41,7 @@ class MainActivityTabFav : Fragment() {
     private lateinit var selected: HashMap<Int, Boolean>
     private var mSelecting = false
     private var checkAllListening = true
-    private val mHandler = Handler()
+    private val mHandler = Handler(Looper.getMainLooper())
     private val mShowBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
     private lateinit var sp: SharedPreferences
     private lateinit var spHymns: SharedPreferences
@@ -154,7 +154,7 @@ class MainActivityTabFav : Fragment() {
                 true
             }
             drawerLayout.showSelectMode()
-            drawerLayout.setSelectModeAllCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+            drawerLayout.setSelectModeAllCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                 if (checkAllListening) {
                     for (i in 0 until imageAdapter.itemCount - 1) {
                         selected[i] = isChecked
@@ -237,13 +237,13 @@ class MainActivityTabFav : Fragment() {
                 holder.textView.text = favHymns[position]["hymnNrAndTitle"]
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
-                        /* TODO startActivity(
+                        startActivity(
                             Intent(mRootView.context, TextviewActivity::class.java)
                                 .putExtra(
                                     "nr",
                                     favHymns[position]["hymnNr"]?.toInt() ?: -1
                                 )
-                        )*/
+                        )
                     }
                 }
                 holder.parentView.setOnLongClickListener {

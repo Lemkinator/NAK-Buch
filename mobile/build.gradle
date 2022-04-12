@@ -28,8 +28,8 @@ android {
         applicationId "de.lemke.nakbuch"
         minSdk 26
         targetSdk 31
-        versionCode 28
-        versionName "2.3.0"
+        versionCode 46
+        versionName "2.9.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -81,8 +81,9 @@ apply plugin: 'com.google.firebase.crashlytics'
 dependencies {
     implementation 'io.github.yanndroid:oneui:2.4.0'
     //implementation fileTree(include: ['*.aar'], dir: 'libs')
-    implementation 'id.zelory:compressor:2.1.1'
+    implementation 'id.zelory:compressor:3.0.1'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
+    implementation 'nl.dionsegijn:konfetti-xml:2.0.2'
     implementation 'androidx.core:core:1.7.0'
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.google.android.gms:play-services-wearable:17.1.0'

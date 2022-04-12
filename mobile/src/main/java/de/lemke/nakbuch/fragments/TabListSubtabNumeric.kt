@@ -1,37 +1,38 @@
 package de.lemke.nakbuch.fragments
 
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import android.view.View
 import android.content.Context
-import android.content.SharedPreferences
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.os.Bundle
-import de.lemke.nakbuch.R
-import android.util.TypedValue
-import android.graphics.drawable.Drawable
-import androidx.appcompat.content.res.AppCompatResources
-import android.graphics.Canvas
-import androidx.activity.OnBackPressedCallback
 import android.content.Intent
+import android.content.SharedPreferences
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
-import de.dlyt.yanndroid.oneui.view.IndexScrollView
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
-import java.util.*
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.TextviewActivity
+import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
 
-class TabList_SubtabAlphabetic : Fragment() {
+class TabListSubtabNumeric : Fragment() {
     private lateinit var listView: RecyclerView
     private lateinit var mRootView: View
     private lateinit var mContext: Context
-    private lateinit var hymns_alphsort: ArrayList<HashMap<String, String>>
+    private lateinit var hymns: ArrayList<HashMap<String, String>>
     private var gesangbuchSelected = false
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var subTabs: TabLayout
@@ -42,6 +43,8 @@ class TabList_SubtabAlphabetic : Fragment() {
     private var selected = HashMap<Int, Boolean>()
     private var mSelecting = false
     private var checkAllListening = true
+    private val mHandler = Handler(Looper.getMainLooper())
+    private val mShowBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
     private lateinit var sp: SharedPreferences
     private lateinit var spHymns: SharedPreferences
     override fun onAttach(context: Context) {
@@ -54,7 +57,7 @@ class TabList_SubtabAlphabetic : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mRootView = inflater.inflate(R.layout.fragment_tab_list_subtab_alphabetic, container, false)
+        mRootView = inflater.inflate(R.layout.fragment_tab_list_subtab_numeric, container, false)
         return mRootView
     }
 
@@ -70,7 +73,7 @@ class TabList_SubtabAlphabetic : Fragment() {
         )
         gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
-        listView = mRootView.findViewById(R.id.hymnListAlphabetical)
+        listView = mRootView.findViewById(R.id.hymnList)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
         mainTabs = requireActivity().findViewById(R.id.main_tabs)
         viewPager2List = requireActivity().findViewById(R.id.viewPager2Lists)
@@ -86,27 +89,47 @@ class TabList_SubtabAlphabetic : Fragment() {
 
     private fun initList() {
         selected = HashMap()
-        for (i in hymns_alphsort.indices) selected[i] = false
+        for (i in hymns.indices) selected[i] = false
         listView.layoutManager = LinearLayoutManager(mContext)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
         listView.itemAnimator = null
-        listView.seslSetIndexTipEnabled(true)
+        listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
         listView.seslSetLastRoundedCorner(false)
+        listView.seslSetLongPressMultiSelectionListener(object :
+            RecyclerView.SeslLongPressMultiSelectionListener {
+            override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
+                if (imageAdapter.getItemViewType(position) == 0) {
+                    toggleItemSelected(position)
+                }
+            }
+
+            override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {
+                drawerLayout.showSelectModeBottomBar(false)
+            }
+
+            override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
+                mHandler.postDelayed(mShowBottomBarRunnable, 300)
+            }
+        })
+
+        //divider
         val divider = TypedValue()
         mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
         AppCompatResources.getDrawable(mContext, divider.resourceId)
             ?.let { decoration.setDivider(it) }
-        val indexScrollView: IndexScrollView =
-            mRootView.findViewById(R.id.indexScrollViewAlphabetical)
-        val list: MutableList<String?> = ArrayList()
-        for (i in 0 until hymns_alphsort.size - 1) list.add(hymns_alphsort[i]["hymnTitle"])
-        indexScrollView.syncWithRecyclerView(listView, list, true)
-        indexScrollView.setIndexBarGravity(1)
+
+        //select mode dismiss on back
+        onBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                setSelecting(false)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     fun setSelecting(enabled: Boolean) {
@@ -116,10 +139,10 @@ class TabList_SubtabAlphabetic : Fragment() {
             drawerLayout.setSelectModeBottomMenu(R.menu.fav_menu) { item: MenuItem ->
                 when (item.itemId) {
                     R.id.addToFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns_alphsort, "1")
+                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns, "1")
                     }
                     R.id.removeFromFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns_alphsort, "")
+                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns, "")
                     }
                     else -> {
                         item.badge = item.badge + 1
@@ -130,7 +153,7 @@ class TabList_SubtabAlphabetic : Fragment() {
                 true
             }
             drawerLayout.showSelectMode()
-            drawerLayout.setSelectModeAllCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
+            drawerLayout.setSelectModeAllCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                 if (checkAllListening) {
                     for (i in 0 until imageAdapter.itemCount - 1) {
                         selected[i] = isChecked
@@ -141,12 +164,14 @@ class TabList_SubtabAlphabetic : Fragment() {
                 for (b in selected.values) if (b) count++
                 drawerLayout.setSelectModeCount(count)
             }
+            drawerLayout.showSelectModeBottomBar(false)
             subTabs.isEnabled = false
             mainTabs.isEnabled = false
             viewPager2List.isUserInputEnabled = false
             onBackPressedCallback.isEnabled = true
         } else {
             mSelecting = false
+            mHandler.removeCallbacks(mShowBottomBarRunnable)
             for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeCount(0)
@@ -170,19 +195,14 @@ class TabList_SubtabAlphabetic : Fragment() {
     }
 
     private fun initAssets() {
-        hymns_alphsort = getHymnArrayList(mContext, sp, gesangbuchSelected)
-        hymns_alphsort.sortWith(Comparator.comparing { hm: HashMap<String, String> -> hm["hymnTitle"]!! })
-        hymns_alphsort.add(HashMap()) //Placeholder
+        hymns = getHymnArrayList(mContext, sp, gesangbuchSelected)
+        hymns.add(HashMap()) //Placeholder
     }
 
     //Adapter for the Icon RecyclerView
-    inner class ImageAdapter internal constructor() :
-        RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
-        private var mSections: MutableList<String> = ArrayList()
-        private var mPositionForSection: MutableList<Int> = ArrayList()
-        private var mSectionForPosition: MutableList<Int> = ArrayList()
+    inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
         override fun getItemCount(): Int {
-            return hymns_alphsort.size
+            return hymns.size
         }
 
         override fun getItemId(position: Int): Long {
@@ -190,7 +210,7 @@ class TabList_SubtabAlphabetic : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (hymns_alphsort[position].containsKey("hymnNr")) {
+            return if (hymns[position].containsKey("hymnNr")) {
                 0
             } else 1
         }
@@ -210,51 +230,22 @@ class TabList_SubtabAlphabetic : Fragment() {
                 holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text = hymns_alphsort[position]["hymnNrAndTitle"]
+                holder.textView.text = hymns[position]["hymnNrAndTitle"]
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
-                        /* TODO startActivity(
-                            Intent(mRootView.context, TextviewActivity::class)
-                                .putExtra(
-                                    "nr",
-                                    hymns_alphsort[position]["hymnNr"]?.toInt() ?: -1
-                                )
-                        )*/
+                        startActivity(
+                            Intent(mRootView.context, TextviewActivity::class.java)
+                                .putExtra("nr", position + 1)
+                        )
                     }
                 }
                 holder.parentView.setOnLongClickListener {
                     if (!mSelecting) setSelecting(true)
                     toggleItemSelected(position)
                     listView.seslStartLongPressMultiSelection()
-                    listView.seslSetLongPressMultiSelectionListener(object :
-                        RecyclerView.SeslLongPressMultiSelectionListener {
-                        override fun onItemSelected(
-                            var1: RecyclerView,
-                            var2: View,
-                            var3: Int,
-                            var4: Long
-                        ) {
-                            if (getItemViewType(var3) == 0) toggleItemSelected(var3)
-                        }
-
-                        override fun onLongPressMultiSelectionEnded(var1: Int, var2: Int) {}
-                        override fun onLongPressMultiSelectionStarted(var1: Int, var2: Int) {}
-                    })
                     true
                 }
             }
-        }
-
-        override fun getSections(): Array<Any> {
-            return mSections.toTypedArray()
-        }
-
-        override fun getPositionForSection(i: Int): Int {
-            return mPositionForSection[i]
-        }
-
-        override fun getSectionForPosition(i: Int): Int {
-            return mSectionForPosition[i]
         }
 
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) :
@@ -263,7 +254,7 @@ class TabList_SubtabAlphabetic : Fragment() {
             ) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
-            lateinit var imageView: ImageView
+            //lateinit var imageView: ImageView
             lateinit var textView: TextView
             lateinit var checkBox: CheckBox
 
@@ -274,21 +265,6 @@ class TabList_SubtabAlphabetic : Fragment() {
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
                     checkBox = parentView.findViewById(R.id.checkbox)
                 }
-            }
-        }
-
-        init {
-            for (i in hymns_alphsort.indices) {
-                val letter: String = if (i != hymns_alphsort.size - 1) {
-                    hymns_alphsort[i]["hymnTitle"]!!.substring(0, 1).uppercase(Locale.getDefault())
-                } else {
-                    mSections[mSections.size - 1]
-                }
-                if (i == 0 || mSections[mSections.size - 1] != letter) {
-                    mSections.add(letter)
-                    mPositionForSection.add(i)
-                }
-                mSectionForPosition.add(mSections.size - 1)
             }
         }
     }

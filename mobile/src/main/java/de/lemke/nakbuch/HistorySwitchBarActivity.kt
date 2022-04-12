@@ -2,6 +2,7 @@ package de.lemke.nakbuch
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -24,6 +25,8 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.Switch
 import de.dlyt.yanndroid.oneui.widget.SwitchBar
+import de.lemke.nakbuch.utils.AssetsHelper.validHymnr
+import de.lemke.nakbuch.utils.Constants
 
 class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
     private var historyList: ArrayList<HashMap<String, String>>? = null
@@ -48,7 +51,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
         switchBarLayout.setOnToolbarMenuItemClickListener {
             sp.edit().putString("historyList", null).commit()
-            initList() //TODO: refresh? recreate?
+            initList()
             true
         }
         if (sp.getBoolean("historyEnabled", true)) {
@@ -78,7 +81,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
             sp.getString("historyList", null),
             object : TypeToken<ArrayList<HashMap<String, String>>>() {}.type
         )
-        if (historyList == null) return
+        if (historyList == null) historyList = ArrayList()
         historyList!!.add(HashMap())
         val divider = TypedValue()
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
@@ -147,18 +150,18 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                     else {
 
                     }*/
-                    /* TODO val myIntent = Intent(mContext, TextviewActivity::class.java)
+                    val myIntent = Intent(mContext, TextviewActivity::class.java)
                     val hymnNr: Int = if (historyList!![position]["buchMode"] == "CB") {
-                        myIntent.putExtra("buchMode", MainActivity.CHORBUCHMODE)
-                        validHymnr(MainActivity.CHORBUCHMODE, historyList!![position]["nr"]!!)
+                        myIntent.putExtra("buchMode", Constants.CHORBUCHMODE)
+                        validHymnr(Constants.CHORBUCHMODE, historyList!![position]["nr"]!!)
                     } else {
-                        myIntent.putExtra("buchMode", MainActivity.GESANGBUCHMODE)
-                        validHymnr(MainActivity.GESANGBUCHMODE, historyList!![position]["nr"]!!)
+                        myIntent.putExtra("buchMode", Constants.GESANGBUCHMODE)
+                        validHymnr(Constants.GESANGBUCHMODE, historyList!![position]["nr"]!!)
                     }
                     if (hymnNr > 0) {
                         myIntent.putExtra("nr", hymnNr)
                         startActivity(myIntent)
-                    }*/
+                    }
                 }
             }
         }
@@ -183,17 +186,19 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         }
 
         init {
-            for (i in historyList!!.indices) {
-                val letter: String = if (i != historyList!!.size - 1) ({
-                    historyList!![i]["date"]
-                }).toString() else {
-                    mSections[mSections.size - 1]
+            if (historyList!!.size > 1) {
+                for (i in historyList!!.indices) {
+                    val letter: String = if (i != historyList!!.size - 1) ({
+                        historyList!![i]["date"]
+                    }).toString() else {
+                        mSections[mSections.size - 1]
+                    }
+                    if (i == 0 || mSections[mSections.size - 1] != letter) {
+                        mSections.add(letter)
+                        mPositionForSection.add(i)
+                    }
+                    mSectionForPosition.add(mSections.size - 1)
                 }
-                if (i == 0 || mSections[mSections.size - 1] != letter) {
-                    mSections.add(letter)
-                    mPositionForSection.add(i)
-                }
-                mSectionForPosition.add(mSections.size - 1)
             }
         }
     }
@@ -217,7 +222,8 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                 val childAt = recyclerView.getChildAt(i)
                 val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
                 val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean = if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
+                val shallDrawDivider: Boolean =
+                    if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
                 if (mDivider != null && viewHolder.isItem && shallDrawDivider) {

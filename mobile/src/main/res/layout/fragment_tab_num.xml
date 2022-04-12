@@ -219,11 +219,11 @@
             android:layout_below="@+id/linearLayoutButtons"
             />
 
-        <!--nl.dionsegijn.konfetti.xml.KonfettiView
+        <nl.dionsegijn.konfetti.xml.KonfettiView
             android:id="@+id/konfettiViewTab0"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            /-->
+            />
 
     </RelativeLayout>
 </de.dlyt.yanndroid.oneui.widget.NestedScrollView>

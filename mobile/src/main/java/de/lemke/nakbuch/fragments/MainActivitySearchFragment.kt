@@ -1,11 +1,13 @@
 package de.lemke.nakbuch.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.SpannableStringBuilder
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -23,9 +25,12 @@ import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.TextviewActivity
 import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.utils.Constants
 import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
 import de.lemke.nakbuch.utils.TextHelper
+import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class MainActivitySearchFragment : Fragment() {
     private lateinit var hymns: ArrayList<HashMap<String, String>>
@@ -36,8 +41,7 @@ class MainActivitySearchFragment : Fragment() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var listView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
-
-    //private lateinit var konfettiView: KonfettiView
+    private lateinit var konfettiView: KonfettiView
     private var selected = HashMap<Int, Boolean>()
     private var mSelecting = false
     private var checkAllListening = true
@@ -72,7 +76,7 @@ class MainActivitySearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         listView = mRootView.findViewById(R.id.searchList)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
-        //konfettiView = mActivity.findViewById(R.id.konfettiViewTabSearch)
+        konfettiView = mActivity.findViewById(R.id.konfettiViewTabSearch)
         initAssets()
         initList()
     }
@@ -85,15 +89,15 @@ class MainActivitySearchFragment : Fragment() {
                 if (!set.contains(getString(R.string.easterEggEntrySearch))) {
                     set.add(getString(R.string.easterEggEntrySearch))
                     sp.edit().putStringSet("discoveredEasterEggs", set).apply()
-                    /*konfettiView.start(MainActivity.party1)
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party2) },
-                        MainActivity.partyDelay2.toLong()
+                    konfettiView.start(Constants.party1())
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party2()) },
+                        Constants.partyDelay2.toLong()
                     )
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party3) },
-                        MainActivity.partyDelay3.toLong()
-                    )*/
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party3()) },
+                        Constants.partyDelay3.toLong()
+                    )
                     Toast.makeText(
                         mContext,
                         getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntrySearch),
@@ -249,41 +253,18 @@ class MainActivitySearchFragment : Fragment() {
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 val search = sp.getString("search", "")!!
                 val hymn = searchList[position]
-                if (search.isNotEmpty()) {
-                    if (search.startsWith("\"") && search.endsWith("\"")) {
-                        if (search.length > 2) {
-                            val s = search.substring(1, search.length - 1)
-                            if (sp.getBoolean("searchAlternativeMode", false)) {
-                                holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), s, -1)
-                                holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), s, 20)
-                                holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), s, 2)
-                            } else {
-                                holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), HashSet(s.trim().split(" ")), -1)
-                                holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), HashSet(s.trim().split(" ")), 20)
-                                holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), HashSet(s.trim().split(" ")), 2)
-                            }
-                        }
-                    } else {
-                        if (sp.getBoolean("searchAlternativeMode", false)) {
-                            holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), HashSet(search.trim().split(" ")), -1)
-                            holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), HashSet(search.trim().split(" ")), 20)
-                            holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), HashSet(search.trim().split(" ")), 2)
-                        } else {
-                            holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnNrAndTitle"]!!), search, -1)
-                            holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnText"]?.replace("</p><p>".toRegex(), " ")?.replace("<br>".toRegex(), "") ?: ""), search, 20)
-                            holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, SpannableStringBuilder(hymn["hymnCopyright"]?.replace("<br>".toRegex(), "") ?: ""), search, 2)
-                        }
-                    }
-                }
+                holder.textView.text = TextHelper.makeSectionOfTextBold(mContext, sp, hymn["hymnNrAndTitle"]!!, search, -1)
+                holder.textViewDescription.text = TextHelper.makeSectionOfTextBold(mContext, sp, hymn["hymnText"]?.replace("</p><p>", " ")?.replace("<br>", "") ?: "", search, 20)
+                holder.textViewCopyright.text = TextHelper.makeSectionOfTextBold(mContext, sp, hymn["hymnCopyright"]?.replace("<br>", "") ?: "", search, 5)
 
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         if (hymn.containsKey("hymnNr")) {
-                            /* TODO startActivity(
-                                Intent(mRootView.context, TextviewActivity::class)
+                            startActivity(
+                                Intent(mRootView.context, TextviewActivity::class.java)
                                     .putExtra("nr", hymn["hymnNr"]?.toInt() ?: -1)
                                     .putExtra("boldText", search)
-                            )*/
+                            )
                         }
                     }
                 }

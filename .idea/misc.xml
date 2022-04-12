@@ -9,20 +9,26 @@
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_background_gesangbuch.xml" value="0.2535" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_foreground1.xml" value="0.2125" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_shortcut_gesangbuch.xml" value="0.2125" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout-land/activity_textview.xml" value="0.3082010582010582" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout-land/img.xml" value="0.3082010582010582" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_about.xml" value="0.3645833333333333" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_easteregg.xml" value="0.3645833333333333" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_help.xml" value="0.3421875" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_history.xml" value="0.3645833333333333" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_imgview.xml" value="0.3640625" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_main.xml" value="0.55" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_settings.xml" value="0.1773049645390071" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_splash.xml" value="0.3645833333333333" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_splash_chorbuch.xml" value="0.55" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/activity_textview.xml" value="0.3640625" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/content_drawer.xml" value="0.2900505902192243" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/fragment_search.xml" value="0.3109375" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/fragment_tabNum.xml" value="0.3109375" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/fragment_tab_fav.xml" value="0.3109375" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/fragment_tab_list.xml" value="0.3109375" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/fragment_tab_num.xml" value="0.3645833333333333" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/fragment_textview.xml" value="0.3645833333333333" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/img.xml" value="0.3640625" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/listview_back_header.xml" value="0.3109375" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/listview_header.xml" value="0.55" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/sesl_preference_badge.xml" value="0.3109375" />

@@ -1,29 +1,32 @@
 package de.lemke.nakbuch.fragments
 
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import android.view.View
-import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
-import android.content.SharedPreferences
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.os.Bundle
-import de.lemke.nakbuch.R
-import java.lang.Runnable
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.os.Bundle
 import android.os.Handler
-import com.google.android.material.button.MaterialButton
 import android.os.Looper
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.google.android.material.button.MaterialButton
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.TextviewActivity
 import de.lemke.nakbuch.utils.AssetsHelper
-import java.util.*
+import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.utils.Constants
+import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class MainActivityTabNum : Fragment() {
     private lateinit var mRootView: View
     private lateinit var mActivity: AppCompatActivity
     private lateinit var mContext: Context
-    //private lateinit var konfettiView: KonfettiView
+    private lateinit var konfettiView: KonfettiView
     private lateinit var sp: SharedPreferences
     private var gesangbuchSelected = false
     private var inputOngoing = false
@@ -56,7 +59,7 @@ class MainActivityTabNum : Fragment() {
             Context.MODE_PRIVATE
         )
         gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
-        //konfettiView = mActivity.findViewById(R.id.konfettiViewTab0)
+        konfettiView = mActivity.findViewById(R.id.konfettiViewTab0)
         tvHymnNrTitle = mActivity.findViewById(R.id.hymnTitlePreview)
         tvHymnText = mActivity.findViewById(R.id.hymnTextPreview)
         val switchSideButton1 = mActivity.findViewById<MaterialButton>(R.id.switchSideButton1)
@@ -175,7 +178,7 @@ class MainActivityTabNum : Fragment() {
         if (hymnNr > 0) {
             tvHymnNrTitle.text = hymns[hymnNr - 1]["hymnNrAndTitle"]
             tvHymnText.text = hymns[hymnNr - 1]["hymnText"]
-                ?.replace("</p><p>".toRegex(), "\n\n") ?: getText(R.string.notFound)
+                ?.replace("</p><p>", "\n\n") ?: getText(R.string.notFound)
             sp.edit().putString("nr", nr).apply( )
         } else {
             tvHymnNrTitle.text = ""
@@ -187,9 +190,9 @@ class MainActivityTabNum : Fragment() {
     private fun showHymn(nr: String) {
         val hymnNr = validHymnr(gesangbuchSelected, nr)
         if (hymnNr > 0) {
-            /* TODO startActivity(
-                Intent(mRootView.context, TextviewActivity::class).putExtra("nr", hymnNr)
-            )*/
+            startActivity(
+                Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", hymnNr)
+            )
         }
     }
 
@@ -201,15 +204,15 @@ class MainActivityTabNum : Fragment() {
                 if (!set.contains(getString(R.string.easterEggEntry999))) {
                     set.add(getString(R.string.easterEggEntry999))
                     sp.edit().putStringSet("discoveredEasterEggs", set).apply()
-                    /*konfettiView.start(MainActivity.party1)
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party2) },
-                        MainActivity.partyDelay2.toLong()
+                    konfettiView.start(Constants.party1())
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party2()) },
+                        Constants.partyDelay2.toLong()
                     )
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party3) },
-                        MainActivity.partyDelay3.toLong()
-                    )*/
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party3()) },
+                        Constants.partyDelay3.toLong()
+                    )
                     Toast.makeText(
                         mContext,
                         getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntry999),
@@ -223,15 +226,15 @@ class MainActivityTabNum : Fragment() {
                 if (!set.contains(getString(R.string.easterEggEntry0))) {
                     set.add(getString(R.string.easterEggEntry0))
                     sp.edit().putStringSet("discoveredEasterEggs", set).apply()
-                    /*konfettiView.start(MainActivity.party1)
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party2) },
-                        MainActivity.partyDelay2.toLong()
+                    konfettiView.start(Constants.party1())
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party2()) },
+                        Constants.partyDelay2.toLong()
                     )
-                    Handler().postDelayed(
-                        { konfettiView.start(MainActivity.party3) },
-                        MainActivity.partyDelay3.toLong()
-                    )*/
+                    Handler(Looper.getMainLooper()).postDelayed(
+                        { konfettiView.start(Constants.party3()) },
+                        Constants.partyDelay3.toLong()
+                    )
                     Toast.makeText(
                         mContext,
                         getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntry0),

@@ -11,10 +11,7 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.Color
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
-import android.os.Handler
+import android.os.*
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
@@ -294,7 +291,7 @@ class SettingsActivity : AppCompatActivity() {
                                                 .apply()
                                             sp.edit().putStringSet("privateTextChorbuch", null)
                                                 .apply()
-                                            Handler().postDelayed(
+                                            Handler(Looper.getMainLooper()).postDelayed(
                                                 { dialogInterface.dismiss() },
                                                 700
                                             )

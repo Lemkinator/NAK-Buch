@@ -10,11 +10,11 @@
         android:background="@color/item_background_color"
         android:scrollbars="vertical" />
 
-    <!--nl.dionsegijn.konfetti.xml.KonfettiView
+    <nl.dionsegijn.konfetti.xml.KonfettiView
         android:id="@+id/konfettiViewTabSearch"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        /-->
+        />
 
 </RelativeLayout>
 
