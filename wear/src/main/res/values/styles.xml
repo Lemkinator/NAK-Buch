@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools" xmlns:ns2="http://schemas.android.com/tools">
+    <style name="WatchTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@color/sesl4_round_and_bgcolor</item>
+        <item name="android:statusBarColor">@color/sesl4_round_and_bgcolor</item>
+        <item name="android:navigationBarColor">@color/sesl4_round_and_bgcolor</item>
+        <item name="android:windowSplashScreenAnimatedIcon" ns2:targetApi="s">@color/sesl4_round_and_bgcolor</item>
+        <item name="roundedCornerColor">@color/sesl4_round_and_bgcolor</item>
+        <item name="android:textColorPrimary">@color/sesl4_primary_text</item>
+        <item name="android:textColorPrimaryInverse">@color/sesl4_primary_text</item>
+        <item name="android:listSeparatorTextViewStyle">@style/OneUI4.ListSeparatorStyle</item>
+        <item name="android:theme">@style/OneUI4StyleMain</item>
+        <item name="theme">@style/OneUI4StyleMain</item>
+        <item name="toolbarTheme">@style/OneUI4StyleMain</item>
+        <item name="alertDialogTheme">@style/OneUI4.AlertDialogTheme</item>
+        <item name="alertDialogStyle">@style/OneUI4.AlertDialogStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/OneUI4.DialogButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/OneUI4.DialogButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/OneUI4.DialogButtonStyle</item>
+        <item name="dialogTheme">@style/OneUI4.DialogTheme</item>
+        <item name="android:windowLightStatusBar" ns1:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" ns1:targetApi="27">false</item>
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorPrimaryDark">@color/primary_dark_color</item>
+        <item name="colorSecondary">@color/secondary_color</item>
+        <item name="android:textColorSecondary">@color/sesl_secondary_text</item>
+        <item name="android:textColorSecondaryInverse">@color/sesl_secondary_text</item>
+        <item name="android:textColorHighlight">@color/sesl_highlighted_text_color</item>
+        <item name="android:textColorAlertDialogListItem">@color/sesl_select_dialog_list_item_text</item>
+        <item name="android:listDivider">@drawable/sesl_list_divider</item>
+        <item name="alertDialogCenterButtons">false</item>
+        <item name="buttonBarStyle">@style/ButtonBarStyle</item>
+        <item name="buttonBarButtonStyle">@style/ButtonBarButtonStyle</item>
+        <item name="dialogPreferredPadding">@dimen/sesl_dialog_padding</item>
+    </style>
+</resources>

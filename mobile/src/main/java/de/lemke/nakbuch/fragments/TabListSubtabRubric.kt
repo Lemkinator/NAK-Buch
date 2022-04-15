@@ -91,8 +91,7 @@ class TabListSubtabRubric : Fragment() {
         initList()
     }
 
-    @Synchronized
-    fun setRubList() {
+    private fun setRubList() {
         rubList = ArrayList()
         if (rubrikIndex == 0) {
             onBackPressedCallback.isEnabled = false
@@ -133,10 +132,9 @@ class TabListSubtabRubric : Fragment() {
         listView.adapter = imageAdapter
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        AppCompatResources.getDrawable(mContext, divider.resourceId)
-            ?.let { decoration.setDivider(it) }
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
         listView.itemAnimator = null
-        listView.seslSetIndexTipEnabled(rubrikIndex == 0)
+        //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
@@ -194,9 +192,8 @@ class TabListSubtabRubric : Fragment() {
     }
 
     //Adapter for the Icon RecyclerView
-    inner class ImageAdapter internal constructor() :
-        RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
-        private var mSections: MutableList<String> = ArrayList()
+    inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>(){// !!!Sections in inner rubrics not working!!!       , SectionIndexer {
+        /*private var mSections: MutableList<String> = ArrayList()
         private var mPositionForSection: MutableList<Int> = ArrayList()
         private var mSectionForPosition: MutableList<Int> = ArrayList()
 
@@ -214,6 +211,20 @@ class TabListSubtabRubric : Fragment() {
                 }
             }
         }
+
+         override fun getSections(): Array<Any> {
+            return mSections.toTypedArray()
+        }
+
+        override fun getPositionForSection(i: Int): Int {
+            return mPositionForSection[i]
+        }
+
+        override fun getSectionForPosition(i: Int): Int {
+            return mSectionForPosition[i]
+        }
+
+        */
 
         override fun getItemCount(): Int {
             return rubList.size
@@ -306,18 +317,6 @@ class TabListSubtabRubric : Fragment() {
             if (holder.isHeader) {
                 holder.textView.text = rubList[position]["hymnNrAndTitle"]
             }
-        }
-
-        override fun getSections(): Array<Any> {
-            return mSections.toTypedArray()
-        }
-
-        override fun getPositionForSection(i: Int): Int {
-            return mPositionForSection[i]
-        }
-
-        override fun getSectionForPosition(i: Int): Int {
-            return mSectionForPosition[i]
         }
 
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) :

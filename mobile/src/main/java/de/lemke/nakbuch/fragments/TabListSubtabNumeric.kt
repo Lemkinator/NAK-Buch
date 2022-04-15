@@ -120,8 +120,7 @@ class TabListSubtabNumeric : Fragment() {
         mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        AppCompatResources.getDrawable(mContext, divider.resourceId)
-            ?.let { decoration.setDivider(it) }
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
 
         //select mode dismiss on back
         onBackPressedCallback = object : OnBackPressedCallback(false) {

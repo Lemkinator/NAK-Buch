@@ -1,21 +1,17 @@
 package de.lemke.nakbuch
 
 import android.annotation.SuppressLint
-import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.graphics.Color
-import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
@@ -55,8 +51,8 @@ import de.lemke.nakbuch.utils.TabsManager
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var mContext: Context = this
-    private lateinit var mFragmentManager: FragmentManager
     private var mFragment: Fragment? = null
+    private lateinit var mFragmentManager: FragmentManager
     private lateinit var mTabsManager: TabsManager
     private lateinit var sp: SharedPreferences
     private lateinit var drawerLayout: DrawerLayout
@@ -68,28 +64,64 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var tipPopupSwitchBuchMode: TipPopup
     private lateinit var tipPopupMenuButton: TipPopup
     private lateinit var tipPopupOkButton: TipPopup
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private var time: Long = 0
-    private var activityResultLauncher: ActivityResultLauncher<Intent>? = null
     private val mHandler = Handler(Looper.getMainLooper())
     private val showSearchRunnable = Runnable { setFragment(3) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this, "4099ff")
+        //val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         time = System.currentTimeMillis()
-        res = resources
+        Constants.res = resources
         mContext = this
         sp = getSharedPreferences(
             getString(R.string.preference_file_default),
             Context.MODE_PRIVATE
         )
-        sp.edit().putBoolean("showMainTips", true).apply()
         setContentView(R.layout.activity_main)
         activityResultLauncher =
             registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->
                 drawerLayout.onSearchModeVoiceInputResult(result)
             }
         init()
+
+        val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (mTabsManager.currentTab != 0) {
+                    mTabsManager.setTabPosition(0)
+                    setCurrentItem()
+                } else {
+                    if (sp.getBoolean("confirmExit", true)) {
+                        if (System.currentTimeMillis() - time < 3000) {
+                            finishAffinity()
+                        } else {
+                            Toast.makeText(mContext, resources.getString(R.string.pressAgainToExit), Toast.LENGTH_SHORT).show()
+                            time = System.currentTimeMillis()
+                        }
+                    } else {
+                        finishAffinity()
+                    }
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        val appUpdateManager = AppUpdateManagerFactory.create(mContext)
+        // Returns an intent object that you use to check for an update.
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                //&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                //&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
+            }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
         val hints: MutableSet<String> = HashSet(
             sp.getStringSet(
                 "hints",
@@ -118,41 +150,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         } else {
             easterEggDialog(findViewById(R.id.drawer_view))
         }
-        val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (mTabsManager.currentTab != 0) {
-                    mTabsManager.setTabPosition(0)
-                    setCurrentItem()
-                } else {
-                    if (sp.getBoolean("confirmExit", true)) {
-                        if (System.currentTimeMillis() - time < 3000) {
-                            finishAffinity()
-                        } else {
-                            Toast.makeText(
-                                mContext,
-                                resources.getString(R.string.pressAgainToExit),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            time = System.currentTimeMillis()
-                        }
-                    } else {
-                        finishAffinity()
-                    }
-                }
-            }
-        }
-        onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        val appUpdateManager = AppUpdateManagerFactory.create(this)
-        // Returns an intent object that you use to check for an update.
-        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
-        // Checks that the platform will allow the specified type of update.
-        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                //&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-                //&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
-            }
-        }
     }
 
     public override fun attachBaseContext(context: Context) {
@@ -171,108 +168,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    public override fun onPause() {
-        super.onPause()
-    }
-
     override fun onResume() {
         super.onResume()
-        if (colorSettingChanged) {
-            colorSettingChanged = false
+        if (Constants.colorSettingChanged) {
+            Constants.colorSettingChanged = false
             recreate()
         }
-        if (modeChanged) {
-            modeChanged = false
+        if (Constants.modeChanged) {
+            Constants.modeChanged = false
             setCurrentItem()
         }
     }
 
     companion object {
-        @JvmField
-        var colorSettingChanged = false
 
-        @JvmField
-        var modeChanged = false
-        var res: Resources? = null
-            private set
-
-        @JvmStatic
-        fun mute(context: Context?) {
-            try {
-                val mAudioManager = context!!.getSystemService(AUDIO_SERVICE) as AudioManager
-                val audioManagerFlag = AudioManager.FLAG_SHOW_UI
-                mAudioManager.adjustStreamVolume(
-                    AudioManager.STREAM_NOTIFICATION,
-                    AudioManager.ADJUST_MUTE,
-                    audioManagerFlag
-                )
-                mAudioManager.adjustStreamVolume(
-                    AudioManager.STREAM_ALARM,
-                    AudioManager.ADJUST_MUTE,
-                    audioManagerFlag
-                )
-                mAudioManager.adjustStreamVolume(
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.ADJUST_MUTE,
-                    audioManagerFlag
-                )
-                mAudioManager.adjustStreamVolume(
-                    AudioManager.STREAM_RING,
-                    AudioManager.ADJUST_MUTE,
-                    audioManagerFlag
-                )
-                mAudioManager.adjustStreamVolume(
-                    AudioManager.STREAM_SYSTEM,
-                    AudioManager.ADJUST_MUTE,
-                    audioManagerFlag
-                )
-            } catch (se: SecurityException) {
-                Toast.makeText(
-                    context,
-                    "Hoppla, ich habs nicht geschafft alles Stummzuschalten...",
-                    Toast.LENGTH_SHORT
-                ).show()
-                se.printStackTrace()
-            }
-        }
-
-        @JvmStatic
-        fun dnd(context: Context) {
-            val mNotificationManager =
-                context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            if (mNotificationManager.isNotificationPolicyAccessGranted) {
-                mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
-            } else {
-                showNotificationAccessMissing(context)
-            }
-        }
-
-        private fun showNotificationAccessMissing(context: Context) {
-            val dialog = AlertDialog.Builder(context)
-                .setTitle("Berechtigung benötigt")
-                .setMessage(
-                    "Um den \"Bitte-Nicht-Stören\"-Modus zu aktivieren, " +
-                            "benötigt die App die \"Nicht-Stören\"-Berechtigung"
-                )
-                .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
-                .setPositiveButton("Berechtigung erteilen") { _: DialogInterface?, _: Int ->
-                    val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-                    val showArgs = context.packageName
-                    val bundle = Bundle()
-                    bundle.putString(":settings:fragment_args_key", showArgs)
-                    intent.putExtra(":settings:show_fragment_args", showArgs)
-                    intent.putExtra(":settings:show_fragment_args", bundle)
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-                .setNegativeButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
-                .setPositiveButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, context.theme))
-                .create()
-            dialog.show()
-        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -352,7 +261,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         }
 
                         override fun onVoiceInputClick(intent: Intent) {
-                            activityResultLauncher!!.launch(intent)
+                            activityResultLauncher.launch(intent)
                         }
                     })
                     drawerLayout.showSearchMode()
@@ -365,21 +274,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     setCurrentItem()
                 }
                 R.id.mute -> {
-                    mute(mContext)
+                    Constants.mute(mContext)
                 }
                 R.id.dnd -> {
-                    dnd(mContext)
+                    Constants.dnd(mContext)
                 }
                 /*R.id.info -> {
                     startActivity(Intent().setClass(mContext, AboutActivity::class.java))
                 }
                 R.id.settings -> {
-                    startActivity(
-                        Intent().setClass(
-                            applicationContext,
-                            SettingsActivity::class
-                        )
-                    )
+                    startActivity(Intent().setClass(mContext,SettingsActivity::class.java))
                 }*/
             }
             true
@@ -518,7 +422,99 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    // onClick
+    private fun easterEggDialog(view: View?) {
+        if (sp.getBoolean("easterEggHint", true)) {
+            val dialog = AlertDialog.Builder(this)
+                .setTitle(getString(R.string.easterEggs))
+                .setMessage(getString(R.string.easterEggsText))
+                .setNegativeButton("Deaktivieren") { dialogInterface: DialogInterface, _: Int ->
+                    sp.edit().putBoolean("easterEggs", false).apply()
+                    Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
+                }
+                .setPositiveButton("Ok", null)
+                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
+                .setNegativeButtonProgress(true)
+                .setOnDismissListener {
+                    showTipPopup()
+                }
+                .create()
+            dialog.show()
+            sp.edit().putBoolean("easterEggHint", false).apply()
+        } else {
+            showTipPopup()
+        }
+    }
+
+    private fun progressDialogCircleOnly(view: View) {
+        val dialog = ProgressDialog(mContext)
+        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.setOnCancelListener {
+            Snackbar.make(view, "Text label", Snackbar.LENGTH_SHORT).setAction("Action") { }.show()
+        }
+        dialog.show()
+    }
+
+    private fun initTipPopup() {
+        val toolbarMenuItemContainer = drawerLayout.findViewById<ViewGroup>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_action_menu_item_container)
+        val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
+        val searchItemView = toolbarMenuItemContainer.getChildAt(0)
+        val switchBuchModeItemView = toolbarMenuItemContainer.getChildAt(1)
+        val menuItemView = toolbarMenuItemContainer.getChildAt(2)
+        val okButtonView = drawerLayout.findViewById<View>(R.id.b_ok)
+        tipPopupDrawer = TipPopup(drawerButtonView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupSearch = TipPopup(searchItemView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupSwitchBuchMode = TipPopup(switchBuchModeItemView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupMenuButton = TipPopup(menuItemView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupOkButton = TipPopup(okButtonView) //,TipPopup.MODE_TRANSLUCENT);
+        tipPopupDrawer.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, theme))
+        tipPopupSearch.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, theme))
+        tipPopupSwitchBuchMode.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, theme))
+        tipPopupMenuButton.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, theme))
+        tipPopupOkButton.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, theme))
+        tipPopupDrawer.setExpanded(true)
+        tipPopupSearch.setExpanded(true)
+        tipPopupSwitchBuchMode.setExpanded(true)
+        tipPopupMenuButton.setExpanded(true)
+        tipPopupOkButton.setExpanded(true)
+        tipPopupDrawer.setOnDismissListener { tipPopupSearch.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
+        tipPopupSearch.setOnDismissListener { tipPopupSwitchBuchMode.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
+        tipPopupSwitchBuchMode.setOnDismissListener { tipPopupMenuButton.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
+        tipPopupMenuButton.setOnDismissListener { tipPopupOkButton.show(TipPopup.DIRECTION_TOP_LEFT) }
+        tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
+        tipPopupSearch.setMessage(getString(R.string.searchTip))
+        tipPopupSwitchBuchMode.setMessage(getString(R.string.switchModeDescription))
+        tipPopupMenuButton.setMessage(getString(R.string.mute) + " oder " + getString(R.string.dnd_mode))
+        tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
+
+        //tipPopup2 = new TipPopup(Objects.requireNonNull(tabLayout.getTabAt(0)).seslGetTextView());
+        //tipPopup2.setExpanded(true);
+        //tipPopup2.setMessage("This is the Number tab");
+    }
+
+    private fun showTipPopup() {
+        if (sp.getBoolean("showMainTips", true)) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                initTipPopup()
+                try {
+                    val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
+                    val outLocation = IntArray(2)
+                    drawerButtonView.getLocationOnScreen(outLocation)
+                    tipPopupDrawer.setTargetPosition(
+                    outLocation[0] + drawerButtonView.width / 2,
+                    outLocation[1] + drawerButtonView.height / 2 + resources.getDimensionPixelSize(de.dlyt.yanndroid.oneui.R.dimen.sesl_action_button_icon_size)
+                )
+                    tipPopupDrawer.show(TipPopup.DIRECTION_BOTTOM_RIGHT)
+                } catch (e: Exception) { // still crashing? : android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
+                    e.printStackTrace()
+                }
+                sp.edit().putBoolean("showMainTips", false).apply()
+            }, 50)
+        }
+    }
+
+    //Dialog samples:
     fun classicColorPickerDialog(view: View?) {
         val mClassicColorPickerDialog: ClassicColorPickerDialog
         val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
@@ -564,27 +560,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             mDetailedColorPickerDialog.show()
         } catch (throwable: Throwable) {
             throwable.printStackTrace()
-        }
-    }
-
-    private fun easterEggDialog(view: View?) {
-        if (sp.getBoolean("easterEggHint", true)) {
-            val dialog = AlertDialog.Builder(this)
-                .setTitle(getString(R.string.easterEggs))
-                .setMessage(getString(R.string.easterEggsText))
-                .setNegativeButton("Deaktivieren") { dialogInterface: DialogInterface, _: Int ->
-                    sp.edit().putBoolean("easterEggs", false).apply()
-                    Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
-                }
-                .setPositiveButton("Ok", null)
-                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
-                .setNegativeButtonProgress(true)
-                .setOnDismissListener { // TODO crashes showTipPopup()
-                }
-                .create()
-            dialog.show()
-            sp.edit().putBoolean("easterEggHint", false).apply()
-        } else { //TODO crashes showTipPopup()
         }
     }
 
@@ -650,95 +625,5 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         )
         dialog.setOnCancelListener { progressDialogCircleOnly(view) }
         dialog.show()
-    }
-
-    private fun progressDialogCircleOnly(view: View) {
-        val dialog = ProgressDialog(mContext)
-        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
-        dialog.setCancelable(true)
-        dialog.setCanceledOnTouchOutside(true)
-        dialog.setOnCancelListener {
-            Snackbar.make(view, "Text label", Snackbar.LENGTH_SHORT).setAction("Action") { }.show()
-        }
-        dialog.show()
-    }
-
-    private fun initTipPopup() {
-        val toolbarMenuItemContainer = drawerLayout.findViewById<ViewGroup>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_action_menu_item_container)
-        val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
-        val searchItemView = toolbarMenuItemContainer.getChildAt(0)
-        val switchBuchModeItemView = toolbarMenuItemContainer.getChildAt(1)
-        val menuItemView = toolbarMenuItemContainer.getChildAt(2)
-        val okButtonView = drawerLayout.findViewById<View>(R.id.b_ok)
-        tipPopupDrawer = TipPopup(drawerButtonView) //,TipPopup.MODE_TRANSLUCENT);
-        tipPopupSearch = TipPopup(searchItemView) //,TipPopup.MODE_TRANSLUCENT);
-        tipPopupSwitchBuchMode = TipPopup(switchBuchModeItemView) //,TipPopup.MODE_TRANSLUCENT);
-        tipPopupMenuButton = TipPopup(menuItemView) //,TipPopup.MODE_TRANSLUCENT);
-        tipPopupOkButton = TipPopup(okButtonView) //,TipPopup.MODE_TRANSLUCENT);
-        tipPopupDrawer.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                theme
-            )
-        )
-        tipPopupSearch.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                theme
-            )
-        )
-        tipPopupSwitchBuchMode.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                theme
-            )
-        )
-        tipPopupMenuButton.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                theme
-            )
-        )
-        tipPopupOkButton.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                theme
-            )
-        )
-        tipPopupDrawer.setExpanded(true)
-        tipPopupSearch.setExpanded(true)
-        tipPopupSwitchBuchMode.setExpanded(true)
-        tipPopupMenuButton.setExpanded(true)
-        tipPopupOkButton.setExpanded(true)
-        tipPopupDrawer.setOnDismissListener { tipPopupSearch.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
-        tipPopupSearch.setOnDismissListener { tipPopupSwitchBuchMode.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
-        tipPopupSwitchBuchMode.setOnDismissListener { tipPopupMenuButton.show(TipPopup.DIRECTION_BOTTOM_LEFT) }
-        tipPopupMenuButton.setOnDismissListener { tipPopupOkButton.show(TipPopup.DIRECTION_TOP_LEFT) }
-        tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
-        tipPopupSearch.setMessage(getString(R.string.searchTip))
-        tipPopupSwitchBuchMode.setMessage(getString(R.string.switchModeDescription))
-        tipPopupMenuButton.setMessage(getString(R.string.mute) + " oder " + getString(R.string.dnd_mode))
-        tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
-
-        //tipPopup2 = new TipPopup(Objects.requireNonNull(tabLayout.getTabAt(0)).seslGetTextView());
-        //tipPopup2.setExpanded(true);
-        //tipPopup2.setMessage("This is the Number tab");
-    }
-
-    private fun showTipPopup() {
-        if (sp.getBoolean("showMainTips", true)) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                initTipPopup()
-                val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
-                val outLocation = IntArray(2)
-                drawerButtonView.getLocationOnScreen(outLocation)
-                tipPopupDrawer.setTargetPosition(
-                    outLocation[0] + drawerButtonView.width / 2,
-                    outLocation[1] + drawerButtonView.height / 2 + resources.getDimensionPixelSize(de.dlyt.yanndroid.oneui.R.dimen.sesl_action_button_icon_size)
-                )
-                tipPopupDrawer.show(TipPopup.DIRECTION_BOTTOM_RIGHT)
-                sp.edit().putBoolean("showMainTips", false).apply()
-            }, 50)
-        }
     }
 }

@@ -23,6 +23,13 @@
         <item>Nur noch 1 fehlt! Komm schon! &#128293;</item>
         <item>&#127942; Master of Easter Eggs! &#127942;</item>
     </string-array>
+    <string-array name="preferences_imgQuality">
+        <item>Sehr Niedrig</item>
+        <item>Niedrig</item>
+        <item>Mittel</item>
+        <item>Hoch</item>
+        <item>Sehr Hoch</item>
+    </string-array>
     <string-array name="hint_entries">
         <item>Hinweis zur App</item>
         <item>Tipp-Karte in Einstellungen</item>

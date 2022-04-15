@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name" translatable="false">NAK Buch</string>
+    <string name="about_app">Über NAK Buch</string>
+    <string name="title_Gesangbuch">Gesangbuch</string>
+    <string name="title_Chorbuch">Chorbuch</string>
+    <string name="switchMode">Buch wechseln</string>
+    <string name="preference_file_default" translatable="false">de.lemke.nakbuch_preferences</string>
+    <string name="preference_file_hymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>
+    <string name="filename_hymnsGesangbuch" translatable="false">hymnsGesangbuchNoCopyright.txt</string>
+    <string name="filename_hymnsChorbuch" translatable="false">hymnsChorbuchNoCopyright.txt</string>
+    <string name="help">Hilfe</string>
+    <string name="back">Zurück</string>
+    <string name="openInStore">Im Store Öffnen</string>
+    <string name="openOnPhone">Auf Telefon Öffnen</string>
+    <string name="installOnPhone">Auf Telefon installieren</string>
+    <string name="info">Info</string>
+</resources>

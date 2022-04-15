@@ -2,6 +2,7 @@ package de.lemke.nakbuch.fragments
 
 import android.annotation.SuppressLint
 import android.content.*
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -34,9 +35,10 @@ import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.widget.NestedScrollView
 import de.dlyt.yanndroid.oneui.widget.RoundFrameLayout
 import de.dlyt.yanndroid.oneui.widget.TabLayout
-import de.lemke.nakbuch.*
-import de.lemke.nakbuch.MainActivity.Companion.dnd
-import de.lemke.nakbuch.MainActivity.Companion.mute
+import de.lemke.nakbuch.HelpActivity
+import de.lemke.nakbuch.ImgviewActivity
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.TextviewActivity
 import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
 import de.lemke.nakbuch.utils.Constants
 import de.lemke.nakbuch.utils.HymnPrefsHelper.getFromList
@@ -139,7 +141,7 @@ class TextviewFragment : Fragment() {
                 R.id.switchBuchMode -> {
                     val newGesangbuchSelected = !sp.getBoolean("gesangbuchSelected", true)
                     sp.edit().putBoolean("gesangbuchSelected", newGesangbuchSelected).apply()
-                    MainActivity.modeChanged = true
+                    Constants.modeChanged = true
                     startActivity(
                         Intent(
                             mRootView.context,
@@ -149,10 +151,10 @@ class TextviewFragment : Fragment() {
                     requireActivity().finish()
                 }
                 R.id.mute -> {
-                    mute(mContext)
+                    Constants.mute(mContext)
                 }
                 R.id.dnd -> {
-                    dnd(mContext)
+                    Constants.dnd(mContext)
                 }
             }
             true
@@ -369,11 +371,17 @@ class TextviewFragment : Fragment() {
 
     @SuppressLint("ApplySharedPref")
     private fun initBNV() {
-        if (tabLayout == null) {
-            tabLayout = mRootView.findViewById(R.id.textView_bnv)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            tabLayout?.isEnabled = false
+            return
         } else {
-            tabLayout!!.removeAllTabs()
+            if (tabLayout == null) {
+                tabLayout = mRootView.findViewById(R.id.textView_bnv)
+            } else {
+                tabLayout!!.removeAllTabs()
+            }
         }
+        tabLayout!!.isEnabled = true
         val noteIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
         //Drawable noteIcon = AppCompatResources.getDrawable(mContext, R.drawable.ic_samsung_composer);
         if (spHymns.getBoolean("noteVisible", false)) {

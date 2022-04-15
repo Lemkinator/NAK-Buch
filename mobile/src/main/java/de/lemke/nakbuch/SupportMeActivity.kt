@@ -10,9 +10,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.tasks.Task
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 
@@ -24,13 +22,16 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.gms.ads.rewarded.RewardedAd;*/
 
-class SupportMeActivity :
-    AppCompatActivity() {
+class SupportMeActivity : AppCompatActivity() {
     private lateinit var mContext: Context
     private lateinit var mActivity: Activity
 
     //private lateinit var mRewardedAd: RewardedAd
     //private lateinit var watchAdButton: MaterialButton
+
+    companion object {
+        private const val AD_UNIT_ID = "ca-app-pub-5655920768524739/5575349013"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
@@ -39,14 +40,8 @@ class SupportMeActivity :
         mActivity = this
         setContentView(R.layout.activity_support_me)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_support_me)
-        drawerLayout.setNavigationButtonIcon(
-            AppCompatResources.getDrawable(
-                mContext,
-                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back
-            )
-        )
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
-
 
         findViewById<View>(R.id.supportMeButton).setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO)
@@ -63,17 +58,24 @@ class SupportMeActivity :
         }
         findViewById<View>(R.id.writeReviewButton).setOnClickListener {
             val manager = ReviewManagerFactory.create(mContext)
-            //ReviewManager manager = new FakeReviewManager(mContext);
+            //val manager = FakeReviewManager(mContext);
             val request = manager.requestReviewFlow()
-            request.addOnCompleteListener { task: Task<ReviewInfo?> ->
+            request.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val reviewInfo = task.result
+
                     val flow = manager.launchReviewFlow(mActivity, reviewInfo)
-                    flow.addOnCompleteListener { task2: Task<Void?>? -> }
+                    flow.addOnCompleteListener { task2 ->
+                        if (task2.isSuccessful) {
+                            Toast.makeText(mContext, "Vielen Dank für deine Bewertung", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(mContext, task2.exception.toString(), Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 } else {
                     Toast.makeText(mContext, R.string.taskFailed, Toast.LENGTH_SHORT).show()
                     // There was some problem, log or handle the error code.
-                    //@ReviewErrorCode int reviewErrorCode = ((TaskException) task.getException()).getErrorCode();
+                    //@ReviewErrorCode val reviewErrorCode = (task.exception as TaskException).errorCode
                 }
             }
         }
@@ -89,10 +91,6 @@ class SupportMeActivity :
             sendIntent.putExtra(Intent.EXTRA_TITLE, "NAK Buch teilen")
             startActivity(Intent.createChooser(sendIntent, "Share Via"))
         }
-    }
-
-    companion object {
-        private const val AD_UNIT_ID = "ca-app-pub-5655920768524739/5575349013"
     }
 }
 

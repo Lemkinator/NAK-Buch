@@ -8,4 +8,4 @@
     app:background_image="@drawable/ic_launcher_background"
     app:foreground_image="@drawable/ic_launcher_foreground"
     app:text="@string/app_name"
-    tools:context=".SplashActivity" />
+    tools:context=".splashscreens.SplashActivity" />

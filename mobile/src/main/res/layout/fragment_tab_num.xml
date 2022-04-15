@@ -160,7 +160,7 @@
                     android:layout_height="@dimen/number_button_height"
                     android:layout_gravity="center"
                     android:layout_margin="@dimen/number_button_margin"
-                    app:icon="@drawable/ic_oui_back"
+                    app:icon="@drawable/ic_oui_back_2"
                     app:iconGravity="textTop"
                     app:iconSize="40dp"
                     app:iconTint="@color/white" />

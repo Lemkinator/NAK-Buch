@@ -3,85 +3,66 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:title="Design">
-    <HorizontalRadioPreference
-        android:key="dark_mode"
-        android:title="Dark mode settings"
-        app:entries="@array/preferences_darkmode_entries"
-        app:entriesImage="@array/preferences_darkmode_entries_image"
-        app:entryValues="@array/preferences_darkmode_values"
-        app:viewType="image" />
-    <SwitchPreference
-        android:key="dark_mode_auto"
-        android:title="@string/system_default" />
+        <HorizontalRadioPreference
+            android:key="dark_mode"
+            android:title="Dark mode settings"
+            app:entries="@array/preferences_darkmode_entries"
+            app:entriesImage="@array/preferences_darkmode_entries_image"
+            app:entryValues="@array/preferences_darkmode_values"
+            app:viewType="image" />
+        <SwitchPreference
+            android:key="dark_mode_auto"
+            android:title="@string/system_default" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Farbe">
         <ColorPickerPreference
             android:key="color"
             android:summary="@string/theme_color_summary"
             android:title="@string/theme_color"
-            app:pickerType="detailed"
             app:icon="@drawable/ic_oui4_brush"
-            />
+            app:pickerType="detailed" />
     </PreferenceCategory>
 
 
     <PreferenceCategory android:title="Telefon-Einstellungen">
         <Preference
             android:key="audio_streams"
-            android:title="@string/mute"
             android:summary="@string/mute_all_audio_streams"
-            app:icon="@drawable/ic_oui4_volume_mute"
-            />
+            android:title="@string/mute"
+            app:icon="@drawable/ic_oui4_volume_mute" />
         <Preference
             android:key="dnd"
-            android:title="@string/dnd"
             android:summary="@string/dnd_mode"
-            app:icon="@drawable/ic_oui4_remove"
-            />
+            android:title="@string/dnd"
+            app:icon="@drawable/ic_oui4_remove" />
         <SwitchPreference
             android:key="confirmExit"
-            android:title="@string/confirmExit"
             android:summary="@string/pressAgainToExit"
-            app:icon="@drawable/ic_oui_power"
-            />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Shortcuts">
-        <Preference
-            android:key="shortcut_gesangbuch"
-            android:title="Gesangbuch shortcut"
-            android:summary="Shortcut zum Gesangbuch auf dem Homebildschirm erstellen"
-            app:icon="@drawable/ic_oui3_home_shortcut"
-            />
-        <Preference
-            android:key="shortcut_chorbuch"
-            android:title="Chorbuch shortcut"
-            android:summary="Shortcut zum Chorbuch auf dem Homebildschirm erstellen"
-            app:icon="@drawable/ic_oui3_home_shortcut"
-            />
+            android:title="@string/confirmExit"
+            app:icon="@drawable/ic_oui_power" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/history">
         <SwitchPreferenceScreen
             android:key="historyEnabled"
-            android:title="@string/history"
             android:summary="@string/historySummary"
-            app:icon="@drawable/ic_oui3_recent"
-            >
+            android:title="@string/history"
+            app:icon="@drawable/ic_oui3_recent">
             <intent
-                android:targetPackage="de.lemke.nakbuch" android:targetClass="de.lemke.nakbuch.HistorySwitchBarActivity" />
+                android:targetClass="de.lemke.nakbuch.HistorySwitchBarActivity"
+                android:targetPackage="de.lemke.nakbuch" />
         </SwitchPreferenceScreen>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Easter Eggs">
         <SwitchPreferenceScreen
             android:key="easterEggs"
-            android:title="Easter Eggs"
             android:summary="Scoreboard ansehen"
-            app:icon="@drawable/ic_oui_biometric_face"
-            >
+            android:title="Easter Eggs"
+            app:icon="@drawable/ic_oui_biometric_face">
             <intent
-                android:targetPackage="de.lemke.nakbuch" android:targetClass="de.lemke.nakbuch.EasterEggSwitchBarActivity" />
+                android:targetClass="de.lemke.nakbuch.EasterEggSwitchBarActivity"
+                android:targetPackage="de.lemke.nakbuch" />
         </SwitchPreferenceScreen>
     </PreferenceCategory>
 
@@ -89,55 +70,59 @@
         <TipsCardViewPreference
             android:key="tip_card_preference"
             android:summary="@string/app_hint_text"
-            android:title="@string/app_hint"
-            />
+            android:title="@string/app_hint" />
         <PreferenceCategory android:key="spacing_tip_card" />
 
         <MultiSelectListPreference
-            android:key="hints"
-            android:title="Hinweise"
-            android:summary="Hinweise aktivieren/deaktivieren"
-            app:icon="@drawable/ic_oui3_light_bulb_settings"
-            android:dialogTitle="Beim nächsten App-Start aktiv:"
             android:dialogIcon="@drawable/ic_oui3_light_bulb_settings"
-            android:entries="@array/hint_entries" android:entryValues="@array/hint_values"
-            />
+            android:dialogTitle="Beim nächsten App-Start aktiv:"
+            android:entries="@array/hint_entries"
+            android:entryValues="@array/hint_values"
+            android:key="hints"
+            android:summary="Hinweise aktivieren/deaktivieren"
+            android:title="Hinweise"
+            app:icon="@drawable/ic_oui3_light_bulb_settings" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Foto-Qualität">
-        <SeekBarPreference
+    <PreferenceCategory android:title="Foto-Einstellungen">
+        <DropDownPreference
+            android:defaultValue="Mittel"
+            android:entries="@array/preferences_imgQuality"
+            android:entryValues="@array/preferences_imgQuality"
+            android:key="imgResolution"
+            android:summary="Je größer die Auflösung, umso mehr Speicher wird benötigt"
+            android:title="Foto Auflösung"
+            app:icon="@drawable/ic_oui4_image" />
+
+        <DropDownPreference
+            android:defaultValue="Mittel"
+            android:entries="@array/preferences_imgQuality"
+            android:entryValues="@array/preferences_imgQuality"
             android:key="imgQuality"
-            android:title="Foto Qualität"
             android:summary="Je besser die Qualität, umso mehr Speicher wird benötigt"
-            app:min="1" app:max="100"
-            android:defaultValue="25"
-            app:seekBarMode="expand"
-            app:showSeekBarValue="true"
-            app:units="%"
-            />
-        <SeekBarPreference
-            android:key="imgMaxWidthHeight"
-            android:title="Maximale Foto-Auflösung"
-            android:summary="Angabe*512"
-            app:min="1" app:max="10"
-            android:defaultValue="2"
-            app:seekBarMode="expand"
-            app:showSeekBarValue="true"
-            app:seekBarSeamless="true"
-            />
+            android:title="Foto Qualität"
+            app:icon="@drawable/ic_oui3_image" />
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="Shortcuts">
+        <Preference
+            android:key="shortcut_gesangbuch"
+            android:summary="Shortcut zum Gesangbuch auf dem Homebildschirm erstellen"
+            android:title="Gesangbuch shortcut"
+            app:icon="@drawable/ic_oui3_home_shortcut" />
+        <Preference
+            android:key="shortcut_chorbuch"
+            android:summary="Shortcut zum Chorbuch auf dem Homebildschirm erstellen"
+            android:title="Chorbuch shortcut"
+            app:icon="@drawable/ic_oui3_home_shortcut" />
+    </PreferenceCategory>
+
 
     <PreferenceCategory android:title="Datenschutz">
-        <!--TipsCardViewPreference
-            android:key="tip_card_preference_privacy"
-            android:summary="Datenschutz"
-            android:title="Datenschutz"
-            /-->
         <PreferenceScreen
             android:key="privacy"
             android:title="Informationen zum Datenschutz"
-            app:icon="@drawable/ic_oui3_privacy">
-        </PreferenceScreen>
+            app:icon="@drawable/ic_oui3_privacy" />
 
     </PreferenceCategory>
 
@@ -145,8 +130,7 @@
         <PreferenceScreen
             android:key="about_app"
             android:title="@string/about_app"
-            app:icon="@drawable/ic_oui3_info"
-            >
+            app:icon="@drawable/ic_oui3_info">
             <intent
                 android:targetClass="de.lemke.nakbuch.AboutActivity"
                 android:targetPackage="de.lemke.nakbuch" />
@@ -154,9 +138,7 @@
         <PreferenceScreen
             android:key="version_activateAllTexts"
             android:title="@string/sesl_version"
-            app:icon="@drawable/ic_oui4_info"
-            >
-        </PreferenceScreen>
+            app:icon="@drawable/ic_oui4_info" />
     </PreferenceCategory>
 
 </de.dlyt.yanndroid.oneui.preference.PreferenceScreen>

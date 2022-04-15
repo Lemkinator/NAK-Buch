@@ -10,7 +10,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="de.lemke.nakbuch"
-            android:targetClass="de.lemke.nakbuch.SplashActivityChorbuch">
+            android:targetClass="de.lemke.nakbuch.splashscreens.SplashActivityChorbuch">
         </intent>
         <categories android:name="android.shortcut.conversation" />
         <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
@@ -24,7 +24,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="de.lemke.nakbuch"
-            android:targetClass="de.lemke.nakbuch.SplashActivityGesangbuch">
+            android:targetClass="de.lemke.nakbuch.splashscreens.SplashActivityGesangbuch">
         </intent>
         <categories android:name="android.shortcut.conversation" />
         <capability-binding android:key="actions.intent.CREATE_MESSAGE" />

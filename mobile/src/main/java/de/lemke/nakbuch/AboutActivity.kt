@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -49,8 +50,8 @@ class AboutActivity : AppCompatActivity() {
         aboutPage.setUpdateButtonOnClickListener {
             try {
                 appUpdateManager.startUpdateFlowForResult( // Pass the intent that is returned by 'getAppUpdateInfo()'.
-                    appUpdateInfo,  //AppUpdateType.IMMEDIATE,
-                    AppUpdateType.FLEXIBLE,
+                    appUpdateInfo,  //AppUpdateType.FLEXIBLE,
+                    AppUpdateType.IMMEDIATE,
                     mActivity,
                     UPDATEREQUESTCODE
                 )
@@ -62,7 +63,6 @@ class AboutActivity : AppCompatActivity() {
             aboutPage.setUpdateState(AboutPage.LOADING)
             checkUpdate()
         }
-        checkUpdate()
         findViewById<View>(R.id.about_btn_open_in_store).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("market://details?id=$packageName")
@@ -125,6 +125,37 @@ class AboutActivity : AppCompatActivity() {
                     Uri.parse("https://www.youtube.com/watch?v=o-YBDTqX_ZU")
                 )
             )
+        }
+        checkUpdate()
+    }
+
+    // Checks that the update is not stalled during 'onResume()'.
+    // However, you should execute this check at all entry points into the app.
+    override fun onResume() {
+        super.onResume()
+        appUpdateManager
+            .appUpdateInfo
+            .addOnSuccessListener { appUpdateInfo ->
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                    // If an in-app update is already running, resume the update.
+                    appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        AppUpdateType.IMMEDIATE,
+                        mActivity,
+                        UPDATEREQUESTCODE
+                    )
+                }
+            }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == UPDATEREQUESTCODE) {
+            if (resultCode != RESULT_OK) {
+                Log.e("Update: ", "Update flow failed! Result code: $resultCode")
+                Toast.makeText(mContext, "Fehler beim Update-Prozess: $resultCode", Toast.LENGTH_LONG).show()
+                aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
+            }
         }
     }
 

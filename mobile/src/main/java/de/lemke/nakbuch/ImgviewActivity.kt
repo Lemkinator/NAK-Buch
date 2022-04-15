@@ -52,7 +52,6 @@ class ImgviewActivity : AppCompatActivity() {
     private lateinit var tipPopupFoto: TipPopup
     private lateinit var tipPopupDelete: TipPopup
     private lateinit var imageList: ArrayList<Uri>
-    private lateinit var compressor: Compressor
     private var currentFile: File? = null
     private lateinit var sp: SharedPreferences
     private lateinit var spHymns: SharedPreferences
@@ -63,24 +62,33 @@ class ImgviewActivity : AppCompatActivity() {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         mContext = this
-        sp = mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
-        spHymns = mContext.getSharedPreferences(getString(R.string.preference_file_hymns), MODE_PRIVATE)
+        sp =
+            mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
+        spHymns =
+            mContext.getSharedPreferences(getString(R.string.preference_file_hymns), MODE_PRIVATE)
         gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
         nr = intent.getIntExtra("nr", -1)
 
         setContentView(R.layout.activity_imgview)
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-            drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+            drawerLayout.setNavigationButtonIcon(
+                AppCompatResources.getDrawable(
+                    mContext,
+                    de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back
+                )
+            )
             drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
             drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
             drawerLayout.setTitle(intent.getStringExtra("nrAndTitle"))
             drawerLayout.setSubtitle(getString(if (gesangbuchSelected) R.string.title_Gesangbuch else R.string.title_Chorbuch))
             initBNV()
         } else {
-            val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView) ?: return
+            val windowInsetsController =
+                ViewCompat.getWindowInsetsController(window.decorView) ?: return
             // Configure the behavior of the hidden system bars
-            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             // Hide both the status bar and the navigation bar
             windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
         }
@@ -96,9 +104,16 @@ class ImgviewActivity : AppCompatActivity() {
                     }
                 } else {
                     if (currentFile!!.exists()) {
-                        if (!currentFile!!.delete()) Log.e("Files", "Could not delete file, after Take picture failed")
+                        if (!currentFile!!.delete()) Log.e(
+                            "Files",
+                            "Could not delete file, after Take picture failed"
+                        )
                     }
-                    Toast.makeText(mContext, "Kein Foto ausgewählt oder Fehler beim Verarbeiten des Fotos...", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        mContext,
+                        "Kein Foto ausgewählt oder Fehler beim Verarbeiten des Fotos...",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -123,7 +138,13 @@ class ImgviewActivity : AppCompatActivity() {
             imageList = ArrayList()
             val files = currentFolder.listFiles()!!
             for (i in files.indices) {
-                imageList.add(FileProvider.getUriForFile(mContext, "de.lemke.nakbuch.fileprovider", files[i]))
+                imageList.add(
+                    FileProvider.getUriForFile(
+                        mContext,
+                        "de.lemke.nakbuch.fileprovider",
+                        files[i]
+                    )
+                )
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -140,7 +161,7 @@ class ImgviewActivity : AppCompatActivity() {
         Arrays.sort(files)
         for (i in files.indices) {
             if (!files[i].renameTo(File(currentFolder, "$i.jpg"))) {
-                throw IOException("prepareFolder: Could not rename File:" + files[i].absolutePath)
+                throw IOException("prepareFolder(): Could not rename File:" + files[i].absolutePath)
             }
         }
         Log.d("test sorted Files", files.contentToString())
@@ -148,13 +169,29 @@ class ImgviewActivity : AppCompatActivity() {
 
     private fun compressJPG(file: File): Job {
         Log.d("Compressor", "Compressing file: " + file.absolutePath)
+        val resolution = when (sp.getString("imgResolution", "Niedrig")) {
+            "Sehr Niedrig" -> 512
+            "Niedrig" -> 1024
+            "Mittel" -> 2048
+            "Hoch" -> 4096
+            "Sehr Hoch" -> 8192
+            else -> 2048
+        }
+        val quality = when (sp.getString("imgQuality", "Niedrig")) {
+            "Sehr Niedrig" -> 15
+            "Niedrig" -> 25
+            "Mittel" -> 50
+            "Hoch" -> 75
+            "Sehr Hoch" -> 100
+            else -> 50
+        }
         return GlobalScope.launch {
             Compressor.compress(mContext, file) {
-                resolution(sp.getInt("imgMaxWidthHeight", 2) * 512, sp.getInt("imgMaxWidthHeight", 2) * 512)
-                quality(sp.getInt("imgQuality", 25))
-                format(Bitmap.CompressFormat.JPEG)
+                resolution(resolution, resolution)
+                quality(quality)
                 size(2_097_152) // 2 MB
-                destination(File(currentFolder.absolutePath,file.name))
+                format(Bitmap.CompressFormat.JPEG)
+                destination(File(currentFolder.absolutePath, file.name))
             }
         }
     }
@@ -186,7 +223,8 @@ class ImgviewActivity : AppCompatActivity() {
         }
         if (f!!.exists()) {
             if (!f.delete())
-                Toast.makeText(mContext, "Datei konnte nicht gelöscht werden...", Toast.LENGTH_LONG).show()
+                Toast.makeText(mContext, "Datei konnte nicht gelöscht werden...", Toast.LENGTH_LONG)
+                    .show()
         }
     }
 
@@ -253,26 +291,49 @@ class ImgviewActivity : AppCompatActivity() {
 
         val favIcon: Drawable
         if (getFromList(gesangbuchSelected, spHymns, nr, "fav") == "1") {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
-            favIcon.colorFilter = PorterDuffColorFilter(resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, mContext.theme), PorterDuff.Mode.SRC_IN)
+            favIcon = AppCompatResources.getDrawable(
+                mContext,
+                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on
+            )!!
+            favIcon.colorFilter = PorterDuffColorFilter(
+                resources.getColor(
+                    de.dlyt.yanndroid.oneui.R.color.red,
+                    mContext.theme
+                ), PorterDuff.Mode.SRC_IN
+            )
         } else {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
+            favIcon = AppCompatResources.getDrawable(
+                mContext,
+                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off
+            )!!
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                writeToList(gesangbuchSelected, spHymns, nr, "fav", if (getFromList(gesangbuchSelected, spHymns, nr, "fav") == "1") "0" else "1")
+                writeToList(
+                    gesangbuchSelected,
+                    spHymns,
+                    nr,
+                    "fav",
+                    if (getFromList(gesangbuchSelected, spHymns, nr, "fav") == "1") "0" else "1"
+                )
                 initBNV()
             }
         })
 
-        val camIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera)
+        val camIcon = AppCompatResources.getDrawable(
+            mContext,
+            de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera
+        )
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 takePhoto()
             }
         })
 
-        val binIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete)
+        val binIcon = AppCompatResources.getDrawable(
+            mContext,
+            de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete
+        )
         tabLayout!!.addTabCustomButton(binIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val index = imgViewPager.currentItem
@@ -287,12 +348,21 @@ class ImgviewActivity : AppCompatActivity() {
                                 {
                                     dialogInterface.dismiss()
                                     initViewPager()
-                                    imgViewPager.setCurrentItem((index).coerceAtMost(viewPagerAdapterImageView.count - 1), true)
+                                    imgViewPager.setCurrentItem(
+                                        (index).coerceAtMost(
+                                            viewPagerAdapterImageView.count - 1
+                                        ), true
+                                    )
                                 }, 600
                             )
 
                         }
-                        .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
+                        .setNegativeButtonColor(
+                            resources.getColor(
+                                de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
+                                mContext.theme
+                            )
+                        )
                         .setNegativeButtonProgress(true)
                         .create()
                     dialog.show()

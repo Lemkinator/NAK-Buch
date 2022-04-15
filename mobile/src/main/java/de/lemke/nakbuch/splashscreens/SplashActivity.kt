@@ -1,5 +1,6 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.splashscreens
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -8,14 +9,16 @@ import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.lemke.nakbuch.utils.Constants
+import de.lemke.nakbuch.MainActivity
+import de.lemke.nakbuch.R
 
-class SplashActivityChorbuch : AppCompatActivity() {
+@SuppressLint("CustomSplashScreen")
+class SplashActivity : AppCompatActivity() {
     private var launchCanceled = false
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this, "4099ff")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash_chorbuch)
+        setContentView(R.layout.activity_splash)
 
         val splashView = findViewById<SplashView>(R.id.splash)
         val handler = Handler(Looper.getMainLooper())
@@ -32,10 +35,7 @@ class SplashActivityChorbuch : AppCompatActivity() {
     }
 
     private fun launchApp() {
-        startActivity(
-            Intent().setClass(applicationContext, MainActivity::class.java)
-                .putExtra("Modus", Constants.CHORBUCHMODE)
-        )
+        startActivity(Intent().setClass(applicationContext, MainActivity::class.java))
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
     }

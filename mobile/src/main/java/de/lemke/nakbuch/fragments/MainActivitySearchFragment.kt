@@ -154,8 +154,7 @@ class MainActivitySearchFragment : Fragment() {
         listView.adapter = imageAdapter
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        AppCompatResources.getDrawable(mContext, divider.resourceId)
-            ?.let { decoration.setDivider(it) }
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)

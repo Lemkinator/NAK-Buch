@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.splashscreens
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,14 +8,16 @@ import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
+import de.lemke.nakbuch.MainActivity
+import de.lemke.nakbuch.R
 import de.lemke.nakbuch.utils.Constants
 
-class SplashActivityGesangbuch : AppCompatActivity() {
+class SplashActivityChorbuch : AppCompatActivity() {
     private var launchCanceled = false
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this, "4099ff")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash_gesangbuch)
+        setContentView(R.layout.activity_splash_chorbuch)
 
         val splashView = findViewById<SplashView>(R.id.splash)
         val handler = Handler(Looper.getMainLooper())
@@ -34,7 +36,7 @@ class SplashActivityGesangbuch : AppCompatActivity() {
     private fun launchApp() {
         startActivity(
             Intent().setClass(applicationContext, MainActivity::class.java)
-                .putExtra("Modus", Constants.GESANGBUCHMODE)
+                .putExtra("Modus", Constants.CHORBUCHMODE)
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()

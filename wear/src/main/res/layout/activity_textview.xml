@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/observableScrollViewText"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TextviewActivity"
+    tools:deviceIds="wear"
+    android:scrollbars="vertical">
+
+    <requestFocus />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="30dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="10dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonPlus"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                app:icon="@drawable/ic_oui_plus"
+                app:iconGravity="textTop"
+                app:iconTint="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonMinus"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                app:icon="@drawable/ic_oui_minus"
+                app:iconGravity="textTop"
+                app:iconTint="@color/white" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sesl_tooltip_foreground"
+            android:text="Hier steht der Titel"
+            />
+
+        <TextView
+            android:id="@+id/tvText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sesl_tooltip_foreground"
+            android:text="Hier steht dann der Text des Liedes.\n\nUnd hier dann vlt eine Strophe \n\n usw... \n\nusw2... \n\nusw3... \n\nusw4..." />
+
+        <TextView
+            android:id="@+id/tvCopyright"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="hier steht dann copyright undso \nvlt noch komponist..." />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="40dp" />
+
+    </LinearLayout>
+
+</ScrollView>

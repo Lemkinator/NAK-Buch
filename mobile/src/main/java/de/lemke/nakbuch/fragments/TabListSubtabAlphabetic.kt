@@ -100,8 +100,7 @@ class TabListSubtabAlphabetic : Fragment() {
         mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        AppCompatResources.getDrawable(mContext, divider.resourceId)
-            ?.let { decoration.setDivider(it) }
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
         val indexScrollView: IndexScrollView =
             mRootView.findViewById(R.id.indexScrollViewAlphabetical)
         val list: MutableList<String?> = ArrayList()

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/observableScrollViewMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/box_inset_layout_padding"
+    tools:context=".MainActivity"
+    tools:deviceIds="wear"
+    >
+
+    <requestFocus />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/hymnTitlePreview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingHorizontal="40dp"
+            android:paddingTop="20dp"
+            android:textSize="15sp" />
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:columnCount="3"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_1"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="1"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_2"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="2"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_3"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="3"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_4"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="4"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_5"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="5"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_6"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="6"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_7"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="7"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_8"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="8"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_9"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="9"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_z"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                app:icon="@drawable/ic_oui_back_2"
+                app:iconSize="20dp"
+                app:iconTint="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_0"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                android:text="0"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/b_ok"
+                style="@style/ButtonStyle.Filled"
+                android:layout_width="@dimen/number_button_width"
+                app:icon="@drawable/ic_oui_selected"
+                app:iconSize="20dp"
+                app:iconTint="@color/white" />
+
+        </GridLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSwitchMode"
+            style="@style/ButtonStyle.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="15dp"
+            app:icon="@drawable/ic_oui_convert" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonInfo"
+            style="@style/ButtonStyle.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginHorizontal="15dp"
+            android:layout_gravity="center"
+            app:icon="@drawable/ic_oui4_info"
+            android:text="@string/about_app"
+            />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+    </LinearLayout>
+
+</ScrollView>
+

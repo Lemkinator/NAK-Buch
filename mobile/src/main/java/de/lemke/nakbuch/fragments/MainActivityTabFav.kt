@@ -126,9 +126,7 @@ class MainActivityTabFav : Fragment() {
         mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        AppCompatResources.getDrawable(mContext, divider.resourceId)
-            ?.let { decoration.setDivider(it) }
-
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
         //select mode dismiss on back
         onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
@@ -297,9 +295,10 @@ class MainActivityTabFav : Fragment() {
                 val childAt = recyclerView.getChildAt(i)
                 val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
                 val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean = if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                    recyclerView.getChildAt(i + 1)
-                ) as ImageAdapter.ViewHolder).isItem else false
+                val shallDrawDivider: Boolean =
+                    if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
+                        recyclerView.getChildAt(i + 1)
+                    ) as ImageAdapter.ViewHolder).isItem else false
                 if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
                     //int moveRTL = isRTL() ? 130 : 0;
                     //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
@@ -332,4 +331,5 @@ class MainActivityTabFav : Fragment() {
             mSeslRoundedCornerBottom.roundedCorners = 12
         }
     }
+
 }
