@@ -84,7 +84,6 @@ Projekt in Mobile-App-Development an der HFU
 # NAK Book (Hymn and Choir Book)
 The new non-official song and choir book app of the New Apostolic Church.
 
-
 This app has no affiliation with the NAC or the Friedrich Bischoff Publishing House and contains only the copyright-free texts from the NAC Hymnal and Choir Book.
 
 For 118 (out of 438) hymnal songs and 256 (out of 462) choirbook songs, the rights are still held by the authors, which is why they cannot be displayed. The information on the copyright of the individual songs has been checked with great care. If I have unwittingly made mistakes, please let me know and I will follow up immediately.
@@ -99,10 +98,10 @@ The administration of the rights is the responsibility of, among others, the Fri
 There is already a free alternative, but it is a bit outdated, lacks some features, doesn't support all screen formats, and now displays a warning that it was written for older versions....
 
 🌙 Dark Mode: 
-Already seen the "dark mode" of the official app? Keine Ahnung was dort schief gelaufen ist, aber diese App hat einen "richtigen" Dark-Mode (der sich automatisch den Systemeinstellungen anpasst) und invertiert nicht einfach nur das Textfeld... 😂😅🤦🤦‍♂️ ... 
+Already seen the "dark mode" of the official app? No idea what went wrong there, but this app has a "real" dark mode (which automatically adjusts to the system settings) and doesn't just invert the text field... 😂😅🤦🤦‍♂️ ... 
 
-⌚ Wear OS Unterstützung: 
-Smartphone vergessen? No problem, the text contents of the app can be displayed on the smartwatch without any problems (in a pleasant design).
+⌚ Wear OS support: 
+Forgotten smartphone? No problem, the text contents of the app can be displayed on your smartwatch (in a pleasant design).
 
 <br>
 
@@ -111,10 +110,10 @@ Smartphone vergessen? No problem, the text contents of the app can be displayed 
 + Pleasant text view
 + Favourites
 + Notes
-+ Datumsfunktion (Gesungen am...)
-+ Integrierte Bildergallerie für Noten (Die App enthält aus urheberrechtlichen Gründen keine Noten und hat außerdem keinen Zugriff auf die Kamera. Die App kann jedoch eine vorinstallierte Kamera-App öffnen und das dort gemachte Foto (komprimiert) in der integrierten Bildergallerie anzeigen.)
-+ Verlauf
-+ Die App unterstützt Material You Design und Themed Icons: Die App Farbe des Icons passt sich automatisch dem Hintergrund auf dem Startbildschirm an. (Ab kommenden Android 13, bei Samsung-Geräten bereits ab Android 12: Einstellungen -> Hintergrundbild und Stil -> Farbpalette)
++ Date function (Sung on...)
++ Integrated picture gallery for sheet music (The app does not contain sheet music for copyright reasons and also does not have access to the camera. However, the app can open a pre-installed camera app and display the photo taken there (compressed) in the integrated picture gallery).
++ History
++ The app supports Material-You Design and Themed icons: The app color of the icon automatically matches the background on the home screen. (From upcoming Android 13, on Samsung devices already with Android 12: Settings -> Wallpaper and style -> Color palette).
 
 
 🥚 (Easter Eggs - Can you become "Master of Easter Eggs"? 😂)
