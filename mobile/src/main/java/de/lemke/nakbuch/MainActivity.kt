@@ -144,11 +144,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     sp.edit().putStringSet("hints", hints).apply()
                 }
                 .setPositiveButton("OK", null)
-                .setOnDismissListener { easterEggDialog(findViewById(R.id.drawer_view)) }
+                .setOnDismissListener { easterEggDialog() }
                 .create()
             dialog.show()
         } else {
-            easterEggDialog(findViewById(R.id.drawer_view))
+            easterEggDialog()
         }
     }
 
@@ -178,10 +178,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             Constants.modeChanged = false
             setCurrentItem()
         }
-    }
-
-    companion object {
-
     }
 
     @SuppressLint("RestrictedApi")
@@ -422,7 +418,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    private fun easterEggDialog(view: View?) {
+    private fun easterEggDialog() {
         if (sp.getBoolean("easterEggHint", true)) {
             val dialog = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.easterEggs))
@@ -515,6 +511,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     //Dialog samples:
+    @Suppress("UNUSED_PARAMETER", "unused")
     fun classicColorPickerDialog(view: View?) {
         val mClassicColorPickerDialog: ClassicColorPickerDialog
         val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
@@ -539,6 +536,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER", "unused")
     fun detailedColorPickerDialog(view: View?) {
         val mDetailedColorPickerDialog: DetailedColorPickerDialog
         val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
@@ -563,6 +561,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER", "unused")
     fun standardDialog(view: View?) {
         val dialog = AlertDialog.Builder(this)
             .setTitle("Title")
@@ -588,6 +587,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         dialog.show()
     }
 
+    @Suppress("UNUSED_PARAMETER", "unused")
     fun singleChoiceDialog(view: View?) {
         val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
         AlertDialog.Builder(this)
@@ -599,6 +599,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .show()
     }
 
+    @Suppress("UNUSED_PARAMETER", "unused")
     fun multiChoiceDialog(view: View?) {
         val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
         val booleans = booleanArrayOf(true, false, true)
@@ -611,6 +612,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .show()
     }
 
+    @Suppress("UNUSED_PARAMETER", "unused")
     fun progressDialog(view: View) {
         val dialog = ProgressDialog(mContext)
         dialog.isIndeterminate = true

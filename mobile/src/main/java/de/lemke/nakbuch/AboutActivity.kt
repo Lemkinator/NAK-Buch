@@ -121,8 +121,7 @@ class AboutActivity : AppCompatActivity() {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    //Uri.parse("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-                    Uri.parse("https://www.youtube.com/watch?v=o-YBDTqX_ZU")
+                    Uri.parse("https://www.youtube.com/watch?v=o-YBDTqX_ZU") //Rick Roll :D
                 )
             )
         }

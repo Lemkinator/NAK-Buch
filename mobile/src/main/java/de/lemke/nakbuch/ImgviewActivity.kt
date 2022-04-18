@@ -169,7 +169,7 @@ class ImgviewActivity : AppCompatActivity() {
 
     private fun compressJPG(file: File): Job {
         Log.d("Compressor", "Compressing file: " + file.absolutePath)
-        val resolution = when (sp.getString("imgResolution", "Niedrig")) {
+        val resolution = when (sp.getString("imgResolution", "Mittel")) {
             "Sehr Niedrig" -> 512
             "Niedrig" -> 1024
             "Mittel" -> 2048
@@ -177,7 +177,7 @@ class ImgviewActivity : AppCompatActivity() {
             "Sehr Hoch" -> 8192
             else -> 2048
         }
-        val quality = when (sp.getString("imgQuality", "Niedrig")) {
+        val quality = when (sp.getString("imgQuality", "Mittel")) {
             "Sehr Niedrig" -> 15
             "Niedrig" -> 25
             "Mittel" -> 50

@@ -11,6 +11,7 @@ import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.lemke.nakbuch.fragments.TextviewFragment
+import de.lemke.nakbuch.utils.Constants
 
 class TextviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +76,7 @@ class TextviewActivity : AppCompatActivity() {
         }
 
         override fun getItemCount(): Int {
-            return if (gesangbuchSelected) 438 else 462
+            return if (gesangbuchSelected) Constants.HYMNSGESANGBUCHCOUNT else Constants.HYMNSCHORBUCHCOUNT
         }
     }
 }
