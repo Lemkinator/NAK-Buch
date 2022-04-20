@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             getString(R.string.preference_file_default),
             Context.MODE_PRIVATE
         )
+
         setContentView(R.layout.activity_main)
         activityResultLauncher =
             registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->

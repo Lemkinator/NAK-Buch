@@ -5,7 +5,7 @@ import de.lemke.nakbuch.data.hymnDataRepo
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.HymnData
 
-class EditHymnDataUseCase {
+class SetHymnDataUseCase {
     operator fun invoke(
         gesangbuchSelected: Boolean,
         spHymns: SharedPreferences,
