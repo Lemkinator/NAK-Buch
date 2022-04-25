@@ -21,15 +21,16 @@ import de.dlyt.yanndroid.oneui.menu.MenuItem
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
 import de.dlyt.yanndroid.oneui.view.RecyclerView
+import de.dlyt.yanndroid.oneui.widget.SwipeRefreshLayout
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.TextviewActivity
-import de.lemke.nakbuch.utils.HymnPrefsHelper.getFavList
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
+import de.lemke.nakbuch.ui.TextviewActivity
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.getFavList
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeFavsToList
 
 class MainActivityTabFav : Fragment() {
-    //private ArrayList<HashMap<String, String>> hymns;
-    private var gesangbuchSelected = false
+    private lateinit var buchMode: BuchMode
     private lateinit var favHymns: ArrayList<HashMap<String, String>>
     private lateinit var mRootView: View
     private lateinit var mContext: Context
@@ -70,12 +71,11 @@ class MainActivityTabFav : Fragment() {
             Context.MODE_PRIVATE
         )
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
+        (mRootView.findViewById(R.id.tabFavSwipeRefresh) as SwipeRefreshLayout).seslSetRefreshOnce(true)
         listView = mRootView.findViewById(R.id.favHymnList)
         mainTabs = requireActivity().findViewById(R.id.main_tabs)
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
+        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
 
-        //initAssets();
-        //setFavLists();
         initList()
         onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
@@ -87,12 +87,11 @@ class MainActivityTabFav : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        //setFavLists();
         initList()
     }
 
     private fun initList() {
-        favHymns = getFavList(mContext, gesangbuchSelected, sp, spHymns)
+        favHymns = getFavList(mContext, buchMode == BuchMode.Gesangbuch, sp, spHymns)
         favHymns.add(HashMap()) //Placeholder
         selected = HashMap()
         for (i in favHymns.indices) selected[i] = false
@@ -142,7 +141,7 @@ class MainActivityTabFav : Fragment() {
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
                 if (item.itemId == R.id.menuButtonRemove) {
-                    writeFavsToList(gesangbuchSelected, spHymns, selected, favHymns, "")
+                    writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, favHymns, "")
                     setSelecting(false)
                     initList()
                 } else {
@@ -188,19 +187,6 @@ class MainActivityTabFav : Fragment() {
         checkAllListening = true
     }
 
-    /*private void initAssets() {
-        hymns = getHymnArrayList(mContext, gesangbuchSelected ? getString(R.string.filename_hymnsGesangbuch) : getString(R.string.filename_hymnsChorbuch), sp);
-    }
-
-    private void setFavLists() {
-        favHymns = new ArrayList<>();
-        for (int i = 0; i < hymns.size(); i++) {
-            if (getFromList(gesangbuchSelected, spHymns, i + 1, "fav").equals("1")) {
-                favHymns.add(hymns.get(i));
-            }
-        }
-        favHymns.add(new HashMap<>()); //Placeholder
-    }*/
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
         override fun getItemCount(): Int {

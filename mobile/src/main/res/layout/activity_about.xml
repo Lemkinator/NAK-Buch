@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:optional_text="@string/aboutPageOptionalText"
-    tools:context=".AboutActivity"
+    tools:context=".ui.AboutActivity"
     >
 
     <de.dlyt.yanndroid.oneui.widget.NestedScrollView

@@ -1,6 +1,7 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
@@ -11,7 +12,9 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.Color
 import android.net.Uri
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
@@ -32,8 +35,10 @@ import de.dlyt.yanndroid.oneui.layout.PreferenceFragment
 import de.dlyt.yanndroid.oneui.preference.*
 import de.dlyt.yanndroid.oneui.preference.internal.PreferencesRelatedCard
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.lemke.nakbuch.utils.AssetsHelper.setHymnsText
-import de.lemke.nakbuch.utils.Constants
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.utils.AssetsHelper.setHymnsText
+import de.lemke.nakbuch.domain.utils.Constants
+import de.lemke.nakbuch.domain.utils.SoundUtils
 import java.io.*
 import java.util.concurrent.ExecutionException
 
@@ -52,7 +57,8 @@ class SettingsActivity : AppCompatActivity() {
         )
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment())
+                .commit()
         }
     }
 
@@ -138,13 +144,14 @@ class SettingsActivity : AppCompatActivity() {
                     }
                 }
             }
-            pickFolderActivityResultLauncher = registerForActivityResult(OpenDocumentTree()) { result: Uri? ->
-                if (result == null) {
-                    Toast.makeText(mContext, "Fehler: result == null", Toast.LENGTH_LONG).show()
-                } else {
-                    Log.e("Uri", result.toString())
+            pickFolderActivityResultLauncher =
+                registerForActivityResult(OpenDocumentTree()) { result: Uri? ->
+                    if (result == null) {
+                        Toast.makeText(mContext, "Fehler: result == null", Toast.LENGTH_LONG).show()
+                    } else {
+                        Log.e("Uri", result.toString())
+                    }
                 }
-            }
             val darkModePref = findPreference<HorizontalRadioPreference>("dark_mode")
             darkModePref!!.onPreferenceChangeListener = this
             darkModePref.setDividerEnabled(false)
@@ -156,7 +163,17 @@ class SettingsActivity : AppCompatActivity() {
             autoDarkModePref.isChecked = darkMode == ThemeUtil.DARK_MODE_AUTO
             val colorPickerPref = findPreference<ColorPickerPreference>("color")
             val recentColors = Gson().fromJson<ArrayList<Int>>(
-                sp.getString("recent_colors", Gson().toJson(intArrayOf(resources.getColor(R.color.primary_color, mContext.theme)))),
+                sp.getString(
+                    "recent_colors",
+                    Gson().toJson(
+                        intArrayOf(
+                            resources.getColor(
+                                R.color.primary_color,
+                                mContext.theme
+                            )
+                        )
+                    )
+                ),
                 object : TypeToken<ArrayList<Int?>?>() {}.type
             )
             for (recent_color in recentColors) colorPickerPref!!.onColorSet(recent_color)
@@ -171,15 +188,16 @@ class SettingsActivity : AppCompatActivity() {
                 }
             findPreference<Preference>("dnd")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    Constants.dnd(mContext)
+                    SoundUtils.dnd(mContext)
                     true
                 }
             findPreference<Preference>("audio_streams")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    Constants.mute(mContext)
+                    SoundUtils.mute(mContext)
                     true
                 }
-            findPreference<SwitchPreference>("confirmExit")!!.isChecked = sp.getBoolean("confirmExit", true)
+            findPreference<SwitchPreference>("confirmExit")!!.isChecked =
+                sp.getBoolean("confirmExit", true)
             findPreference<Preference>("shortcut_gesangbuch")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
                     val shortcutManager = mContext.getSystemService(
@@ -189,16 +207,22 @@ class SettingsActivity : AppCompatActivity() {
                         val pinShortcutInfo = ShortcutInfo.Builder(mContext, "gesangbuch").build()
                         val pinnedShortcutCallbackIntent =
                             shortcutManager.createShortcutResultIntent(pinShortcutInfo)
-                        val successCallback: PendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            PendingIntent.getBroadcast(
-                                mContext,
-                                0,
-                                pinnedShortcutCallbackIntent,
-                                PendingIntent.FLAG_MUTABLE
-                            )
-                        } else {
-                            PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, 0)
-                        }
+                        val successCallback: PendingIntent =
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                PendingIntent.getBroadcast(
+                                    mContext,
+                                    0,
+                                    pinnedShortcutCallbackIntent,
+                                    PendingIntent.FLAG_MUTABLE
+                                )
+                            } else {
+                                PendingIntent.getBroadcast(
+                                    mContext,
+                                    0,
+                                    pinnedShortcutCallbackIntent,
+                                    0
+                                )
+                            }
                         shortcutManager.requestPinShortcut(
                             pinShortcutInfo,
                             successCallback.intentSender
@@ -213,17 +237,24 @@ class SettingsActivity : AppCompatActivity() {
                     )
                     if (shortcutManager.isRequestPinShortcutSupported) {
                         val pinShortcutInfo = ShortcutInfo.Builder(mContext, "chorbuch").build()
-                        val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)
-                        val successCallback: PendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            PendingIntent.getBroadcast(
-                                mContext,
-                                0,
-                                pinnedShortcutCallbackIntent,
-                                PendingIntent.FLAG_MUTABLE
-                            )
-                        } else {
-                            PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, 0)
-                        }
+                        val pinnedShortcutCallbackIntent =
+                            shortcutManager.createShortcutResultIntent(pinShortcutInfo)
+                        val successCallback: PendingIntent =
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                PendingIntent.getBroadcast(
+                                    mContext,
+                                    0,
+                                    pinnedShortcutCallbackIntent,
+                                    PendingIntent.FLAG_MUTABLE
+                                )
+                            } else {
+                                PendingIntent.getBroadcast(
+                                    mContext,
+                                    0,
+                                    pinnedShortcutCallbackIntent,
+                                    0
+                                )
+                            }
                         shortcutManager.requestPinShortcut(
                             pinShortcutInfo,
                             successCallback.intentSender
@@ -233,12 +264,21 @@ class SettingsActivity : AppCompatActivity() {
                 }
             findPreference<PreferenceScreen>("privacy")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacyWebsite))))
+                    startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(getString(R.string.privacyWebsite))
+                        )
+                    )
                     true
                 }
             val prefScreenVersion = findPreference<PreferenceScreen>("version_activateAllTexts")
             try {
-                prefScreenVersion!!.title = mContext.getString(de.dlyt.yanndroid.oneui.R.string.sesl_version) + " " + mContext.packageManager.getPackageInfo(mContext.packageName, 0).versionName
+                prefScreenVersion!!.title =
+                    mContext.getString(de.dlyt.yanndroid.oneui.R.string.sesl_version) + " " + mContext.packageManager.getPackageInfo(
+                        mContext.packageName,
+                        0
+                    ).versionName
             } catch (nnfe: NameNotFoundException) {
                 nnfe.printStackTrace()
             }
@@ -248,49 +288,45 @@ class SettingsActivity : AppCompatActivity() {
                         clickCounter++
                         if (clickCounter > 10) {
                             clickCounter = 0
-                            val dialog = AlertDialog.Builder(
-                                mContext
+
+                            val hiddenMenu = arrayOf<CharSequence>(
+                                "Eigene Liedtexte hinzufügen",
+                                "Eigene Liedtexte löschen",
+                                "Noten",
+                                "App-Daten löschen und Beenden"
                             )
-                                .setTitle("Eigene Texte verwenden:")
-                                .setMessage("Text-Datei/Ordner mit Noten auswählen:")
-                                .setNeutralButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
-                                .setPositiveButton("Texte") { _: DialogInterface?, _: Int ->
-                                    val dialog2 = AlertDialog.Builder(
-                                        mContext
-                                    )
-                                        .setTitle("Eigene Texte verwenden:")
-                                        .setMessage("Texte löschen oder auswählen:")
-                                        .setNegativeButton("Löschen") { dialogInterface: DialogInterface, _: Int ->
+                            var option = 0
+                            val dialog = AlertDialog.Builder(mContext)
+                                .setCancelable(false)
+                                .setTitle(R.string.hiddenMenu)
+                                .setNegativeButton(
+                                    de.dlyt.yanndroid.oneui.R.string.sesl_cancel,
+                                    null
+                                )
+                                .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                                    when (option) {
+                                        0 -> {
+                                            pickTextsActivityResultLauncher.launch("text/plain")
+                                        }
+                                        1 -> {
                                             sp.edit().putStringSet("privateTextGesangbuch", null).apply()
                                             sp.edit().putStringSet("privateTextChorbuch", null).apply()
-                                            Handler(Looper.getMainLooper()).postDelayed(
-                                                { dialogInterface.dismiss() },
-                                                700
+                                        }
+                                        2 -> {
+                                            pickFolderActivityResultLauncher.launch(
+                                                Uri.fromFile(File(Environment.getExternalStorageDirectory().absolutePath))
                                             )
                                         }
-                                        .setNegativeButtonProgress(true)
-                                        .setNegativeButtonColor(
-                                            resources.getColor(
-                                                de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
-                                                mContext.theme
-                                            )
-                                        )
-                                        .setPositiveButton("Auswählen") { _: DialogInterface?, _: Int ->
-                                            pickTextsActivityResultLauncher.launch(
-                                                "text/plain"
-                                            )
+                                        3 -> {
+                                            (mContext.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
                                         }
-                                        .create()
-                                    dialog2.show()
+                                    }
                                 }
-                                .setNegativeButton("Noten") { _: DialogInterface?, _: Int ->
-                                    pickFolderActivityResultLauncher.launch(
-                                        Uri.fromFile(File(Environment.getExternalStorageDirectory().absolutePath))
-                                    )
-                                }
-                                .setCancelable(false)
+                                .setSingleChoiceItems(hiddenMenu, 1) { _: DialogInterface, i: Int -> option = i }
                                 .create()
                             dialog.show()
+
+
                         }
                     } else {
                         clickCounter = 0
@@ -304,7 +340,19 @@ class SettingsActivity : AppCompatActivity() {
                 override fun onCancelClicked(view: View) {
                     tipCard!!.isVisible = false
                     tipCardSpacing?.isVisible = false
-                    val s: MutableSet<String> = HashSet(sp.getStringSet("hints", HashSet(HashSet(listOf(*resources.getStringArray(R.array.hint_values)))))!!)
+                    val s: MutableSet<String> = HashSet(
+                        sp.getStringSet(
+                            "hints", HashSet(
+                                HashSet(
+                                    listOf(
+                                        *resources.getStringArray(
+                                            R.array.hint_values
+                                        )
+                                    )
+                                )
+                            )
+                        )!!
+                    )
                     s.remove("tipcard")
                     sp.edit().putStringSet("hints", s).apply()
                 }
@@ -340,9 +388,11 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        internal inner class SendThread(private var path: String, private var message: ByteArray) : Thread() {
+        internal inner class SendThread(private var path: String, private var message: ByteArray) :
+            Thread() {
             override fun run() { //Retrieve the connected devices, known as nodes
-                val wearableList = Wearable.getNodeClient(mActivity.applicationContext).connectedNodes
+                val wearableList =
+                    Wearable.getNodeClient(mActivity.applicationContext).connectedNodes
                 try {
                     val nodes = Tasks.await(wearableList)
                     for (node in nodes) {
@@ -366,14 +416,31 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            requireView().setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.item_background_color, mContext.theme))
+            requireView().setBackgroundColor(
+                resources.getColor(
+                    de.dlyt.yanndroid.oneui.R.color.item_background_color,
+                    mContext.theme
+                )
+            )
         }
 
         override fun onStart() {
             super.onStart()
-            findPreference<SwitchPreferenceScreen>("easterEggs")!!.isChecked = sp.getBoolean("easterEggs", true)
-            findPreference<SwitchPreferenceScreen>("historyEnabled")!!.isChecked = sp.getBoolean("historyEnabled", true)
-            val showTipCard = sp.getStringSet("hints", HashSet(HashSet(listOf(*resources.getStringArray(R.array.hint_values)))))!!.contains("tipcard")
+            findPreference<SwitchPreferenceScreen>("easterEggs")!!.isChecked =
+                sp.getBoolean("easterEggs", true)
+            findPreference<SwitchPreferenceScreen>("historyEnabled")!!.isChecked =
+                sp.getBoolean("historyEnabled", true)
+            val showTipCard = sp.getStringSet(
+                "hints", HashSet(
+                    HashSet(
+                        listOf(
+                            *resources.getStringArray(
+                                R.array.hint_values
+                            )
+                        )
+                    )
+                )
+            )!!.contains("tipcard")
             tipCard?.isVisible = showTipCard
             tipCardSpacing?.isVisible = showTipCard
             setRelatedCardView()
@@ -409,9 +476,33 @@ class SettingsActivity : AppCompatActivity() {
             if (mRelatedCard == null) {
                 mRelatedCard = createRelatedCard(mContext)
                 mRelatedCard?.setTitleText(getString(de.dlyt.yanndroid.oneui.R.string.sec_relative_description))
-                mRelatedCard?.addButton(getString(R.string.help)) { startActivity(Intent(mContext, HelpActivity::class.java)) }
-                    ?.addButton(getString(R.string.about_me)) { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website)))) }
-                    ?.addButton(getString(R.string.supportMe)) { startActivity(Intent(mContext, SupportMeActivity::class.java)) }
+                mRelatedCard?.addButton(getString(R.string.help)) {
+                    startActivity(
+                        Intent(
+                            mContext,
+                            HelpActivity::class.java
+                        )
+                    )
+                }
+                    ?.addButton(getString(R.string.about_me)) {
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW, Uri.parse(
+                                    getString(
+                                        R.string.website
+                                    )
+                                )
+                            )
+                        )
+                    }
+                    ?.addButton(getString(R.string.supportMe)) {
+                        startActivity(
+                            Intent(
+                                mContext,
+                                SupportMeActivity::class.java
+                            )
+                        )
+                    }
                     ?.show(this)
             }
         }

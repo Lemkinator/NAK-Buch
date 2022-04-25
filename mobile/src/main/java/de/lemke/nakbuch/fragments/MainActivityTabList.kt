@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.os.Bundle
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.utils.ViewPager2AdapterTabListSubtabs
+import de.lemke.nakbuch.domain.utils.ViewPager2AdapterTabListSubtabs
 import androidx.fragment.app.Fragment
 import de.dlyt.yanndroid.oneui.sesl.tabs.TabLayoutMediator
 import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2

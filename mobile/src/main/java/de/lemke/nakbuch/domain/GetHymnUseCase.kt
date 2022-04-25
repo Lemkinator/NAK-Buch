@@ -1,14 +1,11 @@
 package de.lemke.nakbuch.domain
 
-import android.content.Context
-import android.content.SharedPreferences
 import de.lemke.nakbuch.data.hymnsRepo
+import de.lemke.nakbuch.domain.model.BuchMode
 
 class GetHymnUseCase {
     operator fun invoke(
-        mContext: Context,
-        sp: SharedPreferences,
-        gesangbuchSelected: Boolean,
+        buchMode: BuchMode,
         hymnNr: Int
-    ) = hymnsRepo.getHymnByNumber(mContext, sp, gesangbuchSelected, hymnNr)
+    ) = hymnsRepo.getHymnByNumber(buchMode, hymnNr)
 }

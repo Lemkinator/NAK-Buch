@@ -1,15 +1,12 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender.SendIntentException
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -22,7 +19,8 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
 import de.dlyt.yanndroid.oneui.layout.AboutPage
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.lemke.nakbuch.utils.Constants
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class AboutActivity : AppCompatActivity() {
@@ -33,14 +31,12 @@ class AboutActivity : AppCompatActivity() {
     private lateinit var appUpdateInfo: AppUpdateInfo
     private lateinit var appUpdateInfoTask: Task<AppUpdateInfo>
     private val UPDATEREQUESTCODE = 5
-    private lateinit var sp: SharedPreferences
     private lateinit var konfettiView: KonfettiView
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
         mContext = this
-        sp = mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
         konfettiView = findViewById(R.id.konfettiViewAboutPage)
         aboutPage = findViewById(R.id.about_page)
         aboutPage.setToolbarExpandable(true)
@@ -48,16 +44,7 @@ class AboutActivity : AppCompatActivity() {
         //LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
         appUpdateManager = AppUpdateManagerFactory.create(mContext)
         aboutPage.setUpdateButtonOnClickListener {
-            try {
-                appUpdateManager.startUpdateFlowForResult( // Pass the intent that is returned by 'getAppUpdateInfo()'.
-                    appUpdateInfo,  //AppUpdateType.FLEXIBLE,
-                    AppUpdateType.IMMEDIATE,
-                    mActivity,
-                    UPDATEREQUESTCODE
-                )
-            } catch (e: SendIntentException) {
-                e.printStackTrace()
-            }
+            startUpdateFlow()
         }
         aboutPage.setRetryButtonOnClickListener {
             aboutPage.setUpdateState(AboutPage.LOADING)
@@ -98,26 +85,7 @@ class AboutActivity : AppCompatActivity() {
             )
         }
         findViewById<View>(R.id.about_btn_tiktk_troll).setOnClickListener {
-            //Toast.makeText(mContext, "TikTok gehört weggebannt...", Toast.LENGTH_SHORT).show();
-            val s: MutableSet<String> = HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-            if (!s.contains(getString(R.string.easterEggEntryTikTok))) {
-                s.add(getString(R.string.easterEggEntryTikTok))
-                sp.edit().putStringSet("discoveredEasterEggs", s).apply()
-                konfettiView.start(Constants.party1())
-                Handler(Looper.getMainLooper()).postDelayed(
-                    { konfettiView.start(Constants.party2()) },
-                    Constants.partyDelay2.toLong()
-                )
-                Handler(Looper.getMainLooper()).postDelayed(
-                    { konfettiView.start(Constants.party3()) },
-                    Constants.partyDelay3.toLong()
-                )
-                Toast.makeText(
-                    mContext,
-                    getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryTikTok),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntryTikTok)
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
@@ -137,12 +105,7 @@ class AboutActivity : AppCompatActivity() {
             .addOnSuccessListener { appUpdateInfo ->
                 if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                     // If an in-app update is already running, resume the update.
-                    appUpdateManager.startUpdateFlowForResult(
-                        appUpdateInfo,
-                        AppUpdateType.IMMEDIATE,
-                        mActivity,
-                        UPDATEREQUESTCODE
-                    )
+                    startUpdateFlow()
                 }
             }
     }
@@ -176,6 +139,19 @@ class AboutActivity : AppCompatActivity() {
         appUpdateInfoTask.addOnFailureListener { appUpdateInfo: Exception ->
             Toast.makeText(mContext, appUpdateInfo.message, Toast.LENGTH_LONG).show()
             aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
+        }
+    }
+
+    private fun startUpdateFlow() {
+        try {
+            appUpdateManager.startUpdateFlowForResult( // Pass the intent that is returned by 'getAppUpdateInfo()'.
+                appUpdateInfo,  //AppUpdateType.FLEXIBLE,
+                AppUpdateType.IMMEDIATE,
+                mActivity,
+                UPDATEREQUESTCODE
+            )
+        } catch (e: SendIntentException) {
+            e.printStackTrace()
         }
     }
 }

@@ -1,4 +1,4 @@
-package de.lemke.nakbuch.utils
+package de.lemke.nakbuch.domain.utils
 
 import android.text.Editable
 import android.text.TextWatcher

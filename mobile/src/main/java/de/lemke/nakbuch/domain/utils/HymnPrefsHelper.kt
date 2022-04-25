@@ -1,10 +1,10 @@
-package de.lemke.nakbuch.utils
+package de.lemke.nakbuch.domain.utils
 
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
 
 object HymnPrefsHelper {
     private lateinit var hymnAdditions: ArrayList<HashMap<String, String>>

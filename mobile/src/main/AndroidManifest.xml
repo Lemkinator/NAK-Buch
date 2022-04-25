@@ -50,23 +50,23 @@
             android:name="com.samsung.android.icon_container.feature_appicon"
             android:value="ADAPTIVEICON_SHADOW" />
 
-        <activity android:name=".EasterEggSwitchBarActivity" />
-        <activity android:name=".HistorySwitchBarActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".TextviewActivity" />
-        <activity android:name=".ImgviewActivity" />
-        <activity android:name=".HelpActivity" />
-        <activity android:name=".SupportMeActivity" />
+        <activity android:name=".ui.EasterEggSwitchBarActivity" />
+        <activity android:name=".ui.HistorySwitchBarActivity" />
+        <activity android:name=".ui.SettingsActivity" />
+        <activity android:name=".ui.TextviewActivity" />
+        <activity android:name=".ui.ImgviewActivity" />
+        <activity android:name=".ui.HelpActivity" />
+        <activity android:name=".ui.SupportMeActivity" />
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.AboutActivity"
             android:theme="@style/OneUIAboutTheme" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
 
         </activity>
         <activity
-            android:name=".splashscreens.SplashActivity"
+            android:name=".ui.splashscreens.SplashActivity"
             android:exported="true"
             android:theme="@style/OneUISplashTheme">
             <meta-data
@@ -81,11 +81,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".splashscreens.SplashActivityGesangbuch"
+            android:name=".ui.splashscreens.SplashActivityGesangbuch"
             android:exported="true"
             android:theme="@style/OneUISplashTheme" />
         <activity
-            android:name=".splashscreens.SplashActivityChorbuch"
+            android:name=".ui.splashscreens.SplashActivityChorbuch"
             android:exported="true"
             android:theme="@style/OneUISplashTheme" />
 

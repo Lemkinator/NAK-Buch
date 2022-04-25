@@ -1,4 +1,4 @@
-package de.lemke.nakbuch.splashscreens
+package de.lemke.nakbuch.ui.splashscreens
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -9,8 +9,8 @@ import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.lemke.nakbuch.MainActivity
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.ui.MainActivity
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -22,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
 
         val splashView = findViewById<SplashView>(R.id.splash)
         val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed({ splashView.startSplashAnimation() }, 500)
+        handler.postDelayed({ splashView.startSplashAnimation() }, 400)
 
         splashView.setSplashAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {}

@@ -39,7 +39,7 @@
         <activity android:name="androidx.wear.activity.ConfirmationActivity" />
 
         <service
-            android:name=".MessageService"
+            android:name=".utils.MessageService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

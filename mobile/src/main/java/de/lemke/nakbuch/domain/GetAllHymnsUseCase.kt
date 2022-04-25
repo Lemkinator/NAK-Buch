@@ -1,13 +1,10 @@
 package de.lemke.nakbuch.domain
 
-import android.content.Context
-import android.content.SharedPreferences
 import de.lemke.nakbuch.data.hymnsRepo
+import de.lemke.nakbuch.domain.model.BuchMode
 
 class GetAllHymnsUseCase {
     operator fun invoke(
-        mContext: Context,
-        sp: SharedPreferences,
-        gesangbuchSelected: Boolean,
-    ) = hymnsRepo.getAllHymns(mContext, sp, gesangbuchSelected)
+        buchMode: BuchMode,
+    ) = hymnsRepo.getAllHymns(buchMode)
 }

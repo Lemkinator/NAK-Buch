@@ -1,10 +1,9 @@
-package de.lemke.nakbuch.utils
+package de.lemke.nakbuch.domain.utils
 
 import java.lang.NumberFormatException
 import android.util.Log
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Resources
 import android.net.Uri
 import android.widget.Toast
 import java.io.InputStream
@@ -15,7 +14,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
 import java.lang.ClassNotFoundException
-import java.util.Arrays
 
 object AssetsHelper {
     @JvmStatic

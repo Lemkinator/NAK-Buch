@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.color.MaterialColors
@@ -35,16 +36,17 @@ import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.widget.NestedScrollView
 import de.dlyt.yanndroid.oneui.widget.RoundFrameLayout
 import de.dlyt.yanndroid.oneui.widget.TabLayout
-import de.lemke.nakbuch.HelpActivity
-import de.lemke.nakbuch.ImgviewActivity
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.TextviewActivity
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.utils.Constants
-import de.lemke.nakbuch.utils.HymnPrefsHelper.getFromList
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeToList
-import de.lemke.nakbuch.utils.TextChangedListener
-import de.lemke.nakbuch.utils.TextHelper.makeSectionOfTextBold
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.*
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.getFromList
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeToList
+import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
+import de.lemke.nakbuch.domain.utils.TextHelper.makeSectionOfTextBold
+import de.lemke.nakbuch.ui.HelpActivity
+import de.lemke.nakbuch.ui.ImgviewActivity
+import de.lemke.nakbuch.ui.TextviewActivity
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.time.Instant
 import java.time.LocalDate
@@ -58,9 +60,8 @@ class TextviewFragment : Fragment() {
     private lateinit var mContext: Context
     private var nr = 0
     private lateinit var nrAndTitle: String
-    //private var boldText: String? = null
     private var boldText: String? = null
-    private var gesangbuchSelected = false
+    private lateinit var buchMode: BuchMode
     private lateinit var tvText: TextView
     private lateinit var tvCopyright: TextView
     private lateinit var editTextNotiz: EditText
@@ -84,7 +85,7 @@ class TextviewFragment : Fragment() {
     private lateinit var selected: HashMap<Int, Boolean>
     private var mSelecting = false
     private var checkAllListening = true
-    private lateinit var  hymnHistoryList: ArrayList<Long>
+    private lateinit var hymnHistoryList: ArrayList<Long>
     private lateinit var onBackPressedCallback: OnBackPressedCallback
     private lateinit var sp: SharedPreferences
     private lateinit var spHymns: SharedPreferences
@@ -95,10 +96,10 @@ class TextviewFragment : Fragment() {
         private const val TEXT_SIZE_MIN = 10
         private const val TEXT_SIZE_MAX = 50
         private const val PLACEHOLDER = -1L
-        fun newInstance(gesangbuchSelected: Boolean, nr: Int, boldText: String?): TextviewFragment {
+        fun newInstance(buchMode: BuchMode, nr: Int, boldText: String?): TextviewFragment {
             val f = TextviewFragment()
             val args = Bundle()
-            args.putBoolean("gesangbuchSelected", gesangbuchSelected)
+            args.putBoolean("gesangbuchSelected", buchMode == BuchMode.Gesangbuch)
             args.putInt("nr", nr)
             args.putString("boldText", boldText)
             f.arguments = args
@@ -117,7 +118,8 @@ class TextviewFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         mRootView = inflater.inflate(R.layout.fragment_textview, container, false)
-        gesangbuchSelected = requireArguments().getBoolean("gesangbuchSelected")
+        buchMode =
+            if (requireArguments().getBoolean("gesangbuchSelected")) BuchMode.Gesangbuch else BuchMode.Chorbuch
         nr = requireArguments().getInt("nr")
         boldText = requireArguments().getString("boldText")
         return mRootView
@@ -125,14 +127,25 @@ class TextviewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sp = mContext.getSharedPreferences(getString(R.string.preference_file_default), Context.MODE_PRIVATE)
-        spHymns = mContext.getSharedPreferences(getString(R.string.preference_file_hymns), Context.MODE_PRIVATE)
-        val hymn = getHymnArrayList(mContext, sp, gesangbuchSelected)[nr - 1]
+        sp = mContext.getSharedPreferences(
+            getString(R.string.preference_file_default),
+            Context.MODE_PRIVATE
+        )
+        spHymns = mContext.getSharedPreferences(
+            getString(R.string.preference_file_hymns),
+            Context.MODE_PRIVATE
+        )
+        val hymn = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)[nr - 1]
         nrAndTitle = hymn["hymnNrAndTitle"]!!
         val text = hymn["hymnText"]!!.replace("</p><p>", "\n\n").replace("<br>", "")
         val copyright = hymn["hymnCopyright"]!!.replace("<br>", "\n")
         drawerLayout = mRootView.findViewById(R.id.drawer_layout_textview)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setNavigationButtonIcon(
+            AppCompatResources.getDrawable(
+                mContext,
+                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back
+            )
+        )
         drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         drawerLayout.setNavigationButtonOnClickListener { requireActivity().onBackPressed() }
         drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
@@ -151,10 +164,10 @@ class TextviewFragment : Fragment() {
                     requireActivity().finish()
                 }
                 R.id.mute -> {
-                    Constants.mute(mContext)
+                    SoundUtils.mute(mContext)
                 }
                 R.id.dnd -> {
-                    Constants.dnd(mContext)
+                    SoundUtils.dnd(mContext)
                 }
             }
             true
@@ -172,7 +185,7 @@ class TextviewFragment : Fragment() {
             drawerLayout.setTitle(nrAndTitle)
             tvCopyright.text = copyright
         }
-        if (gesangbuchSelected) {
+        if (buchMode == BuchMode.Gesangbuch) {
             drawerLayout.setSubtitle(getString(R.string.title_Gesangbuch))
         } else {
             drawerLayout.setSubtitle(getString(R.string.title_Chorbuch))
@@ -183,52 +196,30 @@ class TextviewFragment : Fragment() {
             TextChangedListener<EditText>(editTextNotiz) {
             override fun onTextChanged(target: EditText, s: Editable) {
                 writeToList(
-                    gesangbuchSelected,
+                    buchMode == BuchMode.Gesangbuch,
                     spHymns,
                     nr,
                     "note",
                     editTextNotiz.text.toString()
                 )
-                if (sp.getBoolean("easterEggs", true)) {
-                    if (s.toString().replace(" ", "").equals("easteregg", ignoreCase = true)
-                    ) {
-                        val set: MutableSet<String> =
-                            HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-                        if (!set.contains(getString(R.string.easterEggEntryNote))) {
-                            s.clear()
-                            val inputManager =
-                                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                            inputManager.hideSoftInputFromWindow(
-                                requireActivity().currentFocus!!.windowToken,
-                                InputMethodManager.HIDE_NOT_ALWAYS
-                            )
-                            set.add(getString(R.string.easterEggEntryNote))
-                            sp.edit().putStringSet("discoveredEasterEggs", set).apply()
-                            konfettiView.start(Constants.party1())
-                            Handler(Looper.getMainLooper()).postDelayed(
-                                { konfettiView.start(Constants.party2()) },
-                                Constants.partyDelay2.toLong()
-                            )
-                            Handler(Looper.getMainLooper()).postDelayed(
-                                { konfettiView.start(Constants.party3()) },
-                                Constants.partyDelay3.toLong()
-                            )
-                            Toast.makeText(
-                                mContext,
-                                getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryNote),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
+                if (s.toString().replace(" ", "").equals("easteregg", ignoreCase = true)
+                ) {
+                    discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntryNote)
+                    s.clear()
+                    val inputManager =
+                        requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputManager.hideSoftInputFromWindow(
+                        requireActivity().currentFocus!!.windowToken,
+                        InputMethodManager.HIDE_NOT_ALWAYS
+                    )
                 }
+
             }
         })
-        val clipboard =
-            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         mRootView.findViewById<View>(R.id.buttonKopieren).setOnClickListener {
             Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show()
-            val clip = ClipData.newPlainText("Notiz", editTextNotiz.text.toString())
-            clipboard.setPrimaryClip(clip)
+            val clip = ClipData.newPlainText("Notiz aus NAKBuch (Liednummer: $nr)", editTextNotiz.text.toString())
+            (requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clip)
         }
         mRootView.findViewById<View>(R.id.buttonSenden).setOnClickListener {
             val sendIntent = Intent(Intent.ACTION_SEND)
@@ -255,12 +246,19 @@ class TextviewFragment : Fragment() {
             }
             hymnHistoryList.remove(PLACEHOLDER)
             hymnHistoryList.sortWith(Collections.reverseOrder())
-            writeToList(gesangbuchSelected, spHymns, nr, "dates", Gson().toJson(hymnHistoryList))
+            writeToList(
+                buchMode == BuchMode.Gesangbuch,
+                spHymns,
+                nr,
+                "dates",
+                Gson().toJson(hymnHistoryList)
+            )
             initList()
         }
         jokeButton = mRootView.findViewById(R.id.jokeButton)
         jokeButton.setOnClickListener {
-            val s: MutableSet<String> = HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
+            val s: MutableSet<String> =
+                HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
             val jokeDialog = AlertDialog.Builder(mContext)
                 .setTitle(getString(R.string.jokeTitle))
                 .setMessage(getString(R.string.jokeMessage))
@@ -282,18 +280,10 @@ class TextviewFragment : Fragment() {
                     getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryPremium),
                     Toast.LENGTH_SHORT
                 ).show()
-                konfettiView.start(Constants.party1())
-                Handler(Looper.getMainLooper()).postDelayed(
-                    { konfettiView.start(Constants.party2()) },
-                    Constants.partyDelay2.toLong()
-                )
-                Handler(Looper.getMainLooper()).postDelayed(
-                    { konfettiView.start(Constants.party3()) },
-                    Constants.partyDelay3.toLong()
-                )
+                PartyUtils.showKonfetti(konfettiView)
                 Handler(Looper.getMainLooper()).postDelayed(
                     { jokeDialog.show() },
-                    Constants.partyDelay2 + Constants.partyDelay3.toLong()
+                    PartyUtils.partyDelay2 + PartyUtils.partyDelay3
                 )
             } else {
                 jokeDialog.show()
@@ -302,8 +292,24 @@ class TextviewFragment : Fragment() {
         }
 
         val whyNoFullTextButton: MaterialButton = mRootView.findViewById(R.id.whyNoFullTextButton)
-        whyNoFullTextButton.setOnClickListener { startActivity(Intent(mContext, HelpActivity::class.java)) }
+        whyNoFullTextButton.setOnClickListener {
+            startActivity(
+                Intent(
+                    mContext,
+                    HelpActivity::class.java
+                )
+            )
+        }
+        val openOfficialAppButton: MaterialButton =
+            mRootView.findViewById(R.id.openOfficialAppButton)
+        openOfficialAppButton.setOnClickListener {
+            AppUtils.openBischoffApp(
+                mContext,
+                buchMode
+            )
+        }
         if (text.contains("urheberrechtlich geschützt...", ignoreCase = true)) {
+            openOfficialAppButton.visibility = View.VISIBLE
             if (spHymns.getBoolean("showJokeButton", true) && sp.getBoolean("easterEggs", true)) {
                 jokeButton.visibility = View.VISIBLE
                 whyNoFullTextButton.visibility = View.GONE
@@ -313,7 +319,7 @@ class TextviewFragment : Fragment() {
             }
         }
 
-        val note = getFromList(gesangbuchSelected, spHymns, nr, "note")
+        val note = getFromList(buchMode == BuchMode.Gesangbuch, spHymns, nr, "note")
         if (note != "") {
             editTextNotiz.setText(note)
         }
@@ -359,7 +365,7 @@ class TextviewFragment : Fragment() {
                 historyList = ArrayList()
             }
             val hm = HashMap<String, String>()
-            hm["buchMode"] = if (gesangbuchSelected) "GB" else "CB"
+            hm["buchMode"] = if (buchMode == BuchMode.Gesangbuch) "GB" else "CB"
             hm["nr"] = nr.toString()
             hm["nrAndTitle"] = nrAndTitle
             hm["date"] =
@@ -371,21 +377,33 @@ class TextviewFragment : Fragment() {
 
     @SuppressLint("ApplySharedPref")
     private fun initBNV() {
+        if (tabLayout == null) {
+            tabLayout = mRootView.findViewById(R.id.textView_bnv)
+        } else {
+            tabLayout!!.removeAllTabs()
+        }
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            tabLayout?.isEnabled = false
+            tabLayout!!.isVisible = false
             return
         } else {
-            if (tabLayout == null) {
-                tabLayout = mRootView.findViewById(R.id.textView_bnv)
-            } else {
-                tabLayout!!.removeAllTabs()
-            }
+            tabLayout!!.isVisible = true
         }
-        tabLayout!!.isEnabled = true
-        val noteIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
+        val noteIcon = AppCompatResources.getDrawable(
+            mContext,
+            de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit
+        )
         //Drawable noteIcon = AppCompatResources.getDrawable(mContext, R.drawable.ic_samsung_composer);
         if (spHymns.getBoolean("noteVisible", false)) {
-            noteIcon!!.colorFilter = PorterDuffColorFilter(MaterialColors.getColor(mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary, resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, mContext.theme)), PorterDuff.Mode.SRC_IN)
+            noteIcon!!.colorFilter = PorterDuffColorFilter(
+                MaterialColors.getColor(
+                    mContext,
+                    de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                    resources.getColor(
+                        de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange,
+                        mContext.theme
+                    )
+                ), PorterDuff.Mode.SRC_IN
+            )
         }
         tabLayout!!.addTabCustomButton(noteIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
@@ -412,9 +430,21 @@ class TextviewFragment : Fragment() {
                 initBNV()
             }
         })
-        val dateIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
+        val dateIcon = AppCompatResources.getDrawable(
+            mContext,
+            de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task
+        )
         if (spHymns.getBoolean("calendarVisible", false)) {
-            dateIcon!!.colorFilter = PorterDuffColorFilter(MaterialColors.getColor(mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary, resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, mContext.theme)), PorterDuff.Mode.SRC_IN)
+            dateIcon!!.colorFilter = PorterDuffColorFilter(
+                MaterialColors.getColor(
+                    mContext,
+                    de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                    resources.getColor(
+                        de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange,
+                        mContext.theme
+                    )
+                ), PorterDuff.Mode.SRC_IN
+            )
         }
         tabLayout!!.addTabCustomButton(dateIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
@@ -427,7 +457,7 @@ class TextviewFragment : Fragment() {
                     nestedScrollView.post {
                         nestedScrollView.smoothScrollTo(
                             0,
-                            (notesGroup.top + notesGroup.bottom - nestedScrollView.height) / 2
+                            (calendarGroup.top + calendarGroup.bottom - nestedScrollView.height) / 2
                         )
                     }
                     spHymns.edit().putBoolean("calendarVisible", true).commit()
@@ -438,25 +468,45 @@ class TextviewFragment : Fragment() {
             }
         })
         val favIcon: Drawable?
-        if (getFromList(gesangbuchSelected, spHymns, nr, "fav") == "1") {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)
-            favIcon!!.colorFilter = PorterDuffColorFilter(resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, mContext.theme), PorterDuff.Mode.SRC_IN)
+        if (getFromList(buchMode == BuchMode.Gesangbuch, spHymns, nr, "fav") == "1") {
+            favIcon = AppCompatResources.getDrawable(
+                mContext,
+                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on
+            )
+            favIcon!!.colorFilter = PorterDuffColorFilter(
+                resources.getColor(
+                    de.dlyt.yanndroid.oneui.R.color.red,
+                    mContext.theme
+                ), PorterDuff.Mode.SRC_IN
+            )
         } else {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)
+            favIcon = AppCompatResources.getDrawable(
+                mContext,
+                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off
+            )
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 writeToList(
-                    gesangbuchSelected,
+                    buchMode == BuchMode.Gesangbuch,
                     spHymns,
                     nr,
                     "fav",
-                    if (getFromList(gesangbuchSelected, spHymns, nr, "fav") == "1") "0" else "1"
+                    if (getFromList(
+                            buchMode == BuchMode.Gesangbuch,
+                            spHymns,
+                            nr,
+                            "fav"
+                        ) == "1"
+                    ) "0" else "1"
                 )
                 initBNV()
             }
         })
-        val camIcon: Drawable? = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan)
+        val camIcon: Drawable? = AppCompatResources.getDrawable(
+            mContext,
+            de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan
+        )
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val myIntent = Intent(mContext, ImgviewActivity::class.java)
@@ -465,7 +515,8 @@ class TextviewFragment : Fragment() {
                 startActivity(myIntent)
             }
         })
-        val plusIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
+        val plusIcon =
+            AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
         tabLayout!!.addTabCustomButton(plusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val currentTextSize = spHymns.getInt("textSize", DEFAULT_TEXT_SIZE)
@@ -474,7 +525,10 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val minusIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus)
+        val minusIcon = AppCompatResources.getDrawable(
+            mContext,
+            de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus
+        )
         tabLayout!!.addTabCustomButton(minusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val currentTextSize = spHymns.getInt("textSize", DEFAULT_TEXT_SIZE)
@@ -597,7 +651,7 @@ ${getString(R.string.dnd_mode)}"""
     }
 
     private fun setHymnHistoryList() {
-        val dates = getFromList(gesangbuchSelected, spHymns, nr, "dates")
+        val dates = getFromList(buchMode == BuchMode.Gesangbuch, spHymns, nr, "dates")
         hymnHistoryList = if (dates == "") {
             ArrayList()
         } else {
@@ -643,7 +697,7 @@ ${getString(R.string.dnd_mode)}"""
                     hymnHistoryList.removeAll(toDelete)
                     hymnHistoryList.remove(PLACEHOLDER)
                     writeToList(
-                        gesangbuchSelected,
+                        buchMode == BuchMode.Gesangbuch,
                         spHymns,
                         nr,
                         "dates",
@@ -703,9 +757,7 @@ ${getString(R.string.dnd_mode)}"""
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (hymnHistoryList[position] != PLACEHOLDER) {
-                0
-            } else 1
+            return if (hymnHistoryList[position] != PLACEHOLDER) 0 else 1
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -800,7 +852,8 @@ ${getString(R.string.dnd_mode)}"""
                 val childAt = recyclerView.getChildAt(i)
                 val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
                 val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean = if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
+                val shallDrawDivider: Boolean =
+                    if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
                 if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
@@ -810,17 +863,17 @@ ${getString(R.string.dnd_mode)}"""
                     mDivider!!.draw(canvas)
                 }
                 if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) mSeslRoundedCornerTop.drawRoundedCorner(
+                    /*if (recyclerView.getChildAt(i + 1) != null) mSeslRoundedCornerTop.drawRoundedCorner(
                         recyclerView.getChildAt(i + 1),
                         canvas
-                    )
+                    )*/
                     if (recyclerView.getChildAt(i - 1) != null) mSeslRoundedCornerBottom.drawRoundedCorner(
                         recyclerView.getChildAt(i - 1),
                         canvas
                     )
                 }
             }
-            mSeslRoundedCornerTop.drawRoundedCorner(canvas)
+            //mSeslRoundedCornerTop.drawRoundedCorner(canvas)
         }
 
         fun setDivider(d: Drawable) {

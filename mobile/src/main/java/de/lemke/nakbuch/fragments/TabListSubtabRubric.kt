@@ -21,10 +21,11 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.TextviewActivity
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.utils.AssetsHelper.getRubricListItemArrayList
-import de.lemke.nakbuch.utils.AssetsHelper.getRubricTitlesArrayList
+import de.lemke.nakbuch.ui.TextviewActivity
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getRubricListItemArrayList
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getRubricTitlesArrayList
 
 class TabListSubtabRubric : Fragment() {
     private lateinit var listView: RecyclerView
@@ -36,7 +37,7 @@ class TabListSubtabRubric : Fragment() {
     private lateinit var rubList: ArrayList<HashMap<String, String>>
     private var rubrikIndex = 0
     private var rubrikIndexName = ""
-    private var gesangbuchSelected = false
+    private lateinit var buchMode: BuchMode
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var subTabs: TabLayout
     private lateinit var mainTabs: TabLayout
@@ -72,7 +73,7 @@ class TabListSubtabRubric : Fragment() {
             getString(R.string.preference_file_hymns),
             Context.MODE_PRIVATE
         )
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
+        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         listView = mRootView.findViewById(R.id.hymnListRubric)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
@@ -145,7 +146,7 @@ class TabListSubtabRubric : Fragment() {
         if (enabled) {
             mSelecting = true
             drawerLayout.showSelectMode()
-            drawerLayout.setSelectModeAllCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+            drawerLayout.setSelectModeAllCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                 if (checkAllListening) {
                     for (i in 0 until imageAdapter.itemCount - 1) {
                         selected[i] = isChecked
@@ -185,9 +186,9 @@ class TabListSubtabRubric : Fragment() {
     }
 
     private fun initAssets() {
-        hymns = getHymnArrayList(mContext, sp, gesangbuchSelected)
-        rubricListItemViewTypes = getRubricListItemArrayList(gesangbuchSelected)
-        rubricTitles = getRubricTitlesArrayList(gesangbuchSelected)
+        hymns = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
+        rubricListItemViewTypes = getRubricListItemArrayList(buchMode == BuchMode.Gesangbuch)
+        rubricTitles = getRubricTitlesArrayList(buchMode == BuchMode.Gesangbuch)
         hymns.add(HashMap()) //Placeholder
     }
 

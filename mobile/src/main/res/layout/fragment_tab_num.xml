@@ -2,15 +2,13 @@
 <de.dlyt.yanndroid.oneui.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nestedScrollViewTab0"
+    android:id="@+id/nestedScrollViewTabNum"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:fillViewport="true"
-    android:scrollbars="vertical"
     app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior"
     >
-
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -52,6 +50,7 @@
                 app:iconSize="45dp"
                 app:strokeWidth="1dp"
                 app:cornerRadius="30dp"
+                android:animateLayoutChanges="true"
                 />
 
             <GridLayout
@@ -184,7 +183,7 @@
                     android:layout_gravity="center"
                     android:layout_margin="@dimen/number_button_margin"
                     android:tooltipText="@string/openInTextView"
-                    app:icon="@drawable/ic_oui_selected"
+                    app:icon="@drawable/ic_oui3_selected"
                     app:iconGravity="textTop"
                     app:iconSize="45dp"
                     app:iconTint="@color/white" />
@@ -204,6 +203,7 @@
                 app:iconSize="45dp"
                 app:strokeWidth="1dp"
                 app:cornerRadius="30dp"
+                android:animateLayoutChanges="true"
                 />
 
         </LinearLayout>

@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.content.Context
 import android.os.Bundle
@@ -10,8 +10,10 @@ import de.dlyt.yanndroid.oneui.sesl.viewpager2.adapter.FragmentStateAdapter
 import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.ViewPager2
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.fragments.TextviewFragment
-import de.lemke.nakbuch.utils.Constants
+import de.lemke.nakbuch.domain.utils.Constants.Companion.hymnCount
 
 class TextviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +21,7 @@ class TextviewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val mContext: Context = this
         val sp = mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
-        val gesangbuchSelected = intent.getBooleanExtra("buchMode", sp.getBoolean("gesangbuchSelected", true))
+        val buchMode = if (intent.getBooleanExtra("buchMode", sp.getBoolean("gesangbuchSelected", true))) BuchMode.Gesangbuch else BuchMode.Chorbuch
         val nr = intent.getIntExtra("nr", -1)
         val boldText = intent.getStringExtra("boldText")
         if (nr < 1) {
@@ -28,7 +30,7 @@ class TextviewActivity : AppCompatActivity() {
         }
         setContentView(R.layout.activity_textview)
         val viewPager2 = findViewById<ViewPager2>(R.id.viewPager2TextView)
-        viewPager2.adapter = ViewPager2AdapterTextview(this, gesangbuchSelected, boldText)
+        viewPager2.adapter = ViewPager2AdapterTextview(this, buchMode, boldText)
         viewPager2.registerOnPageChangeCallback(object : SeslViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int,
@@ -64,19 +66,19 @@ class TextviewActivity : AppCompatActivity() {
 
     inner class ViewPager2AdapterTextview(
         fragmentActivity: FragmentActivity,
-        private val gesangbuchSelected: Boolean,
+        private val buchMode: BuchMode,
         private val boldText: String?
     ) : FragmentStateAdapter(fragmentActivity) {
         override fun createFragment(position: Int): Fragment {
             return TextviewFragment.newInstance(
-                gesangbuchSelected,
+                buchMode,
                 position + 1,
                 boldText
             )
         }
 
         override fun getItemCount(): Int {
-            return if (gesangbuchSelected) Constants.HYMNSGESANGBUCHCOUNT else Constants.HYMNSCHORBUCHCOUNT
+            return hymnCount(buchMode)
         }
     }
 }

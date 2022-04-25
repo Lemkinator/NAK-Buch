@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -25,8 +25,9 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.Switch
 import de.dlyt.yanndroid.oneui.widget.SwitchBar
-import de.lemke.nakbuch.utils.AssetsHelper.validHymnr
-import de.lemke.nakbuch.utils.Constants
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.utils.AssetsHelper.validHymnr
+import de.lemke.nakbuch.domain.utils.Constants
 
 class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
     private var historyList: ArrayList<HashMap<String, String>>? = null

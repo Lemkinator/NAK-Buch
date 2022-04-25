@@ -1,22 +1,17 @@
 package de.lemke.nakbuch.domain
 
-import android.content.Context
-import android.content.SharedPreferences
 import de.lemke.nakbuch.data.hymnDataRepo
 import de.lemke.nakbuch.data.hymnsRepo
+import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 
 class GetFavoriteHymnsUseCase {
     operator fun invoke(
-        mContext: Context,
-        sp: SharedPreferences,
-        spHymns: SharedPreferences,
-        gesangbuchSelected: Boolean,
+        buchMode: BuchMode,
     ): ArrayList<Hymn> {
-        return hymnsRepo.getAllHymns(mContext, sp, gesangbuchSelected).filter { hymn ->
+        return hymnsRepo.getAllHymns(buchMode).filter { hymn ->
             hymnDataRepo.getAllHymnData(
-                gesangbuchSelected,
-                spHymns
+                buchMode
             )[hymn.number - 1]?.favorite ?: false
         } as ArrayList
     }

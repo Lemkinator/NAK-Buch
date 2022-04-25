@@ -23,17 +23,18 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.TextviewActivity
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
+import de.lemke.nakbuch.ui.TextviewActivity
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.AssetsHelper
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeFavsToList
 import java.util.*
 
 class TabListSubtabAlphabetic : Fragment() {
     private lateinit var listView: RecyclerView
     private lateinit var mRootView: View
     private lateinit var mContext: Context
-    private lateinit var hymns_alphsort: ArrayList<HashMap<String, String>>
-    private var gesangbuchSelected = false
+    private lateinit var hymnsAlphsort: ArrayList<HashMap<String, String>>
+    private lateinit var buchMode: BuchMode
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var subTabs: TabLayout
     private lateinit var mainTabs: TabLayout
@@ -69,7 +70,7 @@ class TabListSubtabAlphabetic : Fragment() {
             getString(R.string.preference_file_hymns),
             Context.MODE_PRIVATE
         )
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
+        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         listView = mRootView.findViewById(R.id.hymnListAlphabetical)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
@@ -81,13 +82,15 @@ class TabListSubtabAlphabetic : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        initAssets()
+        hymnsAlphsort = AssetsHelper.getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
+        hymnsAlphsort.sortWith(Comparator.comparing { hm: HashMap<String, String> -> hm["hymnTitle"]!! })
+        hymnsAlphsort.add(HashMap()) //Placeholder
         initList()
     }
 
     private fun initList() {
         selected = HashMap()
-        for (i in hymns_alphsort.indices) selected[i] = false
+        for (i in hymnsAlphsort.indices) selected[i] = false
         listView.layoutManager = LinearLayoutManager(mContext)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
@@ -104,7 +107,7 @@ class TabListSubtabAlphabetic : Fragment() {
         val indexScrollView: IndexScrollView =
             mRootView.findViewById(R.id.indexScrollViewAlphabetical)
         val list: MutableList<String?> = ArrayList()
-        for (i in 0 until hymns_alphsort.size - 1) list.add(hymns_alphsort[i]["hymnTitle"])
+        for (i in 0 until hymnsAlphsort.size - 1) list.add(hymnsAlphsort[i]["hymnTitle"])
         indexScrollView.syncWithRecyclerView(listView, list, true)
         indexScrollView.setIndexBarGravity(1)
     }
@@ -116,10 +119,10 @@ class TabListSubtabAlphabetic : Fragment() {
             drawerLayout.setSelectModeBottomMenu(R.menu.fav_menu) { item: MenuItem ->
                 when (item.itemId) {
                     R.id.addToFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns_alphsort, "1")
+                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, hymnsAlphsort, "1")
                     }
                     R.id.removeFromFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns_alphsort, "")
+                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, hymnsAlphsort, "")
                     }
                     else -> {
                         item.badge = item.badge + 1
@@ -130,7 +133,7 @@ class TabListSubtabAlphabetic : Fragment() {
                 true
             }
             drawerLayout.showSelectMode()
-            drawerLayout.setSelectModeAllCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
+            drawerLayout.setSelectModeAllCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
                 if (checkAllListening) {
                     for (i in 0 until imageAdapter.itemCount - 1) {
                         selected[i] = isChecked
@@ -169,12 +172,6 @@ class TabListSubtabAlphabetic : Fragment() {
         checkAllListening = true
     }
 
-    private fun initAssets() {
-        hymns_alphsort = getHymnArrayList(mContext, sp, gesangbuchSelected)
-        hymns_alphsort.sortWith(Comparator.comparing { hm: HashMap<String, String> -> hm["hymnTitle"]!! })
-        hymns_alphsort.add(HashMap()) //Placeholder
-    }
-
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter internal constructor() :
         RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
@@ -182,7 +179,7 @@ class TabListSubtabAlphabetic : Fragment() {
         private var mPositionForSection: MutableList<Int> = ArrayList()
         private var mSectionForPosition: MutableList<Int> = ArrayList()
         override fun getItemCount(): Int {
-            return hymns_alphsort.size
+            return hymnsAlphsort.size
         }
 
         override fun getItemId(position: Int): Long {
@@ -190,7 +187,7 @@ class TabListSubtabAlphabetic : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (hymns_alphsort[position].containsKey("hymnNr")) {
+            return if (hymnsAlphsort[position].containsKey("hymnNr")) {
                 0
             } else 1
         }
@@ -210,14 +207,14 @@ class TabListSubtabAlphabetic : Fragment() {
                 holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text = hymns_alphsort[position]["hymnNrAndTitle"]
+                holder.textView.text = hymnsAlphsort[position]["hymnNrAndTitle"]
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         startActivity(
                             Intent(mRootView.context, TextviewActivity::class.java)
                                 .putExtra(
                                     "nr",
-                                    hymns_alphsort[position]["hymnNr"]?.toInt() ?: -1
+                                    hymnsAlphsort[position]["hymnNr"]?.toInt() ?: -1
                                 )
                         )
                     }
@@ -278,9 +275,9 @@ class TabListSubtabAlphabetic : Fragment() {
         }
 
         init {
-            for (i in hymns_alphsort.indices) {
-                val letter: String = if (i != hymns_alphsort.size - 1) {
-                    hymns_alphsort[i]["hymnTitle"]!!.substring(0, 1).uppercase(Locale.getDefault())
+            for (i in hymnsAlphsort.indices) {
+                val letter: String = if (i != hymnsAlphsort.size - 1) {
+                    hymnsAlphsort[i]["hymnTitle"]!!.substring(0, 1).uppercase(Locale.getDefault())
                 } else {
                     mSections[mSections.size - 1]
                 }

@@ -1,4 +1,4 @@
-package de.lemke.nakbuch.utils
+package de.lemke.nakbuch.domain.utils
 
 import android.content.Context
 import android.content.SharedPreferences

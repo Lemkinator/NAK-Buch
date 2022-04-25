@@ -39,7 +39,7 @@
     </FrameLayout>
 
     <de.dlyt.yanndroid.oneui.widget.TabLayout
-        android:id="@+id/textView_bnv"
+        android:id="@+id/imgView_bnv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_location="footer" />

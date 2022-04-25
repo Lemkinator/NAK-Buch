@@ -11,16 +11,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
+import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.TextviewActivity
-import de.lemke.nakbuch.utils.AssetsHelper
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.utils.Constants
+import de.lemke.nakbuch.ui.TextviewActivity
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.AssetsHelper
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.domain.utils.Constants
+import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
 import nl.dionsegijn.konfetti.xml.KonfettiView
+
 
 class MainActivityTabNum : Fragment() {
     private lateinit var mRootView: View
@@ -28,9 +31,10 @@ class MainActivityTabNum : Fragment() {
     private lateinit var mContext: Context
     private lateinit var konfettiView: KonfettiView
     private lateinit var sp: SharedPreferences
-    private var gesangbuchSelected = false
+    private lateinit var buchMode: BuchMode
     private var inputOngoing = false
     private var hymnNrInput: String = ""
+    private lateinit var drawerLayout: DrawerLayout
     private lateinit var tvHymnNrTitle: TextView
     private lateinit var tvHymnText: TextView
     private lateinit var hymns: ArrayList<HashMap<String, String>>
@@ -58,10 +62,15 @@ class MainActivityTabNum : Fragment() {
             getString(R.string.preference_file_default),
             Context.MODE_PRIVATE
         )
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
+        drawerLayout = mActivity.findViewById(R.id.drawer_view)
+        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
         konfettiView = mActivity.findViewById(R.id.konfettiViewTab0)
         tvHymnNrTitle = mActivity.findViewById(R.id.hymnTitlePreview)
         tvHymnText = mActivity.findViewById(R.id.hymnTextPreview)
+        //val nestedScrollView: NestedScrollView = mActivity.findViewById(R.id.nestedScrollViewTabNum)
+        //nestedScrollView.isNestedScrollingEnabled = false
+        //tvHymnText.height = (drawerLayout.height - 5 * resources.getDimension(R.dimen.number_button_height)).toInt()
+
         val switchSideButton1 = mActivity.findViewById<MaterialButton>(R.id.switchSideButton1)
         val switchSideButton2 = mActivity.findViewById<MaterialButton>(R.id.switchSideButton2)
         switchSideButton1.setOnClickListener {
@@ -120,33 +129,7 @@ class MainActivityTabNum : Fragment() {
             inputOngoing = false
             previewHymn(hymnNrInput)
         }
-
-        /*TipPopup b_z_tipPopup = new TipPopup(b_z, TipPopup.MODE_TRANSLUCENT);
-        b_z_tipPopup.setMessage("Hier tippen um die zuletzt eingegebene Ziffer zu löschen.");
-        b_z_tipPopup.setAction("Ok", new OnSingleClickListener() {
-            @Override
-            public void onSingleClick(View view) {
-                sp.edit().putBoolean("show_b_z_tip_popup", false).apply();
-            }
-        });
-        TipPopup b_ok_tipPopup = new TipPopup(b_z, TipPopup.MODE_TRANSLUCENT);
-        b_ok_tipPopup.setMessage("Hier tippen um die Lied-Ansicht für die eingegebene Nummer zu öffnen");
-        b_ok_tipPopup.setAction("Ok", new OnSingleClickListener() {
-            @Override
-            public void onSingleClick(View view) {
-                sp.edit().putBoolean("show_b_ok_tip_popup", false).apply();
-            }
-        });
-        if (sp.getBoolean("show_b_z_tip_popup", true)) {
-            refreshHandler.postDelayed(() -> {
-                b_z_tipPopup.show(TipPopup.DIRECTION_BOTTOM_LEFT);
-            }, 500);
-        }
-        if (sp.getBoolean("show_b_ok_tip_popup", true)) {
-            refreshHandler.postDelayed(() -> {
-                b_ok_tipPopup.show(TipPopup.DIRECTION_BOTTOM_LEFT);
-            }, 500);
-        }*/initAssets()
+        hymns = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
         hymnNrInput = sp.getString("nr", "-1").toString()
         previewHymn(hymnNrInput)
     }
@@ -170,16 +153,16 @@ class MainActivityTabNum : Fragment() {
         refreshHandler.removeCallbacks(refreshRunnable)
         tvHymnNrTitle.text = hymnNrInput
         tvHymnText.text = ""
-        refreshHandler.postDelayed(refreshRunnable, DELAY_BEFORE_PREVIEW.toLong())
+        refreshHandler.postDelayed(refreshRunnable, Constants.DELAY_BEFORE_PREVIEW)
     }
 
     private fun previewHymn(nr: String) {
-        val hymnNr = validHymnr(gesangbuchSelected, nr)
+        val hymnNr = validHymnr(buchMode == BuchMode.Gesangbuch, nr)
         if (hymnNr > 0) {
             tvHymnNrTitle.text = hymns[hymnNr - 1]["hymnNrAndTitle"]
             tvHymnText.text = hymns[hymnNr - 1]["hymnText"]
                 ?.replace("</p><p>", "\n\n") ?: getText(R.string.notFound)
-            sp.edit().putString("nr", nr).apply( )
+            sp.edit().putString("nr", nr).apply()
         } else {
             tvHymnNrTitle.text = ""
             tvHymnText.text = ""
@@ -188,7 +171,7 @@ class MainActivityTabNum : Fragment() {
     }
 
     private fun showHymn(nr: String) {
-        val hymnNr = validHymnr(gesangbuchSelected, nr)
+        val hymnNr = validHymnr(buchMode == BuchMode.Gesangbuch, nr)
         if (hymnNr > 0) {
             startActivity(
                 Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", hymnNr)
@@ -197,62 +180,14 @@ class MainActivityTabNum : Fragment() {
     }
 
     private fun validHymnr(buchMode: Boolean, hymnNr: String): Int {
-        if (sp.getBoolean("easterEggs", false)) {
-            if (hymnNr == "999") {
-                val set: MutableSet<String> =
-                    HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-                if (!set.contains(getString(R.string.easterEggEntry999))) {
-                    set.add(getString(R.string.easterEggEntry999))
-                    sp.edit().putStringSet("discoveredEasterEggs", set).apply()
-                    konfettiView.start(Constants.party1())
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party2()) },
-                        Constants.partyDelay2.toLong()
-                    )
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party3()) },
-                        Constants.partyDelay3.toLong()
-                    )
-                    Toast.makeText(
-                        mContext,
-                        getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntry999),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-            if (hymnNr == "0") {
-                val set: MutableSet<String> =
-                    HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-                if (!set.contains(getString(R.string.easterEggEntry0))) {
-                    set.add(getString(R.string.easterEggEntry0))
-                    sp.edit().putStringSet("discoveredEasterEggs", set).apply()
-                    konfettiView.start(Constants.party1())
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party2()) },
-                        Constants.partyDelay2.toLong()
-                    )
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party3()) },
-                        Constants.partyDelay3.toLong()
-                    )
-                    Toast.makeText(
-                        mContext,
-                        getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntry0),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
+        if (hymnNr == "999") {
+            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntry999)
+        }
+        if (hymnNr == "0" || hymnNr == "00" || hymnNr == "000") {
+            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntry0)
         }
         val result: Int = AssetsHelper.validHymnr(buchMode, hymnNr)
         if (result < 0) hymnNrInput = ""
         return result
-    }
-
-    private fun initAssets() {
-        hymns = getHymnArrayList(mContext, sp, gesangbuchSelected)
-    }
-
-    companion object {
-        private const val DELAY_BEFORE_PREVIEW = 1500
     }
 }

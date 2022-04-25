@@ -1,6 +1,7 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -46,8 +47,11 @@ import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.view.Tooltip
 import de.dlyt.yanndroid.oneui.widget.OptionButton
 import de.dlyt.yanndroid.oneui.widget.TabLayout
-import de.lemke.nakbuch.utils.Constants
-import de.lemke.nakbuch.utils.TabsManager
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.utils.AppUtils
+import de.lemke.nakbuch.domain.utils.Constants
+import de.lemke.nakbuch.domain.utils.SoundUtils
+import de.lemke.nakbuch.domain.utils.TabsManager
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var mContext: Context = this
@@ -64,7 +68,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var tipPopupSwitchBuchMode: TipPopup
     private lateinit var tipPopupMenuButton: TipPopup
     private lateinit var tipPopupOkButton: TipPopup
-    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private var activityResultLauncher: ActivityResultLauncher<Intent>  =
+        registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->
+            drawerLayout.onSearchModeVoiceInputResult(result)
+        }
     private var time: Long = 0
     private val mHandler = Handler(Looper.getMainLooper())
     private val showSearchRunnable = Runnable { setFragment(3) }
@@ -73,19 +80,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ThemeUtil(this, "4099ff")
         //val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
         time = System.currentTimeMillis()
-        Constants.res = resources
         mContext = this
         sp = getSharedPreferences(
             getString(R.string.preference_file_default),
             Context.MODE_PRIVATE
         )
-
-        setContentView(R.layout.activity_main)
-        activityResultLauncher =
-            registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->
-                drawerLayout.onSearchModeVoiceInputResult(result)
+        when(AppUtils.checkAppStart(sp)) {
+            AppUtils.AppStart.FIRST_TIME -> {}
+            AppUtils.AppStart.OLD_ARCHITECTURE -> {
+                oldArchitectureDetected()
             }
+            AppUtils.AppStart.FIRST_TIME_VERSION -> {}
+            AppUtils.AppStart.NORMAL -> {}
+        }
         init()
 
         val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -119,6 +128,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
             }
         }
+    }
+
+    private fun oldArchitectureDetected() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.detectedOldArchitecture))
+            .setMessage(getString(R.string.detectedOldArchitectureText))
+            .setNeutralButton("Neustart") { _: DialogInterface, _: Int ->
+                Handler(Looper.getMainLooper()).postDelayed(
+                    {(getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()},
+                    500
+                )
+            }
+            .setOnDismissListener { easterEggDialog() }
+            .create()
+            .show()
     }
 
     override fun onAttachedToWindow() {
@@ -234,15 +258,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         }
 
                         override fun afterTextChanged(s: Editable) {
-                            if (s.toString().isNotEmpty()) sp.edit()
-                                .putString("search", s.toString()).apply()
-                            if (s.toString().replace(" ".toRegex(), "")
-                                    .equals("easteregg", ignoreCase = true)
-                            ) {
+                            if (s.toString().isNotEmpty()) sp.edit().putString("search", s.toString()).apply()
+                            if (s.toString().replace(" ", "").equals("easteregg", ignoreCase = true)) {
                                 setFragment(3)
                                 Handler(Looper.getMainLooper()).postDelayed({ s.clear() }, 1500)
-                                val inputManager =
-                                    getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                                val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                                 inputManager.hideSoftInputFromWindow(
                                     currentFocus!!.windowToken,
                                     InputMethodManager.HIDE_NOT_ALWAYS
@@ -271,10 +291,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     setCurrentItem()
                 }
                 R.id.mute -> {
-                    Constants.mute(mContext)
+                    SoundUtils.mute(mContext)
                 }
                 R.id.dnd -> {
-                    Constants.dnd(mContext)
+                    SoundUtils.dnd(mContext)
                 }
                 /*R.id.info -> {
                     startActivity(Intent().setClass(mContext, AboutActivity::class.java))

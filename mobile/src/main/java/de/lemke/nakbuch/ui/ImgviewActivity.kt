@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -31,10 +31,12 @@ import de.dlyt.yanndroid.oneui.utils.CustomButtonClickListener
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.widget.TabLayout
-import de.lemke.nakbuch.utils.Constants
-import de.lemke.nakbuch.utils.HymnPrefsHelper.getFromList
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeToList
-import de.lemke.nakbuch.utils.ViewPagerAdapterImageView
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.Constants
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.getFromList
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeToList
+import de.lemke.nakbuch.domain.utils.ViewPagerAdapterImageView
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.*
 import kotlinx.coroutines.GlobalScope
@@ -56,7 +58,7 @@ class ImgviewActivity : AppCompatActivity() {
     private lateinit var sp: SharedPreferences
     private lateinit var spHymns: SharedPreferences
     private var nr = 0
-    private var gesangbuchSelected = false
+    private lateinit var buchMode: BuchMode
     private lateinit var cameraActivityResultLauncher: ActivityResultLauncher<Uri>
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
@@ -66,7 +68,7 @@ class ImgviewActivity : AppCompatActivity() {
             mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
         spHymns =
             mContext.getSharedPreferences(getString(R.string.preference_file_hymns), MODE_PRIVATE)
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
+        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
         nr = intent.getIntExtra("nr", -1)
 
         setContentView(R.layout.activity_imgview)
@@ -81,7 +83,7 @@ class ImgviewActivity : AppCompatActivity() {
             drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
             drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
             drawerLayout.setTitle(intent.getStringExtra("nrAndTitle"))
-            drawerLayout.setSubtitle(getString(if (gesangbuchSelected) R.string.title_Gesangbuch else R.string.title_Chorbuch))
+            drawerLayout.setSubtitle(getString(if (buchMode == BuchMode.Gesangbuch) R.string.title_Gesangbuch else R.string.title_Chorbuch))
             initBNV()
         } else {
             val windowInsetsController =
@@ -200,7 +202,7 @@ class ImgviewActivity : AppCompatActivity() {
     private val currentFolder: File
         get() {
             val resultFolder = File(
-                if (gesangbuchSelected) {
+                if (buchMode == BuchMode.Gesangbuch) {
                     "$filesDir/gesangbuch/$nr/"
                 } else {
                     "$filesDir/chorbuch/$nr/"
@@ -284,13 +286,13 @@ class ImgviewActivity : AppCompatActivity() {
 
     private fun initBNV() {
         if (tabLayout == null) {
-            tabLayout = findViewById(R.id.textView_bnv)
+            tabLayout = findViewById(R.id.imgView_bnv)
         } else {
             tabLayout!!.removeAllTabs()
         }
 
         val favIcon: Drawable
-        if (getFromList(gesangbuchSelected, spHymns, nr, "fav") == "1") {
+        if (getFromList(buchMode == BuchMode.Gesangbuch, spHymns, nr, "fav") == "1") {
             favIcon = AppCompatResources.getDrawable(
                 mContext,
                 de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on
@@ -310,11 +312,11 @@ class ImgviewActivity : AppCompatActivity() {
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 writeToList(
-                    gesangbuchSelected,
+                    buchMode == BuchMode.Gesangbuch,
                     spHymns,
                     nr,
                     "fav",
-                    if (getFromList(gesangbuchSelected, spHymns, nr, "fav") == "1") "0" else "1"
+                    if (getFromList(buchMode == BuchMode.Gesangbuch, spHymns, nr, "fav") == "1") "0" else "1"
                 )
                 initBNV()
             }

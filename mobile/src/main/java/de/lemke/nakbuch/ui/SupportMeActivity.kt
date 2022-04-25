@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -13,6 +13,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.play.core.review.ReviewManagerFactory
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
+import de.lemke.nakbuch.R
 
 /*import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;

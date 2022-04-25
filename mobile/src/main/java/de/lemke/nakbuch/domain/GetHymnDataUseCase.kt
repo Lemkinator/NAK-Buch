@@ -1,13 +1,12 @@
 package de.lemke.nakbuch.domain
 
-import android.content.SharedPreferences
 import de.lemke.nakbuch.data.hymnDataRepo
+import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 
 class GetHymnDataUseCase {
     operator fun invoke(
-        gesangbuchSelected: Boolean,
-        spHymns: SharedPreferences,
+        buchMode: BuchMode,
         hymn: Hymn
-    ) = hymnDataRepo.getHymnData(gesangbuchSelected, spHymns, hymn)
+    ) = hymnDataRepo.getHymnData(buchMode, hymn)
 }

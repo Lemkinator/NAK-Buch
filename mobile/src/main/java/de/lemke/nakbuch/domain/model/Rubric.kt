@@ -1,34 +1,34 @@
 package de.lemke.nakbuch.domain.model
 
-import android.content.Context
+import App
 import de.lemke.nakbuch.R
 
 data class Rubric(
-    val gesangbuchSeleced: Boolean,
+    val buchMode: BuchMode,
     val index: Int,
     val name: String,
     val isMain: Boolean
 ) {
-    constructor(mContext: Context, gesangbuchSeleced: Boolean, index: Int) :
+    constructor(buchMode: BuchMode, index: Int) :
             this(
-                gesangbuchSeleced,
+                buchMode,
                 index,
-                getRubricName(mContext, gesangbuchSeleced, index),
-                isMain(mContext, gesangbuchSeleced, index)
+                getRubricName(buchMode, index),
+                isMain(buchMode, index)
             )
 
 }
 
-private fun isMain(mContext: Context, gesangbuchSeleced: Boolean, index: Int): Boolean {
+private fun isMain(buchMode: BuchMode, index: Int): Boolean {
     val rubricListItem =
-        if (gesangbuchSeleced) mContext.resources.getIntArray(R.array.RubricListItemGesangbuch)
-        else mContext.resources.getIntArray(R.array.RubricListItemChorbuch)
+        if (buchMode == BuchMode.Gesangbuch) App.myRepository.getResources().getIntArray(R.array.RubricListItemGesangbuch)
+        else App.myRepository.getResources().getIntArray(R.array.RubricListItemChorbuch)
     return rubricListItem[index] == 0
 }
 
-private fun getRubricName(mContext: Context, gesangbuchSeleced: Boolean, index: Int): String {
+private fun getRubricName(buchMode: BuchMode, index: Int): String {
     val rubricTitles =
-        if (gesangbuchSeleced) mContext.resources.getStringArray(R.array.RubricTitlesGesangbuch)
-        else mContext.resources.getStringArray(R.array.RubricTitlesChorbuch)
+        if (buchMode == BuchMode.Gesangbuch) App.myRepository.getResources().getStringArray(R.array.RubricTitlesGesangbuch)
+        else App.myRepository.getResources().getStringArray(R.array.RubricTitlesChorbuch)
     return rubricTitles[index]
 }

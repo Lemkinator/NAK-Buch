@@ -8,4 +8,4 @@
     app:background_image="@drawable/ic_launcher_background"
     app:foreground_image="@drawable/ic_launcher_foreground2"
     app:text="@string/title_Chorbuch"
-    tools:context=".splashscreens.SplashActivityChorbuch" />
+    tools:context=".ui.splashscreens.SplashActivityChorbuch" />

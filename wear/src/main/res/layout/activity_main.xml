@@ -117,7 +117,7 @@
                 android:id="@+id/b_ok"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
-                app:icon="@drawable/ic_oui_selected"
+                app:icon="@drawable/ic_oui3_selected"
                 app:iconSize="20dp"
                 app:iconTint="@color/white" />
 

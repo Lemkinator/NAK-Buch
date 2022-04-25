@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,8 +8,6 @@ import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -30,7 +28,8 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.Switch
 import de.dlyt.yanndroid.oneui.widget.SwitchBar
-import de.lemke.nakbuch.utils.Constants
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
@@ -59,32 +58,10 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         easterEggCommentButton = findViewById(R.id.easterEggCommentButton)
         easterEggCommentButton.setOnClickListener {
             if (System.currentTimeMillis() - time < 400) {
-                clickCounter++
-                if (clickCounter > 5) {
+                if (clickCounter++ > 5) {
                     clickCounter = 0
-                    if (sp.getBoolean("easterEggs", true)) {
-                        val set: MutableSet<String> =
-                            HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-                        if (!set.contains(getString(R.string.easterEggEntryComment))) {
-                            set.add(getString(R.string.easterEggEntryComment))
-                            sp.edit().putStringSet("discoveredEasterEggs", set).commit()
-                            konfettiView.start(Constants.party1())
-                            Handler(Looper.getMainLooper()).postDelayed(
-                                { konfettiView.start(Constants.party2()) },
-                                Constants.partyDelay2.toLong()
-                            )
-                            Handler(Looper.getMainLooper()).postDelayed(
-                                { konfettiView.start(Constants.party3()) },
-                                Constants.partyDelay3.toLong()
-                            )
-                            Toast.makeText(
-                                mContext,
-                                getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryComment),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            initList()
-                        }
-                    }
+                    discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntryComment)
+                    initList()
                 }
             } else {
                 clickCounter = 0
@@ -92,12 +69,12 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             time = System.currentTimeMillis()
         }
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_easteregg)
-        switchBarLayout.switchBar.isChecked = switchBarDefaultStatus
+        switchBarLayout.switchBar.isChecked = sp.getBoolean("easterEggs", false)
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
         switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
-        switchBarLayout.setOnToolbarMenuItemClickListener {
+        switchBarLayout.setOnToolbarMenuItemClickListener { //reset button
             sp.edit().putStringSet("discoveredEasterEggs", HashSet()).commit()
             initList()
             true
@@ -171,62 +148,32 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             dialog.show()
         }
         fab.setOnLongClickListener {
-            if (sp.getBoolean("easterEggs", true)) {
-                val set: MutableSet<String> =
-                    HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-                if (!set.contains(getString(R.string.easterEggEntryHelp))) {
-                    set.add(getString(R.string.easterEggEntryHelp))
-                    sp.edit().putStringSet("discoveredEasterEggs", set).commit()
-                    konfettiView.start(Constants.party1())
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party2()) },
-                        Constants.partyDelay2.toLong()
-                    )
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party3()) },
-                        Constants.partyDelay3.toLong()
-                    )
-                    Toast.makeText(
-                        mContext,
-                        getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntryHelp),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    initList()
-                }
-            }
+            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntryHelp)
+            initList()
             true
         }
-        if (sp.getBoolean("easterEggs", true)) {
-            easterEggsHeader.visibility = View.VISIBLE
-            easterEggCommentButton.visibility = View.VISIBLE
-            listView.visibility = View.VISIBLE
-            fab.visibility = View.VISIBLE
-        } else {
-            easterEggsHeader.visibility = View.GONE
-            easterEggCommentButton.visibility = View.GONE
-            listView.visibility = View.GONE
-            fab.visibility = View.GONE
-        }
+        setSwitchbarVisibility(sp.getBoolean("easterEggs", true))
         initList()
     }
 
-    private val switchBarDefaultStatus: Boolean
-        get() = sp.getBoolean("easterEggs", false)
-
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
         sp.edit().putBoolean("easterEggs", z).apply()
-        easterEggsHeader.visibility = if (z) View.VISIBLE else View.GONE
-        easterEggCommentButton.visibility = if (z) View.VISIBLE else View.GONE
-        listView.visibility = if (z) View.VISIBLE else View.GONE
-        fab.visibility = if (z) View.VISIBLE else View.GONE
+        setSwitchbarVisibility(z)
+    }
+
+    private fun setSwitchbarVisibility(visible: Boolean) {
+        easterEggsHeader.visibility = if (visible) View.VISIBLE else View.GONE
+        easterEggCommentButton.visibility = if (visible) View.VISIBLE else View.GONE
+        listView.visibility = if (visible) View.VISIBLE else View.GONE
+        fab.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     @SuppressLint("SetTextI18n")
     private fun initList() {
         discoveredEasterEggs = ArrayList(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
         val discoveredEasterEggsCount = discoveredEasterEggs.size
-        easterEggsHeader.text =
-            "Bereits entdeckte Easter Eggs ($discoveredEasterEggsCount/$easterEggCount):"
+        val maxEasterEggs = easterEggComments.size - 1
+        easterEggsHeader.text = "Bereits entdeckte Easter Eggs ($discoveredEasterEggsCount/$maxEasterEggs):"
         easterEggCommentButton.text = easterEggComments[discoveredEasterEggsCount]
         discoveredEasterEggs.add("") //placeholder
         listView.layoutManager = LinearLayoutManager(this)
@@ -350,9 +297,5 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             mSeslRoundedCornerBottom = SeslRoundedCorner(mContext, true)
             mSeslRoundedCornerBottom.roundedCorners = 12
         }
-    }
-
-    companion object {
-        const val easterEggCount = 8
     }
 }

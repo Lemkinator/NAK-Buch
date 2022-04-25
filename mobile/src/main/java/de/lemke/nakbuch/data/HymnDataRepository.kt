@@ -1,82 +1,83 @@
 package de.lemke.nakbuch.data
 
-import android.content.Context
+import App
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import de.lemke.nakbuch.data.HymnsRepository.Companion.hymnCount
+import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.HymnData
+import de.lemke.nakbuch.domain.utils.Constants
 
-val hymnDataRepo = HymnDataRepository()
+val hymnDataRepo = HymnDataRepository(App.myRepository.getHymnDataSharedPreferences())
 
-class HymnDataRepository {
+class HymnDataRepository (private var spHymns: SharedPreferences) {
     private var gesangbuchHymnsData: ArrayList<HymnData?>? = null
     private var chorbuchHymnsData: ArrayList<HymnData?>? = null
+    //private var spHymns: SharedPreferences? = null
 
-    fun getHymnData(gesangbuchSelected: Boolean, spHymns: SharedPreferences, hymn: Hymn) =
-        getAllHymnData(gesangbuchSelected, spHymns)[hymn.number - 1] ?: HymnData()
-
-    fun getAllHymnData(
-        gesangbuchSelected: Boolean,
-        spHymns: SharedPreferences
-    ): ArrayList<HymnData?> {
-        return if (gesangbuchSelected) gesangbuchHymnsData ?: getHymnDataFromPreferences(
-            gesangbuchSelected,
-            spHymns
-        )
-        else chorbuchHymnsData ?: getHymnDataFromPreferences(gesangbuchSelected, spHymns)
-    }
+    fun getHymnData(buchMode: BuchMode, hymn: Hymn) =
+        getAllHymnData(buchMode)[hymn.number - 1] ?: HymnData()
 
     fun setHymnData(
-        gesangbuchSelected: Boolean,
-        spHymns: SharedPreferences,
+        buchMode: BuchMode,
         hymn: Hymn,
         hymnData: HymnData
     ) {
-        getAllHymnData(gesangbuchSelected, spHymns)[hymn.number - 1] = hymnData
-        writeHymnDataToPreferences(gesangbuchSelected, spHymns)
+        getAllHymnData(buchMode)[hymn.number - 1] = hymnData
+        writeHymnDataToPreferences(buchMode)
+    }
+
+    fun getAllHymnData(
+        buchMode: BuchMode,
+    ): ArrayList<HymnData?> {
+        return if (buchMode == BuchMode.Gesangbuch) {
+            if (gesangbuchHymnsData == null) gesangbuchHymnsData = getHymnDataFromPreferences(buchMode)
+            gesangbuchHymnsData!!
+        } else {
+            if (chorbuchHymnsData == null) chorbuchHymnsData = getHymnDataFromPreferences(buchMode)
+            chorbuchHymnsData!!
+        }
     }
 
     fun setAllHymnData(
-        gesangbuchSelected: Boolean,
-        spHymns: SharedPreferences,
+        buchMode: BuchMode,
         hymnsData: ArrayList<HymnData?>
     ) {
-        if (gesangbuchSelected) gesangbuchHymnsData else chorbuchHymnsData = hymnsData
-        writeHymnDataToPreferences(gesangbuchSelected, spHymns)
+        if (buchMode == BuchMode.Gesangbuch) gesangbuchHymnsData else chorbuchHymnsData = hymnsData
+        writeHymnDataToPreferences(buchMode)
+    }
+
+    private fun writeHymnDataToPreferences(
+        buchMode: BuchMode,
+    ) {
+        getSpHymns().edit().putString(
+            if (buchMode == BuchMode.Gesangbuch) "hymnAdditionsGesangbuch" else "hymnAdditionsChorbuch",
+            Gson().toJson(
+                getAllHymnData(buchMode)
+            )
+        ).apply()
+    }
+
+    private fun getSpHymns(): SharedPreferences {
+        if (spHymns == null) spHymns = App.myRepository.getHymnDataSharedPreferences()
+        return spHymns!!
     }
 
     private fun getHymnDataFromPreferences(
-        gesangbuchSelected: Boolean,
-        spHymns: SharedPreferences
-    ): ArrayList<HymnData?> {
+        buchMode: BuchMode,
+    ): ArrayList<HymnData?>? {
         return Gson().fromJson(
-            spHymns.getString(
-                if (gesangbuchSelected) "hymnAdditionsGesangbuch" else "hymnAdditionsChorbuch",
-                Gson().toJson(ArrayList<HymnData?>(hymnCount(gesangbuchSelected)))
+            getSpHymns().getString(
+                if (buchMode == BuchMode.Gesangbuch) "hymnAdditionsGesangbuch" else "hymnAdditionsChorbuch",
+                Gson().toJson(ArrayList<HymnData?>(Constants.hymnCount(buchMode)))
             ),
             object : TypeToken<ArrayList<HymnData?>>() {}.type
         )
     }
 
-    private fun writeHymnDataToPreferences(
-        gesangbuchSelected: Boolean,
-        spHymns: SharedPreferences
-    ) {
-        spHymns.edit().putString(
-            if (gesangbuchSelected) "hymnAdditionsGesangbuch" else "hymnAdditionsChorbuch",
-            Gson().toJson(
-                getAllHymnData(gesangbuchSelected, spHymns)
-            )
-        ).apply()
-    }
-
     fun getFavList(
-        mContext: Context,
-        gesangbuchSelected: Boolean,
-        sp: SharedPreferences,
-        spHymns: SharedPreferences
+        buchMode: BuchMode,
     ): ArrayList<HashMap<String, String>> {
         TODO("not implemented")
         /*val hymns = AssetsHelper.getHymnArrayList(mContext, sp, gesangbuchSelected)

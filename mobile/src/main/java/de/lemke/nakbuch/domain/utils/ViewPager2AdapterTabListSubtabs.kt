@@ -1,4 +1,4 @@
-package de.lemke.nakbuch.utils
+package de.lemke.nakbuch.domain.utils
 
 import androidx.fragment.app.Fragment
 import de.dlyt.yanndroid.oneui.sesl.viewpager2.adapter.FragmentStateAdapter

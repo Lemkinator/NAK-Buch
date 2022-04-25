@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.utils
 
 import android.content.Intent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager

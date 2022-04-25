@@ -8,4 +8,4 @@
     app:background_image="@drawable/ic_launcher_background"
     app:foreground_image="@drawable/ic_launcher_foreground2"
     app:text="@string/title_Gesangbuch"
-    tools:context=".splashscreens.SplashActivityGesangbuch" />
+    tools:context=".ui.splashscreens.SplashActivityGesangbuch" />

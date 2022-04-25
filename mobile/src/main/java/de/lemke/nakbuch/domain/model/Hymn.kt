@@ -10,5 +10,6 @@ data class Hymn (
     val copyright: String
         )
 
+val hymnPlaceholder = Hymn(BuchMode.Gesangbuch, -1, Rubric(BuchMode.Gesangbuch,-1),"Placeholder", "Placeholder","Placeholder","Placeholder")
 
 

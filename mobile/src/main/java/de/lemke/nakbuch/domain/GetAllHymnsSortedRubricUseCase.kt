@@ -1,14 +1,11 @@
 package de.lemke.nakbuch.domain
 
-import android.content.Context
-import android.content.SharedPreferences
 import de.lemke.nakbuch.data.hymnsRepo
+import de.lemke.nakbuch.domain.model.BuchMode
 
 class GetAllHymnsSortedRubricUseCase {
     operator fun invoke(
-        mContext: Context,
-        sp: SharedPreferences,
-        gesangbuchSelected: Boolean,
+        buchMode: BuchMode,
         rubricIndex: Int
-    ) = hymnsRepo.getAllHymnsSortedRubric(mContext, sp, gesangbuchSelected, rubricIndex)
+    ) = hymnsRepo.getAllHymnsSortedRubric(buchMode, rubricIndex)
 }

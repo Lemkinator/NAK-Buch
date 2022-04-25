@@ -113,5 +113,11 @@
     <string name="notFound">Nicht gefunden</string>
     <string name="okButtonTip">"Nach der Eingabe der Liednummer, wird im unteren Bereich eine Vorschau angezeigt. \nMithilfe dieser Schaltfäche kann die vollständige Lied-Ansicht geöffnet werden. "</string>
     <string name="changeSearchMode">Suchmodus ändern</string>
+    <string name="bischoffGesangbuchPackageName">de.bischoff.nakgesangbuch</string>
+    <string name="bischoffChorbuchPackageName">de.bischoff.chorbuch</string>
+    <string name="openOfficialApp">Offizielle App öffnen</string>
+    <string name="detectedOldArchitecture">Alte Architektur entdeckt</string>
+    <string name="detectedOldArchitectureText">Leider wurden an der App einige Änderungen an der Architektur vorgenommen, welche das Löschen der App-Daten erfordert. Dadurch wird die App geschlossen und alle persönlichen Daten gelöscht…</string>
+    <string name="hiddenMenu">Verstecktes Menu</string>
 
 </resources>

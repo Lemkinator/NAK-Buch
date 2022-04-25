@@ -1,4 +1,4 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -11,6 +11,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.AppUtils
 
 class HelpActivity : AppCompatActivity() {
     private lateinit var mContext: Context
@@ -42,26 +45,10 @@ class HelpActivity : AppCompatActivity() {
             }
         }
         findViewById<View>(R.id.openPlaystoreBischoffGesangbuch).setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("market://details?id=de.bischoff.nakgesangbuch")
-            try {
-                startActivity(intent)
-            } catch (anfe: ActivityNotFoundException) {
-                intent.data =
-                    Uri.parse("https://play.google.com/store/apps/details?id=de.bischoff.nakgesangbuch")
-                startActivity(intent)
-            }
+            AppUtils.openBischoffApp(mContext, BuchMode.Gesangbuch)
         }
         findViewById<View>(R.id.openPlaystoreBischoffChorbuch).setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("market://details?id=de.bischoff.chorbuch")
-            try {
-                startActivity(intent)
-            } catch (anfe: ActivityNotFoundException) {
-                intent.data =
-                    Uri.parse("https://play.google.com/store/apps/details?id=de.bischoff.chorbuch")
-                startActivity(intent)
-            }
+            AppUtils.openBischoffApp(mContext, BuchMode.Chorbuch)
         }
     }
 }

@@ -3,8 +3,9 @@ package de.lemke.nakbuch.domain
 import de.lemke.nakbuch.data.hymnsRepo
 import de.lemke.nakbuch.domain.model.BuchMode
 
-class GetAllHymnsSortedAlphabeticalUseCase {
+class GetAllHymnsSearchListUseCase {
     operator fun invoke(
         buchMode: BuchMode,
-    ) = hymnsRepo.getAllHymnsSortedAlphabetic(buchMode)
+        search: String
+    ) = hymnsRepo.getAllHymnsSearchList(buchMode, search)
 }

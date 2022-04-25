@@ -6,8 +6,6 @@ import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -25,11 +23,12 @@ import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.TextviewActivity
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.utils.Constants
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
-import de.lemke.nakbuch.utils.TextHelper
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeFavsToList
+import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
+import de.lemke.nakbuch.domain.utils.TextHelper
+import de.lemke.nakbuch.ui.TextviewActivity
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class MainActivitySearchFragment : Fragment() {
@@ -45,7 +44,7 @@ class MainActivitySearchFragment : Fragment() {
     private var selected = HashMap<Int, Boolean>()
     private var mSelecting = false
     private var checkAllListening = true
-    private var gesangbuchSelected = false
+    private lateinit var buchMode: BuchMode
     private lateinit var sp: SharedPreferences
     private lateinit var spHymns: SharedPreferences
     override fun onAttach(context: Context) {
@@ -60,7 +59,7 @@ class MainActivitySearchFragment : Fragment() {
             getString(R.string.preference_file_hymns),
             Context.MODE_PRIVATE
         )
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
+        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
     }
 
     override fun onCreateView(
@@ -84,26 +83,7 @@ class MainActivitySearchFragment : Fragment() {
     private fun setSearchList(search: String) {
         if (sp.getBoolean("easterEggs", true)) {
             if (search.replace(" ", "").equals("easteregg", ignoreCase = true)) {
-                val set: MutableSet<String> =
-                    HashSet(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-                if (!set.contains(getString(R.string.easterEggEntrySearch))) {
-                    set.add(getString(R.string.easterEggEntrySearch))
-                    sp.edit().putStringSet("discoveredEasterEggs", set).apply()
-                    konfettiView.start(Constants.party1())
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party2()) },
-                        Constants.partyDelay2.toLong()
-                    )
-                    Handler(Looper.getMainLooper()).postDelayed(
-                        { konfettiView.start(Constants.party3()) },
-                        Constants.partyDelay3.toLong()
-                    )
-                    Toast.makeText(
-                        mContext,
-                        getString(R.string.easterEggDiscovered) + getString(R.string.easterEggEntrySearch),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntrySearch)
             }
         }
         searchList = ArrayList()
@@ -144,7 +124,8 @@ class MainActivitySearchFragment : Fragment() {
     }
 
     private fun initList() {
-        setSearchList(sp.getString("search", "")!!)
+        val search = sp.getString("search", "")!!
+        setSearchList(search)
         selected = HashMap()
         for (i in searchList.indices) selected[i] = false
         val divider = TypedValue()
@@ -162,17 +143,17 @@ class MainActivitySearchFragment : Fragment() {
         listView.seslSetLastRoundedCorner(false)
     }
 
-    private fun setSelecting(enabled: Boolean) {
+    private fun setSelecting(enabled: Boolean) { //TODO selecting?
         if (enabled) {
             mSelecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.fav_menu) { item: MenuItem ->
                 when (item.itemId) {
                     R.id.addToFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, searchList, "1")
+                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, searchList, "1")
                     }
                     R.id.removeFromFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, searchList, "")
+                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, searchList, "")
                     }
                     else -> {
                         item.badge = item.badge + 1
@@ -183,7 +164,7 @@ class MainActivitySearchFragment : Fragment() {
                 true
             }
             drawerLayout.showSelectMode()
-            drawerLayout.setSelectModeAllCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+            drawerLayout.setSelectModeAllCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
                 if (checkAllListening) {
                     for (i in 0 until imageAdapter.itemCount - 1) {
                         selected[i] = isChecked
@@ -215,7 +196,7 @@ class MainActivitySearchFragment : Fragment() {
     }
 
     private fun initAssets() {
-        hymns = getHymnArrayList(mContext, sp, gesangbuchSelected)
+        hymns = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
     }
 
     //Adapter for the Icon RecyclerView

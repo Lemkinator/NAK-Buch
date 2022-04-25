@@ -24,16 +24,17 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.TextviewActivity
-import de.lemke.nakbuch.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.utils.HymnPrefsHelper.writeFavsToList
+import de.lemke.nakbuch.ui.TextviewActivity
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
+import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeFavsToList
 
 class TabListSubtabNumeric : Fragment() {
     private lateinit var listView: RecyclerView
     private lateinit var mRootView: View
     private lateinit var mContext: Context
     private lateinit var hymns: ArrayList<HashMap<String, String>>
-    private var gesangbuchSelected = false
+    private lateinit var buchMode: BuchMode
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var subTabs: TabLayout
     private lateinit var mainTabs: TabLayout
@@ -71,7 +72,7 @@ class TabListSubtabNumeric : Fragment() {
             getString(R.string.preference_file_hymns),
             Context.MODE_PRIVATE
         )
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
+        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         listView = mRootView.findViewById(R.id.hymnList)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
@@ -83,7 +84,8 @@ class TabListSubtabNumeric : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        initAssets()
+        hymns = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
+        hymns.add(HashMap()) //Placeholder
         initList()
     }
 
@@ -138,10 +140,10 @@ class TabListSubtabNumeric : Fragment() {
             drawerLayout.setSelectModeBottomMenu(R.menu.fav_menu) { item: MenuItem ->
                 when (item.itemId) {
                     R.id.addToFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns, "1")
+                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, hymns, "1")
                     }
                     R.id.removeFromFav -> {
-                        writeFavsToList(gesangbuchSelected, spHymns, selected, hymns, "")
+                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, hymns, "")
                     }
                     else -> {
                         item.badge = item.badge + 1
@@ -191,11 +193,6 @@ class TabListSubtabNumeric : Fragment() {
         drawerLayout.setSelectModeAllChecked(count == imageAdapter.itemCount - 1)
         drawerLayout.setSelectModeCount(count)
         checkAllListening = true
-    }
-
-    private fun initAssets() {
-        hymns = getHymnArrayList(mContext, sp, gesangbuchSelected)
-        hymns.add(HashMap()) //Placeholder
     }
 
     //Adapter for the Icon RecyclerView
