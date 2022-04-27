@@ -3,7 +3,7 @@
     <shortcut
         android:shortcutId="chorbuch"
         android:enabled="true"
-        android:shortcutShortLabel="@string/title_Chorbuch"
+        android:shortcutShortLabel="@string/titleChorbuch"
         android:shortcutDisabledMessage="@string/shortcut_disabled_msg"
         android:icon="@drawable/ic_launcher_shortcut_chorbuch"
         >
@@ -18,7 +18,7 @@
     <shortcut
         android:shortcutId="gesangbuch"
         android:enabled="true"
-        android:shortcutShortLabel="@string/title_Gesangbuch"
+        android:shortcutShortLabel="@string/titleGesangbuch"
         android:shortcutDisabledMessage="@string/shortcut_disabled_msg"
         android:icon="@drawable/ic_launcher_shortcut_gesangbuch">
         <intent

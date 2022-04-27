@@ -12,20 +12,20 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.fragments.TextviewFragment
 import de.lemke.nakbuch.domain.utils.Constants.Companion.hymnCount
+import de.lemke.nakbuch.fragments.TextviewFragment
 
 class TextviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         val mContext: Context = this
-        val sp = mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
+        val sp = mContext.getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         val buchMode = if (intent.getBooleanExtra("buchMode", sp.getBoolean("gesangbuchSelected", true))) BuchMode.Gesangbuch else BuchMode.Chorbuch
         val nr = intent.getIntExtra("nr", -1)
         val boldText = intent.getStringExtra("boldText")
         if (nr < 1) {
-            Toast.makeText(mContext, "Invalid Number...", Toast.LENGTH_LONG).show()
+            Toast.makeText(mContext, getString(R.string.invalidNumber), Toast.LENGTH_LONG).show()
             finish()
         }
         setContentView(R.layout.activity_textview)

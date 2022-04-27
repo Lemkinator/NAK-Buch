@@ -52,11 +52,11 @@ class MainActivitySearchFragment : Fragment() {
         mContext = context
         mActivity = activity as AppCompatActivity
         sp = mContext.getSharedPreferences(
-            getString(R.string.preference_file_default),
+            getString(R.string.preferenceFileDefault),
             Context.MODE_PRIVATE
         )
         spHymns = mContext.getSharedPreferences(
-            getString(R.string.preference_file_hymns),
+            getString(R.string.preferenceFileHymns),
             Context.MODE_PRIVATE
         )
         buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch

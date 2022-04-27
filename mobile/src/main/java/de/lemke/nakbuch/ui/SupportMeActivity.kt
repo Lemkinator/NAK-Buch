@@ -48,7 +48,7 @@ class SupportMeActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:") // only email apps should handle this
             intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email)))
-            intent.putExtra(Intent.EXTRA_SUBJECT, "NAK Buch App")
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.appName))
             intent.putExtra(Intent.EXTRA_TEXT, "")
             try {
                 startActivity(intent)
@@ -64,13 +64,12 @@ class SupportMeActivity : AppCompatActivity() {
             request.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val reviewInfo = task.result
-
                     val flow = manager.launchReviewFlow(mActivity, reviewInfo)
                     flow.addOnCompleteListener { task2 ->
                         if (task2.isSuccessful) {
-                            Toast.makeText(mContext, "Vielen Dank für deine Bewertung", Toast.LENGTH_SHORT).show()
+                            //Toast.makeText(mContext, "Vielen Dank für deine Bewertung", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(mContext, task2.exception.toString(), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(mContext, "Fehler: " + task2.exception, Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
@@ -83,13 +82,8 @@ class SupportMeActivity : AppCompatActivity() {
         findViewById<View>(R.id.shareAppButton).setOnClickListener {
             val sendIntent = Intent(Intent.ACTION_SEND)
             sendIntent.type = "text/plain"
-            sendIntent.putExtra(
-                Intent.EXTRA_TEXT, """
-     Schau mal hier, die neue nicht-offizielle, kostenlose Gesang- und Chorbuch-App der NAK in modernem Design:
-     https://play.google.com/store/apps/details?id=$packageName
-     """.trimIndent()
-            )
-            sendIntent.putExtra(Intent.EXTRA_TITLE, "NAK Buch teilen")
+            sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.shareAppText) + packageName)
+            sendIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.shareAppTitle))
             startActivity(Intent.createChooser(sendIntent, "Share Via"))
         }
     }

@@ -128,11 +128,11 @@ class TextviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         sp = mContext.getSharedPreferences(
-            getString(R.string.preference_file_default),
+            getString(R.string.preferenceFileDefault),
             Context.MODE_PRIVATE
         )
         spHymns = mContext.getSharedPreferences(
-            getString(R.string.preference_file_hymns),
+            getString(R.string.preferenceFileHymns),
             Context.MODE_PRIVATE
         )
         val hymn = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)[nr - 1]
@@ -186,9 +186,9 @@ class TextviewFragment : Fragment() {
             tvCopyright.text = copyright
         }
         if (buchMode == BuchMode.Gesangbuch) {
-            drawerLayout.setSubtitle(getString(R.string.title_Gesangbuch))
+            drawerLayout.setSubtitle(getString(R.string.titleGesangbuch))
         } else {
-            drawerLayout.setSubtitle(getString(R.string.title_Chorbuch))
+            drawerLayout.setSubtitle(getString(R.string.titleChorbuch))
         }
         updateTextSize(spHymns.getInt("textSize", DEFAULT_TEXT_SIZE))
         editTextNotiz = mRootView.findViewById(R.id.editTextNotiz)
@@ -629,11 +629,11 @@ class TextviewFragment : Fragment() {
         tipPopupMenu.setMessage(
             """${getString(R.string.switchModeDescription)}, 
 ${getString(R.string.mute)} oder 
-${getString(R.string.dnd_mode)}"""
+${getString(R.string.dndMode)}"""
         )
         tipPopupNote.setMessage(getString(R.string.noteTip))
         tipPopupCalendar.setMessage(getString(R.string.calendarTip))
-        tipPopupFav.setMessage(getString(R.string.add_to_fav) + "/" + getString(R.string.remove_from_fav))
+        tipPopupFav.setMessage(getString(R.string.addToFav) + "/" + getString(R.string.removeFromFav))
         tipPopupFoto.setMessage(getString(R.string.galleryTip))
         tipPopupPlus.setMessage(getString(R.string.increaseTextsize))
         tipPopupMinus.setMessage(getString(R.string.decreaseTextsize))

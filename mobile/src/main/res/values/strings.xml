@@ -1,17 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">NAK Buch</string>
-    <string name="preference_file_default" translatable="false">de.lemke.nakbuch_preferences</string>
-    <string name="preference_file_hymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>
+    <string name="appName" translatable="false">NAK Buch</string>
+    <string name="preferenceFileDefault" translatable="false">de.lemke.nakbuch_preferences</string>
+    <string name="preferenceFileHymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>
     <string name="email" translatable="false">apps@lemkinator.com</string>
     <string name="website" translatable="false">https://www.lemkinator.com</string>
     <string name="privacyWebsite" translatable="false">https://www.lemkinator.com/nakbuch-datenschutz</string>
 
+    <string name="bischoffGesangbuchPackageName" translatable="false">de.bischoff.nakgesangbuch</string>
+    <string name="bischoffChorbuchPackageName" translatable="false">de.bischoff.chorbuch</string>
+    <string name="openOfficialApp">Offizielle App öffnen</string>
+
+    <string name="detectedOldArchitecture">Alte Architektur entdeckt</string>
+    <string name="detectedOldArchitectureText">Leider wurden an der App einige Änderungen an der Architektur vorgenommen, welche das Löschen der App-Daten erfordert. Dadurch wird die App geschlossen und alle persönlichen Daten gelöscht…</string>
+
     <string name="aboutPageOptionalText">Die inoffizielle Gesang und Chorbuch-App der NAK.</string>
-    <string name="about_app">Über NAK Buch</string>
+    <string name="aboutApp">Über NAK Buch</string>
     <string name="help">Hilfe</string>
-    <string name="title_Gesangbuch" translatable="false">Gesangbuch</string>
-    <string name="title_Chorbuch" translatable="false">Chorbuch</string>
-    <string name="shortcut_disabled_msg">Shortcut disabled</string>
+    <string name="titleGesangbuch" translatable="false">Gesangbuch</string>
+    <string name="titleChorbuch" translatable="false">Chorbuch</string>
 
     <string name="number">Nummer</string>
     <string name="list">Liste</string>
@@ -19,23 +25,23 @@
     <string name="numerical">Numerisch</string>
     <string name="alphabetical">Alphabetisch</string>
     <string name="rubric">Rubrik</string>
-    <string name="remove_from_fav">Aus Favoriten löschen</string>
-    <string name="add_to_fav">Zu Favoriten hinzufügen</string>
+    <string name="removeFromFav">Aus Favoriten löschen</string>
+    <string name="addToFav">Zu Favoriten hinzufügen</string>
     <string name="switchMode">Buch wechseln</string>
     <string name="switchModeDescription">Schnell zwischen Gesangbuch und Chorbuch wechseln</string>
-    <string name="theme_color">Design Farbe</string>
-    <string name="theme_color_summary">Ändern der Design Farbe</string>
+    <string name="themeColor">Design Farbe</string>
+    <string name="themeColorSummary">Ändern der Design Farbe</string>
     <string name="confirmExit">Verlassen bestätigen</string>
     <string name="pressAgainToExit">Zurück-Taste erneut drücken um zu Beenden.</string>
     <string name="dontShowAgain">Nicht erneut zeigen</string>
-    <string name="saved_note">Notiz Gespeichert</string>
-    <string name="open_in_playstore">In Play Store öffnen</string>
+    <string name="savedNote">Notiz Gespeichert</string>
+    <string name="openInPlaystore">In Play Store öffnen</string>
     <string name="notes">Notizen:</string>
-    <string name="insert_note">Hier Notizen eintippen</string>
-    <string name="system_default">Systemeinstellung</string>
-    <string name="mute_all_audio_streams">Alle Audio-Streams stummschalten</string>
+    <string name="insertNote">Hier Notizen eintippen</string>
+    <string name="systemDefault">Systemeinstellung</string>
+    <string name="muteAllAudioStreams">Alle Audio-Streams stummschalten</string>
     <string name="dnd">Bitte-Nicht-Stören</string>
-    <string name="dnd_mode">Bitte-Nicht-Stören Modus aktivieren</string>
+    <string name="dndMode">Bitte-Nicht-Stören Modus aktivieren</string>
     <string name="back">Zurück</string>
     <string name="next">Weiter</string>
     <string name="ok" translatable="false" tools:ignore="ButtonCase,Typos">Ok</string>
@@ -45,11 +51,11 @@
     <string name="copied">In Zwischenablage kopiert</string>
     <string name="mute">Stummschalten</string>
     <string name="supportMe">Unterstütz mich</string>
-    <string name="oneui_libary_github">OneUI-Library Github</string>
-    <string name="check_update">Auf Update überprüfen…</string>
-    <string name="contact_me">Kontaktier mich (Email)</string>
-    <string name="about_me">Über mich</string>
-    <string name="tiktok_troll" translatable="false">TikTok</string>
+    <string name="oneUiLibaryGithub" translatable="false">OneUI-Library Github</string>
+    <string name="checkUpdate">Auf Update überprüfen…</string>
+    <string name="contactMe">Kontaktier mich (Email)</string>
+    <string name="aboutMe">Über mich</string>
+    <string name="tiktokTroll" translatable="false">TikTok</string>
     <string name="history">Verlauf</string>
     <string name="historySummary">Verlauf ansehen/aktivieren/deaktivieren</string>
     <string name="writeEmail">Email schreiben</string>
@@ -57,13 +63,16 @@
     <string name="openInTextView">In Lied-Ansicht öffnen</string>
     <string name="add">Hinzufügen</string>
     <string name="reset">Reset</string>
+    <string name="restart">Neustart</string>
     <string name="taskFailed">Hoppla, da ist etwas schiefgelaufen…</string>
+    <string name="notFound">Nicht gefunden</string>
+    <string name="hiddenMenu">Verstecktes Menu</string>
 
-    <string name="app_hint_short">Hinweis:</string>
-    <string name="app_hint">Urheberrechtlich geschützte Inhalte</string>
-    <string name="app_hint_long">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
-    <string name="app_hint_text">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem Gesang- und Chorbuch der NAK.\n\nBei 118 (von 438) Gesangbuch-Liedern und 256 (von 462) Chorbuch-Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht angezeigt werden können. Die Informationen zum Urheberrecht der einzelnen Lieder wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) Gesangbuch-App und eine (kostenpflichtige) Chorbuch-App herausgegeben hat.\n    "</string>
-    <string name="app_hint_text_bischoff">"Zu den offiziellen Apps vom Bischoff Verlag: "</string>
+    <string name="appHintShort">Hinweis:</string>
+    <string name="appHint">Urheberrechtlich geschützte Inhalte</string>
+    <string name="appHintLong">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
+    <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem Gesang- und Chorbuch der NAK.\n\nBei 118 (von 438) Gesangbuch-Liedern und 256 (von 462) Chorbuch-Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht angezeigt werden können. Die Informationen zum Urheberrecht der einzelnen Lieder wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) Gesangbuch-App und eine (kostenpflichtige) Chorbuch-App herausgegeben hat.\n    "</string>
+    <string name="appHintTextBischoff">"Zu den offiziellen Apps vom Bischoff Verlag: "</string>
     <string name="whyNoFullText">Warum wird nicht der vollständige Text angezeigt?</string>
     <string name="jokeButtonText">Jetzt Premium-Abo abschließen, um urheberrechtlich geschützte Inhalte freizuschalten!</string>
     <string name="jokeTitle">Kleiner Witz am Rande…</string>
@@ -98,9 +107,12 @@
     <string name="writeReview">Bewertung schreiben</string>
     <string name="share">Teilen</string>
     <string name="shareApp">App Teilen</string>
+    <string name="shareAppText">Schau mal hier, die neue nicht-offizielle, kostenlose Gesang- und Chorbuch-App der NAK in modernem Design: https://play.google.com/store/apps/details?id=</string>
+    <string name="shareAppTitle">NAK Buch teilen</string>
 
     <string name="menuGeneralTip">Hier tippen, um die Menu-Navigation zu öffnen. \nDiese App wurde nach Samsungs OneUI-Richtlinien entwickelt. Die Titelleiste kann auf jedem Bildschirm "nach unten gezogen werden", um eine angenehme (einhändige) Bedienung der oberen Knöpfe auch auf Geräten mit größerem Bildschirm zu gewährleisten.</string>
     <string name="searchTip">Suche öffnen</string>
+    <string name="changeSearchMode">Suchmodus ändern</string>
     <!--string name="searchTip">Suche öffnen: \nUm die Spracheingabe zu verwenden, kann nach dem Öffnen der Suche oben rechts auf das Mikrofon-Symbol geklickt werden. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten</string-->
     <string name="searchHelp">Um die Spracheingabe zu verwenden, oben rechts auf das Mikrofon-Symbol klicken. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten</string>
     <string name="noteTip">Notizen anzeigen/ausblenden</string>
@@ -110,14 +122,9 @@
     <string name="decreaseTextsize">Text verkleinern</string>
     <string name="fotoTip">Die App enthält aus urheberrechtlichen Gründen keine Noten und hat außerdem keinen Zugriff auf die Kamera. Bei klicken dieser Schaltfläche, kann jedoch auf eine vorinstallierte Kamera-App weitergeleitet werden. Das dort gemachte Foto (nur für den privaten Gebrauch) wird dann (komprimiert) hier in der integrierten Bildergallerie anzeigt.</string>
     <string name="deleteFotoTip">Aktuell angezeigtes Foto löschen</string>
-    <string name="notFound">Nicht gefunden</string>
     <string name="okButtonTip">"Nach der Eingabe der Liednummer, wird im unteren Bereich eine Vorschau angezeigt. \nMithilfe dieser Schaltfäche kann die vollständige Lied-Ansicht geöffnet werden. "</string>
-    <string name="changeSearchMode">Suchmodus ändern</string>
-    <string name="bischoffGesangbuchPackageName">de.bischoff.nakgesangbuch</string>
-    <string name="bischoffChorbuchPackageName">de.bischoff.chorbuch</string>
-    <string name="openOfficialApp">Offizielle App öffnen</string>
-    <string name="detectedOldArchitecture">Alte Architektur entdeckt</string>
-    <string name="detectedOldArchitectureText">Leider wurden an der App einige Änderungen an der Architektur vorgenommen, welche das Löschen der App-Daten erfordert. Dadurch wird die App geschlossen und alle persönlichen Daten gelöscht…</string>
-    <string name="hiddenMenu">Verstecktes Menu</string>
+
+    <string name="shortcut_disabled_msg">Shortcut deaktiviert</string>
+    <string name="invalidNumber">Ungültige Nummer</string>
 
 </resources>

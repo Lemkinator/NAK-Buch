@@ -35,14 +35,14 @@
                     android:id="@+id/about_btn_open_in_store"
                     style="@style/ButtonStyle.AboutPage"
                     app:icon="@drawable/ic_oui4_store"
-                    android:text="@string/open_in_playstore"
+                    android:text="@string/openInPlaystore"
                     />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/about_btn_open_oneui_github"
                     style="@style/ButtonStyle.AboutPage"
                     app:icon="@drawable/ic_oui_website"
-                    android:text="@string/oneui_libary_github"
+                    android:text="@string/oneUiLibaryGithub"
                     />
 
                 <com.google.android.material.button.MaterialButton
@@ -56,7 +56,7 @@
                     android:id="@+id/about_btn_about_me"
                     style="@style/ButtonStyle.AboutPage"
                     app:icon="@drawable/ic_oui4_contact"
-                    android:text="@string/about_me"
+                    android:text="@string/aboutMe"
                     />
 
                 <com.google.android.material.button.MaterialButton
@@ -70,7 +70,7 @@
                     android:id="@+id/about_btn_tiktk_troll"
                     style="@style/ButtonStyle.AboutPage"
                     app:icon="@drawable/ic_oui_link"
-                    android:text="@string/tiktok_troll"
+                    android:text="@string/tiktokTroll"
                     />
 
             </LinearLayout>

@@ -59,7 +59,7 @@ class MainActivityTabNum : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         sp = mContext.getSharedPreferences(
-            getString(R.string.preference_file_default),
+            getString(R.string.preferenceFileDefault),
             Context.MODE_PRIVATE
         )
         drawerLayout = mActivity.findViewById(R.id.drawer_view)

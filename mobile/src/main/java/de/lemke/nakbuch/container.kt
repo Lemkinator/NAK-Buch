@@ -20,8 +20,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         myRepository = MyRepository(
-            getSharedPreferences(getString(R.string.preference_file_default), Context.MODE_PRIVATE),
-            getSharedPreferences(getString(R.string.preference_file_hymns), Context.MODE_PRIVATE),
+            getSharedPreferences(getString(R.string.preferenceFileDefault), Context.MODE_PRIVATE),
+            getSharedPreferences(getString(R.string.preferenceFileHymns), Context.MODE_PRIVATE),
             resources
         )
     }

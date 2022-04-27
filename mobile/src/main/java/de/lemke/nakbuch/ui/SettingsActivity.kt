@@ -89,7 +89,7 @@ class SettingsActivity : AppCompatActivity() {
             super.onCreate(bundle)
             time = System.currentTimeMillis()
             sp = mContext.getSharedPreferences(
-                getString(R.string.preference_file_default),
+                getString(R.string.preferenceFileDefault),
                 MODE_PRIVATE
             )
             val darkMode = ThemeUtil.getDarkMode(mContext)
@@ -484,7 +484,7 @@ class SettingsActivity : AppCompatActivity() {
                         )
                     )
                 }
-                    ?.addButton(getString(R.string.about_me)) {
+                    ?.addButton(getString(R.string.aboutMe)) {
                         startActivity(
                             Intent(
                                 Intent.ACTION_VIEW, Uri.parse(

@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         time = System.currentTimeMillis()
         mContext = this
         sp = getSharedPreferences(
-            getString(R.string.preference_file_default),
+            getString(R.string.preferenceFileDefault),
             Context.MODE_PRIVATE
         )
         when(AppUtils.checkAppStart(sp)) {
@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.detectedOldArchitecture))
             .setMessage(getString(R.string.detectedOldArchitectureText))
-            .setNeutralButton("Neustart") { _: DialogInterface, _: Int ->
+            .setNeutralButton(getString(R.string.restart)) { _: DialogInterface, _: Int ->
                 Handler(Looper.getMainLooper()).postDelayed(
                     {(getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()},
                     500
@@ -162,8 +162,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         if (hints.contains("appHint")) {
             val dialog = AlertDialog.Builder(this)
-                .setTitle(getString(R.string.app_hint_short))
-                .setMessage(getString(R.string.app_hint_text))
+                .setTitle(getString(R.string.appHintShort))
+                .setMessage(getString(R.string.appHintText))
                 .setNegativeButton("Nicht erneut zeigen") { _: DialogInterface?, _: Int ->
                     hints.remove("appHint")
                     sp.edit().putStringSet("hints", hints).apply()
@@ -216,14 +216,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         } else if (mode == Constants.GESANGBUCHMODE) {
             sp.edit().putBoolean("gesangbuchSelected", true).apply()
         }
-        mTabsManager = TabsManager(mContext, getString(R.string.preference_file_default))
+        mTabsManager = TabsManager(mContext, getString(R.string.preferenceFileDefault))
         mTabsManager.initTabPosition()
         mTabsManager.setTabPosition(0)
         mFragmentManager = supportFragmentManager
 
         //DrawerLayout
         drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(mContext, AboutActivity::class.java)) }
-        drawerLayout.setDrawerButtonTooltip(getText(R.string.about_app))
+        drawerLayout.setDrawerButtonTooltip(getText(R.string.aboutApp))
         drawerLayout.inflateToolbarMenu(R.menu.main)
         drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
@@ -404,10 +404,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun updateOptionbuttons() {
         if (sp.getBoolean("gesangbuchSelected", true)) {
-            drawerLayout.setTitle(getString(R.string.title_Gesangbuch))
+            drawerLayout.setTitle(getString(R.string.titleGesangbuch))
             og1.selectedOptionButton = findViewById(R.id.ob_gesangbuch)
         } else {
-            drawerLayout.setTitle(getString(R.string.title_Chorbuch))
+            drawerLayout.setTitle(getString(R.string.titleChorbuch))
             og1.selectedOptionButton = findViewById(R.id.ob_chorbuch)
         }
     }
@@ -502,7 +502,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
         tipPopupSearch.setMessage(getString(R.string.searchTip))
         tipPopupSwitchBuchMode.setMessage(getString(R.string.switchModeDescription))
-        tipPopupMenuButton.setMessage(getString(R.string.mute) + " oder " + getString(R.string.dnd_mode))
+        tipPopupMenuButton.setMessage(getString(R.string.mute) + " oder " + getString(R.string.dndMode))
         tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
 
         //tipPopup2 = new TipPopup(Objects.requireNonNull(tabLayout.getTabAt(0)).seslGetTextView());

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:drawer_icon="@drawable/ic_oui4_info"
-    app:subtitle="@string/app_name"
+    app:subtitle="@string/appName"
     >
 
     <FrameLayout

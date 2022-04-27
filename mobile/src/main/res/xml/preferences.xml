@@ -12,13 +12,13 @@
             app:viewType="image" />
         <SwitchPreference
             android:key="dark_mode_auto"
-            android:title="@string/system_default" />
+            android:title="@string/systemDefault" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Farbe">
         <ColorPickerPreference
             android:key="color"
-            android:summary="@string/theme_color_summary"
-            android:title="@string/theme_color"
+            android:summary="@string/themeColorSummary"
+            android:title="@string/themeColor"
             app:icon="@drawable/ic_oui4_brush"
             app:pickerType="detailed" />
     </PreferenceCategory>
@@ -27,12 +27,12 @@
     <PreferenceCategory android:title="Telefon-Einstellungen">
         <Preference
             android:key="audio_streams"
-            android:summary="@string/mute_all_audio_streams"
+            android:summary="@string/muteAllAudioStreams"
             android:title="@string/mute"
             app:icon="@drawable/ic_oui4_volume_mute" />
         <Preference
             android:key="dnd"
-            android:summary="@string/dnd_mode"
+            android:summary="@string/dndMode"
             android:title="@string/dnd"
             app:icon="@drawable/ic_oui4_remove" />
         <SwitchPreference
@@ -69,8 +69,8 @@
     <PreferenceCategory android:title="Hinweise">
         <TipsCardViewPreference
             android:key="tip_card_preference"
-            android:summary="@string/app_hint_text"
-            android:title="@string/app_hint" />
+            android:summary="@string/appHintText"
+            android:title="@string/appHint" />
         <PreferenceCategory android:key="spacing_tip_card" />
 
         <MultiSelectListPreference
@@ -129,7 +129,7 @@
     <PreferenceCategory android:title="Über">
         <PreferenceScreen
             android:key="about_app"
-            android:title="@string/about_app"
+            android:title="@string/aboutApp"
             app:icon="@drawable/ic_oui3_info">
             <intent
                 android:targetClass="de.lemke.nakbuch.AboutActivity"

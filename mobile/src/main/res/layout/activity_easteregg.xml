@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:navigationIcon="@drawable/ic_oui_back"
     app:title="Easter Eggs"
-    app:subtitle="@string/app_name"
+    app:subtitle="@string/appName"
     >
 
     <de.dlyt.yanndroid.oneui.widget.RoundNestedScrollView

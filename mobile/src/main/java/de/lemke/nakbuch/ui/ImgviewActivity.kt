@@ -65,9 +65,9 @@ class ImgviewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mContext = this
         sp =
-            mContext.getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
+            mContext.getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         spHymns =
-            mContext.getSharedPreferences(getString(R.string.preference_file_hymns), MODE_PRIVATE)
+            mContext.getSharedPreferences(getString(R.string.preferenceFileHymns), MODE_PRIVATE)
         buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
         nr = intent.getIntExtra("nr", -1)
 
@@ -83,7 +83,7 @@ class ImgviewActivity : AppCompatActivity() {
             drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
             drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
             drawerLayout.setTitle(intent.getStringExtra("nrAndTitle"))
-            drawerLayout.setSubtitle(getString(if (buchMode == BuchMode.Gesangbuch) R.string.title_Gesangbuch else R.string.title_Chorbuch))
+            drawerLayout.setSubtitle(getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleGesangbuch else R.string.titleChorbuch))
             initBNV()
         } else {
             val windowInsetsController =

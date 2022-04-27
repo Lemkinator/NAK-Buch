@@ -66,11 +66,11 @@ class TabListSubtabRubric : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         sp = mContext.getSharedPreferences(
-            getString(R.string.preference_file_default),
+            getString(R.string.preferenceFileDefault),
             Context.MODE_PRIVATE
         )
         spHymns = mContext.getSharedPreferences(
-            getString(R.string.preference_file_hymns),
+            getString(R.string.preferenceFileHymns),
             Context.MODE_PRIVATE
         )
         buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch

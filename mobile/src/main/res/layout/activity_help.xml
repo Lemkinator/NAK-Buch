@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:expanded="false"
     app:title="@string/help"
-    app:subtitle="@string/app_name"
+    app:subtitle="@string/appName"
     >
 
 
@@ -33,7 +33,7 @@
                     android:id="@+id/tvHelpText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/app_hint_text"
+                    android:text="@string/appHintText"
                     android:textSize="17sp" />
 
                 <TextView
@@ -42,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:gravity="center"
-                    android:text="@string/app_hint_text_bischoff"
+                    android:text="@string/appHintTextBischoff"
                     android:textSize="17sp" />
 
                 <LinearLayout
@@ -57,7 +57,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
-                        android:text="@string/title_Gesangbuch"
+                        android:text="@string/titleGesangbuch"
                         app:icon="@drawable/ic_oui4_store" />
 
                     <com.google.android.material.button.MaterialButton
@@ -66,7 +66,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
-                        android:text="@string/title_Chorbuch"
+                        android:text="@string/titleChorbuch"
                         app:icon="@drawable/ic_oui4_store" />
 
                 </LinearLayout>
@@ -82,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="10dp"
-                    android:text="@string/contact_me"
+                    android:text="@string/contactMe"
                     app:icon="@drawable/ic_oui4_mail" />
 
             </LinearLayout>

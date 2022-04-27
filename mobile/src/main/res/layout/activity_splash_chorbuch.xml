@@ -7,5 +7,5 @@
     android:layout_height="match_parent"
     app:background_image="@drawable/ic_launcher_background"
     app:foreground_image="@drawable/ic_launcher_foreground2"
-    app:text="@string/title_Chorbuch"
+    app:text="@string/titleChorbuch"
     tools:context=".ui.splashscreens.SplashActivityChorbuch" />

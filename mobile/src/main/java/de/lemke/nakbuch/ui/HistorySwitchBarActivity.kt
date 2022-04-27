@@ -41,7 +41,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         mContext = this
-        sp = getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
+        sp = getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         setContentView(R.layout.activity_history)
         listView = findViewById(R.id.historyList)
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_history)

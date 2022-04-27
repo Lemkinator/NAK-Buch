@@ -49,7 +49,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         mContext = this
-        sp = getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
+        sp = getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         easterEggComments = resources.getStringArray(R.array.easterEggComments)
         setContentView(R.layout.activity_easteregg)
         konfettiView = findViewById(R.id.konfettiViewEasterEgg)
