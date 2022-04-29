@@ -30,7 +30,6 @@ class AboutActivity : AppCompatActivity() {
     private lateinit var appUpdateManager: AppUpdateManager
     private lateinit var appUpdateInfo: AppUpdateInfo
     private lateinit var appUpdateInfoTask: Task<AppUpdateInfo>
-    private val UPDATEREQUESTCODE = 5
     private lateinit var konfettiView: KonfettiView
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
@@ -145,5 +144,9 @@ class AboutActivity : AppCompatActivity() {
         } catch (e: SendIntentException) {
             e.printStackTrace()
         }
+    }
+
+    companion object {
+        private const val UPDATEREQUESTCODE = 5
     }
 }

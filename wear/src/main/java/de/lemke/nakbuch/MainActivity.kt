@@ -14,7 +14,6 @@ import com.google.gson.Gson
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.utils.AssetsHelper
 import java.io.ByteArrayInputStream
-import java.io.IOException
 import java.io.ObjectInput
 import java.io.ObjectInputStream
 
@@ -136,6 +135,7 @@ class MainActivity : AppCompatActivity() {
         hymns = AssetsHelper.getHymnArrayList(mContext, getString(if (gesangbuchSelected) R.string.filename_hymnsGesangbuch else R.string.filename_hymnsChorbuch), sp)
     }
 
+    @Suppress("UNCHECKED_CAST")
     inner class Receiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) { //Display the following when a new message is received//
             var bArray = intent.getByteArrayExtra("privateTextGesangbuch")
@@ -154,10 +154,8 @@ class MainActivity : AppCompatActivity() {
                 sp.edit().putString(spKey, Gson().toJson(result)).apply()
                 `in`.close()
                 recreate()
-            } catch (ex: IOException) {
-                ex.printStackTrace()
-            } catch (ex: ClassNotFoundException) {
-                ex.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

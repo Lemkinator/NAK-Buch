@@ -2,7 +2,6 @@ package de.lemke.nakbuch.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import com.google.gson.Gson
@@ -11,7 +10,7 @@ import de.lemke.nakbuch.R
 import java.io.IOException
 import java.io.InputStream
 import java.io.ObjectInputStream
-
+@Suppress("UNCHECKED_CAST")
 object AssetsHelper {
     fun validHymnr(buchMode: Boolean, hymnNr: String): Int {
         val result: Int
@@ -22,29 +21,6 @@ object AssetsHelper {
             Log.d("InvalidHymNr: ", e.toString())
         }
         return -1
-    }
-
-    fun setHymnsText(mContext: Context, sp: SharedPreferences, uri: Uri, spKey: String): Boolean {
-        val fis: InputStream
-        val ois: ObjectInputStream
-        val result: ArrayList<HashMap<String, String>>
-        try {
-            fis = mContext.contentResolver.openInputStream(uri)!!
-            ois = ObjectInputStream(fis)
-            result = ois.readObject() as ArrayList<HashMap<String, String>>
-            sp.edit().putString(spKey, Gson().toJson(result)).apply()
-            ois.close()
-            fis.close()
-        } catch (c: IOException) {
-            c.printStackTrace()
-            Toast.makeText(mContext, c.toString(), Toast.LENGTH_LONG).show()
-            return false
-        } catch (c: ClassNotFoundException) {
-            c.printStackTrace()
-            Toast.makeText(mContext, c.toString(), Toast.LENGTH_LONG).show()
-            return false
-        }
-        return true
     }
 
     fun getHymnArrayList(

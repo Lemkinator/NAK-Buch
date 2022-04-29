@@ -384,6 +384,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
         }
 
+        @Suppress("UNCHECKED_CAST")
         private fun sendToWear(uri: Uri, path: String) {
             val fis: InputStream?
             val ois: ObjectInputStream

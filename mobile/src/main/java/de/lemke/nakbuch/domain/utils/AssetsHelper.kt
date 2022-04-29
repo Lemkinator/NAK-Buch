@@ -1,19 +1,15 @@
 package de.lemke.nakbuch.domain.utils
 
-import java.lang.NumberFormatException
-import android.util.Log
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
-import java.io.InputStream
-import java.io.ObjectInputStream
-import java.util.ArrayList
-import java.util.HashMap
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
-import java.lang.ClassNotFoundException
+import java.io.InputStream
+import java.io.ObjectInputStream
 
 object AssetsHelper {
     @JvmStatic
@@ -29,6 +25,7 @@ object AssetsHelper {
     }
 
     @JvmStatic
+    @Suppress("UNCHECKED_CAST")
     fun setHymnsText(mContext: Context, sp: SharedPreferences, uri: Uri?, spKey: String?): Boolean {
         val fis: InputStream?
         val ois: ObjectInputStream
@@ -40,19 +37,16 @@ object AssetsHelper {
             sp.edit().putString(spKey, Gson().toJson(result)).apply()
             ois.close()
             fis!!.close()
-        } catch (c: IOException) {
-            c.printStackTrace()
-            Toast.makeText(mContext, c.toString(), Toast.LENGTH_LONG).show()
-            return false
-        } catch (c: ClassNotFoundException) {
-            c.printStackTrace()
-            Toast.makeText(mContext, c.toString(), Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(mContext, e.toString(), Toast.LENGTH_LONG).show()
             return false
         }
         return true
     }
 
     @JvmStatic
+    @Suppress("UNCHECKED_CAST")
     fun getHymnArrayList(
         mContext: Context,
         sp: SharedPreferences,

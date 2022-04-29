@@ -384,6 +384,7 @@ class ImgviewActivity : AppCompatActivity() {
 
     }
 
+    @Suppress("unnecessary_safe_call")
     private fun initTipPopup() {
         tipPopupFoto = TipPopup(
             Objects.requireNonNull(

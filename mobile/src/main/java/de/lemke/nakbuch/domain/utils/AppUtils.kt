@@ -15,6 +15,7 @@ import de.lemke.nakbuch.domain.model.BuchMode
 
 class AppUtils {
     companion object {
+        @JvmStatic
         fun openBischoffApp(context: Context, buchMode: BuchMode) {
             openAppWithPackageName(
                 context, context.getString(
@@ -23,6 +24,7 @@ class AppUtils {
             )
         }
 
+        @JvmStatic
         fun openAppWithPackageName(mContext: Context, packageName: String) {
             val intent = mContext.packageManager.getLaunchIntentForPackage(packageName)
             if (intent != null) {
@@ -31,6 +33,7 @@ class AppUtils {
                 openAppWithPackageNameOnStore(mContext, packageName)
             }
         }
+        @JvmStatic
         fun openAppWithPackageNameOnStore(mContext: Context, packageName: String) {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(mContext.getString(R.string.playStoreAppLink) + packageName)
@@ -54,6 +57,7 @@ class AppUtils {
             </queries>
             ...
         </manifest> */
+        @JvmStatic
         fun isPackageInstalled(context: Context, packageName: String): Boolean {
             return try {
                 context.packageManager.getPackageInfo(packageName, 0)
@@ -63,13 +67,17 @@ class AppUtils {
             }
         }
 
+        @JvmStatic
         @SuppressLint("ApplySharedPref")
         fun checkAppStart(sp: SharedPreferences): AppStart {
-            val lastVersionCode = sp.getInt("lastAppVersion", -1)
+            val lastVersionName = sp.getString("lastAppVersionName", "undefined")
+            val lastVersionCode = sp.getInt("lastAppVersionCode", -1)
             val versionCode: Int = BuildConfig.VERSION_CODE
             val versionName: String = BuildConfig.VERSION_NAME
             sp.edit().putInt("lastAppVersionCode", versionCode).commit()
+            sp.edit().putString("lastAppVersionCode", versionName).commit()
             Log.d("CheckAppStart", "Current version code: $versionCode , last version code: $lastVersionCode")
+            Log.d("CheckAppStart", "Current version name: $versionName , last version name: $lastVersionName")
             return when {
                 lastVersionCode == -1 -> {
                     AppStart.FIRST_TIME

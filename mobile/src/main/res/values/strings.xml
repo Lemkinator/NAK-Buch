@@ -5,6 +5,10 @@
     <string name="email" translatable="false">apps@lemkinator.com</string>
     <string name="website" translatable="false">https://www.lemkinator.com</string>
     <string name="privacyWebsite" translatable="false">https://www.lemkinator.com/nakbuch-datenschutz</string>
+    <string name="playStoreAppLink" translatable="false">market://details?id=</string>
+    <string name="playStoreLink" translatable="false">https://play.google.com/store/apps/details?id=</string>
+    <string name="oneUIGithubLink" translatable="false">https://github.com/Yanndroid/OneUI-Design-Library</string>
+    <string name="rickRollTrollLink" translatable="false">https://www.youtube.com/watch?v=o-YBDTqX_ZU</string>
 
     <string name="bischoffGesangbuchPackageName" translatable="false">de.bischoff.nakgesangbuch</string>
     <string name="bischoffChorbuchPackageName" translatable="false">de.bischoff.chorbuch</string>
@@ -45,6 +49,7 @@
     <string name="back">Zurück</string>
     <string name="next">Weiter</string>
     <string name="ok" translatable="false" tools:ignore="ButtonCase,Typos">Ok</string>
+    <string name="or">oder</string>
     <string name="send">Senden</string>
     <string name="copy">Kopieren</string>
     <string name="delete">Löschen</string>
@@ -96,6 +101,7 @@
     <string name="easterEggEntryComment">Easter-Egg-Kommentar mehrfach angeklickt</string>
     <string name="easterEggEntryHelp">Lang auf den Hilfe-Button klicken</string>
 
+    <string name="alreadyDiscoveredEasterEggs">Bereits entdeckte Easter Eggs</string>
     <string name="easterEggDiscovered">Yeah! Easter Egg entdeckt:</string>
     <string name="discoveredEasterEggs">Bereits entdeckte Easter Eggs:</string>
     <string name="tips">Tipps</string>
@@ -174,16 +180,11 @@
     <string name="medium">Mittel</string>
     <string name="high">Hoch</string>
     <string name="veryHigh">Sehr Hoch</string>
+
     <string name="onlyExactSearchText">Nur exakter Suchtext</string>
     <string name="searchForAllPartialWords">Nach allen Teilwörtern suchen</string>
     <string name="setStandardSearchMode">Standard-Suchmodus auswählen</string>
     <string name="deactivate">Deaktivieren</string>
-    <string name="or">oder</string>
-    <string name="playStoreAppLink">market://details?id=</string>
-    <string name="playStoreLink">https://play.google.com/store/apps/details?id=</string>
-    <string name="oneUIGithubLink">https://github.com/Yanndroid/OneUI-Design-Library</string>
-    <string name="rickRollTrollLink">https://www.youtube.com/watch?v=o-YBDTqX_ZU</string>
-    <string name="alreadyDiscoveredEasterEggs">Bereits entdeckte Easter Eggs</string>
     <string name="shareNote">Notiz teilen</string>
     <string name="onlyThisTime">Nur diesmal</string>
     <string name="ForeverICantTakeAJoke">Für immer, ich versteh kein Spaß</string>
