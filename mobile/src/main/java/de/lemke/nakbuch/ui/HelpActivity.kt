@@ -35,12 +35,12 @@ class HelpActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:") // only email apps should handle this
             intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email)))
-            intent.putExtra(Intent.EXTRA_SUBJECT, "NAK Buch App")
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.appName))
             intent.putExtra(Intent.EXTRA_TEXT, "")
             try {
                 startActivity(intent)
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(mContext, "Keine E-mail-App installiert...", Toast.LENGTH_SHORT)
+                Toast.makeText(mContext, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT)
                     .show()
             }
         }

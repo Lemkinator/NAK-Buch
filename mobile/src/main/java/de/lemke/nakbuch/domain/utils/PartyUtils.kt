@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit
 
 class PartyUtils {
     companion object{
+        @JvmStatic
         fun discoverEasterEgg(
             mContext: Context,
             konfettiView: KonfettiView,
@@ -24,6 +25,7 @@ class PartyUtils {
             mContext.getString(easterEggEntryNameResourceId)
         )
 
+        @JvmStatic
         fun discoverEasterEgg(
             mContext: Context,
             konfettiView: KonfettiView,
@@ -48,14 +50,8 @@ class PartyUtils {
 
         const val partyDelay2 = 400L
         const val partyDelay3 = 800L
-        fun party(): List<Party> {
-            return listOf(
-                party1(),
-                party2(),
-                party3(),
-            )
-        }
 
+        @JvmStatic
         fun showKonfetti(konfettiView: KonfettiView) {
             konfettiView.start(party1())
             Handler(Looper.getMainLooper()).postDelayed(
@@ -68,7 +64,16 @@ class PartyUtils {
             )
         }
 
-        fun party1(): Party {
+        @Suppress("unused")
+        private fun party(): List<Party> {
+            return listOf(
+                party1(),
+                party2(),
+                party3(),
+            )
+        }
+
+        private fun party1(): Party {
             return Party(
                 speed = 0f,
                 maxSpeed = 50f,
@@ -91,19 +96,20 @@ class PartyUtils {
             )
         }
 
-        fun party2(): Party {
+        private fun party2(): Party {
             return party1().copy(
                 position = Position.Relative(0.5, 0.6)
             )
         }
 
-        fun party3(): Party {
+        private fun party3(): Party {
             return party1().copy(
                 position = Position.Relative(0.8, 0.2)
             )
         }
 
-        fun festive(): List<Party> {
+        @Suppress("unused")
+        private fun festive(): List<Party> {
             val party = Party(
                 speed = 30f,
                 maxSpeed = 50f,
@@ -141,7 +147,8 @@ class PartyUtils {
             )
         }
 
-        fun explode(): List<Party> {
+        @Suppress("unused")
+        private fun explode(): List<Party> {
             return listOf(
                 Party(
                     speed = 0f,
@@ -155,7 +162,8 @@ class PartyUtils {
             )
         }
 
-        fun parade(): List<Party> {
+        @Suppress("unused")
+        private fun parade(): List<Party> {
             val party = Party(
                 speed = 10f,
                 maxSpeed = 30f,
@@ -176,7 +184,8 @@ class PartyUtils {
             )
         }
 
-        fun rain(): List<Party> {
+        @Suppress("unused")
+        private fun rain(): List<Party> {
             return listOf(
                 Party(
                     speed = 0f,

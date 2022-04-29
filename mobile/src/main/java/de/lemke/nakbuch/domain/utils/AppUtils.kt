@@ -23,19 +23,24 @@ class AppUtils {
             )
         }
 
-        fun openAppWithPackageName(context: Context, packageName: String) {
-            var intent = context.packageManager.getLaunchIntentForPackage(packageName)
-            if (intent == null) {
-                intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse("market://details?id=$packageName")
+        fun openAppWithPackageName(mContext: Context, packageName: String) {
+            val intent = mContext.packageManager.getLaunchIntentForPackage(packageName)
+            if (intent != null) {
+                mContext.startActivity(intent)
+            } else {
+                openAppWithPackageNameOnStore(mContext, packageName)
             }
+        }
+        fun openAppWithPackageNameOnStore(mContext: Context, packageName: String) {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(mContext.getString(R.string.playStoreAppLink) + packageName)
             //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             try {
-                context.startActivity(intent)
+                mContext.startActivity(intent)
             } catch (anfe: ActivityNotFoundException) {
                 intent.data =
-                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                context.startActivity(intent)
+                    Uri.parse(mContext.getString(R.string.playStoreLink) + packageName)
+                mContext.startActivity(intent)
             }
         }
 
@@ -63,7 +68,7 @@ class AppUtils {
             val lastVersionCode = sp.getInt("lastAppVersion", -1)
             val versionCode: Int = BuildConfig.VERSION_CODE
             val versionName: String = BuildConfig.VERSION_NAME
-            sp.edit().putInt("lastAppVersion", versionCode).commit()
+            sp.edit().putInt("lastAppVersionCode", versionCode).commit()
             Log.d("CheckAppStart", "Current version code: $versionCode , last version code: $lastVersionCode")
             return when {
                 lastVersionCode == -1 -> {

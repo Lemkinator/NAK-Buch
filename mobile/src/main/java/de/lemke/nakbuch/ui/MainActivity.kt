@@ -162,13 +162,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         if (hints.contains("appHint")) {
             val dialog = AlertDialog.Builder(this)
-                .setTitle(getString(R.string.appHintShort))
+                .setTitle(resources.getQuantityString(R.plurals.hint,1) + ":")
                 .setMessage(getString(R.string.appHintText))
-                .setNegativeButton("Nicht erneut zeigen") { _: DialogInterface?, _: Int ->
+                .setNegativeButton(getString(R.string.dontShowAgain)) { _: DialogInterface?, _: Int ->
                     hints.remove("appHint")
                     sp.edit().putStringSet("hints", hints).apply()
                 }
-                .setPositiveButton("OK", null)
+                .setPositiveButton(getString(R.string.ok), null)
                 .setOnDismissListener { easterEggDialog() }
                 .create()
             dialog.show()
@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ViewSupport.semSetRoundedCorners(window.decorView, 0)
         drawerLayout = findViewById(R.id.drawer_view)
         tabLayout = findViewById(R.id.main_tabs)
-        val mode = intent.getBooleanExtra("Modus", Constants.GESANGBUCHMODE)
+        val mode = intent.getBooleanExtra("mode", Constants.GESANGBUCHMODE)
         if (mode == Constants.CHORBUCHMODE) {
             sp.edit().putBoolean("gesangbuchSelected", false).apply()
         } else if (mode == Constants.GESANGBUCHMODE) {
@@ -311,14 +311,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         searchHelpFAB.supportImageTintList = ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_tablayout_selected_indicator_color, theme)
         Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
         searchHelpFAB.setOnClickListener {
-            val searchModes = arrayOf<CharSequence>("Nur exakter Suchtext", "Nach allen Teilwörtern suchen")
+            val searchModes = arrayOf<CharSequence>(getString(R.string.onlyExactSearchText), getString(R.string.searchForAllPartialWords))
             val dialog = AlertDialog.Builder(mContext)
                 .setTitle(R.string.help)
                 .setMessage(R.string.searchHelp)
                 .setNeutralButton(R.string.ok, null)
                 .setNegativeButton(R.string.changeSearchMode) { _: DialogInterface, _: Int ->
                     AlertDialog.Builder(mContext)
-                        .setTitle("Standard-Suchmodus auswählen")
+                        .setTitle(getString(R.string.setStandardSearchMode))
                         .setNeutralButton(R.string.ok, null)
                         .setSingleChoiceItems(searchModes, if (sp.getBoolean("searchAlternativeMode", false)) 1 else 0) { _: DialogInterface, i: Int ->
                             sp.edit().putBoolean("searchAlternativeMode", (i == 1)).apply()
@@ -366,13 +366,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         // TabLayout
         tabLayout.addTab(
-            tabLayout.newTab().setText("Nummer")
+            tabLayout.newTab().setText(getString(R.string.number))
         )
         tabLayout.addTab(
-            tabLayout.newTab().setText("Liste")
+            tabLayout.newTab().setText(getString(R.string.list))
         )
         tabLayout.addTab(
-            tabLayout.newTab().setText("Favoriten")
+            tabLayout.newTab().setText(getString(R.string.favourites))
         )
 
         tabLayout.addOnTabSelectedListener(object : SamsungTabLayout.OnTabSelectedListener {
@@ -444,11 +444,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             val dialog = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.easterEggs))
                 .setMessage(getString(R.string.easterEggsText))
-                .setNegativeButton("Deaktivieren") { dialogInterface: DialogInterface, _: Int ->
+                .setNegativeButton(getString(R.string.deactivate)) { dialogInterface: DialogInterface, _: Int ->
                     sp.edit().putBoolean("easterEggs", false).apply()
                     Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
                 }
-                .setPositiveButton("Ok", null)
+                .setPositiveButton(getString(R.string.ok), null)
                 .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
                 .setNegativeButtonProgress(true)
                 .setOnDismissListener {
@@ -460,17 +460,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         } else {
             showTipPopup()
         }
-    }
-
-    private fun progressDialogCircleOnly(view: View) {
-        val dialog = ProgressDialog(mContext)
-        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
-        dialog.setCancelable(true)
-        dialog.setCanceledOnTouchOutside(true)
-        dialog.setOnCancelListener {
-            Snackbar.make(view, "Text label", Snackbar.LENGTH_SHORT).setAction("Action") { }.show()
-        }
-        dialog.show()
     }
 
     private fun initTipPopup() {
@@ -502,7 +491,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
         tipPopupSearch.setMessage(getString(R.string.searchTip))
         tipPopupSwitchBuchMode.setMessage(getString(R.string.switchModeDescription))
-        tipPopupMenuButton.setMessage(getString(R.string.mute) + " oder " + getString(R.string.dndMode))
+        tipPopupMenuButton.setMessage(getString(R.string.mute) + " " + getString(R.string.or) + " " + getString(R.string.dndMode))
         tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
 
         //tipPopup2 = new TipPopup(Objects.requireNonNull(tabLayout.getTabAt(0)).seslGetTextView());
@@ -647,6 +636,18 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             null as DialogInterface.OnClickListener?
         )
         dialog.setOnCancelListener { progressDialogCircleOnly(view) }
+        dialog.show()
+    }
+
+    @Suppress("UNUSED_PARAMETER", "unused")
+    private fun progressDialogCircleOnly(view: View) {
+        val dialog = ProgressDialog(mContext)
+        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+        dialog.setCancelable(true)
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.setOnCancelListener {
+            Snackbar.make(view, "Text label", Snackbar.LENGTH_SHORT).setAction("Action") { }.show()
+        }
         dialog.show()
     }
 }

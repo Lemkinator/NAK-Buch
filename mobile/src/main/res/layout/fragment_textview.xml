@@ -129,7 +129,7 @@
                                 android:id="@+id/editTextNotiz"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:autofillHints="@string/insert_note"
+                                android:autofillHints="@string/insertNote"
                                 android:hint="@string/insertNote"
                                 android:inputType="textMultiLine" />
 

@@ -45,7 +45,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         setContentView(R.layout.activity_history)
         listView = findViewById(R.id.historyList)
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_history)
-        switchBarLayout.switchBar.isChecked = switchBarDefaultStatus
+        switchBarLayout.switchBar.isChecked = sp.getBoolean("historyEnabled", true)
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
@@ -62,9 +62,6 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         }
         initList()
     }
-
-    private val switchBarDefaultStatus: Boolean
-        get() = sp.getBoolean("historyEnabled", true)
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
         sp.edit().putBoolean("historyEnabled", z).apply()

@@ -6,39 +6,31 @@
         <item>tabFav</item>
         <item>tabSearch</item>
     </string-array>
+
     <string-array name="mainactivity_tab_class">
         <item>de.lemke.nakbuch.fragments.MainActivityTabNum</item>
         <item>de.lemke.nakbuch.fragments.MainActivityTabList</item>
         <item>de.lemke.nakbuch.fragments.MainActivityTabFav</item>
         <item>de.lemke.nakbuch.fragments.MainActivitySearchFragment</item>
     </string-array>
-    <string-array name="easterEggComments">
-        <item>Noch keins gefunden? Dann los! &#128118;</item>
-        <item>Sei ehrlich, das war durch Zufall gefunden… &#129300;</item>
-        <item>Nicht schlecht, das ist doch schonmal ein Anfang… &#128527;</item>
-        <item>So langsam füllt sich die Liste mit entdeckten Easter Eggs! &#128269;</item>
-        <item>Halbzeit! &#127881;</item>
-        <item>Nice! Schon über die Hälfte der Easter Eggs gefunden! &#128048;</item>
-        <item>Schon ne ganze Menge, stark! &#129299;</item>
-        <item>Nur noch 1 fehlt! Komm schon! &#128293;</item>
-        <item>&#127942; Master of Easter Eggs! &#127942;</item>
-    </string-array>
-    <string-array name="preferences_imgQuality">
-        <item>Sehr Niedrig</item>
-        <item>Niedrig</item>
-        <item>Mittel</item>
-        <item>Hoch</item>
-        <item>Sehr Hoch</item>
+
+    <string-array name="hint_values">
+        <item>appHint</item>
+        <item>tipcard</item>
+        <item>appIntroduction</item>
     </string-array>
     <string-array name="hint_entries">
         <item>Hinweis zur App</item>
         <item>Tipp-Karte in Einstellungen</item>
         <item>Einführung zur Bedienung der App</item>
     </string-array>
-    <string-array name="hint_values">
-        <item>appHint</item>
-        <item>tipcard</item>
-        <item>appIntroduction</item>
+
+    <string-array name="quality">
+        <item>@string/veryLow</item>
+        <item>@string/low</item>
+        <item>@string/medium</item>
+        <item>@string/high</item>
+        <item>@string/veryHigh</item>
     </string-array>
 
     <array name="preferences_darkmode_entries_image">

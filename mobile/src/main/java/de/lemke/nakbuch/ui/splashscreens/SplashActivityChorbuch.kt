@@ -36,7 +36,7 @@ class SplashActivityChorbuch : AppCompatActivity() {
     private fun launchApp() {
         startActivity(
             Intent().setClass(applicationContext, MainActivity::class.java)
-                .putExtra("Modus", Constants.CHORBUCHMODE)
+                .putExtra("mode", Constants.CHORBUCHMODE)
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()

@@ -10,9 +10,12 @@ import com.google.android.material.color.MaterialColors
 import de.lemke.nakbuch.R
 
 object TextHelper {
+
+    @JvmStatic
     fun makeSectionOfTextBold(mContext: Context, sp: SharedPreferences, text: String, textToBold: String): SpannableStringBuilder {
         return makeSectionOfTextBold(mContext, sp, text, textToBold, -1)
     }
+    @JvmStatic
     fun makeSectionOfTextBold(mContext: Context, sp: SharedPreferences, text: String, textToBold: String, lengthBefore: Int): SpannableStringBuilder {
         if (textToBold.isNotEmpty()) {
             if (textToBold.startsWith("\"") && textToBold.endsWith("\"")) {
@@ -35,6 +38,7 @@ object TextHelper {
         return SpannableStringBuilder(text)
     }
 
+    @JvmStatic
     private fun makeSectionOfTextBold(mContext: Context, builder: SpannableStringBuilder, textToBold: String): SpannableStringBuilder {
         if (textToBold.isEmpty() || textToBold.trim() == "") {
             return builder
@@ -60,6 +64,7 @@ object TextHelper {
         return builder
     }
 
+    @JvmStatic
     private fun makeSectionOfTextBold(mContext: Context, spannableStringBuilder: SpannableStringBuilder, textsToBold: HashSet<String>, lengthBefore: Int): SpannableStringBuilder {
         var builder = spannableStringBuilder
         val text = builder.toString()

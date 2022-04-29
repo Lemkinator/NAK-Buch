@@ -113,7 +113,7 @@ class ImgviewActivity : AppCompatActivity() {
                     }
                     Toast.makeText(
                         mContext,
-                        "Kein Foto ausgewählt oder Fehler beim Verarbeiten des Fotos...",
+                        getString(R.string.fotoError),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -171,20 +171,20 @@ class ImgviewActivity : AppCompatActivity() {
 
     private fun compressJPG(file: File): Job {
         Log.d("Compressor", "Compressing file: " + file.absolutePath)
-        val resolution = when (sp.getString("imgResolution", "Mittel")) {
-            "Sehr Niedrig" -> 512
-            "Niedrig" -> 1024
-            "Mittel" -> 2048
-            "Hoch" -> 4096
-            "Sehr Hoch" -> 8192
+        val resolution = when (sp.getString("imgResolution", getString(R.string.medium))) {
+            getString(R.string.veryLow) -> 512
+            getString(R.string.low) -> 1024
+            getString(R.string.medium) -> 2048
+            getString(R.string.high) -> 4096
+            getString(R.string.veryHigh) -> 8192
             else -> 2048
         }
-        val quality = when (sp.getString("imgQuality", "Mittel")) {
-            "Sehr Niedrig" -> 15
-            "Niedrig" -> 25
-            "Mittel" -> 50
-            "Hoch" -> 75
-            "Sehr Hoch" -> 100
+        val quality = when (sp.getString("imgQuality", getString(R.string.medium))) {
+            getString(R.string.veryLow) -> 15
+            getString(R.string.low) -> 25
+            getString(R.string.medium) -> 50
+            getString(R.string.high) -> 75
+            getString(R.string.veryHigh) -> 100
             else -> 50
         }
         return GlobalScope.launch {

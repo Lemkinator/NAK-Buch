@@ -10,13 +10,15 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
+import de.lemke.nakbuch.R
 
 class SoundUtils {
     companion object {
-        fun mute(context: Context?) {
+        @JvmStatic
+        fun mute(mContext: Context) {
             try {
                 val mAudioManager =
-                    context!!.getSystemService(AppCompatActivity.AUDIO_SERVICE) as AudioManager
+                    mContext.getSystemService(AppCompatActivity.AUDIO_SERVICE) as AudioManager
                 val audioManagerFlag = AudioManager.FLAG_SHOW_UI
                 mAudioManager.adjustStreamVolume(
                     AudioManager.STREAM_NOTIFICATION,
@@ -45,14 +47,15 @@ class SoundUtils {
                 )
             } catch (se: SecurityException) {
                 Toast.makeText(
-                    context,
-                    "Hoppla, ich habs nicht geschafft alles Stummzuschalten...",
+                    mContext,
+                    mContext.getString(R.string.failedToMuteStreams),
                     Toast.LENGTH_SHORT
                 ).show()
                 se.printStackTrace()
             }
         }
 
+        @JvmStatic
         fun dnd(context: Context) {
             val mNotificationManager =
                 context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
@@ -63,37 +66,35 @@ class SoundUtils {
             }
         }
 
-        private fun showNotificationAccessMissing(context: Context) {
-            val dialog = AlertDialog.Builder(context)
-                .setTitle("Berechtigung benötigt")
-                .setMessage(
-                    "Um den \"Bitte-Nicht-Stören\"-Modus zu aktivieren, " +
-                            "benötigt die App die \"Nicht-Stören\"-Berechtigung"
-                )
+        @JvmStatic
+        private fun showNotificationAccessMissing(mContext: Context) {
+            val dialog = AlertDialog.Builder(mContext)
+                .setTitle(mContext.getString(R.string.needAccess))
+                .setMessage(mContext.getString(R.string.needAccessMessage))
                 .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
-                .setPositiveButton("Berechtigung erteilen") { _: DialogInterface?, _: Int ->
+                .setPositiveButton(mContext.getString(R.string.grantAccess)) { _: DialogInterface?, _: Int ->
                     val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-                    val showArgs = context.packageName
+                    val showArgs = mContext.packageName
                     val bundle = Bundle()
                     bundle.putString(":settings:fragment_args_key", showArgs)
                     intent.putExtra(":settings:show_fragment_args", showArgs)
                     intent.putExtra(":settings:show_fragment_args", bundle)
                     try {
-                        context.startActivity(intent)
+                        mContext.startActivity(intent)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
                 .setNegativeButtonColor(
-                    context.resources.getColor(
+                    mContext.resources.getColor(
                         de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
-                        context.theme
+                        mContext.theme
                     )
                 )
                 .setPositiveButtonColor(
-                    context.resources.getColor(
+                    mContext.resources.getColor(
                         de.dlyt.yanndroid.oneui.R.color.sesl_functional_green,
-                        context.theme
+                        mContext.theme
                     )
                 )
                 .create()

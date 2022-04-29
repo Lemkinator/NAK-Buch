@@ -7,7 +7,9 @@ import com.google.gson.reflect.TypeToken
 import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
 
 object HymnPrefsHelper {
+    @JvmStatic
     private lateinit var hymnAdditions: ArrayList<HashMap<String, String>>
+    @JvmStatic
     private fun getEmptyList(size: Int): ArrayList<HashMap<String, String>> {
         val result = ArrayList<HashMap<String, String>>()
         for (i in 0 until size) {
@@ -17,6 +19,7 @@ object HymnPrefsHelper {
         return result
     }
 
+    @JvmStatic
     private fun getHymnAdditionsList(gesangbuchSelected: Boolean, spHymns: SharedPreferences): ArrayList<HashMap<String, String>> {
         return if (gesangbuchSelected) {
             Gson().fromJson(

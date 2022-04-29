@@ -36,7 +36,7 @@ class SplashActivityGesangbuch : AppCompatActivity() {
     private fun launchApp() {
         startActivity(
             Intent().setClass(applicationContext, MainActivity::class.java)
-                .putExtra("Modus", Constants.GESANGBUCHMODE)
+                .putExtra("mode", Constants.GESANGBUCHMODE)
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()

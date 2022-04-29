@@ -1,7 +1,6 @@
 package de.lemke.nakbuch.ui
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender.SendIntentException
@@ -20,6 +19,7 @@ import com.google.android.play.core.tasks.Task
 import de.dlyt.yanndroid.oneui.layout.AboutPage
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.utils.AppUtils
 import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
@@ -51,21 +51,13 @@ class AboutActivity : AppCompatActivity() {
             checkUpdate()
         }
         findViewById<View>(R.id.about_btn_open_in_store).setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("market://details?id=$packageName")
-            try {
-                startActivity(intent)
-            } catch (anfe: ActivityNotFoundException) {
-                intent.data =
-                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                startActivity(intent)
-            }
+            AppUtils.openAppWithPackageNameOnStore(mContext, packageName)
         }
         findViewById<View>(R.id.about_btn_open_oneui_github).setOnClickListener {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/Yanndroid/OneUI-Design-Library")
+                    Uri.parse(getString(R.string.oneUIGithubLink))
                 )
             )
         }
@@ -89,7 +81,7 @@ class AboutActivity : AppCompatActivity() {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://www.youtube.com/watch?v=o-YBDTqX_ZU") //Rick Roll :D
+                    Uri.parse(getString(R.string.rickRollTrollLink)) //Rick Roll :D
                 )
             )
         }

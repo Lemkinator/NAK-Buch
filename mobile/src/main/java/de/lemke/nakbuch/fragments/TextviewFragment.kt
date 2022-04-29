@@ -218,14 +218,14 @@ class TextviewFragment : Fragment() {
         })
         mRootView.findViewById<View>(R.id.buttonKopieren).setOnClickListener {
             Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show()
-            val clip = ClipData.newPlainText("Notiz aus NAKBuch (Liednummer: $nr)", editTextNotiz.text.toString())
+            val clip = ClipData.newPlainText("Notiz (NAKBuch: " + if(buchMode == BuchMode.Gesangbuch) "GB" else {"CB"}  + ", $nr)", editTextNotiz.text.toString())
             (requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clip)
         }
         mRootView.findViewById<View>(R.id.buttonSenden).setOnClickListener {
             val sendIntent = Intent(Intent.ACTION_SEND)
             sendIntent.type = "text/plain"
             sendIntent.putExtra(Intent.EXTRA_TEXT, editTextNotiz.text.toString())
-            sendIntent.putExtra(Intent.EXTRA_TITLE, "Notiz teilen")
+            sendIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.shareNote))
             sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             startActivity(Intent.createChooser(sendIntent, "Share Via"))
         }
@@ -262,10 +262,10 @@ class TextviewFragment : Fragment() {
             val jokeDialog = AlertDialog.Builder(mContext)
                 .setTitle(getString(R.string.jokeTitle))
                 .setMessage(getString(R.string.jokeMessage))
-                .setNegativeButton("Für immer, ich versteh kein Spaß") { _: DialogInterface?, _: Int ->
+                .setNegativeButton(getString(R.string.ForeverICantTakeAJoke)) { _: DialogInterface?, _: Int ->
                     spHymns.edit().putBoolean("showJokeButton", false).apply()
                 }
-                .setPositiveButton("Nur diesmal", null)
+                .setPositiveButton(getString(R.string.onlyThisTime), null)
                 .setNegativeButtonColor(
                     resources.getColor(
                         de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,

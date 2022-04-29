@@ -68,7 +68,12 @@
     <string name="notFound">Nicht gefunden</string>
     <string name="hiddenMenu">Verstecktes Menu</string>
 
-    <string name="appHintShort">Hinweis:</string>
+    <string name="color">Farbe</string>
+    <string name="design">Design</string>
+    <plurals name="hint">
+        <item quantity="one">Hinweis</item>
+        <item quantity="other">Hinweise</item>
+    </plurals>
     <string name="appHint">Urheberrechtlich geschützte Inhalte</string>
     <string name="appHintLong">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
     <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem Gesang- und Chorbuch der NAK.\n\nBei 118 (von 438) Gesangbuch-Liedern und 256 (von 462) Chorbuch-Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht angezeigt werden können. Die Informationen zum Urheberrecht der einzelnen Lieder wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) Gesangbuch-App und eine (kostenpflichtige) Chorbuch-App herausgegeben hat.\n    "</string>
@@ -99,6 +104,18 @@
     <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 2 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über NAK-Buch\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n</string>
     <string name="easterEggTipsShame">Ich schäme mich</string>
 
+    <string-array name="easterEggComments">
+        <item>Noch keins gefunden? Dann los! &#128118;</item>
+        <item>Sei ehrlich, das war durch Zufall gefunden… &#129300;</item>
+        <item>Nicht schlecht, das ist doch schonmal ein Anfang… &#128527;</item>
+        <item>So langsam füllt sich die Liste mit entdeckten Easter Eggs! &#128269;</item>
+        <item>Halbzeit! &#127881;</item>
+        <item>Nice! Schon über die Hälfte der Easter Eggs gefunden! &#128048;</item>
+        <item>Schon ne ganze Menge, stark! &#129299;</item>
+        <item>Nur noch 1 fehlt! Komm schon! &#128293;</item>
+        <item>&#127942; Master of Easter Eggs! &#127942;</item>
+    </string-array>
+
     <string name="buyMeACoffee">Spendier mir einen Kaffee</string>
     <string name="watchAdHeader">Broke? Kein problem</string>
     <string name="watchAd">Freiwillig eine Werbung ansehen</string>
@@ -126,5 +143,53 @@
 
     <string name="shortcut_disabled_msg">Shortcut deaktiviert</string>
     <string name="invalidNumber">Ungültige Nummer</string>
+    <string name="noEmailAppInstalled">Keine E-mail-App installiert…</string>
+    <string name="error">Fehler</string>
+    <string name="privacyInformation">Informationen zum Datenschutz</string>
+    <string name="about">Über</string>
+    <string name="privacy">Datenschutz</string>
+    <string name="shortcuts">Shortcuts</string>
+    <string name="shortcutGesangbuch">Gesangbuch shortcut</string>
+    <string name="shortcutGesangbuchSummary">Shortcut zum Gesangbuch auf dem Homebildschirm erstellen</string>
+    <string name="shortcutChorbuch">Chorbuch shortcut</string>
+    <string name="shortcutChorbuchSummary">Shortcut zum Chorbuch auf dem Homebildschirm erstellen</string>
+    <string name="imageSettings">Foto-Einstellungen</string>
+    <string name="imgResolution">Foto Auflösung</string>
+    <string name="imgResolutionSummary">Je größer die Auflösung, umso mehr Speicher wird benötigt</string>
+    <string name="imgQuality">Foto Qualität</string>
+    <string name="imgQualitySummary">Je besser die Qualität, umso mehr Speicher wird benötigt</string>
+
+    <string name="fotoError">Kein Foto ausgewählt oder Fehler beim Verarbeiten des Fotos…</string>
+    <string name="addOwnHymnTexts">Eigene Liedtexte hinzufügen</string>
+    <string name="deleteOwnHymnTexts">Eigene Liedtexte löschen</string>
+    <string name="sheetMusic">Noten</string>
+    <string name="deleteAppDataAndExit">App-Daten löschen und Beenden</string>
+    <string name="activeOnNextStart">Beim nächsten App-Start aktiv:</string>
+    <string name="toggleHints">Hinweise aktivieren/deaktivieren</string>
+    <string name="showScoreboard">Scoreboard ansehen</string>
+    <string name="phoneSettings">Telefon-Einstellungen</string>
+
+    <string name="veryLow">Sehr Niedrig</string>
+    <string name="low">Niedrig</string>
+    <string name="medium">Mittel</string>
+    <string name="high">Hoch</string>
+    <string name="veryHigh">Sehr Hoch</string>
+    <string name="onlyExactSearchText">Nur exakter Suchtext</string>
+    <string name="searchForAllPartialWords">Nach allen Teilwörtern suchen</string>
+    <string name="setStandardSearchMode">Standard-Suchmodus auswählen</string>
+    <string name="deactivate">Deaktivieren</string>
+    <string name="or">oder</string>
+    <string name="playStoreAppLink">market://details?id=</string>
+    <string name="playStoreLink">https://play.google.com/store/apps/details?id=</string>
+    <string name="oneUIGithubLink">https://github.com/Yanndroid/OneUI-Design-Library</string>
+    <string name="rickRollTrollLink">https://www.youtube.com/watch?v=o-YBDTqX_ZU</string>
+    <string name="alreadyDiscoveredEasterEggs">Bereits entdeckte Easter Eggs</string>
+    <string name="shareNote">Notiz teilen</string>
+    <string name="onlyThisTime">Nur diesmal</string>
+    <string name="ForeverICantTakeAJoke">Für immer, ich versteh kein Spaß</string>
+    <string name="failedToMuteStreams">Hoppla, ich habs nicht geschafft alles Stummzuschalten…</string>
+    <string name="needAccess">Berechtigung benötigt</string>
+    <string name="needAccessMessage">Um den \"Bitte-Nicht-Stören\"-Modus zu aktivieren, benötigt die App die \"Nicht-Stören\"-Berechtigung</string>
+    <string name="grantAccess">Berechtigung erteilen</string>
 
 </resources>

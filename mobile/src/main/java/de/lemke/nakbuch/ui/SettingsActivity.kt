@@ -66,7 +66,7 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var mContext: Context
         private lateinit var mActivity: SettingsActivity
         private lateinit var sp: SharedPreferences
-        private var time: Long = 0
+        private var lastTimeVersionClicked: Long = 0
         private var clickCounter = 0
         private var tipCard: TipsCardViewPreference? = null
         private var tipCardSpacing: PreferenceCategory? = null
@@ -84,74 +84,20 @@ class SettingsActivity : AppCompatActivity() {
             addPreferencesFromResource(R.xml.preferences)
         }
 
-        @SuppressLint("RestrictedApi", "UnspecifiedImmutableFlag")
         override fun onCreate(bundle: Bundle?) {
             super.onCreate(bundle)
-            time = System.currentTimeMillis()
+            lastTimeVersionClicked = System.currentTimeMillis()
             sp = mContext.getSharedPreferences(
                 getString(R.string.preferenceFileDefault),
                 MODE_PRIVATE
             )
+            initResultLaunchers()
+            initPreferences()
+        }
+
+        @SuppressLint("RestrictedApi", "UnspecifiedImmutableFlag")
+        private fun initPreferences() {
             val darkMode = ThemeUtil.getDarkMode(mContext)
-            pickTextsActivityResultLauncher = registerForActivityResult(
-                GetMultipleContents()
-            ) { result: List<Uri>? ->
-                if (result == null) {
-                    Toast.makeText(mContext, "Fehler: result == null", Toast.LENGTH_LONG).show()
-                } else if (result.isEmpty()) {
-                    Toast.makeText(mContext, "Kein Inhalt ausgewählt", Toast.LENGTH_LONG).show()
-                } else {
-                    Log.d("Ausgewählte Inhalte", result.toString())
-                    val ok = StringBuilder()
-                    for (uri in result) {
-                        var fileName: String? = null
-                        if (uri.scheme == "content") {
-                            mActivity.contentResolver.query(uri, null, null, null, null)
-                                .use { cursor ->
-                                    if (cursor != null && cursor.moveToFirst()) {
-                                        fileName = cursor.getString(
-                                            cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
-                                        )
-                                    }
-                                }
-                        }
-                        if (fileName == null) {
-                            fileName = uri.path
-                            val cut = fileName!!.lastIndexOf('/')
-                            if (cut != -1) {
-                                fileName = fileName?.substring(cut + 1)
-                            }
-                        }
-                        if (fileName == "hymnsGesangbuch.txt") {
-                            if (setHymnsText(mContext, sp, uri, "privateTextGesangbuch")) {
-                                ok.append(" Gesangbuch")
-                                sendToWear(uri, "/privateTextGesangbuch")
-                            }
-                        } else if (fileName == "hymnsChorbuch.txt") {
-                            if (setHymnsText(mContext, sp, uri, "privateTextChorbuch")) {
-                                ok.append(" Chorbuch")
-                                sendToWear(uri, "/privateTextChorbuch")
-                            }
-                        }
-                    }
-                    if (ok.toString().isEmpty()) Toast.makeText(
-                        mContext,
-                        "Fehler: Keine passende Datei erkannt",
-                        Toast.LENGTH_LONG
-                    ).show() else {
-                        Toast.makeText(mContext, "$ok aktualisiert", Toast.LENGTH_SHORT).show()
-                        Constants.modeChanged = true
-                    }
-                }
-            }
-            pickFolderActivityResultLauncher =
-                registerForActivityResult(OpenDocumentTree()) { result: Uri? ->
-                    if (result == null) {
-                        Toast.makeText(mContext, "Fehler: result == null", Toast.LENGTH_LONG).show()
-                    } else {
-                        Log.e("Uri", result.toString())
-                    }
-                }
             val darkModePref = findPreference<HorizontalRadioPreference>("dark_mode")
             darkModePref!!.onPreferenceChangeListener = this
             darkModePref.setDividerEnabled(false)
@@ -272,7 +218,7 @@ class SettingsActivity : AppCompatActivity() {
                     )
                     true
                 }
-            val prefScreenVersion = findPreference<PreferenceScreen>("version_activateAllTexts")
+            val prefScreenVersion = findPreference<PreferenceScreen>("version_hidden_menu")
             try {
                 prefScreenVersion!!.title =
                     mContext.getString(de.dlyt.yanndroid.oneui.R.string.sesl_version) + " " + mContext.packageManager.getPackageInfo(
@@ -284,16 +230,16 @@ class SettingsActivity : AppCompatActivity() {
             }
             prefScreenVersion!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    if (System.currentTimeMillis() - time < 400) {
+                    if (System.currentTimeMillis() - lastTimeVersionClicked < 400) {
                         clickCounter++
                         if (clickCounter > 10) {
                             clickCounter = 0
 
                             val hiddenMenu = arrayOf<CharSequence>(
-                                "Eigene Liedtexte hinzufügen",
-                                "Eigene Liedtexte löschen",
-                                "Noten",
-                                "App-Daten löschen und Beenden"
+                                getString(R.string.addOwnHymnTexts),
+                                getString(R.string.deleteOwnHymnTexts),
+                                getString(R.string.sheetMusic),
+                                getString(R.string.deleteAppDataAndExit)
                             )
                             var option = 0
                             val dialog = AlertDialog.Builder(mContext)
@@ -309,8 +255,10 @@ class SettingsActivity : AppCompatActivity() {
                                             pickTextsActivityResultLauncher.launch("text/plain")
                                         }
                                         1 -> {
-                                            sp.edit().putStringSet("privateTextGesangbuch", null).apply()
-                                            sp.edit().putStringSet("privateTextChorbuch", null).apply()
+                                            sp.edit().putStringSet("privateTextGesangbuch", null)
+                                                .apply()
+                                            sp.edit().putStringSet("privateTextChorbuch", null)
+                                                .apply()
                                         }
                                         2 -> {
                                             pickFolderActivityResultLauncher.launch(
@@ -322,7 +270,10 @@ class SettingsActivity : AppCompatActivity() {
                                         }
                                     }
                                 }
-                                .setSingleChoiceItems(hiddenMenu, 1) { _: DialogInterface, i: Int -> option = i }
+                                .setSingleChoiceItems(
+                                    hiddenMenu,
+                                    1
+                                ) { _: DialogInterface, i: Int -> option = i }
                                 .create()
                             dialog.show()
 
@@ -331,7 +282,7 @@ class SettingsActivity : AppCompatActivity() {
                     } else {
                         clickCounter = 0
                     }
-                    time = System.currentTimeMillis()
+                    lastTimeVersionClicked = System.currentTimeMillis()
                     true
                 }
             tipCard = findPreference("tip_card_preference")
@@ -361,6 +312,76 @@ class SettingsActivity : AppCompatActivity() {
                     startActivity(Intent(mContext, HelpActivity::class.java))
                 }
             })
+        }
+
+        private fun initResultLaunchers() {
+            pickTextsActivityResultLauncher = registerForActivityResult(
+                GetMultipleContents()
+            ) { result: List<Uri>? ->
+                if (result == null) {
+                    Toast.makeText(
+                        mContext,
+                        "Fehler: Keine passende Datei erkannt",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else if (result.isEmpty()) {
+                    Toast.makeText(mContext, "Kein Inhalt ausgewählt", Toast.LENGTH_LONG).show()
+                } else {
+                    Log.d("Ausgewählte Inhalte", result.toString())
+                    val ok = StringBuilder()
+                    for (uri in result) {
+                        var fileName: String? = null
+                        if (uri.scheme == "content") {
+                            mActivity.contentResolver.query(uri, null, null, null, null)
+                                .use { cursor ->
+                                    if (cursor != null && cursor.moveToFirst()) {
+                                        fileName = cursor.getString(
+                                            cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
+                                        )
+                                    }
+                                }
+                        }
+                        if (fileName == null) {
+                            fileName = uri.path
+                            val cut = fileName!!.lastIndexOf('/')
+                            if (cut != -1) {
+                                fileName = fileName?.substring(cut + 1)
+                            }
+                        }
+                        if (fileName == "hymnsGesangbuch.txt") {
+                            if (setHymnsText(mContext, sp, uri, "privateTextGesangbuch")) {
+                                ok.append(" Gesangbuch")
+                                sendToWear(uri, "/privateTextGesangbuch")
+                            }
+                        } else if (fileName == "hymnsChorbuch.txt") {
+                            if (setHymnsText(mContext, sp, uri, "privateTextChorbuch")) {
+                                ok.append(" Chorbuch")
+                                sendToWear(uri, "/privateTextChorbuch")
+                            }
+                        }
+                    }
+                    if (ok.toString().isEmpty()) Toast.makeText(
+                        mContext,
+                        "Fehler: Keine passende Datei erkannt",
+                        Toast.LENGTH_LONG
+                    ).show() else {
+                        Toast.makeText(mContext, "$ok aktualisiert", Toast.LENGTH_SHORT).show()
+                        Constants.modeChanged = true
+                    }
+                }
+            }
+            pickFolderActivityResultLauncher =
+                registerForActivityResult(OpenDocumentTree()) { result: Uri? ->
+                    if (result == null) {
+                        Toast.makeText(
+                            mContext,
+                            "Fehler: Kein Ordner Ausgewählt",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Log.e("Uri", result.toString())
+                    }
+                }
         }
 
         private fun sendToWear(uri: Uri, path: String) {

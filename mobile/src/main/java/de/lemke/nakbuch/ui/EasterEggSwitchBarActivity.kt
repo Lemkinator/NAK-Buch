@@ -173,7 +173,8 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         discoveredEasterEggs = ArrayList(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
         val discoveredEasterEggsCount = discoveredEasterEggs.size
         val maxEasterEggs = easterEggComments.size - 1
-        easterEggsHeader.text = "Bereits entdeckte Easter Eggs ($discoveredEasterEggsCount/$maxEasterEggs):"
+        easterEggsHeader.text =
+            getString(R.string.alreadyDiscoveredEasterEggs) + " (" + discoveredEasterEggsCount + "/" + maxEasterEggs + "):"
         easterEggCommentButton.text = easterEggComments[discoveredEasterEggsCount]
         discoveredEasterEggs.add("") //placeholder
         listView.layoutManager = LinearLayoutManager(this)

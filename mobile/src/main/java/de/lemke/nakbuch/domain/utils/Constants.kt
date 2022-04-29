@@ -16,6 +16,7 @@ class Constants {
         var colorSettingChanged = false
         var modeChanged = false
 
+        @JvmStatic
         fun hymnCount(buchMode: BuchMode) = if (buchMode == BuchMode.Gesangbuch) HYMNSGESANGBUCHCOUNT else HYMNSCHORBUCHCOUNT
     }
 }

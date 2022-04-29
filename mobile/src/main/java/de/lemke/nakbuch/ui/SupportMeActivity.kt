@@ -53,7 +53,7 @@ class SupportMeActivity : AppCompatActivity() {
             try {
                 startActivity(intent)
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(mContext, "Keine E-mail-App installiert...", Toast.LENGTH_SHORT)
+                Toast.makeText(mContext, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT)
                     .show()
             }
         }
@@ -69,7 +69,7 @@ class SupportMeActivity : AppCompatActivity() {
                         if (task2.isSuccessful) {
                             //Toast.makeText(mContext, "Vielen Dank für deine Bewertung", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(mContext, "Fehler: " + task2.exception, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(mContext, getString(R.string.error) + ": " + task2.exception, Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
