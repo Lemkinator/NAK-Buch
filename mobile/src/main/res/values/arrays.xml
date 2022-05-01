@@ -8,10 +8,10 @@
     </string-array>
 
     <string-array name="mainactivity_tab_class">
-        <item>de.lemke.nakbuch.fragments.MainActivityTabNum</item>
-        <item>de.lemke.nakbuch.fragments.MainActivityTabList</item>
-        <item>de.lemke.nakbuch.fragments.MainActivityTabFav</item>
-        <item>de.lemke.nakbuch.fragments.MainActivitySearchFragment</item>
+        <item>de.lemke.nakbuch.ui.fragments.MainActivityTabNum</item>
+        <item>de.lemke.nakbuch.ui.fragments.MainActivityTabList</item>
+        <item>de.lemke.nakbuch.ui.fragments.MainActivityTabFav</item>
+        <item>de.lemke.nakbuch.ui.fragments.MainActivitySearchFragment</item>
     </string-array>
 
     <string-array name="hint_values">

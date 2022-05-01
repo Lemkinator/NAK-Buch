@@ -1,17 +1,17 @@
-package de.lemke.nakbuch.fragments
+package de.lemke.nakbuch.ui.fragments
 
-import android.view.View
 import android.content.Context
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.os.Bundle
-import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.utils.ViewPager2AdapterTabListSubtabs
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import de.dlyt.yanndroid.oneui.sesl.tabs.TabLayoutMediator
 import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.utils.ViewPager2AdapterTabListSubtabs
 
 class MainActivityTabList : Fragment() {
     private lateinit var mRootView: View

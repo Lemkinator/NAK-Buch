@@ -1,4 +1,4 @@
-package de.lemke.nakbuch.fragments
+package de.lemke.nakbuch.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context

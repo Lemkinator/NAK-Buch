@@ -13,7 +13,7 @@ import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.utils.Constants.Companion.hymnCount
-import de.lemke.nakbuch.fragments.TextviewFragment
+import de.lemke.nakbuch.ui.fragments.TextviewFragment
 
 class TextviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
