@@ -1,16 +1,17 @@
 package de.lemke.nakbuch.domain
 
-import de.lemke.nakbuch.data.hymnDataRepo
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.HymnData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class SetHymnDataUseCase {
+class SetFavoriteUseCase {
     suspend operator fun invoke(
         hymn: Hymn,
-        hymnData: HymnData
+        favorite: Boolean
     ) = withContext(Dispatchers.IO) {
-        hymnDataRepo.setHymnData(hymn, hymnData)
+        val hymnData : HymnData = GetHymnDataUseCase()(hymn)
+        hymnData.favorite = favorite
+        SetHymnDataUseCase()(hymn, hymnData)
     }
 }

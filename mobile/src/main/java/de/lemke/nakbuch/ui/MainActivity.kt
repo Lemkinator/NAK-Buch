@@ -140,7 +140,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     500
                 )
             }
-            .setOnDismissListener { easterEggDialog() }
             .create()
             .show()
     }

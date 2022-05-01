@@ -16,22 +16,39 @@ val hymnsRepo = HymnsRepository()
 class HymnsRepository {
     private var allGesangbuchHymns: ArrayList<Hymn>? = null
     private var allChorbuchHymns: ArrayList<Hymn>? = null
+    private var allGesangbuchHymnsSortedAlphabetic: ArrayList<Hymn>? = null
+    private var allChorbuchHymnsSortedAlphabetic: ArrayList<Hymn>? = null
 
 
-    fun getHymnByNumber(
+    suspend fun getHymnByNumber(
         buchMode: BuchMode,
         number: Int
     ): Hymn = getAllHymns(buchMode)[number - 1]
 
-    fun getAllHymnsSortedAlphabetic(buchMode: BuchMode) = getAllHymns(buchMode).sortWith(Comparator.comparing { hymn: Hymn -> hymn.title })
+    suspend fun getAllHymnsSortedAlphabetic(buchMode: BuchMode): ArrayList<Hymn> =
+        if (buchMode == BuchMode.Gesangbuch) {
+            if (allGesangbuchHymnsSortedAlphabetic == null) {
+                allGesangbuchHymnsSortedAlphabetic = ArrayList(getAllHymns(buchMode))
+                allGesangbuchHymnsSortedAlphabetic!!.sortWith(compareBy { it.title })
+            }
+            allGesangbuchHymnsSortedAlphabetic!!
+        } else {
+            if (allChorbuchHymnsSortedAlphabetic == null) {
+                allChorbuchHymnsSortedAlphabetic = ArrayList(getAllHymns(buchMode))
+                allChorbuchHymnsSortedAlphabetic!!.sortWith(compareBy { it.title })
+            }
+            allChorbuchHymnsSortedAlphabetic!!
+        }
 
-    fun getAllHymnsSortedRubric(
+
+    suspend fun getAllHymnsSortedRubric(
         buchMode: BuchMode,
         rubricIndex: Int
-    ) {
+    ): ArrayList<Hymn> {
         TODO("not implemented")
     }
-    fun getAllHymnsSearchList(buchMode: BuchMode, search: String): ArrayList<Hymn> {
+
+    suspend fun getAllHymnsSearchList(buchMode: BuchMode, search: String): ArrayList<Hymn> {
         val sp = App.myRepository.getDefaultSharedPreferences()
         val result = ArrayList<Hymn>()
         if (search.isNotEmpty()) {
@@ -56,7 +73,7 @@ class HymnsRepository {
         return result
     }
 
-    private fun addToSearchWithKeywords(buchMode: BuchMode, hymnList: ArrayList<Hymn>, searchs: HashSet<String>) {
+    private suspend fun addToSearchWithKeywords(buchMode: BuchMode, hymnList: ArrayList<Hymn>, searchs: HashSet<String>) {
         for (s in searchs) {
             if (s.isNotBlank()) {
                 for (hymn in getAllHymns(buchMode)) {
@@ -71,11 +88,17 @@ class HymnsRepository {
         }
     }
 
-    fun getAllHymns(buchMode: BuchMode) =
-        if (buchMode == BuchMode.Gesangbuch) allGesangbuchHymns ?: getAllHymnsFromAssets(buchMode)
-        else allChorbuchHymns ?: getAllHymnsFromAssets(buchMode)
+    suspend fun getAllHymns(buchMode: BuchMode): ArrayList<Hymn> =
+        if (buchMode == BuchMode.Gesangbuch) {
+            if (allGesangbuchHymns == null) allGesangbuchHymns = getAllHymnsFromAssets(buchMode)
+            allGesangbuchHymns!!
+        } else {
+            if (allChorbuchHymns == null) allChorbuchHymns = getAllHymnsFromAssets(buchMode)
+            allChorbuchHymns!!
+        }
 
-    private fun getAllHymnsFromAssets(
+    @Suppress("unchecked_Cast") //, "BlockingMethodInNonBlockingContext")
+    private suspend fun getAllHymnsFromAssets(
         buchMode: BuchMode
     ): ArrayList<Hymn> {
         val sp = App.myRepository.getDefaultSharedPreferences()

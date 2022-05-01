@@ -16,6 +16,7 @@ import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.children
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.dlyt.yanndroid.oneui.layout.SwitchBarLayout
@@ -32,7 +33,6 @@ import de.lemke.nakbuch.domain.utils.Constants
 class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
     private var historyList: ArrayList<HashMap<String, String>>? = null
     private lateinit var listView: RecyclerView
-    private lateinit var imageAdapter: ImageAdapter
     private lateinit var sp: SharedPreferences
     private lateinit var mContext: Context
 
@@ -55,17 +55,11 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
             initList()
             true
         }
-        if (sp.getBoolean("historyEnabled", true)) {
-            listView.visibility = View.VISIBLE
-        } else {
-            listView.visibility = View.GONE
-        }
-        initList()
     }
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
         sp.edit().putBoolean("historyEnabled", z).apply()
-        listView.visibility = if (z) View.VISIBLE else View.GONE
+        setViewAndChildrenEnabled(listView, z)
     }
 
     public override fun onResume() {
@@ -73,7 +67,11 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         initList()
     }
 
-    @SuppressLint("SetTextI18n")
+    private fun setViewAndChildrenEnabled(view: View, enabled: Boolean) {
+        view.isEnabled = enabled
+        if (view is ViewGroup) view.children.forEach { child -> setViewAndChildrenEnabled(child, enabled) }
+    }
+
     private fun initList() {
         historyList = Gson().fromJson(
             sp.getString("historyList", null),
@@ -84,16 +82,19 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         val divider = TypedValue()
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(this)
-        imageAdapter = ImageAdapter()
-        listView.adapter = imageAdapter
+        listView.adapter = ImageAdapter()
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        AppCompatResources.getDrawable(this, divider.resourceId)?.let { decoration.setDivider(it) }
+        decoration.setDivider(AppCompatResources.getDrawable(this, divider.resourceId)!!)
+
         listView.itemAnimator = null
+        listView.seslSetIndexTipEnabled(true)
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
         listView.seslSetLastRoundedCorner(false)
+
+        setViewAndChildrenEnabled(listView, sp.getBoolean("historyEnabled", true))
     }
 
     inner class ImageAdapter internal constructor() :
@@ -101,6 +102,21 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         private var mSections: MutableList<String> = ArrayList()
         private var mPositionForSection: MutableList<Int> = ArrayList()
         private var mSectionForPosition: MutableList<Int> = ArrayList()
+
+        init {
+            if (historyList!!.size > 1) {
+                for (i in historyList!!.indices) {
+                    val date: String = if (i != historyList!!.size - 1) historyList!![i]["date"]!! else mSections[mSections.size - 1]
+
+                    if (i == 0 || mSections[mSections.size - 1] != date) {
+                        mSections.add(date)
+                        mPositionForSection.add(i)
+                    }
+                    mSectionForPosition.add(mSections.size - 1)
+                }
+            }
+        }
+
         override fun getSections(): Array<Any> {
             return mSections.toTypedArray()
         }
@@ -179,23 +195,6 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                     parentView = itemView as RelativeLayout
                     //imageView = parentView.findViewById(R.id.icon_tab_item_image);
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
-                }
-            }
-        }
-
-        init {
-            if (historyList!!.size > 1) {
-                for (i in historyList!!.indices) {
-                    val letter: String = if (i != historyList!!.size - 1) ({
-                        historyList!![i]["date"]
-                    }).toString() else {
-                        mSections[mSections.size - 1]
-                    }
-                    if (i == 0 || mSections[mSections.size - 1] != letter) {
-                        mSections.add(letter)
-                        mPositionForSection.add(i)
-                    }
-                    mSectionForPosition.add(mSections.size - 1)
                 }
             }
         }

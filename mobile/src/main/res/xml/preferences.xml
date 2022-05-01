@@ -48,7 +48,7 @@
             android:title="@string/history"
             app:icon="@drawable/ic_oui3_recent">
             <intent
-                android:targetClass="de.lemke.nakbuch.HistorySwitchBarActivity"
+                android:targetClass="de.lemke.nakbuch.ui.HistorySwitchBarActivity"
                 android:targetPackage="de.lemke.nakbuch" />
         </SwitchPreferenceScreen>
     </PreferenceCategory>
@@ -60,7 +60,7 @@
             android:title="@string/easterEggs"
             app:icon="@drawable/ic_oui_biometric_face">
             <intent
-                android:targetClass="de.lemke.nakbuch.EasterEggSwitchBarActivity"
+                android:targetClass="de.lemke.nakbuch.ui.EasterEggSwitchBarActivity"
                 android:targetPackage="de.lemke.nakbuch" />
         </SwitchPreferenceScreen>
     </PreferenceCategory>
@@ -131,7 +131,7 @@
             android:title="@string/aboutApp"
             app:icon="@drawable/ic_oui3_info">
             <intent
-                android:targetClass="de.lemke.nakbuch.AboutActivity"
+                android:targetClass="de.lemke.nakbuch.ui.AboutActivity"
                 android:targetPackage="de.lemke.nakbuch" />
         </PreferenceScreen>
         <PreferenceScreen

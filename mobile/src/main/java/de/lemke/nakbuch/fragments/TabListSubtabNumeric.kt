@@ -24,10 +24,10 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.ui.TextviewActivity
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
 import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeFavsToList
+import de.lemke.nakbuch.ui.TextviewActivity
 
 class TabListSubtabNumeric : Fragment() {
     private lateinit var listView: RecyclerView
@@ -97,6 +97,7 @@ class TabListSubtabNumeric : Fragment() {
         listView.adapter = imageAdapter
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
+        listView.seslSetIndexTipEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
         listView.seslSetLastRoundedCorner(false)
@@ -196,7 +197,32 @@ class TabListSubtabNumeric : Fragment() {
     }
 
     //Adapter for the Icon RecyclerView
-    inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
+    inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
+        private var mSections: MutableList<String> = ArrayList()
+        private var mPositionForSection: MutableList<Int> = ArrayList()
+        private var mSectionForPosition: MutableList<Int> = ArrayList()
+
+        init {
+            for (i in 0 until hymns.size-1) {
+                mSections.add(hymns[i]["hymnNr"]!!)
+                mPositionForSection.add(i)
+                mSectionForPosition.add(mSections.size - 1)
+            }
+
+        }
+
+        override fun getSections(): Array<Any> {
+            return mSections.toTypedArray()
+        }
+
+        override fun getPositionForSection(i: Int): Int {
+            return mPositionForSection[i]
+        }
+
+        override fun getSectionForPosition(i: Int): Int {
+            return mSectionForPosition[i]
+        }
+
         override fun getItemCount(): Int {
             return hymns.size
         }
@@ -250,6 +276,7 @@ class TabListSubtabNumeric : Fragment() {
             ) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
+
             //lateinit var imageView: ImageView
             lateinit var textView: TextView
             lateinit var checkBox: CheckBox
@@ -286,8 +313,8 @@ class TabListSubtabNumeric : Fragment() {
                 val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
                 val y = childAt.y.toInt() + childAt.height
                 val shallDrawDivider: Boolean = if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                        recyclerView.getChildAt(i + 1)
-                    ) as ImageAdapter.ViewHolder).isItem else false
+                    recyclerView.getChildAt(i + 1)
+                ) as ImageAdapter.ViewHolder).isItem else false
                 if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
                     //int moveRTL = isRTL() ? 130 : 0;
                     //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);

@@ -341,6 +341,22 @@ class TextviewFragment : Fragment() {
                 tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)
             }, 50)
         }
+
+        if (sp.getBoolean("historyEnabled", true)) {
+            val historyList = Gson().fromJson<ArrayList<HashMap<String, String>>>(
+                sp.getString("historyList", null),
+                object : TypeToken<ArrayList<HashMap<String, String>>>() {}.type
+            ) ?: ArrayList()
+            val hm = HashMap<String, String>()
+            hm["buchMode"] = if (buchMode == BuchMode.Gesangbuch) "GB" else "CB"
+            hm["nr"] = nr.toString()
+            hm["nrAndTitle"] = nrAndTitle
+            hm["date"] =
+                LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+            fixedAdd(historyList, hm)
+            sp.edit().putString("historyList", Gson().toJson(historyList)).apply()
+        }
+
         onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 setSelecting(false)
@@ -356,23 +372,6 @@ class TextviewFragment : Fragment() {
             View.VISIBLE else notesGroup.visibility = View.GONE
         if (spHymns.getBoolean("calendarVisible", false)) calendarGroup.visibility =
             View.VISIBLE else calendarGroup.visibility = View.GONE
-        if (sp.getBoolean("historyEnabled", true)) {
-            var historyList = Gson().fromJson<ArrayList<HashMap<String, String>>>(
-                sp.getString("historyList", null),
-                object : TypeToken<ArrayList<HashMap<String, String>>>() {}.type
-            )
-            if (historyList == null) {
-                historyList = ArrayList()
-            }
-            val hm = HashMap<String, String>()
-            hm["buchMode"] = if (buchMode == BuchMode.Gesangbuch) "GB" else "CB"
-            hm["nr"] = nr.toString()
-            hm["nrAndTitle"] = nrAndTitle
-            hm["date"] =
-                LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
-            fixedAdd(historyList, hm)
-            sp.edit().putString("historyList", Gson().toJson(historyList)).apply()
-        }
     }
 
     @SuppressLint("ApplySharedPref")

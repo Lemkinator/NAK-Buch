@@ -16,12 +16,12 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.ui.TextviewActivity
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.utils.AssetsHelper
 import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
 import de.lemke.nakbuch.domain.utils.Constants
 import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
+import de.lemke.nakbuch.ui.TextviewActivity
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
 
@@ -119,6 +119,12 @@ class MainActivityTabNum : Fragment() {
             previewInput()
         }
         mActivity.findViewById<View>(R.id.b_ok).setOnClickListener {
+            showHymn(hymnNrInput)
+            refreshHandler.removeCallbacks(refreshRunnable)
+            inputOngoing = false
+            previewHymn(hymnNrInput)
+        }
+        tvHymnText.setOnClickListener {
             showHymn(hymnNrInput)
             refreshHandler.removeCallbacks(refreshRunnable)
             inputOngoing = false

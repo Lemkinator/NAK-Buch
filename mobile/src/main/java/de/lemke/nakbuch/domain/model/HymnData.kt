@@ -3,7 +3,7 @@ package de.lemke.nakbuch.domain.model
 import java.util.*
 
 class HymnData (
-    val favorite: Boolean = false,
-    val notes: String = "",
-    val sungOn: ArrayList<Date> = ArrayList<Date>()
+    var favorite: Boolean = false,
+    var notes: String = "",
+    var sungOn: ArrayList<Date> = ArrayList<Date>()
         )

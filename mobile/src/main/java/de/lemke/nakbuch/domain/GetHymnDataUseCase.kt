@@ -1,12 +1,15 @@
 package de.lemke.nakbuch.domain
 
 import de.lemke.nakbuch.data.hymnDataRepo
-import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
+import de.lemke.nakbuch.domain.model.HymnData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GetHymnDataUseCase {
-    operator fun invoke(
-        buchMode: BuchMode,
+    suspend operator fun invoke(
         hymn: Hymn
-    ) = hymnDataRepo.getHymnData(buchMode, hymn)
+    ): HymnData = withContext(Dispatchers.IO) {
+        hymnDataRepo.getHymnData(hymn)
+    }
 }

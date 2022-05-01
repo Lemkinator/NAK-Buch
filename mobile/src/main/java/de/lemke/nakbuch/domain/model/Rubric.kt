@@ -14,12 +14,12 @@ data class Rubric(
                 buchMode,
                 index,
                 getRubricName(buchMode, index),
-                isMain(buchMode, index)
+                isMainRubric(buchMode, index)
             )
 
 }
 
-private fun isMain(buchMode: BuchMode, index: Int): Boolean {
+private fun isMainRubric(buchMode: BuchMode, index: Int): Boolean {
     val rubricListItem =
         if (buchMode == BuchMode.Gesangbuch) App.myRepository.getResources().getIntArray(R.array.RubricListItemGesangbuch)
         else App.myRepository.getResources().getIntArray(R.array.RubricListItemChorbuch)

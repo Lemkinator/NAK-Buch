@@ -2,10 +2,15 @@ package de.lemke.nakbuch.domain
 
 import de.lemke.nakbuch.data.hymnsRepo
 import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.model.Hymn
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GetAllHymnsSortedRubricUseCase {
-    operator fun invoke(
+    suspend operator fun invoke(
         buchMode: BuchMode,
         rubricIndex: Int
-    ) = hymnsRepo.getAllHymnsSortedRubric(buchMode, rubricIndex)
+    ): ArrayList<Hymn> = withContext(Dispatchers.IO) {
+        hymnsRepo.getAllHymnsSortedRubric(buchMode, rubricIndex)
+    }
 }

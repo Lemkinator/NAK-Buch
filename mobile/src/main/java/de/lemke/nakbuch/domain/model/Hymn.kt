@@ -1,6 +1,10 @@
 package de.lemke.nakbuch.domain.model
 
-data class Hymn (
+enum class BuchMode {
+    Gesangbuch, Chorbuch
+}
+
+data class Hymn(
     val buchMode: BuchMode,
     val number: Int,
     val rubric: Rubric,
@@ -8,8 +12,29 @@ data class Hymn (
     val title: String,
     val text: String,
     val copyright: String
-        )
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-val hymnPlaceholder = Hymn(BuchMode.Gesangbuch, -1, Rubric(BuchMode.Gesangbuch,-1),"Placeholder", "Placeholder","Placeholder","Placeholder")
+        other as Hymn
+
+        if (buchMode != other.buchMode || number != other.number) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return numberAndTitle.hashCode()
+    }
+}
+
+data class PersonalHymn(
+    val hymn: Hymn,
+    val hymnData: HymnData
+)
+
+val hymnPlaceholder =
+    Hymn(BuchMode.Gesangbuch, -1, Rubric(BuchMode.Gesangbuch, -1), "Placeholder", "Placeholder", "Placeholder", "Placeholder")
 
 

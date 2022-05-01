@@ -70,12 +70,12 @@ class AppUtils {
         @JvmStatic
         @SuppressLint("ApplySharedPref")
         fun checkAppStart(sp: SharedPreferences): AppStart {
-            val lastVersionName = sp.getString("lastAppVersionName", "undefined")
-            val lastVersionCode = sp.getInt("lastAppVersionCode", -1)
+            val lastVersionName: String = sp.getString("lastAppVersionName", "undefined")!!
+            val lastVersionCode: Int = sp.getInt("lastAppVersionCode", -1)
             val versionCode: Int = BuildConfig.VERSION_CODE
             val versionName: String = BuildConfig.VERSION_NAME
             sp.edit().putInt("lastAppVersionCode", versionCode).commit()
-            sp.edit().putString("lastAppVersionCode", versionName).commit()
+            sp.edit().putString("lastAppVersionName", versionName).commit()
             Log.d("CheckAppStart", "Current version code: $versionCode , last version code: $lastVersionCode")
             Log.d("CheckAppStart", "Current version name: $versionName , last version name: $lastVersionName")
             return when {
