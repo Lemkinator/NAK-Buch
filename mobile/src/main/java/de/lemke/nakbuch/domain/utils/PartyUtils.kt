@@ -1,10 +1,10 @@
 package de.lemke.nakbuch.domain.utils
 
-import App
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import de.lemke.nakbuch.App
 import de.lemke.nakbuch.R
 import nl.dionsegijn.konfetti.core.*
 import nl.dionsegijn.konfetti.core.emitter.Emitter

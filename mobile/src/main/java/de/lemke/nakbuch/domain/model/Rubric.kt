@@ -1,6 +1,6 @@
 package de.lemke.nakbuch.domain.model
 
-import App
+import de.lemke.nakbuch.App
 import de.lemke.nakbuch.R
 
 data class Rubric(

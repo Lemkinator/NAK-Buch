@@ -1,229 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<de.dlyt.yanndroid.oneui.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nestedScrollViewTabNum"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:fillViewport="true"
-    app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior"
-    >
+    android:orientation="vertical">
 
-    <RelativeLayout
+    <de.dlyt.yanndroid.oneui.widget.NestedScrollView
+        android:id="@+id/numpadScrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:fillViewport="true"
+        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
 
-        <TextView
-            android:id="@+id/hymnTitlePreview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="5dp"
-            android:textSize="20sp"
-            android:textColor="@color/sesl_tooltip_foreground"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:layout_alignParentTop="true"
-            />
-
-        <LinearLayout
-            android:id="@+id/linearLayoutButtons"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@+id/hymnTitlePreview"
-            >
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/switchSideButton1"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/number_field_height"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:layout_marginStart="10dp"
-                app:icon="@drawable/ic_oui_arrow_left"
-                app:iconGravity="textTop"
-                app:iconSize="45dp"
-                app:strokeWidth="1dp"
-                app:cornerRadius="30dp"
-                android:animateLayoutChanges="true"
-                />
-
-            <GridLayout
+            <TextView
+                android:id="@+id/hymnTitlePreview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_margin="10dp"
-                android:columnCount="3"
-                android:orientation="horizontal"
-                tools:ignore="RtlHardcoded">
+                android:layout_alignParentTop="true"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="5dp"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:textColor="@color/sesl_tooltip_foreground"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:id="@+id/linearLayoutButtons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/hymnTitlePreview"
+                android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_1"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="1"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_2"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="2"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_3"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="3"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_4"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="4"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_5"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="5"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_6"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="6"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_7"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="7"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_8"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="8"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_9"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="9"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_z"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/number_button_margin"
-                    app:icon="@drawable/ic_oui_back_2"
-                    app:iconGravity="textTop"
-                    app:iconSize="40dp"
-                    app:iconTint="@color/white" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_0"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:text="0"
-                    android:textSize="@dimen/number_button_textSize"
-                    tools:ignore="HardcodedText" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/b_ok"
-                    style="@style/ButtonStyle.Colored"
-                    android:layout_width="@dimen/number_button_width"
-                    android:layout_height="@dimen/number_button_height"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/number_button_margin"
-                    android:tooltipText="@string/openInTextView"
-                    app:icon="@drawable/ic_oui3_selected"
+                    android:id="@+id/switchSideButton1"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/number_field_height"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:animateLayoutChanges="true"
+                    android:visibility="gone"
+                    app:cornerRadius="30dp"
+                    app:icon="@drawable/ic_oui_arrow_left"
                     app:iconGravity="textTop"
                     app:iconSize="45dp"
-                    app:iconTint="@color/white" />
-            </GridLayout>
+                    app:strokeWidth="1dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/switchSideButton2"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/number_field_height"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:layout_marginEnd="5dp"
-                app:icon="@drawable/ic_oui_arrow_right"
-                android:tooltipText="@string/moveNumpad"
-                app:iconGravity="textTop"
-                app:iconSize="45dp"
-                app:strokeWidth="1dp"
-                app:cornerRadius="30dp"
-                android:animateLayoutChanges="true"
-                />
+                <GridLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_margin="10dp"
+                    android:columnCount="3"
+                    android:orientation="horizontal"
+                    tools:ignore="RtlHardcoded">
 
-        </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_1"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="1"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_2"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="2"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_3"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="3"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_4"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="4"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_5"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="5"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_6"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="6"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_7"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="7"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_8"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="8"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_9"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="9"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_z"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/number_button_margin"
+                        app:icon="@drawable/ic_oui_back_2"
+                        app:iconGravity="textTop"
+                        app:iconSize="40dp"
+                        app:iconTint="@color/white" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_0"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:text="0"
+                        android:textSize="@dimen/number_button_textSize"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/b_ok"
+                        style="@style/ButtonStyle.Colored"
+                        android:layout_width="@dimen/number_button_width"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/number_button_margin"
+                        android:tooltipText="@string/openInTextView"
+                        app:icon="@drawable/ic_oui3_selected"
+                        app:iconGravity="textTop"
+                        app:iconSize="45dp"
+                        app:iconTint="@color/white" />
+                </GridLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/switchSideButton2"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/number_field_height"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:animateLayoutChanges="true"
+                    android:tooltipText="@string/moveNumpad"
+                    android:visibility="gone"
+                    app:cornerRadius="30dp"
+                    app:icon="@drawable/ic_oui_arrow_right"
+                    app:iconGravity="textTop"
+                    app:iconSize="45dp"
+                    app:strokeWidth="1dp" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
+
+    <de.dlyt.yanndroid.oneui.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/numpadScrollView"
+        android:animateLayoutChanges="true"
+        android:fillViewport="true"
+        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
 
         <TextView
             android:id="@+id/hymnTextPreview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="20dp"
-            android:textSize="20sp"
             android:ellipsize="end"
-            android:layout_below="@+id/linearLayoutButtons"
-            />
+            android:textSize="20sp" />
+    </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
 
-        <nl.dionsegijn.konfetti.xml.KonfettiView
-            android:id="@+id/konfettiViewTab0"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+    <nl.dionsegijn.konfetti.xml.KonfettiView
+        android:id="@+id/konfettiViewTab0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    </RelativeLayout>
-</de.dlyt.yanndroid.oneui.widget.NestedScrollView>
+</RelativeLayout>

@@ -18,7 +18,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.allViews
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.dlyt.yanndroid.oneui.layout.SwitchBarLayout
@@ -44,14 +46,16 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
     private var time: Long = 0
     private var clickCounter = 0
     private lateinit var easterEggComments: Array<String>
+    private var mEnabled: Boolean = true
+
     @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this)
         super.onCreate(savedInstanceState)
+        ThemeUtil(this)
+        setContentView(R.layout.activity_easteregg)
         mContext = this
         sp = getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         easterEggComments = resources.getStringArray(R.array.easterEggComments)
-        setContentView(R.layout.activity_easteregg)
         konfettiView = findViewById(R.id.konfettiViewEasterEgg)
         listView = findViewById(R.id.easterEggList)
         easterEggsHeader = findViewById(R.id.discoveredEasterEggsText)
@@ -69,7 +73,8 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             time = System.currentTimeMillis()
         }
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_easteregg)
-        switchBarLayout.switchBar.isChecked = sp.getBoolean("easterEggs", false)
+        mEnabled = sp.getBoolean("easterEggs", true)
+        switchBarLayout.switchBar.isChecked = mEnabled
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
@@ -152,20 +157,13 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             initList()
             true
         }
-        setSwitchbarVisibility(sp.getBoolean("easterEggs", true))
         initList()
     }
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
         sp.edit().putBoolean("easterEggs", z).apply()
-        setSwitchbarVisibility(z)
-    }
-
-    private fun setSwitchbarVisibility(visible: Boolean) {
-        easterEggsHeader.visibility = if (visible) View.VISIBLE else View.GONE
-        easterEggCommentButton.visibility = if (visible) View.VISIBLE else View.GONE
-        listView.visibility = if (visible) View.VISIBLE else View.GONE
-        fab.visibility = if (visible) View.VISIBLE else View.GONE
+        mEnabled = z
+        initList()
     }
 
     @SuppressLint("SetTextI18n")
@@ -189,7 +187,28 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        AppCompatResources.getDrawable(this, divider.resourceId)?.let { decoration.setDivider(it) }
+        decoration.setDivider(AppCompatResources.getDrawable(this, divider.resourceId)!!)
+
+        refreshEnableDisableEasterEggView()
+    }
+
+    private fun refreshEnableDisableEasterEggView() {
+        easterEggsHeader.isEnabled = mEnabled
+        easterEggsHeader.setTextColor(
+            resources.getColor(
+                if (mEnabled) de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color else de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark,
+                mContext.theme
+            )
+        )
+        easterEggCommentButton.isEnabled = mEnabled
+        easterEggCommentButton.setTextColor(
+            if (mEnabled) MaterialColors.getColor(
+                mContext,
+                de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color, mContext.theme)
+            ) else resources.getColor(de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark, mContext.theme)
+        )
+        fab.isEnabled = mEnabled
     }
 
     inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
@@ -223,6 +242,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                 holder.textView!!.text = discoveredEasterEggs[position]
                 holder.parentView!!.setOnClickListener { }
             }
+            holder.parentView?.allViews?.forEach { view -> view.isEnabled = mEnabled }
         }
 
         inner class ViewHolder internal constructor(itemView: View?, viewType: Int) :
@@ -265,8 +285,8 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                 val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
                 val y = childAt.y.toInt() + childAt.height
                 val shallDrawDivider: Boolean = if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                        recyclerView.getChildAt(i + 1)
-                    ) as ImageAdapter.ViewHolder).isItem else false
+                    recyclerView.getChildAt(i + 1)
+                ) as ImageAdapter.ViewHolder).isItem else false
                 if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
                     //int moveRTL = isRTL() ? 130 : 0;
                     //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);

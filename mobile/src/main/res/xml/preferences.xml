@@ -65,7 +65,7 @@
         </SwitchPreferenceScreen>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@{@plurals/hint(2)}">
+    <PreferenceCategory android:title="@string/hints">
         <TipsCardViewPreference
             android:key="tip_card_preference"
             android:summary="@string/appHintText"
@@ -79,7 +79,7 @@
             android:entryValues="@array/hint_values"
             android:key="hints"
             android:summary="@string/toggleHints"
-            android:title="@{@plurals/hint(2)}"
+            android:title="@string/hints"
             app:icon="@drawable/ic_oui3_light_bulb_settings" />
     </PreferenceCategory>
 

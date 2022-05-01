@@ -49,8 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/item_background_color"
-                    android:scrollbars="vertical"
-                    android:visibility="gone"/>
+                    android:scrollbars="vertical"/>
 
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"

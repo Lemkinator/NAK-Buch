@@ -9,7 +9,7 @@ class Constants {
         const val CHORBUCHMODE = false
         const val HYMNSGESANGBUCHCOUNT = 438
         const val HYMNSCHORBUCHCOUNT = 462
-        const val HISTORYSIZE = 200
+        const val HISTORYSIZE = 500
         const val DELAY_BEFORE_PREVIEW = 1500L
         const val MAX_IMAGES_PER_HYMN = 20
 

@@ -8,12 +8,10 @@
     <!--
     TODO
         history indextip on scroller?
-
-        easterEgg Recyclerview
         such algo
 
         imgView fullscreen? works on emu
-        Threading / power management / loading
+        (Threading / power management / loading)
         (save to Google Drive?)
         (new Android 12 Splashscreen)
         (theme farbe) currently not supported
@@ -31,7 +29,8 @@
         android:label="@string/appName"
         android:resizeableActivity="true"
         android:supportsRtl="true"
-        android:theme="@style/OneUITheme">
+        android:theme="@style/OneUITheme"
+        android:name="App">
 
         <!--meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

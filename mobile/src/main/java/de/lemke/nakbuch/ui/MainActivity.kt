@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         if (hints.contains("appHint")) {
             val dialog = AlertDialog.Builder(this)
-                .setTitle(resources.getQuantityString(R.plurals.hint,1) + ":")
+                .setTitle(getString(R.string.hint) + ":")
                 .setMessage(getString(R.string.appHintText))
                 .setNegativeButton(getString(R.string.dontShowAgain)) { _: DialogInterface?, _: Int ->
                     hints.remove("appHint")

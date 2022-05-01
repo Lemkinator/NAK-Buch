@@ -1,9 +1,9 @@
+package de.lemke.nakbuch
+
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
 import android.content.res.Resources
-import de.lemke.nakbuch.R
 
 class MyRepository(
     private val sp: SharedPreferences,
@@ -20,8 +20,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         myRepository = MyRepository(
-            getSharedPreferences(getString(R.string.preferenceFileDefault), Context.MODE_PRIVATE),
-            getSharedPreferences(getString(R.string.preferenceFileHymns), Context.MODE_PRIVATE),
+            getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE),
+            getSharedPreferences(getString(R.string.preferenceFileHymns), MODE_PRIVATE),
             resources
         )
     }

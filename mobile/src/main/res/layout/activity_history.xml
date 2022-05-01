@@ -12,7 +12,7 @@
     <de.dlyt.yanndroid.oneui.view.RecyclerView
         android:id="@+id/historyList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@color/item_background_color"
         android:scrollbars="vertical"
         />

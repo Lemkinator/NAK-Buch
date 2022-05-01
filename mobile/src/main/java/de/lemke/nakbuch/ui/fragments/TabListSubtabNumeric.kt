@@ -203,9 +203,11 @@ class TabListSubtabNumeric : Fragment() {
         private var mSectionForPosition: MutableList<Int> = ArrayList()
 
         init {
-            for (i in 0 until hymns.size-1) {
-                mSections.add(hymns[i]["hymnNr"]!!)
-                mPositionForSection.add(i)
+            for (i in hymns.indices) {
+                if (i != hymns.size - 1) {
+                    mSections.add(hymns[i]["hymnNr"]!!)
+                    mPositionForSection.add(i)
+                }
                 mSectionForPosition.add(mSections.size - 1)
             }
 

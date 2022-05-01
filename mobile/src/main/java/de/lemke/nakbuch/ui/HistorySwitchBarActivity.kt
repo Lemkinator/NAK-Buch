@@ -16,7 +16,7 @@ import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.view.children
+import androidx.core.view.allViews
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.dlyt.yanndroid.oneui.layout.SwitchBarLayout
@@ -35,6 +35,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     private lateinit var listView: RecyclerView
     private lateinit var sp: SharedPreferences
     private lateinit var mContext: Context
+    private var mEnabled: Boolean = true
 
     @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +46,8 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         setContentView(R.layout.activity_history)
         listView = findViewById(R.id.historyList)
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_history)
-        switchBarLayout.switchBar.isChecked = sp.getBoolean("historyEnabled", true)
+        mEnabled = sp.getBoolean("historyEnabled", true)
+        switchBarLayout.switchBar.isChecked = mEnabled
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
@@ -59,17 +61,13 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
         sp.edit().putBoolean("historyEnabled", z).apply()
-        setViewAndChildrenEnabled(listView, z)
+        mEnabled = z
+        initList()
     }
 
     public override fun onResume() {
         super.onResume()
         initList()
-    }
-
-    private fun setViewAndChildrenEnabled(view: View, enabled: Boolean) {
-        view.isEnabled = enabled
-        if (view is ViewGroup) view.children.forEach { child -> setViewAndChildrenEnabled(child, enabled) }
     }
 
     private fun initList() {
@@ -93,8 +91,6 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
         listView.seslSetLastRoundedCorner(false)
-
-        setViewAndChildrenEnabled(listView, sp.getBoolean("historyEnabled", true))
     }
 
     inner class ImageAdapter internal constructor() :
@@ -105,7 +101,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
         init {
             if (historyList!!.size > 1) {
-                for (i in historyList!!.indices) {
+                for (i in 0 until historyList!!.size -1) {
                     val date: String = if (i != historyList!!.size - 1) historyList!![i]["date"]!! else mSections[mSections.size - 1]
 
                     if (i == 0 || mSections[mSections.size - 1] != date) {
@@ -122,11 +118,11 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         }
 
         override fun getPositionForSection(i: Int): Int {
-            return mPositionForSection[i]
+            return if (mPositionForSection.size > 0) mPositionForSection[i] else 0
         }
 
         override fun getSectionForPosition(i: Int): Int {
-            return mSectionForPosition[i]
+            return if (mSectionForPosition.size > 0) mSectionForPosition[i] else 0
         }
 
         override fun getItemCount(): Int {
@@ -177,6 +173,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                         startActivity(myIntent)
                     }
                 }
+                holder.parentView.allViews.forEach { view -> view.isEnabled = mEnabled}
             }
         }
 

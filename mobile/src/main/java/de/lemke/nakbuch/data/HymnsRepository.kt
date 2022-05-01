@@ -1,8 +1,8 @@
 package de.lemke.nakbuch.data
 
-import App
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import de.lemke.nakbuch.App
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.Rubric
