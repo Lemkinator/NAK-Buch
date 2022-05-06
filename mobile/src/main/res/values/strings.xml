@@ -41,8 +41,9 @@
     <string name="dontShowAgain">Nicht erneut zeigen</string>
     <string name="savedNote">Notiz Gespeichert</string>
     <string name="openInPlaystore">In Play Store öffnen</string>
-    <string name="notes">Notizen:</string>
+    <string name="notes">Notizen</string>
     <string name="insertNote">Hier Notizen eintippen</string>
+    <string name="sungOn">Gesungen am</string>
     <string name="systemDefault">Systemeinstellung</string>
     <string name="muteAllAudioStreams">Alle Audio-Streams stummschalten</string>
     <string name="dnd">Bitte-Nicht-Stören</string>
@@ -66,7 +67,7 @@
     <string name="writeEmail">Email schreiben</string>
     <string name="moveNumpad">Tastenfeld verschieben</string>
     <string name="openInTextView">In Lied-Ansicht öffnen</string>
-    <string name="add">Hinzufügen</string>
+    <string name="addDate">Datum hinzufügen</string>
     <string name="reset">Reset</string>
     <string name="restart">Neustart</string>
     <string name="taskFailed">Hoppla, da ist etwas schiefgelaufen…</string>
@@ -195,5 +196,7 @@
     <string name="needAccess">Berechtigung benötigt</string>
     <string name="needAccessMessage">Um den \"Bitte-Nicht-Stören\"-Modus zu aktivieren, benötigt die App die \"Nicht-Stören\"-Berechtigung</string>
     <string name="grantAccess">Berechtigung erteilen</string>
+    <string name="deletePhoto">Foto löschen</string>
+    <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
 
 </resources>

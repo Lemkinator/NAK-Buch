@@ -1,5 +1,9 @@
 package de.lemke.nakbuch.data
 
+import android.content.SharedPreferences
+import android.content.res.Resources
+import android.net.Uri
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import de.lemke.nakbuch.App
@@ -11,45 +15,57 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.ObjectInputStream
 
-val hymnsRepo = HymnsRepository()
+class HymnsRepository(private val sp: SharedPreferences, private val ressources: Resources) {
+    private var allHymnsGesangbuch: ArrayList<Hymn>? = null
+    private var allHymnsChorbuch: ArrayList<Hymn>? = null
+    private var allHymnsSortedAlphabeticGesangbuch: ArrayList<Hymn>? = null
+    private var allHymnsSortedAlphabeticChorbuch: ArrayList<Hymn>? = null
+    private var allRubricsGesangbuch: ArrayList<Rubric>? = null
+    private var allRubricsChorbuch: ArrayList<Rubric>? = null
 
-class HymnsRepository {
-    private var allGesangbuchHymns: ArrayList<Hymn>? = null
-    private var allChorbuchHymns: ArrayList<Hymn>? = null
-    private var allGesangbuchHymnsSortedAlphabetic: ArrayList<Hymn>? = null
-    private var allChorbuchHymnsSortedAlphabetic: ArrayList<Hymn>? = null
+    fun hymnCount(buchMode: BuchMode) = if (buchMode == BuchMode.Gesangbuch) 438 else 462
 
-
-    suspend fun getHymnByNumber(
-        buchMode: BuchMode,
-        number: Int
-    ): Hymn = getAllHymns(buchMode)[number - 1]
+    suspend fun getHymnByNumber(buchMode: BuchMode, number: Int): Hymn {
+        if (0 <= number && number <= hymnCount(buchMode)) return getAllHymns(buchMode)[number - 1]
+        return hymnPlaceholder //TODO sense?
+    }
 
     suspend fun getAllHymnsSortedAlphabetic(buchMode: BuchMode): ArrayList<Hymn> =
         if (buchMode == BuchMode.Gesangbuch) {
-            if (allGesangbuchHymnsSortedAlphabetic == null) {
-                allGesangbuchHymnsSortedAlphabetic = ArrayList(getAllHymns(buchMode))
-                allGesangbuchHymnsSortedAlphabetic!!.sortWith(compareBy { it.title })
+            if (allHymnsSortedAlphabeticGesangbuch == null) {
+                allHymnsSortedAlphabeticGesangbuch = getAllHymns(buchMode)
+                allHymnsSortedAlphabeticGesangbuch!!.sortWith(compareBy { it.title })
             }
-            allGesangbuchHymnsSortedAlphabetic!!
+            ArrayList(allHymnsSortedAlphabeticGesangbuch!!)
         } else {
-            if (allChorbuchHymnsSortedAlphabetic == null) {
-                allChorbuchHymnsSortedAlphabetic = ArrayList(getAllHymns(buchMode))
-                allChorbuchHymnsSortedAlphabetic!!.sortWith(compareBy { it.title })
+            if (allHymnsSortedAlphabeticChorbuch == null) {
+                allHymnsSortedAlphabeticChorbuch = getAllHymns(buchMode)
+                allHymnsSortedAlphabeticChorbuch!!.sortWith(compareBy { it.title })
             }
-            allChorbuchHymnsSortedAlphabetic!!
+            ArrayList(allHymnsSortedAlphabeticChorbuch!!)
         }
 
-
-    suspend fun getAllHymnsSortedRubric(
-        buchMode: BuchMode,
-        rubricIndex: Int
-    ): ArrayList<Hymn> {
-        TODO("not implemented")
+    suspend fun getAllRubrics(buchMode: BuchMode): ArrayList<Rubric> {
+        return if (buchMode == BuchMode.Gesangbuch) {
+            if (allRubricsGesangbuch == null) {
+                allRubricsGesangbuch = initRubricList(buchMode)
+            }
+            ArrayList(allRubricsGesangbuch!!)
+        } else {
+            if (allRubricsChorbuch == null) {
+                allRubricsChorbuch = initRubricList(buchMode)
+            }
+            ArrayList(allRubricsChorbuch!!)
+        }
     }
 
-    suspend fun getAllHymnsSearchList(buchMode: BuchMode, search: String): ArrayList<Hymn> {
-        val sp = App.myRepository.getDefaultSharedPreferences()
+    private suspend fun initRubricList(buchMode: BuchMode): ArrayList<Rubric> {
+        val rubList = ArrayList<Rubric>()
+        for (i in 0 until if (buchMode == BuchMode.Gesangbuch) 29 else 31) rubList.add(Rubric(buchMode, i))
+        return rubList
+    }
+
+    suspend fun getSearchList(buchMode: BuchMode, search: String): ArrayList<Hymn> {
         val result = ArrayList<Hymn>()
         if (search.isNotEmpty()) {
             if (search.startsWith("\"") && search.endsWith("\"")) {
@@ -69,7 +85,6 @@ class HymnsRepository {
                 }
             }
         }
-        result.add(hymnPlaceholder) //Placeholder
         return result
     }
 
@@ -90,19 +105,17 @@ class HymnsRepository {
 
     suspend fun getAllHymns(buchMode: BuchMode): ArrayList<Hymn> =
         if (buchMode == BuchMode.Gesangbuch) {
-            if (allGesangbuchHymns == null) allGesangbuchHymns = getAllHymnsFromAssets(buchMode)
-            allGesangbuchHymns!!
+            if (allHymnsGesangbuch == null) allHymnsGesangbuch = getAllHymnsFromAssets(buchMode)
+            ArrayList(allHymnsGesangbuch!!)
         } else {
-            if (allChorbuchHymns == null) allChorbuchHymns = getAllHymnsFromAssets(buchMode)
-            allChorbuchHymns!!
+            if (allHymnsChorbuch == null) allHymnsChorbuch = getAllHymnsFromAssets(buchMode)
+            ArrayList(allHymnsChorbuch!!)
         }
 
     @Suppress("unchecked_Cast") //, "BlockingMethodInNonBlockingContext")
     private suspend fun getAllHymnsFromAssets(
         buchMode: BuchMode
     ): ArrayList<Hymn> {
-        val sp = App.myRepository.getDefaultSharedPreferences()
-        val assets = App.myRepository.getAssets()
         val fis: InputStream
         val ois: ObjectInputStream
         var list: java.util.ArrayList<java.util.HashMap<String, String>>? = null
@@ -118,10 +131,8 @@ class HymnsRepository {
             )
         }
         try {
-            fis =
-                if (buchMode == BuchMode.Gesangbuch) assets.open("hymnsGesangbuchNoCopyright.txt") else assets.open(
-                    "hymnsChorbuchNoCopyright.txt"
-                )
+            fis = if (buchMode == BuchMode.Gesangbuch) ressources.assets.open("hymnsGesangbuchNoCopyright.txt")
+            else ressources.assets.open("hymnsChorbuchNoCopyright.txt")
             ois = ObjectInputStream(fis)
             list = ois.readObject() as java.util.ArrayList<java.util.HashMap<String, String>>
             ois.close()
@@ -140,10 +151,124 @@ class HymnsRepository {
                     Rubric(buchMode, hm["hymnRubricIndex"]!!.toInt()),
                     hm["hymnNrAndTitle"]!!,
                     hm["hymnTitle"]!!,
-                    hm["hymnText"]!!,
-                    hm["hymnCopyright"]!!,
+                    hm["hymnText"]!!.replace("</p><p>", "\n\n").replace("<br>", ""),
+                    hm["hymnCopyright"]!!.replace("<br>", ""),
                 )
             )
         return result
     }
+
+    fun deletePrivateTexts() {
+        sp.edit().putStringSet("privateTextGesangbuch", null).apply()
+        sp.edit().putStringSet("privateTextChorbuch", null).apply()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun setPrivateTexts(uri: Uri, buchMode: BuchMode): Boolean {
+        val fis: InputStream?
+        val ois: ObjectInputStream
+        val result: ArrayList<HashMap<String, String>>
+        try {
+            fis = App.myRepository.contentResolver.openInputStream(uri)
+            ois = ObjectInputStream(fis)
+            result = ois.readObject() as ArrayList<HashMap<String, String>>
+            sp.edit().putString(
+                if (buchMode == BuchMode.Gesangbuch) "privateTextGesangbuch"
+                else "privateTextChorbuch",
+                Gson().toJson(result)
+            ).apply()
+            ois.close()
+            fis!!.close()
+        } catch (e: Exception) {
+            Log.e("setPrivateHymnText", e.toString() + "\n" + e.message.toString())
+            return false
+        }
+        return true
+    }
+
+
+    fun getRubricListItemArrayList(gesangbuchSelected: Boolean): ArrayList<Int> {
+        return if (gesangbuchSelected) {
+            ArrayList(listOf(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1))
+        } else {
+            ArrayList(listOf(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1))
+        }
+    }
+
+    fun getRubricTitlesArrayList(gesangbuchSelected: Boolean): ArrayList<String> {
+        return if (gesangbuchSelected) {
+            ArrayList(
+                listOf(
+                    "Das geistliche Jahr",
+                    "Advent",
+                    "Weihnachten",
+                    "Jahreswende",
+                    "Palmsonntag",
+                    "Karfreitag - Christi Leiden",
+                    "Ostern",
+                    "Christi Himmelfahrt",
+                    "Pfingsten",
+                    "Bußtag - Einsicht und Umkehr",
+                    "Gottesdienst",
+                    "Einladung - Heilsverlangen - Heiligung",
+                    "Glaube - Vertrauen - Trost",
+                    "Gottes Liebe - Nächstenliebe",
+                    "Vergebung - Gnade",
+                    "Lob - Dank - Anbetung",
+                    "Sakramente",
+                    "Heilige Taufe",
+                    "Heiliges Abendmahl",
+                    "Heilige Versiegelung",
+                    "Segenshandlungen",
+                    "Konfirmation",
+                    "Trauung",
+                    "Den Glauben leben",
+                    "Morgen und Abend",
+                    "Gemeinde - Gemeinschaft",
+                    "Sendung - Nachfolge - Bekenntnis",
+                    "Verheißung - Erwartung - Erfüllung",
+                    "Sterben - Ewiges Leben"
+                )
+            )
+        } else {
+            ArrayList(
+                listOf(
+                    "Das geistliche Jahr",
+                    "Advent",
+                    "Weihnachten",
+                    "Jahreswechsel",
+                    "Palmsonntag",
+                    "Passion",
+                    "Ostern",
+                    "Himmelfahrt",
+                    "Pfingsten",
+                    "Erntedank",
+                    "Gottesdienst",
+                    "Einladung - Heilsverlangen - Heiligung",
+                    "Anbetung",
+                    "Glaube - Vertrauen",
+                    "Trost - Mut - Frieden",
+                    "Gnade - Vergebung",
+                    "Lobpreis Gottes",
+                    "Sakramente",
+                    "Heilige Taufe",
+                    "Heiliges Abendmahl",
+                    "Heilige Versiegelung",
+                    "Segenshandlungen",
+                    "Konfirmation",
+                    "Trauung",
+                    "Den Glauben leben",
+                    "Morgen - Abend",
+                    "Gottes Liebe - Nächstenliebe",
+                    "Mitarbeit - Gemeinschaft",
+                    "Sendung - Nachfolge - Bekenntnis",
+                    "Verheißung - Erwartung - Erfüllung",
+                    "Sterben - Ewiges Leben"
+                )
+            )
+        }
+    }
 }
+
+val hymnsRepo = HymnsRepository(App.myRepository.defaultSharedPreferences, App.myRepository.resources)
+

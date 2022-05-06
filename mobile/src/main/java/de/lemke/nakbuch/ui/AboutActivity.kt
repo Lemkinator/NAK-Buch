@@ -19,8 +19,8 @@ import com.google.android.play.core.tasks.Task
 import de.dlyt.yanndroid.oneui.layout.AboutPage
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.utils.AppUtils
-import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
+import de.lemke.nakbuch.domain.settings.DiscoverEasterEggUseCase
+import de.lemke.nakbuch.domain.settings.OpenAppUseCase
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class AboutActivity : AppCompatActivity() {
@@ -50,7 +50,7 @@ class AboutActivity : AppCompatActivity() {
             checkUpdate()
         }
         findViewById<View>(R.id.about_btn_open_in_store).setOnClickListener {
-            AppUtils.openAppWithPackageNameOnStore(mContext, packageName)
+            OpenAppUseCase()(mContext, packageName, false)
         }
         findViewById<View>(R.id.about_btn_open_oneui_github).setOnClickListener {
             startActivity(
@@ -76,7 +76,7 @@ class AboutActivity : AppCompatActivity() {
             )
         }
         findViewById<View>(R.id.about_btn_tiktk_troll).setOnClickListener {
-            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntryTikTok)
+            DiscoverEasterEggUseCase()(mContext, konfettiView, R.string.easterEggEntryTikTok)
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,

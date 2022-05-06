@@ -2,7 +2,6 @@ package de.lemke.nakbuch.ui.fragments
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -24,17 +23,24 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.hymndata.SetFavoritesFromListUseCase
+import de.lemke.nakbuch.domain.hymns.GetAllHymnsUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeFavsToList
+import de.lemke.nakbuch.domain.model.Hymn
+import de.lemke.nakbuch.domain.model.hymnPlaceholder
+import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
 import de.lemke.nakbuch.ui.TextviewActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TabListSubtabNumeric : Fragment() {
-    private lateinit var listView: RecyclerView
     private lateinit var mRootView: View
     private lateinit var mContext: Context
-    private lateinit var hymns: ArrayList<HashMap<String, String>>
     private lateinit var buchMode: BuchMode
+    private lateinit var hymns: ArrayList<Hymn>
+    private lateinit var listView: RecyclerView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var subTabs: TabLayout
     private lateinit var mainTabs: TabLayout
@@ -46,8 +52,6 @@ class TabListSubtabNumeric : Fragment() {
     private var checkAllListening = true
     private val mHandler = Handler(Looper.getMainLooper())
     private val mShowBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
-    private lateinit var sp: SharedPreferences
-    private lateinit var spHymns: SharedPreferences
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -64,15 +68,7 @@ class TabListSubtabNumeric : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sp = mContext.getSharedPreferences(
-            getString(R.string.preferenceFileDefault),
-            Context.MODE_PRIVATE
-        )
-        spHymns = mContext.getSharedPreferences(
-            getString(R.string.preferenceFileHymns),
-            Context.MODE_PRIVATE
-        )
-        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
+        buchMode = GetBuchModeUseCase()()
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         listView = mRootView.findViewById(R.id.hymnList)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
@@ -84,9 +80,11 @@ class TabListSubtabNumeric : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        hymns = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
-        hymns.add(HashMap()) //Placeholder
-        initList()
+        CoroutineScope(Dispatchers.IO).launch {
+            hymns = GetAllHymnsUseCase()(buchMode)
+            hymns.add(hymnPlaceholder)
+            withContext(Dispatchers.Main) { initList()}
+        }
     }
 
     private fun initList() {
@@ -120,8 +118,8 @@ class TabListSubtabNumeric : Fragment() {
 
         //divider
         val divider = TypedValue()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         val decoration = ItemDecoration()
+        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.addItemDecoration(decoration)
         decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
 
@@ -139,12 +137,17 @@ class TabListSubtabNumeric : Fragment() {
             mSelecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.fav_menu) { item: MenuItem ->
+                val onlySelected = HashMap(selected.filter { it.value })
                 when (item.itemId) {
                     R.id.addToFav -> {
-                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, hymns, "1")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            SetFavoritesFromListUseCase()(buchMode, hymns, onlySelected, true)
+                        }
                     }
                     R.id.removeFromFav -> {
-                        writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, hymns, "")
+                        CoroutineScope(Dispatchers.IO).launch {
+                            SetFavoritesFromListUseCase()(buchMode, hymns, onlySelected, false)
+                        }
                     }
                     else -> {
                         item.badge = item.badge + 1
@@ -205,7 +208,7 @@ class TabListSubtabNumeric : Fragment() {
         init {
             for (i in hymns.indices) {
                 if (i != hymns.size - 1) {
-                    mSections.add(hymns[i]["hymnNr"]!!)
+                    mSections.add(hymns[i].number.toString())
                     mPositionForSection.add(i)
                 }
                 mSectionForPosition.add(mSections.size - 1)
@@ -234,9 +237,8 @@ class TabListSubtabNumeric : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (hymns[position].containsKey("hymnNr")) {
-                0
-            } else 1
+            return if (hymns[position] != hymnPlaceholder) 0
+            else 1
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -254,7 +256,7 @@ class TabListSubtabNumeric : Fragment() {
                 holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text = hymns[position]["hymnNrAndTitle"]
+                holder.textView.text = hymns[position].numberAndTitle
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         startActivity(
@@ -272,13 +274,9 @@ class TabListSubtabNumeric : Fragment() {
             }
         }
 
-        inner class ViewHolder internal constructor(itemView: View, viewType: Int) :
-            RecyclerView.ViewHolder(
-                itemView
-            ) {
+        inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
-
             //lateinit var imageView: ImageView
             lateinit var textView: TextView
             lateinit var checkBox: CheckBox
@@ -295,16 +293,11 @@ class TabListSubtabNumeric : Fragment() {
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner =
-            SeslRoundedCorner(requireContext(), true)
+        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
         private val mSeslRoundedCornerBottom: SeslRoundedCorner
         private var mDivider: Drawable? = null
         private var mDividerHeight = 0
-        override fun seslOnDispatchDraw(
-            canvas: Canvas,
-            recyclerView: RecyclerView,
-            state: RecyclerView.State
-        ) {
+        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
             val width = recyclerView.width

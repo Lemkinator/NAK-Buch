@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <de.dlyt.yanndroid.oneui.layout.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout_textview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -42,6 +43,17 @@
                         android:layout_marginVertical="20dp" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openOfficialAppButton"
+                        style="@style/ButtonStyle.Transparent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="10dp"
+                        android:maxLines="5"
+                        android:text="@string/openOfficialApp"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/jokeButton"
                         style="@style/ButtonStyle.Colored"
                         android:layout_width="wrap_content"
@@ -65,64 +77,47 @@
                         android:text="@string/whyNoFullText"
                         android:visibility="gone" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/openOfficialAppButton"
-                        style="@style/ButtonStyle.Transparent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_marginBottom="30dp"
-                        android:maxLines="5"
-                        android:text="@string/openOfficialApp"
-                        android:visibility="gone" />
-
-                    <de.dlyt.yanndroid.oneui.widget.RoundFrameLayout
+                    <LinearLayout
                         android:id="@+id/notesGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="30dp"
-                        android:background="@color/item_background_color"
+                        android:orientation="vertical"
                         android:visibility="gone">
 
-                        <LinearLayout
+                        <com.google.android.material.textview.MaterialTextView
+                            style="?android:listSeparatorTextViewStyle"
+                            android:text="@string/notes" />
+
+                        <de.dlyt.yanndroid.oneui.widget.RoundLinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingBottom="@dimen/rounded_corner_size">
+                            android:background="@color/item_background_color"
+                            android:orientation="vertical">
 
                             <LinearLayout
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
-                                android:paddingHorizontal="@dimen/rounded_corner_size">
-
-                                <com.google.android.material.textview.MaterialTextView
-                                    android:id="@+id/tvNotiz"
-                                    style="?textAppearanceListItem"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="55dp"
-                                    android:text="@string/notes"
-                                    android:textAlignment="center" />
-
-                                <View
-                                    android:layout_width="0dp"
-                                    android:layout_height="0dp"
-                                    android:layout_weight="1" />
+                                android:layout_gravity="end"
+                                android:layout_marginVertical="4dp">
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/buttonKopieren"
                                     style="@style/ButtonStyle.Transparent"
                                     android:layout_width="wrap_content"
-                                    android:layout_height="55dp"
-                                    app:icon="@drawable/ic_oui4_copy" />
+                                    android:layout_height="wrap_content"
+                                    app:icon="@drawable/ic_oui4_copy"
+                                    />
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/buttonSenden"
                                     style="@style/ButtonStyle.Transparent"
                                     android:layout_width="wrap_content"
-                                    android:layout_height="55dp"
-                                    app:icon="@drawable/ic_oui4_share" />
+                                    android:layout_height="wrap_content"
+                                    app:icon="@drawable/ic_oui4_share"
+                                    />
+
                             </LinearLayout>
 
                             <EditText
@@ -131,11 +126,14 @@
                                 android:layout_height="wrap_content"
                                 android:autofillHints="@string/insertNote"
                                 android:hint="@string/insertNote"
-                                android:inputType="textMultiLine" />
+                                android:inputType="textMultiLine"
+                                android:layout_marginHorizontal="@dimen/rounded_corner_size"
+                                android:layout_marginBottom="@dimen/rounded_corner_size"
+                                />
 
-                        </LinearLayout>
+                        </de.dlyt.yanndroid.oneui.widget.RoundLinearLayout>
 
-                    </de.dlyt.yanndroid.oneui.widget.RoundFrameLayout>
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/calendarGroup"
@@ -144,48 +142,36 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                        <de.dlyt.yanndroid.oneui.widget.RoundFrameLayout
+                        <com.google.android.material.textview.MaterialTextView
+                            style="?android:listSeparatorTextViewStyle"
+                            android:text="@string/sungOn" />
+
+                        <de.dlyt.yanndroid.oneui.widget.RoundLinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@color/item_background_color">
+                            android:background="@color/item_background_color"
+                            android:orientation="vertical"
+                            >
 
-                            <LinearLayout
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/addDateButton"
+                                style="@style/ButtonStyle.Filled"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/sesl_list_preferred_item_height"
+                                android:text="@string/addDate"
+                                app:icon="@drawable/ic_oui_plus" />
+
+                            <de.dlyt.yanndroid.oneui.view.RecyclerView
+                                android:id="@+id/hymnHistoryList"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:orientation="vertical">
+                                android:background="@color/item_background_color"
+                                android:scrollbars="vertical" />
 
-                                <CalendarView
-                                    android:id="@+id/calendarView"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" />
-
-                                <com.google.android.material.button.MaterialButton
-                                    android:id="@+id/addDateButton"
-                                    style="@style/ButtonStyle.Filled"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="5dp"
-                                    android:text="@string/add"
-                                    app:icon="@drawable/ic_oui_plus" />
-
-                                <View style="@style/DrawerDividerStyle"
-                                    android:layout_marginHorizontal="15dp"/>
-
-                                <de.dlyt.yanndroid.oneui.view.RecyclerView
-                                    android:id="@+id/hymnHistoryList"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:background="@color/item_background_color"
-                                    android:scrollbars="vertical" />
-
-                            </LinearLayout>
-
-                        </de.dlyt.yanndroid.oneui.widget.RoundFrameLayout>
-
-
+                        </de.dlyt.yanndroid.oneui.widget.RoundLinearLayout>
 
                     </LinearLayout>
+
 
                 </LinearLayout>
 

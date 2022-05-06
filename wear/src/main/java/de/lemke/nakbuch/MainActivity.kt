@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         val hymnNr = AssetsHelper.validHymnr(gesangbuchSelected, nr)
         if (hymnNr > 0) {
             val myIntent = Intent(mContext, TextviewActivity::class.java)
-            myIntent.putExtra("buchMode", gesangbuchSelected)
+            myIntent.putExtra("gesangbuchSelected", gesangbuchSelected)
             myIntent.putExtra("nr", hymnNr)
             myIntent.putExtra("nrAndTitle", hymns[hymnNr - 1]["hymnNrAndTitle"])
             myIntent.putExtra("text", hymns[hymnNr - 1]["hymnText"])

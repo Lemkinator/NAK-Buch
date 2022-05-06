@@ -3,10 +3,10 @@ package de.lemke.nakbuch.ui.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,14 +14,16 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.hymns.GetHymnUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.utils.AssetsHelper
-import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.domain.utils.Constants
-import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
+import de.lemke.nakbuch.domain.model.Hymn
+import de.lemke.nakbuch.domain.settings.*
 import de.lemke.nakbuch.ui.TextviewActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
 
@@ -30,14 +32,11 @@ class MainActivityTabNum : Fragment() {
     private lateinit var mActivity: AppCompatActivity
     private lateinit var mContext: Context
     private lateinit var konfettiView: KonfettiView
-    private lateinit var sp: SharedPreferences
     private lateinit var buchMode: BuchMode
     private var inputOngoing = false
     private var hymnNrInput: String = ""
-    private lateinit var drawerLayout: DrawerLayout
     private lateinit var tvHymnNrTitle: TextView
     private lateinit var tvHymnText: TextView
-    private lateinit var hymns: ArrayList<HashMap<String, String>>
     private lateinit var refreshHandler: Handler
     private lateinit var refreshRunnable: Runnable
     override fun onAttach(context: Context) {
@@ -46,11 +45,7 @@ class MainActivityTabNum : Fragment() {
         mActivity = activity as AppCompatActivity
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mRootView = inflater.inflate(R.layout.fragment_tab_num, container, false)
         return mRootView
     }
@@ -58,32 +53,24 @@ class MainActivityTabNum : Fragment() {
     @SuppressLint("RtlHardcoded")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sp = mContext.getSharedPreferences(
-            getString(R.string.preferenceFileDefault),
-            Context.MODE_PRIVATE
-        )
-        drawerLayout = mActivity.findViewById(R.id.drawer_view)
-        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
+        buchMode = GetBuchModeUseCase()()
         konfettiView = mActivity.findViewById(R.id.konfettiViewTab0)
         tvHymnNrTitle = mActivity.findViewById(R.id.hymnTitlePreview)
         tvHymnText = mActivity.findViewById(R.id.hymnTextPreview)
-        //val nestedScrollView: NestedScrollView = mActivity.findViewById(R.id.nestedScrollViewTabNum)
-        //nestedScrollView.isNestedScrollingEnabled = false
-        //tvHymnText.height = (drawerLayout.height - 5 * resources.getDimension(R.dimen.number_button_height)).toInt()
 
         val switchSideButton1 = mActivity.findViewById<MaterialButton>(R.id.switchSideButton1)
         val switchSideButton2 = mActivity.findViewById<MaterialButton>(R.id.switchSideButton2)
         switchSideButton1.setOnClickListener {
-            sp.edit().putBoolean("numberFieldSideRight", false).apply()
+            SetBooleanSettingUseCase()("numberFieldSideRight", false)
             switchSideButton1.visibility = View.GONE
             switchSideButton2.visibility = View.VISIBLE
         }
         switchSideButton2.setOnClickListener {
-            sp.edit().putBoolean("numberFieldSideRight", true).apply()
+            SetBooleanSettingUseCase()("numberFieldSideRight", true)
             switchSideButton2.visibility = View.GONE
             switchSideButton1.visibility = View.VISIBLE
         }
-        if (sp.getBoolean("numberFieldSideRight", true)) {
+        if (GetBooleanSettingUseCase()("numberFieldSideRight", true)) {
             switchSideButton2.visibility = View.GONE
             switchSideButton1.visibility = View.VISIBLE
         } else {
@@ -135,8 +122,7 @@ class MainActivityTabNum : Fragment() {
             inputOngoing = false
             previewHymn(hymnNrInput)
         }
-        hymns = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
-        hymnNrInput = sp.getString("nr", "-1").toString()
+        hymnNrInput = GetNumberUseCase()()
         previewHymn(hymnNrInput)
     }
 
@@ -159,41 +145,54 @@ class MainActivityTabNum : Fragment() {
         refreshHandler.removeCallbacks(refreshRunnable)
         tvHymnNrTitle.text = hymnNrInput
         tvHymnText.text = ""
-        refreshHandler.postDelayed(refreshRunnable, Constants.DELAY_BEFORE_PREVIEW)
+        refreshHandler.postDelayed(refreshRunnable, 1500L)
     }
 
-    private fun previewHymn(nr: String) {
-        val hymnNr = validHymnr(buchMode == BuchMode.Gesangbuch, nr)
+    private fun previewHymn(number: String) {
+        val hymnNr = validHymnNumber(number)
         if (hymnNr > 0) {
-            tvHymnNrTitle.text = hymns[hymnNr - 1]["hymnNrAndTitle"]
-            tvHymnText.text = hymns[hymnNr - 1]["hymnText"]
-                ?.replace("</p><p>", "\n\n") ?: getText(R.string.notFound)
-            sp.edit().putString("nr", nr).apply()
+            lateinit var hymn: Hymn
+            CoroutineScope(Dispatchers.IO).launch {
+                SetNumberUseCase()(number)
+                hymn = GetHymnUseCase()(buchMode, hymnNr)
+                withContext((Dispatchers.Main)) {
+                    tvHymnNrTitle.text = hymn.numberAndTitle
+                    tvHymnText.text = hymn.text
+                }
+            }
         } else {
             tvHymnNrTitle.text = ""
             tvHymnText.text = ""
-            sp.edit().putString("nr", "").apply()
+            hymnNrInput = ""
+            SetNumberUseCase()("")
         }
     }
 
-    private fun showHymn(nr: String) {
-        val hymnNr = validHymnr(buchMode == BuchMode.Gesangbuch, nr)
+    private fun showHymn(number: String) {
+        val hymnNr = validHymnNumber(number)
         if (hymnNr > 0) {
             startActivity(
-                Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", hymnNr)
+                Intent(mContext, TextviewActivity::class.java).putExtra("nr", hymnNr)
             )
         }
     }
 
-    private fun validHymnr(buchMode: Boolean, hymnNr: String): Int {
+    private fun validHymnNumber(hymnNr: String): Int {
+        if (hymnNr.isBlank()) return -1
         if (hymnNr == "999") {
-            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntry999)
+            DiscoverEasterEggUseCase()(mContext, konfettiView, R.string.easterEggEntry999)
+            return -1
         }
         if (hymnNr == "0" || hymnNr == "00" || hymnNr == "000") {
-            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntry0)
+            DiscoverEasterEggUseCase()(mContext, konfettiView, R.string.easterEggEntry0)
+            return -1
         }
-        val result: Int = AssetsHelper.validHymnr(buchMode, hymnNr)
-        if (result < 0) hymnNrInput = ""
-        return result
+        try {
+            val result = hymnNr.toInt()
+            if (buchMode == BuchMode.Chorbuch && 0 < result && result <= 462 || buchMode == BuchMode.Gesangbuch && 0 < result && result <= 438) return result
+        } catch (e: Exception) {
+            Log.d("validHymnNumber: Exception: ", e.toString())
+        }
+        return -1
     }
 }

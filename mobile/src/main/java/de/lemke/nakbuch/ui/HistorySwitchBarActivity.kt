@@ -3,7 +3,6 @@ package de.lemke.nakbuch.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -17,8 +16,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.allViews
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import de.dlyt.yanndroid.oneui.layout.SwitchBarLayout
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
@@ -27,40 +24,51 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.Switch
 import de.dlyt.yanndroid.oneui.widget.SwitchBar
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.utils.AssetsHelper.validHymnr
-import de.lemke.nakbuch.domain.utils.Constants
+import de.lemke.nakbuch.domain.hymndata.GetHistoryListUseCase
+import de.lemke.nakbuch.domain.hymndata.ResetHistoryUseCase
+import de.lemke.nakbuch.domain.model.Hymn
+import de.lemke.nakbuch.domain.model.hymnPlaceholder
+import de.lemke.nakbuch.domain.settings.IsHistroyEnabledUseCase
+import de.lemke.nakbuch.domain.settings.SetBuchModeUseCase
+import de.lemke.nakbuch.domain.settings.SetHistoryEnabledUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
-    private var historyList: ArrayList<HashMap<String, String>>? = null
+    private lateinit var historyList: ArrayList<Pair<Hymn, LocalDate>>
     private lateinit var listView: RecyclerView
-    private lateinit var sp: SharedPreferences
     private lateinit var mContext: Context
     private var mEnabled: Boolean = true
 
-    @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         mContext = this
-        sp = getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         setContentView(R.layout.activity_history)
         listView = findViewById(R.id.historyList)
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_history)
-        mEnabled = sp.getBoolean("historyEnabled", true)
+        mEnabled = IsHistroyEnabledUseCase()()
         switchBarLayout.switchBar.isChecked = mEnabled
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
         switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
         switchBarLayout.setOnToolbarMenuItemClickListener {
-            sp.edit().putString("historyList", null).commit()
-            initList()
+            CoroutineScope(Dispatchers.IO).launch {
+                ResetHistoryUseCase()()
+                withContext(Dispatchers.Main) { initList() }
+            }
             true
         }
     }
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
-        sp.edit().putBoolean("historyEnabled", z).apply()
+        SetHistoryEnabledUseCase()(z)
         mEnabled = z
         initList()
     }
@@ -71,26 +79,27 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     }
 
     private fun initList() {
-        historyList = Gson().fromJson(
-            sp.getString("historyList", null),
-            object : TypeToken<ArrayList<HashMap<String, String>>>() {}.type
-        )
-        if (historyList == null) historyList = ArrayList()
-        historyList!!.add(HashMap())
-        val divider = TypedValue()
-        theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.layoutManager = LinearLayoutManager(this)
-        listView.adapter = ImageAdapter()
-        val decoration = ItemDecoration()
-        listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(this, divider.resourceId)!!)
+        CoroutineScope(Dispatchers.IO).launch {
+            historyList = GetHistoryListUseCase()()
+            historyList.add(Pair(hymnPlaceholder, LocalDate.MIN))
+            withContext(Dispatchers.Main) {
+                listView.adapter = ImageAdapter()
+                val divider = TypedValue()
+                theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+                listView.layoutManager = LinearLayoutManager(mContext)
+                val decoration = ItemDecoration()
+                listView.addItemDecoration(decoration)
+                decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+                listView.itemAnimator = null
+                listView.seslSetIndexTipEnabled(true)
+                listView.seslSetFastScrollerEnabled(true)
+                listView.seslSetFillBottomEnabled(true)
+                listView.seslSetGoToTopEnabled(true)
+                listView.seslSetLastRoundedCorner(false)
+            }
+        }
 
-        listView.itemAnimator = null
-        listView.seslSetIndexTipEnabled(true)
-        listView.seslSetFastScrollerEnabled(true)
-        listView.seslSetFillBottomEnabled(true)
-        listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
+
     }
 
     inner class ImageAdapter internal constructor() :
@@ -100,13 +109,14 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         private var mSectionForPosition: MutableList<Int> = ArrayList()
 
         init {
-            if (historyList!!.size > 1) {
-                for (i in 0 until historyList!!.size -1) {
-                    val date: String = if (i != historyList!!.size - 1) historyList!![i]["date"]!! else mSections[mSections.size - 1]
-
-                    if (i == 0 || mSections[mSections.size - 1] != date) {
+            if (historyList.size > 1) {
+                historyList.forEachIndexed { index, pair ->
+                    val date: String =
+                        if (index != historyList.size - 1) pair.second.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+                        else mSections[mSections.size - 1]
+                    if (index == 0 || mSections[mSections.size - 1] != date) {
                         mSections.add(date)
-                        mPositionForSection.add(i)
+                        mPositionForSection.add(index)
                     }
                     mSectionForPosition.add(mSections.size - 1)
                 }
@@ -126,7 +136,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         }
 
         override fun getItemCount(): Int {
-            return historyList!!.size
+            return historyList.size
         }
 
         override fun getItemId(position: Int): Long {
@@ -134,9 +144,8 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (historyList!![position].containsKey("nrAndTitle")) {
-                0
-            } else 1
+            return if (historyList[position].first != hymnPlaceholder) 0
+            else 1
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -151,29 +160,19 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
         @SuppressLint("SetTextI18n")
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val hymnPair = historyList[position]
             if (holder.isItem) {
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text =
-                    historyList!![position]["date"].toString() + ": (" + historyList!![position]["buchMode"] + ") " + historyList!![position]["nrAndTitle"]
+                holder.textView.text = hymnPair.second.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)) +
+                        ": (" + hymnPair.first.buchMode + ") " + hymnPair.first.numberAndTitle
                 holder.parentView.setOnClickListener {
-                    /*if (mSelecting) toggleItemSelected(position);
-                    else {
-
-                    }*/
-                    val myIntent = Intent(mContext, TextviewActivity::class.java)
-                    val hymnNr: Int = if (historyList!![position]["buchMode"] == "CB") {
-                        myIntent.putExtra("buchMode", Constants.CHORBUCHMODE)
-                        validHymnr(Constants.CHORBUCHMODE, historyList!![position]["nr"]!!)
-                    } else {
-                        myIntent.putExtra("buchMode", Constants.GESANGBUCHMODE)
-                        validHymnr(Constants.GESANGBUCHMODE, historyList!![position]["nr"]!!)
-                    }
-                    if (hymnNr > 0) {
-                        myIntent.putExtra("nr", hymnNr)
-                        startActivity(myIntent)
-                    }
+                    SetBuchModeUseCase()(hymnPair.first.buchMode)
+                    startActivity(
+                        Intent(mContext, TextviewActivity::class.java)
+                            .putExtra("nr", hymnPair.first.number)
+                    )
                 }
-                holder.parentView.allViews.forEach { view -> view.isEnabled = mEnabled}
+                holder.parentView.allViews.forEach { view -> view.isEnabled = mEnabled }
             }
         }
 
@@ -211,7 +210,6 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
             val childCount = recyclerView.childCount
             val width = recyclerView.width
 
-            // draw divider for each item
             for (i in 0 until childCount) {
                 val childAt = recyclerView.getChildAt(i)
                 val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
@@ -221,8 +219,6 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
                 if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
-                    //int moveRTL = isRTL() ? 130 : 0;
-                    //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
                     mDivider!!.setBounds(0, y, width, mDividerHeight + y)
                     mDivider!!.draw(canvas)
                 }

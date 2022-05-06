@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.utils.Constants
 import de.lemke.nakbuch.ui.MainActivity
 
 class SplashActivityChorbuch : AppCompatActivity() {
@@ -20,8 +19,7 @@ class SplashActivityChorbuch : AppCompatActivity() {
         setContentView(R.layout.activity_splash_chorbuch)
 
         val splashView = findViewById<SplashView>(R.id.splash)
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed({ splashView.startSplashAnimation() }, 300)
+        Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
 
         splashView.setSplashAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {}
@@ -36,7 +34,7 @@ class SplashActivityChorbuch : AppCompatActivity() {
     private fun launchApp() {
         startActivity(
             Intent().setClass(applicationContext, MainActivity::class.java)
-                .putExtra("mode", Constants.CHORBUCHMODE)
+                .putExtra("gesangbuchSelected", false)
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()

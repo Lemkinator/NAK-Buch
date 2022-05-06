@@ -15,7 +15,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -25,10 +24,6 @@ import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTre
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.util.SeslMisc
-import com.google.android.gms.tasks.Tasks
-import com.google.android.gms.wearable.Wearable
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.layout.PreferenceFragment
@@ -36,29 +31,27 @@ import de.dlyt.yanndroid.oneui.preference.*
 import de.dlyt.yanndroid.oneui.preference.internal.PreferencesRelatedCard
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.utils.AssetsHelper.setHymnsText
-import de.lemke.nakbuch.domain.utils.Constants
-import de.lemke.nakbuch.domain.utils.SoundUtils
-import java.io.*
-import java.util.concurrent.ExecutionException
+import de.lemke.nakbuch.domain.hymns.DeletePrivateTextsUseCase
+import de.lemke.nakbuch.domain.hymns.SetPrivateTextsUseCase
+import de.lemke.nakbuch.domain.settings.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this)
         super.onCreate(savedInstanceState)
+        ThemeUtil(this)
         setContentView(R.layout.activity_settings)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         drawerLayout.setNavigationButtonIcon(
-            AppCompatResources.getDrawable(
-                this,
-                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back
-            )
+            AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
         )
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment())
-                .commit()
+            supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
         }
     }
 
@@ -87,11 +80,15 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreate(bundle: Bundle?) {
             super.onCreate(bundle)
             lastTimeVersionClicked = System.currentTimeMillis()
-            sp = mContext.getSharedPreferences(
-                getString(R.string.preferenceFileDefault),
-                MODE_PRIVATE
-            )
-            initResultLaunchers()
+            sp = mContext.getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
+            pickTextsActivityResultLauncher = registerForActivityResult(GetMultipleContents()) { result: List<Uri>? ->
+                Toast.makeText(mContext, SetPrivateTextsUseCase()(mActivity, result), Toast.LENGTH_LONG).show()
+            }
+            pickFolderActivityResultLauncher =
+                registerForActivityResult(OpenDocumentTree()) { result: Uri? ->
+                    if (result == null) Toast.makeText(mContext, "Fehler: Kein Ordner Ausgewählt", Toast.LENGTH_LONG).show()
+                    else Log.e("Uri", result.toString())
+                }
             initPreferences()
         }
 
@@ -108,66 +105,41 @@ class SettingsActivity : AppCompatActivity() {
             autoDarkModePref!!.onPreferenceChangeListener = this
             autoDarkModePref.isChecked = darkMode == ThemeUtil.DARK_MODE_AUTO
             val colorPickerPref = findPreference<ColorPickerPreference>("color")
-            val recentColors = Gson().fromJson<ArrayList<Int>>(
-                sp.getString(
-                    "recent_colors",
-                    Gson().toJson(
-                        intArrayOf(
-                            resources.getColor(
-                                R.color.primary_color,
-                                mContext.theme
-                            )
-                        )
-                    )
-                ),
-                object : TypeToken<ArrayList<Int?>?>() {}.type
-            )
+            val recentColors = GetRecentColorListUseCase()()
             for (recent_color in recentColors) colorPickerPref!!.onColorSet(recent_color)
             colorPickerPref!!.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { _: Preference?, var2: Any ->
                     val color = Color.valueOf((var2 as Int))
                     recentColors.add(var2)
-                    sp.edit().putString("recent_colors", Gson().toJson(recentColors)).apply()
+                    SetRecentColorListUseCase()(recentColors)
                     ThemeUtil.setColor(mActivity, color.red(), color.green(), color.blue())
-                    Constants.colorSettingChanged = true
+                    MainActivity.colorSettingChanged = true
                     true
                 }
             findPreference<Preference>("dnd")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    SoundUtils.dnd(mContext)
+                    DoNotDisturbUseCase()(mContext)
                     true
                 }
             findPreference<Preference>("audio_streams")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    SoundUtils.mute(mContext)
+                    if (!MuteUseCase()()) Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT)
+                        .show()
                     true
                 }
-            findPreference<SwitchPreference>("confirmExit")!!.isChecked =
-                sp.getBoolean("confirmExit", true)
+            findPreference<CheckBoxPreference>("confirmExit")!!.isChecked = GetBooleanSettingUseCase()("confirmExit", true)
             findPreference<Preference>("shortcut_gesangbuch")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    val shortcutManager = mContext.getSystemService(
-                        ShortcutManager::class.java
-                    )
+                    val shortcutManager = mContext.getSystemService(ShortcutManager::class.java)
                     if (shortcutManager.isRequestPinShortcutSupported) {
                         val pinShortcutInfo = ShortcutInfo.Builder(mContext, "gesangbuch").build()
                         val pinnedShortcutCallbackIntent =
                             shortcutManager.createShortcutResultIntent(pinShortcutInfo)
                         val successCallback: PendingIntent =
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                PendingIntent.getBroadcast(
-                                    mContext,
-                                    0,
-                                    pinnedShortcutCallbackIntent,
-                                    PendingIntent.FLAG_MUTABLE
-                                )
+                                PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, PendingIntent.FLAG_MUTABLE)
                             } else {
-                                PendingIntent.getBroadcast(
-                                    mContext,
-                                    0,
-                                    pinnedShortcutCallbackIntent,
-                                    0
-                                )
+                                PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, 0)
                             }
                         shortcutManager.requestPinShortcut(
                             pinShortcutInfo,
@@ -178,28 +150,15 @@ class SettingsActivity : AppCompatActivity() {
                 }
             findPreference<Preference>("shortcut_chorbuch")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    val shortcutManager = mContext.getSystemService(
-                        ShortcutManager::class.java
-                    )
+                    val shortcutManager = mContext.getSystemService(ShortcutManager::class.java)
                     if (shortcutManager.isRequestPinShortcutSupported) {
                         val pinShortcutInfo = ShortcutInfo.Builder(mContext, "chorbuch").build()
-                        val pinnedShortcutCallbackIntent =
-                            shortcutManager.createShortcutResultIntent(pinShortcutInfo)
+                        val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)
                         val successCallback: PendingIntent =
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                PendingIntent.getBroadcast(
-                                    mContext,
-                                    0,
-                                    pinnedShortcutCallbackIntent,
-                                    PendingIntent.FLAG_MUTABLE
-                                )
+                                PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, PendingIntent.FLAG_MUTABLE)
                             } else {
-                                PendingIntent.getBroadcast(
-                                    mContext,
-                                    0,
-                                    pinnedShortcutCallbackIntent,
-                                    0
-                                )
+                                PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, 0)
                             }
                         shortcutManager.requestPinShortcut(
                             pinShortcutInfo,
@@ -210,12 +169,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
             findPreference<PreferenceScreen>("privacy")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(getString(R.string.privacyWebsite))
-                        )
-                    )
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacyWebsite))))
                     true
                 }
             val prefScreenVersion = findPreference<PreferenceScreen>("version_hidden_menu")
@@ -234,7 +188,6 @@ class SettingsActivity : AppCompatActivity() {
                         clickCounter++
                         if (clickCounter > 10) {
                             clickCounter = 0
-
                             val hiddenMenu = arrayOf<CharSequence>(
                                 getString(R.string.addOwnHymnTexts),
                                 getString(R.string.deleteOwnHymnTexts),
@@ -242,46 +195,27 @@ class SettingsActivity : AppCompatActivity() {
                                 getString(R.string.deleteAppDataAndExit)
                             )
                             var option = 0
-                            val dialog = AlertDialog.Builder(mContext)
+                            AlertDialog.Builder(mContext)
                                 .setCancelable(false)
                                 .setTitle(R.string.hiddenMenu)
-                                .setNegativeButton(
-                                    de.dlyt.yanndroid.oneui.R.string.sesl_cancel,
-                                    null
-                                )
+                                .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
                                 .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
                                     when (option) {
-                                        0 -> {
-                                            pickTextsActivityResultLauncher.launch("text/plain")
-                                        }
-                                        1 -> {
-                                            sp.edit().putStringSet("privateTextGesangbuch", null)
-                                                .apply()
-                                            sp.edit().putStringSet("privateTextChorbuch", null)
-                                                .apply()
-                                        }
-                                        2 -> {
-                                            pickFolderActivityResultLauncher.launch(
-                                                Uri.fromFile(File(Environment.getExternalStorageDirectory().absolutePath))
-                                            )
-                                        }
-                                        3 -> {
-                                            (mContext.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
-                                        }
+                                        0 -> pickTextsActivityResultLauncher.launch("text/plain")
+                                        1 -> CoroutineScope(Dispatchers.IO).launch { DeletePrivateTextsUseCase()() }
+                                        2 -> pickFolderActivityResultLauncher.launch(
+                                            Uri.fromFile(File(Environment.getExternalStorageDirectory().absolutePath))
+                                        )
+                                        3 -> (mContext.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
                                     }
                                 }
-                                .setSingleChoiceItems(
-                                    hiddenMenu,
-                                    1
-                                ) { _: DialogInterface, i: Int -> option = i }
+                                .setSingleChoiceItems(hiddenMenu, 1) { _: DialogInterface, i: Int -> option = i }
                                 .create()
-                            dialog.show()
+                                .show()
 
 
                         }
-                    } else {
-                        clickCounter = 0
-                    }
+                    } else clickCounter = 0
                     lastTimeVersionClicked = System.currentTimeMillis()
                     true
                 }
@@ -291,21 +225,9 @@ class SettingsActivity : AppCompatActivity() {
                 override fun onCancelClicked(view: View) {
                     tipCard!!.isVisible = false
                     tipCardSpacing?.isVisible = false
-                    val s: MutableSet<String> = HashSet(
-                        sp.getStringSet(
-                            "hints", HashSet(
-                                HashSet(
-                                    listOf(
-                                        *resources.getStringArray(
-                                            R.array.hint_values
-                                        )
-                                    )
-                                )
-                            )
-                        )!!
-                    )
+                    val s: HashSet<String> = GetHintsUseCase()()
                     s.remove("tipcard")
-                    sp.edit().putStringSet("hints", s).apply()
+                    SetHintsUseCase()(s)
                 }
 
                 override fun onViewClicked(view: View) {
@@ -314,155 +236,16 @@ class SettingsActivity : AppCompatActivity() {
             })
         }
 
-        private fun initResultLaunchers() {
-            pickTextsActivityResultLauncher = registerForActivityResult(
-                GetMultipleContents()
-            ) { result: List<Uri>? ->
-                if (result == null) {
-                    Toast.makeText(
-                        mContext,
-                        "Fehler: Keine passende Datei erkannt",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else if (result.isEmpty()) {
-                    Toast.makeText(mContext, "Kein Inhalt ausgewählt", Toast.LENGTH_LONG).show()
-                } else {
-                    Log.d("Ausgewählte Inhalte", result.toString())
-                    val ok = StringBuilder()
-                    for (uri in result) {
-                        var fileName: String? = null
-                        if (uri.scheme == "content") {
-                            mActivity.contentResolver.query(uri, null, null, null, null)
-                                .use { cursor ->
-                                    if (cursor != null && cursor.moveToFirst()) {
-                                        fileName = cursor.getString(
-                                            cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
-                                        )
-                                    }
-                                }
-                        }
-                        if (fileName == null) {
-                            fileName = uri.path
-                            val cut = fileName!!.lastIndexOf('/')
-                            if (cut != -1) {
-                                fileName = fileName?.substring(cut + 1)
-                            }
-                        }
-                        if (fileName == "hymnsGesangbuch.txt") {
-                            if (setHymnsText(mContext, sp, uri, "privateTextGesangbuch")) {
-                                ok.append(" Gesangbuch")
-                                sendToWear(uri, "/privateTextGesangbuch")
-                            }
-                        } else if (fileName == "hymnsChorbuch.txt") {
-                            if (setHymnsText(mContext, sp, uri, "privateTextChorbuch")) {
-                                ok.append(" Chorbuch")
-                                sendToWear(uri, "/privateTextChorbuch")
-                            }
-                        }
-                    }
-                    if (ok.toString().isEmpty()) Toast.makeText(
-                        mContext,
-                        "Fehler: Keine passende Datei erkannt",
-                        Toast.LENGTH_LONG
-                    ).show() else {
-                        Toast.makeText(mContext, "$ok aktualisiert", Toast.LENGTH_SHORT).show()
-                        Constants.modeChanged = true
-                    }
-                }
-            }
-            pickFolderActivityResultLauncher =
-                registerForActivityResult(OpenDocumentTree()) { result: Uri? ->
-                    if (result == null) {
-                        Toast.makeText(
-                            mContext,
-                            "Fehler: Kein Ordner Ausgewählt",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        Log.e("Uri", result.toString())
-                    }
-                }
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun sendToWear(uri: Uri, path: String) {
-            val fis: InputStream?
-            val ois: ObjectInputStream
-            val result: ArrayList<HashMap<String, String>>
-            try {
-                fis = mContext.contentResolver.openInputStream(uri)
-                ois = ObjectInputStream(fis)
-                result = ois.readObject() as ArrayList<HashMap<String, String>>
-                ByteArrayOutputStream().use { bos ->
-                    val out = ObjectOutputStream(bos)
-                    out.writeObject(result)
-                    out.flush()
-                    SendThread(path, bos.toByteArray()).start()
-                }
-                ois.close()
-                fis?.close()
-            } catch (c: IOException) {
-                c.printStackTrace()
-                Toast.makeText(mContext, c.toString(), Toast.LENGTH_LONG).show()
-            } catch (c: ClassNotFoundException) {
-                c.printStackTrace()
-                Toast.makeText(mContext, c.toString(), Toast.LENGTH_LONG).show()
-            }
-        }
-
-        internal inner class SendThread(private var path: String, private var message: ByteArray) :
-            Thread() {
-            override fun run() { //Retrieve the connected devices, known as nodes
-                val wearableList =
-                    Wearable.getNodeClient(mActivity.applicationContext).connectedNodes
-                try {
-                    val nodes = Tasks.await(wearableList)
-                    for (node in nodes) {
-                        val sendMessageTask =
-                            Wearable.getMessageClient(mActivity).sendMessage(node.id, path, message)
-                        try {
-                            Tasks.await(sendMessageTask)
-                        } catch (exception: ExecutionException) {
-                            exception.printStackTrace()
-                        } catch (exception: InterruptedException) {
-                            exception.printStackTrace()
-                        }
-                    }
-                } catch (exception: ExecutionException) {
-                    exception.printStackTrace()
-                } catch (exception: InterruptedException) {
-                    exception.printStackTrace()
-                }
-            }
-        }
-
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            requireView().setBackgroundColor(
-                resources.getColor(
-                    de.dlyt.yanndroid.oneui.R.color.item_background_color,
-                    mContext.theme
-                )
-            )
+            requireView().setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.item_background_color, mContext.theme))
         }
 
         override fun onStart() {
             super.onStart()
-            findPreference<SwitchPreferenceScreen>("easterEggs")!!.isChecked =
-                sp.getBoolean("easterEggs", true)
-            findPreference<SwitchPreferenceScreen>("historyEnabled")!!.isChecked =
-                sp.getBoolean("historyEnabled", true)
-            val showTipCard = sp.getStringSet(
-                "hints", HashSet(
-                    HashSet(
-                        listOf(
-                            *resources.getStringArray(
-                                R.array.hint_values
-                            )
-                        )
-                    )
-                )
-            )!!.contains("tipcard")
+            findPreference<SwitchPreferenceScreen>("easterEggs")!!.isChecked = AreEasterEggsEnabledUseCase()()
+            findPreference<SwitchPreferenceScreen>("historyEnabled")!!.isChecked = IsHistroyEnabledUseCase()()
+            val showTipCard = GetHintsUseCase()().contains("tipcard")
             tipCard?.isVisible = showTipCard
             tipCardSpacing?.isVisible = showTipCard
             setRelatedCardView()
@@ -474,8 +257,7 @@ class SettingsActivity : AppCompatActivity() {
             when (preference.key) {
                 "dark_mode" -> {
                     if (currentDarkMode !== newValue) {
-                        ThemeUtil.setDarkMode(
-                            mActivity,
+                        ThemeUtil.setDarkMode(mActivity,
                             if (newValue == "0") ThemeUtil.DARK_MODE_DISABLED else ThemeUtil.DARK_MODE_ENABLED
                         )
                     }
@@ -498,32 +280,12 @@ class SettingsActivity : AppCompatActivity() {
             if (mRelatedCard == null) {
                 mRelatedCard = createRelatedCard(mContext)
                 mRelatedCard?.setTitleText(getString(de.dlyt.yanndroid.oneui.R.string.sec_relative_description))
-                mRelatedCard?.addButton(getString(R.string.help)) {
-                    startActivity(
-                        Intent(
-                            mContext,
-                            HelpActivity::class.java
-                        )
-                    )
-                }
+                mRelatedCard?.addButton(getString(R.string.help)) { startActivity(Intent(mContext, HelpActivity::class.java)) }
                     ?.addButton(getString(R.string.aboutMe)) {
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW, Uri.parse(
-                                    getString(
-                                        R.string.website
-                                    )
-                                )
-                            )
-                        )
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website))))
                     }
                     ?.addButton(getString(R.string.supportMe)) {
-                        startActivity(
-                            Intent(
-                                mContext,
-                                SupportMeActivity::class.java
-                            )
-                        )
+                        startActivity(Intent(mContext, SupportMeActivity::class.java))
                     }
                     ?.show(this)
             }

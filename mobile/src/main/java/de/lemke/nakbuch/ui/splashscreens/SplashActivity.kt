@@ -21,15 +21,13 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         val splashView = findViewById<SplashView>(R.id.splash)
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed({ splashView.startSplashAnimation() }, 400)
+        Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 400)
 
         splashView.setSplashAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {}
             override fun onAnimationEnd(animation: Animation) {
                 if (!launchCanceled) launchApp()
             }
-
             override fun onAnimationRepeat(animation: Animation) {}
         })
     }

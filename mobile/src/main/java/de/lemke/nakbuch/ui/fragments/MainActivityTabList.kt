@@ -38,40 +38,12 @@ class MainActivityTabList : Fragment() {
         val viewPager2: ViewPager2 = mRootView.findViewById(R.id.viewPager2Lists)
         viewPager2.adapter = ViewPager2AdapterTabListSubtabs(this)
         viewPager2.registerOnPageChangeCallback(object : SeslViewPager2.OnPageChangeCallback() {
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-                /*if (position == 0) {
-                    show fab
-                } else {
-                    hide fab
-                }*/
-            }
-
-            override fun onPageSelected(position: Int) {
-                /*if (position == 0) {
-                    show fab
-                } else {
-                    hide fab
-                }*/
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {
-                /*if (state == ViewPager2.SCROLL_STATE_IDLE && viewPager2.getCurrentItem() == 0) {
-                    show fab
-                } else {
-                    hide fab
-                }*/
-            }
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+            override fun onPageSelected(position: Int) {}
+            override fun onPageScrollStateChanged(state: Int) {}
         })
         val tlm = TabLayoutMediator(subTabs, viewPager2) { tab, position ->
-            val tabTitle = arrayOf(
-                getString(R.string.numerical),
-                getString(R.string.alphabetical),
-                getString(R.string.rubric)
-            )
+            val tabTitle = arrayOf(getString(R.string.numerical), getString(R.string.alphabetical), getString(R.string.rubric))
             tab.text = tabTitle[position]
         }
         tlm.attach()

@@ -1,9 +1,10 @@
 package de.lemke.nakbuch.domain.model
 
-import java.util.*
+import java.time.LocalDate
 
-class HymnData (
+data class HymnData(
     var favorite: Boolean = false,
     var notes: String = "",
-    var sungOn: ArrayList<Date> = ArrayList<Date>()
-        )
+    var sungOnList: ArrayList<LocalDate> = ArrayList(),
+    var photoList: ArrayList<String> = ArrayList()
+)

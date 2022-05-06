@@ -3,7 +3,6 @@ package de.lemke.nakbuch.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
-import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -31,7 +30,7 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.Switch
 import de.dlyt.yanndroid.oneui.widget.SwitchBar
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.utils.PartyUtils.Companion.discoverEasterEgg
+import de.lemke.nakbuch.domain.settings.*
 import nl.dionsegijn.konfetti.xml.KonfettiView
 
 class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
@@ -41,20 +40,17 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
     private lateinit var fab: FloatingActionButton
     private lateinit var konfettiView: KonfettiView
     private lateinit var listView: RecyclerView
-    private lateinit var sp: SharedPreferences
     private lateinit var mContext: Context
     private var time: Long = 0
     private var clickCounter = 0
     private lateinit var easterEggComments: Array<String>
     private var mEnabled: Boolean = true
 
-    @SuppressLint("ApplySharedPref")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ThemeUtil(this)
         setContentView(R.layout.activity_easteregg)
         mContext = this
-        sp = getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         easterEggComments = resources.getStringArray(R.array.easterEggComments)
         konfettiView = findViewById(R.id.konfettiViewEasterEgg)
         listView = findViewById(R.id.easterEggList)
@@ -64,7 +60,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             if (System.currentTimeMillis() - time < 400) {
                 if (clickCounter++ > 5) {
                     clickCounter = 0
-                    discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntryComment)
+                    DiscoverEasterEggUseCase()(mContext, konfettiView, R.string.easterEggEntryComment)
                     initList()
                 }
             } else {
@@ -73,14 +69,14 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             time = System.currentTimeMillis()
         }
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_easteregg)
-        mEnabled = sp.getBoolean("easterEggs", true)
+        mEnabled = AreEasterEggsEnabledUseCase()()
         switchBarLayout.switchBar.isChecked = mEnabled
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
         switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
         switchBarLayout.setOnToolbarMenuItemClickListener { //reset button
-            sp.edit().putStringSet("discoveredEasterEggs", HashSet()).commit()
+            ResetEasterEggsUseCase()()
             initList()
             true
         }
@@ -153,7 +149,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             dialog.show()
         }
         fab.setOnLongClickListener {
-            discoverEasterEgg(mContext, konfettiView, R.string.easterEggEntryHelp)
+            DiscoverEasterEggUseCase()(mContext, konfettiView, R.string.easterEggEntryHelp)
             initList()
             true
         }
@@ -161,23 +157,19 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
     }
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
-        sp.edit().putBoolean("easterEggs", z).apply()
+        SetEasterEggsEnabledUseCase()(z)
         mEnabled = z
         initList()
     }
 
     @SuppressLint("SetTextI18n")
     private fun initList() {
-        discoveredEasterEggs = ArrayList(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
-        val discoveredEasterEggsCount = discoveredEasterEggs.size
-        val maxEasterEggs = easterEggComments.size - 1
-        easterEggsHeader.text =
-            getString(R.string.alreadyDiscoveredEasterEggs) + " (" + discoveredEasterEggsCount + "/" + maxEasterEggs + "):"
-        easterEggCommentButton.text = easterEggComments[discoveredEasterEggsCount]
+        discoveredEasterEggs = GetDiscoveredEasterEggsUseCase()()
+        easterEggsHeader.text = getString(R.string.alreadyDiscoveredEasterEggs) + " (${discoveredEasterEggs.size}/${easterEggComments.size - 1}):"
+        easterEggCommentButton.text = easterEggComments[discoveredEasterEggs.size]
         discoveredEasterEggs.add("") //placeholder
         listView.layoutManager = LinearLayoutManager(this)
-        val imageAdapter = ImageAdapter()
-        listView.adapter = imageAdapter
+        listView.adapter = ImageAdapter()
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
@@ -196,7 +188,8 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         easterEggsHeader.isEnabled = mEnabled
         easterEggsHeader.setTextColor(
             resources.getColor(
-                if (mEnabled) de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color else de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark,
+                if (mEnabled) de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color
+                else de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark,
                 mContext.theme
             )
         )
@@ -212,19 +205,11 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
     }
 
     inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
-        override fun getItemCount(): Int {
-            return discoveredEasterEggs.size
-        }
+        override fun getItemCount(): Int = discoveredEasterEggs.size
 
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
+        override fun getItemId(position: Int): Long = position.toLong()
 
-        override fun getItemViewType(position: Int): Int {
-            return if (discoveredEasterEggs[position] == "") {
-                1
-            } else 0
-        }
+        override fun getItemViewType(position: Int): Int = if (discoveredEasterEggs[position] == "") 1 else 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
@@ -245,13 +230,9 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             holder.parentView?.allViews?.forEach { view -> view.isEnabled = mEnabled }
         }
 
-        inner class ViewHolder internal constructor(itemView: View?, viewType: Int) :
-            RecyclerView.ViewHolder(
-                itemView!!
-            ) {
+        inner class ViewHolder internal constructor(itemView: View?, viewType: Int) : RecyclerView.ViewHolder(itemView!!) {
             var isItem: Boolean = viewType == 0
             var parentView: RelativeLayout? = null
-
             //ImageView imageView;
             var textView: TextView? = null
 
@@ -270,16 +251,11 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         private val mSeslRoundedCornerBottom: SeslRoundedCorner
         private var mDivider: Drawable? = null
         private var mDividerHeight = 0
-        override fun seslOnDispatchDraw(
-            canvas: Canvas,
-            recyclerView: RecyclerView,
-            state: RecyclerView.State
-        ) {
+        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
             val width = recyclerView.width
 
-            // draw divider for each item
             for (i in 0 until childCount) {
                 val childAt = recyclerView.getChildAt(i)
                 val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
@@ -288,8 +264,6 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                     recyclerView.getChildAt(i + 1)
                 ) as ImageAdapter.ViewHolder).isItem else false
                 if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
-                    //int moveRTL = isRTL() ? 130 : 0;
-                    //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
                     mDivider!!.setBounds(0, y, width, mDividerHeight + y)
                     mDivider!!.draw(canvas)
                 }

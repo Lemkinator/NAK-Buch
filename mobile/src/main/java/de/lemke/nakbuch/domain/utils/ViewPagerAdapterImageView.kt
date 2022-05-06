@@ -39,5 +39,4 @@ class ViewPagerAdapterImageView(context: Context, private val mImages: ArrayList
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
         container.removeView(`object` as LinearLayout)
     }
-
 }

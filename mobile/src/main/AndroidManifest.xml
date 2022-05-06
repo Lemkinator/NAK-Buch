@@ -7,9 +7,11 @@
 
     <!--
     TODO
-        history indextip on scroller?
+        replace sp with DataStore
+        use Database for hymnData
         such algo
 
+        history indextip on scroller?
         imgView fullscreen? works on emu
         (Threading / power management / loading)
         (save to Google Drive?)

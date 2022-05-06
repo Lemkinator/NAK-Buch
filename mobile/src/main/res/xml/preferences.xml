@@ -34,7 +34,7 @@
             android:summary="@string/dndMode"
             android:title="@string/dnd"
             app:icon="@drawable/ic_oui4_remove" />
-        <SwitchPreference
+        <CheckBoxPreference
             android:key="confirmExit"
             android:summary="@string/pressAgainToExit"
             android:title="@string/confirmExit"

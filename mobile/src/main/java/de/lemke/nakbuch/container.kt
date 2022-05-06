@@ -1,19 +1,22 @@
 package de.lemke.nakbuch
 
 import android.app.Application
+import android.content.ContentResolver
 import android.content.SharedPreferences
-import android.content.res.AssetManager
 import android.content.res.Resources
+import android.media.AudioManager
+import androidx.appcompat.app.AppCompatActivity
+import java.io.File
 
-class MyRepository(
-    private val sp: SharedPreferences,
-    private val spHymns: SharedPreferences,
-    private val resources: Resources
+data class MyRepository(
+    val defaultSharedPreferences: SharedPreferences,
+    val hymnDataSharedPreferences: SharedPreferences,
+    val resources: Resources,
+    val cacheDir: File,
+    val filesDir: File,
+    val audioManager: AudioManager,
+    val contentResolver: ContentResolver
 ) {
-    fun getResources() = resources
-    fun getAssets(): AssetManager = resources.assets
-    fun getDefaultSharedPreferences() = sp
-    fun getHymnDataSharedPreferences() = spHymns
 }
 
 class App : Application() {
@@ -22,7 +25,11 @@ class App : Application() {
         myRepository = MyRepository(
             getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE),
             getSharedPreferences(getString(R.string.preferenceFileHymns), MODE_PRIVATE),
-            resources
+            resources,
+            cacheDir,
+            filesDir,
+            getSystemService(AppCompatActivity.AUDIO_SERVICE) as AudioManager,
+            contentResolver
         )
     }
 

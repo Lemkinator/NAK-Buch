@@ -1,7 +1,14 @@
 package de.lemke.nakbuch.domain.model
 
 enum class BuchMode {
-    Gesangbuch, Chorbuch
+    Gesangbuch, Chorbuch;
+
+    override fun toString(): String {
+        return when (this) {
+            Gesangbuch -> "GB"
+            Chorbuch -> "CB"
+        }
+    }
 }
 
 data class Hymn(
@@ -35,6 +42,6 @@ data class PersonalHymn(
 )
 
 val hymnPlaceholder =
-    Hymn(BuchMode.Gesangbuch, -1, Rubric(BuchMode.Gesangbuch, -1), "Placeholder", "Placeholder", "Placeholder", "Placeholder")
+    Hymn(BuchMode.Gesangbuch, -1, rubricPlaceholder, "Placeholder", "Placeholder", "Placeholder", "Placeholder")
 
 

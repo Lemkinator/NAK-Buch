@@ -53,8 +53,7 @@ class SupportMeActivity : AppCompatActivity() {
             try {
                 startActivity(intent)
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(mContext, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(mContext, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
             }
         }
         findViewById<View>(R.id.writeReviewButton).setOnClickListener {

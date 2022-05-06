@@ -2,7 +2,6 @@ package de.lemke.nakbuch.ui.fragments
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -10,7 +9,9 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
@@ -21,179 +22,92 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.hymns.GetAllRubricsUseCase
+import de.lemke.nakbuch.domain.hymns.GetHymnsWithRubricUseCase
+import de.lemke.nakbuch.domain.model.*
+import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
 import de.lemke.nakbuch.ui.TextviewActivity
-import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.utils.AssetsHelper.getHymnArrayList
-import de.lemke.nakbuch.domain.utils.AssetsHelper.getRubricListItemArrayList
-import de.lemke.nakbuch.domain.utils.AssetsHelper.getRubricTitlesArrayList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TabListSubtabRubric : Fragment() {
-    private lateinit var listView: RecyclerView
     private lateinit var mRootView: View
     private lateinit var mContext: Context
-    private lateinit var hymns: ArrayList<HashMap<String, String>>
-    private lateinit var rubricListItemViewTypes: ArrayList<Int>
-    private lateinit var rubricTitles: ArrayList<String>
-    private lateinit var rubList: ArrayList<HashMap<String, String>>
-    private var rubrikIndex = 0
-    private var rubrikIndexName = ""
+    private lateinit var hymns: ArrayList<Hymn>
+    private lateinit var rubrics: ArrayList<Rubric>
+    private var currentRubric: Rubric? = null
     private lateinit var buchMode: BuchMode
+    private lateinit var listView: RecyclerView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var subTabs: TabLayout
     private lateinit var mainTabs: TabLayout
     private lateinit var viewPager2List: ViewPager2
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var onBackPressedCallback: OnBackPressedCallback
-    private var selected = HashMap<Int, Boolean>()
-    private var mSelecting = false
-    private var checkAllListening = true
-    private lateinit var sp: SharedPreferences
-    private lateinit var spHymns: SharedPreferences
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mRootView = inflater.inflate(R.layout.fragment_tab_list_subtab_rubric, container, false)
         return mRootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sp = mContext.getSharedPreferences(
-            getString(R.string.preferenceFileDefault),
-            Context.MODE_PRIVATE
-        )
-        spHymns = mContext.getSharedPreferences(
-            getString(R.string.preferenceFileHymns),
-            Context.MODE_PRIVATE
-        )
-        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
+        buchMode = GetBuchModeUseCase()()
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         listView = mRootView.findViewById(R.id.hymnListRubric)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
         mainTabs = requireActivity().findViewById(R.id.main_tabs)
         viewPager2List = requireActivity().findViewById(R.id.viewPager2Lists)
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (mSelecting) setSelecting(false) else {
-                    rubrikIndex = 0
-                    initList()
-                }
+                currentRubric = null
+                initList()
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        initAssets()
         initList()
     }
 
-    private fun setRubList() {
-        rubList = ArrayList()
-        if (rubrikIndex == 0) {
-            onBackPressedCallback.isEnabled = false
-            for ((currentIndex, i) in rubricTitles.indices.withIndex()) {
-                val hm = HashMap<String, String>()
-                hm["hymnNrAndTitle"] = rubricTitles[i]
-                if (rubricListItemViewTypes[i] == 0) {
-                    hm["mainRub"] = ""
-                } else {
-                    hm["rubIndex"] = currentIndex.toString()
-                }
-                rubList.add(hm)
-            }
-        } else {
-            onBackPressedCallback.isEnabled = true
-            val hmBack = HashMap<String, String>()
-            hmBack["backHeader"] = ""
-            rubList.add(hmBack)
-            for (hm in hymns) {
-                if (hm.containsKey("hymnRubricIndex")) {
-                    if (hm["hymnRubricIndex"]!!.toInt() == rubrikIndex) {
-                        rubList.add(hm)
-                    }
-                }
-            }
-        }
-        rubList.add(HashMap())
-    }
-
     private fun initList() {
-        setRubList()
-        selected = HashMap()
-        for (i in rubList.indices) selected[i] = false
-        val divider = TypedValue()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.layoutManager = LinearLayoutManager(mContext)
-        imageAdapter = ImageAdapter()
-        listView.adapter = imageAdapter
-        val decoration = ItemDecoration()
-        listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
-        listView.itemAnimator = null
-        //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
-        listView.seslSetFastScrollerEnabled(true)
-        listView.seslSetFillBottomEnabled(true)
-        listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
-    }
-
-    fun setSelecting(enabled: Boolean) {
-        if (enabled) {
-            mSelecting = true
-            drawerLayout.showSelectMode()
-            drawerLayout.setSelectModeAllCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-                if (checkAllListening) {
-                    for (i in 0 until imageAdapter.itemCount - 1) {
-                        selected[i] = isChecked
-                        imageAdapter.notifyItemChanged(i)
-                    }
-                }
-                var count = 0
-                for (b in selected.values) if (b) count++
-                drawerLayout.setSelectModeCount(count)
-            }
-            subTabs.isEnabled = false
-            mainTabs.isEnabled = false
-            viewPager2List.isUserInputEnabled = false
-            onBackPressedCallback.isEnabled = true
-        } else {
-            mSelecting = false
-            for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
-            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
-            drawerLayout.setSelectModeCount(0)
-            drawerLayout.dismissSelectMode()
-            subTabs.isEnabled = true
-            mainTabs.isEnabled = true
-            viewPager2List.isUserInputEnabled = true
+        CoroutineScope(Dispatchers.IO).launch {
+            rubrics = GetAllRubricsUseCase()(buchMode)
+            rubrics.add(rubricPlaceholder)
             onBackPressedCallback.isEnabled = false
+            if (currentRubric != null) {
+                hymns = GetHymnsWithRubricUseCase()(currentRubric!!)
+                hymns.add(0, hymnPlaceholder)
+                hymns.add(hymnPlaceholder)
+                onBackPressedCallback.isEnabled = true
+            }
+            withContext(Dispatchers.Main) {
+                imageAdapter = ImageAdapter()
+                listView.adapter = imageAdapter
+                val divider = TypedValue()
+                mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+                listView.layoutManager = LinearLayoutManager(mContext)
+                val decoration = ItemDecoration()
+                listView.addItemDecoration(decoration)
+                decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+                listView.itemAnimator = null
+                //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
+                listView.seslSetFastScrollerEnabled(true)
+                listView.seslSetFillBottomEnabled(true)
+                listView.seslSetGoToTopEnabled(true)
+                listView.seslSetLastRoundedCorner(false)
+            }
         }
-    }
 
-    fun toggleItemSelected(position: Int) {
-        selected[position] = !selected[position]!!
-        imageAdapter.notifyItemChanged(position)
-        checkAllListening = false
-        var count = 0
-        for (b in selected.values) if (b) count++
-        drawerLayout.setSelectModeAllChecked(count == imageAdapter.itemCount - 1)
-        drawerLayout.setSelectModeCount(count)
-        checkAllListening = true
-    }
-
-    private fun initAssets() {
-        hymns = getHymnArrayList(mContext, sp, buchMode == BuchMode.Gesangbuch)
-        rubricListItemViewTypes = getRubricListItemArrayList(buchMode == BuchMode.Gesangbuch)
-        rubricTitles = getRubricTitlesArrayList(buchMode == BuchMode.Gesangbuch)
-        hymns.add(HashMap()) //Placeholder
     }
 
     //Adapter for the Icon RecyclerView
-    inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>(){// !!!Sections in inner rubrics not working!!!       , SectionIndexer {
+    inner class ImageAdapter :
+        RecyclerView.Adapter<ImageAdapter.ViewHolder>() {// !!!Sections in inner rubrics not working!!!       , SectionIndexer {
         /*private var mSections: MutableList<String> = ArrayList()
         private var mPositionForSection: MutableList<Int> = ArrayList()
         private var mSectionForPosition: MutableList<Int> = ArrayList()
@@ -228,7 +142,9 @@ class TabListSubtabRubric : Fragment() {
         */
 
         override fun getItemCount(): Int {
-            return rubList.size
+            return if (currentRubric == null) rubrics.size
+            else hymns.size
+
         }
 
         override fun getItemId(position: Int): Long {
@@ -236,19 +152,21 @@ class TabListSubtabRubric : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return when {
-                rubList[position].containsKey("mainRub") -> {
-                    2
+            return if (currentRubric == null) {
+                when {
+                    rubrics[position] == rubricPlaceholder -> 1
+                    rubrics[position].isMain -> 2
+                    else -> 0
                 }
-                rubList[position].containsKey("backHeader") -> {
-                    3
+            } else {
+                when {
+                    position == 0 -> 3
+                    hymns[position] == hymnPlaceholder -> 1
+                    else -> 0
                 }
-                rubList[position].containsKey("hymnNrAndTitle") -> {
-                    0
-                }
-                else -> 1
             }
         }
+
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
@@ -263,103 +181,71 @@ class TabListSubtabRubric : Fragment() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            if (holder.isBackHeader) {
+            /*if (holder.isBackHeader) {
                 holder.textView.text = rubrikIndexName
                 holder.parentView.setOnClickListener {
-                    if (rubList[position].containsKey("backHeader")) {
+                    if (rubrics[position].containsKey("backHeader")) {
                         rubrikIndex = 0
                         initList()
                     }
                 }
-            }
+            }*/
             if (holder.isItem) {
-                holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
-                holder.checkBox.isChecked = selected[position]!!
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text = rubList[position]["hymnNrAndTitle"]
-                holder.parentView.setOnClickListener {
-                    if (mSelecting) toggleItemSelected(position) else {
-                        if (rubrikIndex == 0) {
-                            if (rubList[position].containsKey("rubIndex")) {
-                                rubrikIndex = rubList[position]["rubIndex"]!!.toInt()
-                                rubrikIndexName = rubList[position]["hymnNrAndTitle"].toString()
-                                initList()
-                            }
-                        } else if (rubList[position].containsKey("hymnNr")) {
-                            startActivity(Intent(mRootView.context, TextviewActivity::class.java)
-                                    .putExtra("nr", rubList[position]["hymnNr"]?.toInt() ?: -1)
-                            )
-                        }
+                if (currentRubric != null) {
+                    holder.textView.text = hymns[position].numberAndTitle
+                    holder.parentView.setOnClickListener {
+                        startActivity(Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", hymns[position].number))
                     }
-                }
-                if (false) { //Disable selecting, maybe enable in future...
-                    holder.parentView.setOnLongClickListener {
-                        if (!mSelecting) setSelecting(true)
-                        toggleItemSelected(position)
-                        listView.seslStartLongPressMultiSelection()
-                        listView.seslSetLongPressMultiSelectionListener(object :
-                            RecyclerView.SeslLongPressMultiSelectionListener {
-                            override fun onItemSelected(
-                                var1: RecyclerView,
-                                var2: View,
-                                var3: Int,
-                                var4: Long
-                            ) {
-                                if (getItemViewType(var3) == 0) toggleItemSelected(var3)
-                            }
-
-                            override fun onLongPressMultiSelectionEnded(var1: Int, var2: Int) {}
-                            override fun onLongPressMultiSelectionStarted(var1: Int, var2: Int) {}
-                        })
-                        true
+                } else {
+                    holder.textView.text = rubrics[position].name
+                    holder.parentView.setOnClickListener {
+                        currentRubric = rubrics[position]
+                        initList()
                     }
                 }
             }
             if (holder.isHeader) {
-                holder.textView.text = rubList[position]["hymnNrAndTitle"]
+                holder.textView.text = rubrics[position].name
+            }
+            if (holder.isBackHeader) {
+                holder.textView.text = currentRubric!!.name
+                holder.parentView.setOnClickListener {
+                    currentRubric = null
+                    initList()
+                }
             }
         }
 
-        inner class ViewHolder internal constructor(itemView: View, viewType: Int) :
-            RecyclerView.ViewHolder(
-                itemView
-            ) {
+        inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
             var isHeader: Boolean = viewType == 2
             var isBackHeader: Boolean = viewType == 3
+
             lateinit var parentView: RelativeLayout
             lateinit var imageView: ImageView
             lateinit var textView: TextView
-            lateinit var checkBox: CheckBox
 
             init {
                 if (isItem) {
                     parentView = itemView as RelativeLayout
-                    //imageView = parentView.findViewById(R.id.icon_tab_item_image);
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
-                    checkBox = parentView.findViewById(R.id.checkbox)
                 }
                 if (isHeader || isBackHeader) {
                     parentView = itemView as RelativeLayout
                     imageView = parentView.findViewById(R.id.icon_tab_item_image)
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
-                    //checkBox = parentView.findViewById(R.id.checkbox);
                 }
             }
         }
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner =
-            SeslRoundedCorner(requireContext(), true)
+        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
         private val mSeslRoundedCornerBottom: SeslRoundedCorner
         private var mDivider: Drawable? = null
         private var mDividerHeight = 0
-        override fun seslOnDispatchDraw(
-            canvas: Canvas,
-            recyclerView: RecyclerView,
-            state: RecyclerView.State
-        ) {
+        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
             val width = recyclerView.width

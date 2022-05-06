@@ -2,7 +2,6 @@ package de.lemke.nakbuch.ui.fragments
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -24,14 +23,21 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.SwipeRefreshLayout
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.ui.TextviewActivity
+import de.lemke.nakbuch.domain.hymndata.GetFavoriteHymnsUseCase
+import de.lemke.nakbuch.domain.hymndata.SetFavoritesFromListUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.getFavList
-import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeFavsToList
+import de.lemke.nakbuch.domain.model.Hymn
+import de.lemke.nakbuch.domain.model.hymnPlaceholder
+import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
+import de.lemke.nakbuch.ui.TextviewActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivityTabFav : Fragment() {
     private lateinit var buchMode: BuchMode
-    private lateinit var favHymns: ArrayList<HashMap<String, String>>
+    private lateinit var favHymns: ArrayList<Hymn>
     private lateinit var mRootView: View
     private lateinit var mContext: Context
     private lateinit var drawerLayout: DrawerLayout
@@ -44,37 +50,23 @@ class MainActivityTabFav : Fragment() {
     private var checkAllListening = true
     private val mHandler = Handler(Looper.getMainLooper())
     private val mShowBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
-    private lateinit var sp: SharedPreferences
-    private lateinit var spHymns: SharedPreferences
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mRootView = inflater.inflate(R.layout.fragment_tab_fav, container, false)
         return mRootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sp = mContext.getSharedPreferences(
-            getString(R.string.preferenceFileDefault),
-            Context.MODE_PRIVATE
-        )
-        spHymns = mContext.getSharedPreferences(
-            getString(R.string.preferenceFileHymns),
-            Context.MODE_PRIVATE
-        )
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         (mRootView.findViewById(R.id.tabFavSwipeRefresh) as SwipeRefreshLayout).seslSetRefreshOnce(true)
         listView = mRootView.findViewById(R.id.favHymnList)
         mainTabs = requireActivity().findViewById(R.id.main_tabs)
-        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
+        buchMode = GetBuchModeUseCase()()
 
         initList()
         onBackPressedCallback = object : OnBackPressedCallback(false) {
@@ -91,42 +83,44 @@ class MainActivityTabFav : Fragment() {
     }
 
     private fun initList() {
-        favHymns = getFavList(mContext, buchMode == BuchMode.Gesangbuch, sp, spHymns)
-        favHymns.add(HashMap()) //Placeholder
-        selected = HashMap()
-        for (i in favHymns.indices) selected[i] = false
-        listView.layoutManager = LinearLayoutManager(mContext)
-        imageAdapter = ImageAdapter()
-        listView.adapter = imageAdapter
-        listView.itemAnimator = null
-        listView.seslSetFastScrollerEnabled(true)
-        listView.seslSetFillBottomEnabled(true)
-        listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
-        listView.seslSetLongPressMultiSelectionListener(object :
-            RecyclerView.SeslLongPressMultiSelectionListener {
-            override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
-                if (imageAdapter.getItemViewType(position) == 0) {
-                    toggleItemSelected(position)
-                }
-            }
+        CoroutineScope(Dispatchers.IO).launch {
+            favHymns = GetFavoriteHymnsUseCase()(buchMode)
+            favHymns.add(hymnPlaceholder)
+            selected = HashMap()
+            for (i in favHymns.indices) selected[i] = false
+            withContext(Dispatchers.Main) {
+                imageAdapter = ImageAdapter()
+                listView.adapter = imageAdapter
+                listView.layoutManager = LinearLayoutManager(mContext)
+                listView.itemAnimator = null
+                listView.seslSetFastScrollerEnabled(true)
+                listView.seslSetFillBottomEnabled(true)
+                listView.seslSetGoToTopEnabled(true)
+                listView.seslSetLastRoundedCorner(false)
+                listView.seslSetLongPressMultiSelectionListener(object :
+                    RecyclerView.SeslLongPressMultiSelectionListener {
+                    override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
+                        if (imageAdapter.getItemViewType(position) == 0) {
+                            toggleItemSelected(position)
+                        }
+                    }
 
-            override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {
-                drawerLayout.showSelectModeBottomBar(false)
-            }
+                    override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {
+                        drawerLayout.showSelectModeBottomBar(false)
+                    }
 
-            override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
-                mHandler.postDelayed(mShowBottomBarRunnable, 300)
+                    override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
+                        mHandler.postDelayed(mShowBottomBarRunnable, 300)
+                    }
+                })
+                val divider = TypedValue()
+                mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+                val decoration = ItemDecoration()
+                listView.addItemDecoration(decoration)
+                decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
             }
-        })
+        }
 
-        //divider
-        val divider = TypedValue()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        val decoration = ItemDecoration()
-        listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
-        //select mode dismiss on back
         onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 setSelecting(false)
@@ -140,10 +134,13 @@ class MainActivityTabFav : Fragment() {
             mSelecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
+                val onlySelected = HashMap(selected.filter { it.value })
                 if (item.itemId == R.id.menuButtonRemove) {
-                    writeFavsToList(buchMode == BuchMode.Gesangbuch, spHymns, selected, favHymns, "")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        SetFavoritesFromListUseCase()(buchMode,  ArrayList(favHymns), onlySelected, false)
+                        initList()
+                    }
                     setSelecting(false)
-                    initList()
                 } else {
                     item.badge = item.badge + 1
                     Toast.makeText(mContext, item.title, Toast.LENGTH_SHORT).show()
@@ -198,9 +195,8 @@ class MainActivityTabFav : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (favHymns[position].containsKey("hymnNr")) {
-                0
-            } else 1
+            return if (favHymns[position] != hymnPlaceholder) 0
+            else 1
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -218,15 +214,11 @@ class MainActivityTabFav : Fragment() {
                 holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text = favHymns[position]["hymnNrAndTitle"]
+                holder.textView.text = favHymns[position].numberAndTitle
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         startActivity(
-                            Intent(mRootView.context, TextviewActivity::class.java)
-                                .putExtra(
-                                    "nr",
-                                    favHymns[position]["hymnNr"]?.toInt() ?: -1
-                                )
+                            Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", favHymns[position].number)
                         )
                     }
                 }
@@ -262,16 +254,11 @@ class MainActivityTabFav : Fragment() {
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner =
-            SeslRoundedCorner(requireContext(), true)
+        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
         private val mSeslRoundedCornerBottom: SeslRoundedCorner
         private var mDivider: Drawable? = null
         private var mDividerHeight = 0
-        override fun seslOnDispatchDraw(
-            canvas: Canvas,
-            recyclerView: RecyclerView,
-            state: RecyclerView.State
-        ) {
+        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
             val width = recyclerView.width
@@ -317,5 +304,4 @@ class MainActivityTabFav : Fragment() {
             mSeslRoundedCornerBottom.roundedCorners = 12
         }
     }
-
 }

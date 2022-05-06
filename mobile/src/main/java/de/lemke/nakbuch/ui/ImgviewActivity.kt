@@ -3,9 +3,7 @@ package de.lemke.nakbuch.ui
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
-import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
@@ -13,14 +11,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -32,19 +29,21 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.hymndata.*
+import de.lemke.nakbuch.domain.hymns.GetHymnUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.utils.Constants
-import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.getFromList
-import de.lemke.nakbuch.domain.utils.HymnPrefsHelper.writeToList
+import de.lemke.nakbuch.domain.model.Hymn
+import de.lemke.nakbuch.domain.model.HymnData
+import de.lemke.nakbuch.domain.settings.GetBooleanSettingUseCase
+import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
+import de.lemke.nakbuch.domain.settings.SetBooleanSettingUseCase
 import de.lemke.nakbuch.domain.utils.ViewPagerAdapterImageView
-import id.zelory.compressor.Compressor
-import id.zelory.compressor.constraint.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.IOException
+import kotlinx.coroutines.withContext
 import java.util.*
+import kotlin.math.min
 
 class ImgviewActivity : AppCompatActivity() {
     private lateinit var mContext: Context
@@ -53,234 +52,89 @@ class ImgviewActivity : AppCompatActivity() {
     private lateinit var viewPagerAdapterImageView: ViewPagerAdapterImageView
     private lateinit var tipPopupFoto: TipPopup
     private lateinit var tipPopupDelete: TipPopup
-    private lateinit var imageList: ArrayList<Uri>
-    private var currentFile: File? = null
-    private lateinit var sp: SharedPreferences
-    private lateinit var spHymns: SharedPreferences
-    private var nr = 0
+    private lateinit var hymn: Hymn
+    private lateinit var hymnData: HymnData
     private lateinit var buchMode: BuchMode
     private lateinit var cameraActivityResultLauncher: ActivityResultLauncher<Uri>
-    override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this)
-        super.onCreate(savedInstanceState)
-        mContext = this
-        sp =
-            mContext.getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
-        spHymns =
-            mContext.getSharedPreferences(getString(R.string.preferenceFileHymns), MODE_PRIVATE)
-        buchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
-        nr = intent.getIntExtra("nr", -1)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        ThemeUtil(this)
+        mContext = this
         setContentView(R.layout.activity_imgview)
-        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-            drawerLayout.setNavigationButtonIcon(
-                AppCompatResources.getDrawable(
-                    mContext,
-                    de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back
-                )
-            )
-            drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
-            drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
-            drawerLayout.setTitle(intent.getStringExtra("nrAndTitle"))
-            drawerLayout.setSubtitle(getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleGesangbuch else R.string.titleChorbuch))
-            initBNV()
-        } else {
-            val windowInsetsController =
-                ViewCompat.getWindowInsetsController(window.decorView) ?: return
-            // Configure the behavior of the hidden system bars
-            windowInsetsController.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            // Hide both the status bar and the navigation bar
-            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        imgViewPager = findViewById(R.id.img_view_pager)
+        buchMode = GetBuchModeUseCase()()
+        CoroutineScope(Dispatchers.IO).launch {
+            hymn = GetHymnUseCase()(buchMode, intent.getIntExtra("nr", -1))
+            hymnData = GetHymnDataUseCase()(hymn)
+            withContext(Dispatchers.Main) {
+                initViewPager()
+                if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+                    drawerLayout.setNavigationButtonIcon(
+                        AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
+                    )
+                    drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
+                    drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
+                    drawerLayout.setTitle(hymn.numberAndTitle)
+                    drawerLayout.setSubtitle(getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleGesangbuch else R.string.titleChorbuch))
+                    initBNV()
+                    if (GetBooleanSettingUseCase()("imageviewTips", true)) {
+                        SetBooleanSettingUseCase()("imageviewTips", false)
+
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            initTipPopup()
+                            tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT)
+                        }, 50)
+
+                    }
+                } else {
+                    val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView)
+                    windowInsetsController?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars()) // Hide both the status bar and the navigation bar
+                }
+            }
         }
 
         cameraActivityResultLauncher = registerForActivityResult(TakePicture()) { result: Boolean ->
-            if (currentFile != null) {
-                if (result) {
-                    compressJPG(currentFile!!).invokeOnCompletion {
-                        Handler(Looper.getMainLooper()).post {
-                            initViewPager()
-                            imgViewPager.setCurrentItem(viewPagerAdapterImageView.count - 1, true)
-                        }
+            if (result) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val index = if (viewPagerAdapterImageView.count > 0) (imgViewPager.currentItem + 1) else imgViewPager.currentItem
+                    AddPhotoUseCase()(
+                        mContext, hymn, hymnData,
+                        index
+                    ).invokeOnCompletion {
+                        initViewPager(index)
                     }
-                } else {
-                    if (currentFile!!.exists()) {
-                        if (!currentFile!!.delete()) Log.e(
-                            "Files",
-                            "Could not delete file, after Take picture failed"
-                        )
-                    }
-                    Toast.makeText(
-                        mContext,
-                        getString(R.string.fotoError),
-                        Toast.LENGTH_LONG
-                    ).show()
                 }
-            }
-        }
-        imgViewPager = findViewById(R.id.img_view_pager)
-        initViewPager()
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        if (sp.getBoolean("showImageviewTips", true)) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                initTipPopup()
-                tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT)
-                sp.edit().putBoolean("showImageviewTips", false).apply()
-            }, 50)
-        }
-    }
-
-    private fun initViewPager() {
-        try {
-            prepareFolder()
-            imageList = ArrayList()
-            val files = currentFolder.listFiles()!!
-            for (i in files.indices) {
-                imageList.add(
-                    FileProvider.getUriForFile(
-                        mContext,
-                        "de.lemke.nakbuch.fileprovider",
-                        files[i]
-                    )
-                )
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        Log.d("test img List", imageList.toString())
-        viewPagerAdapterImageView = ViewPagerAdapterImageView(mContext, imageList)
-        imgViewPager.adapter = viewPagerAdapterImageView
-    }
-
-    @Throws(IOException::class)
-    private fun prepareFolder() {
-        val files = currentFolder.listFiles()!!
-        Log.d("test Files", files.contentToString())
-        Arrays.sort(files)
-        for (i in files.indices) {
-            if (!files[i].renameTo(File(currentFolder, "$i.jpg"))) {
-                throw IOException("prepareFolder(): Could not rename File:" + files[i].absolutePath)
-            }
-        }
-        Log.d("test sorted Files", files.contentToString())
-    }
-
-    private fun compressJPG(file: File): Job {
-        Log.d("Compressor", "Compressing file: " + file.absolutePath)
-        val resolution = when (sp.getString("imgResolution", getString(R.string.medium))) {
-            getString(R.string.veryLow) -> 512
-            getString(R.string.low) -> 1024
-            getString(R.string.medium) -> 2048
-            getString(R.string.high) -> 4096
-            getString(R.string.veryHigh) -> 8192
-            else -> 2048
-        }
-        val quality = when (sp.getString("imgQuality", getString(R.string.medium))) {
-            getString(R.string.veryLow) -> 15
-            getString(R.string.low) -> 25
-            getString(R.string.medium) -> 50
-            getString(R.string.high) -> 75
-            getString(R.string.veryHigh) -> 100
-            else -> 50
-        }
-        return GlobalScope.launch {
-            Compressor.compress(mContext, file) {
-                resolution(resolution, resolution)
-                quality(quality)
-                size(2_097_152) // 2 MB
-                format(Bitmap.CompressFormat.JPEG)
-                destination(File(currentFolder.absolutePath, file.name))
+            } else {
+                Toast.makeText(mContext, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    @get:Throws(IOException::class)
-    private val currentFolder: File
-        get() {
-            val resultFolder = File(
-                if (buchMode == BuchMode.Gesangbuch) {
-                    "$filesDir/gesangbuch/$nr/"
-                } else {
-                    "$filesDir/chorbuch/$nr/"
-                }
-            )
-            if (!resultFolder.exists()) {
-                if (!resultFolder.mkdirs()) {
-                    throw IOException("Ordner konnte nicht erstellt werden...")
-                }
-            }
-            return resultFolder
-        }
-
-    private fun deleteImage(index: Int) {
-        var f: File? = null
-        try {
-            f = File(currentFolder, "$index.jpg")
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        if (f!!.exists()) {
-            if (!f.delete())
-                Toast.makeText(mContext, "Datei konnte nicht gelöscht werden...", Toast.LENGTH_LONG)
-                    .show()
-        }
-    }
-
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        var image: File
-        for (i in 0 until Constants.MAX_IMAGES_PER_HYMN) {
-            image = File(currentFolder, "$i.jpg")
-            if (!image.exists()) {
-                image = File(cacheDir, "$i.jpg")
-                if (image.exists()) {
-                    if (!image.delete()) Toast.makeText(
-                        mContext,
-                        "Konnte altes Foto vor Kamera-öffnen nicht löschen",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                return image
+    private fun initViewPager(index: Int = -1) {
+        CoroutineScope(Dispatchers.IO).launch {
+            hymnData = GetHymnDataUseCase()(hymn)
+            withContext(Dispatchers.Main) {
+                hymnData.photoList = hymnData.photoList.filter {Uri.parse(it).toFile().exists()} as ArrayList<String>
+                viewPagerAdapterImageView = ViewPagerAdapterImageView(mContext, hymnData.photoList.map { Uri.parse(it)} as ArrayList<Uri>)
+                imgViewPager.adapter = viewPagerAdapterImageView
+                if (index > 0) imgViewPager.setCurrentItem(min(index,viewPagerAdapterImageView.count), true)
             }
         }
-        throw IOException("Datei konnte nicht erstellt werden...")
     }
 
     private fun takePhoto() {
-        if (imageList.size >= Constants.MAX_IMAGES_PER_HYMN) {
-            Toast.makeText(
-                mContext,
-                "Max. Bilder pro Lied: ${Constants.MAX_IMAGES_PER_HYMN}",
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-        currentFile = try {
-            createImageFile()
-        } catch (ex: IOException) {
-            Toast.makeText(mContext, "Fehler beim Erstellen einer Datei", Toast.LENGTH_LONG)
-                .show()
-            Log.e("Cam", "Error occurred while creating the File: ${ex.message}")
+        val maxImagesPerHymn = 20
+        if (hymnData.photoList.size >= maxImagesPerHymn) {
+            Toast.makeText(mContext, "Max. Bilder pro Lied: $maxImagesPerHymn", Toast.LENGTH_SHORT).show()
             return
         }
         try {
-            cameraActivityResultLauncher.launch(
-                FileProvider.getUriForFile(
-                    mContext,
-                    "de.lemke.nakbuch.fileprovider",
-                    currentFile!!
-                )
-            )
+            cameraActivityResultLauncher.launch(GetTempPhotoUriUseCase()())
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(
-                mContext,
-                "Kamera konnte nicht geöffnet werden...",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(mContext, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -292,79 +146,50 @@ class ImgviewActivity : AppCompatActivity() {
         }
 
         val favIcon: Drawable
-        if (getFromList(buchMode == BuchMode.Gesangbuch, spHymns, nr, "fav") == "1") {
-            favIcon = AppCompatResources.getDrawable(
-                mContext,
-                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on
-            )!!
+        if (hymnData.favorite) {
+            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
             favIcon.colorFilter = PorterDuffColorFilter(
-                resources.getColor(
-                    de.dlyt.yanndroid.oneui.R.color.red,
-                    mContext.theme
-                ), PorterDuff.Mode.SRC_IN
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, mContext.theme), PorterDuff.Mode.SRC_IN
             )
         } else {
-            favIcon = AppCompatResources.getDrawable(
-                mContext,
-                de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off
-            )!!
+            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                writeToList(
-                    buchMode == BuchMode.Gesangbuch,
-                    spHymns,
-                    nr,
-                    "fav",
-                    if (getFromList(buchMode == BuchMode.Gesangbuch, spHymns, nr, "fav") == "1") "0" else "1"
-                )
+                hymnData.favorite = !hymnData.favorite
+                CoroutineScope(Dispatchers.IO).launch {
+                    SetHymnDataUseCase()(hymn, hymnData)
+                }
                 initBNV()
             }
         })
 
-        val camIcon = AppCompatResources.getDrawable(
-            mContext,
-            de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera
-        )
+        val camIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera)
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 takePhoto()
             }
         })
 
-        val binIcon = AppCompatResources.getDrawable(
-            mContext,
-            de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete
-        )
+        val binIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete)
         tabLayout!!.addTabCustomButton(binIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val index = imgViewPager.currentItem
-                if (imageList.size > 0) {
+                if (hymnData.photoList.size > 0) {
                     val dialog = AlertDialog.Builder(mContext)
-                        .setTitle("Foto löschen?")
-                        .setMessage("Aktuell angezeigtes Foto löschen?")
+                        .setTitle(getString(R.string.deletePhoto) + "?")
+                        .setMessage(getString(R.string.deleteCurrentPhoto) + "?")
                         .setNeutralButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
                         .setNegativeButton(R.string.delete) { dialogInterface: DialogInterface, _: Int ->
-                            deleteImage(index)
-                            Handler(Looper.getMainLooper()).postDelayed(
-                                {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                DeletePhotoUseCase()(hymn, hymnData, index)
+                                withContext(Dispatchers.Main) {
                                     dialogInterface.dismiss()
-                                    initViewPager()
-                                    imgViewPager.setCurrentItem(
-                                        (index).coerceAtMost(
-                                            viewPagerAdapterImageView.count - 1
-                                        ), true
-                                    )
-                                }, 600
-                            )
-
+                                    initViewPager(min(index, viewPagerAdapterImageView.count - 1))
+                                }
+                            }
                         }
-                        .setNegativeButtonColor(
-                            resources.getColor(
-                                de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
-                                mContext.theme
-                            )
-                        )
+                        .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
                         .setNegativeButtonProgress(true)
                         .create()
                     dialog.show()
@@ -386,33 +211,99 @@ class ImgviewActivity : AppCompatActivity() {
 
     @Suppress("unnecessary_safe_call")
     private fun initTipPopup() {
-        tipPopupFoto = TipPopup(
-            Objects.requireNonNull(
-                tabLayout?.getTabAt(1)
-            )?.seslGetTextView()
-        )
-        tipPopupDelete = TipPopup(
-            Objects.requireNonNull(
-                tabLayout?.getTabAt(2)
-            )?.seslGetTextView()
-        )
-        tipPopupFoto.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                theme
-            )
-        )
-        tipPopupDelete.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                theme
-            )
-        )
+        tipPopupFoto = TipPopup(Objects.requireNonNull(tabLayout?.getTabAt(1))?.seslGetTextView())
+        tipPopupDelete = TipPopup(Objects.requireNonNull(tabLayout?.getTabAt(2))?.seslGetTextView())
+        tipPopupFoto.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, theme))
+        tipPopupDelete.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, theme))
         tipPopupFoto.setExpanded(true)
         tipPopupDelete.setExpanded(true)
         tipPopupFoto.setOnDismissListener { tipPopupDelete.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupFoto.setMessage(getString(R.string.fotoTip))
         tipPopupDelete.setMessage(getString(R.string.deleteFotoTip))
     }
-
 }
+
+
+/*
+   @Throws(IOException::class)
+   private fun prepareFolder() {
+       val files = currentFolder.listFiles()!!
+       Log.d("test Files", files.contentToString())
+       Arrays.sort(files)
+       for (i in files.indices) {
+           if (!files[i].renameTo(File(currentFolder, "$i.jpg"))) {
+               throw IOException("prepareFolder(): Could not rename File:" + files[i].absolutePath)
+           }
+       }
+       Log.d("test sorted Files", files.contentToString())
+   }
+
+   @get:Throws(IOException::class)
+   private val currentFolder: File
+       get() {
+           val resultFolder = File(
+               if (buchMode == BuchMode.Gesangbuch) {
+                   "$filesDir/gesangbuch/$nr/"
+               } else {
+                   "$filesDir/chorbuch/$nr/"
+               }
+           )
+           if (!resultFolder.exists()) {
+               if (!resultFolder.mkdirs()) {
+                   throw IOException("Ordner konnte nicht erstellt werden...")
+               }
+           }
+           return resultFolder
+       }
+
+   private fun deleteImage(index: Int) {
+       var f: File? = null
+       try {
+           f = File(currentFolder, "$index.jpg")
+       } catch (e: IOException) {
+           e.printStackTrace()
+       }
+       if (f!!.exists()) {
+           if (!f.delete())
+               Toast.makeText(mContext, "Datei konnte nicht gelöscht werden...", Toast.LENGTH_LONG).show()
+       }
+   }
+
+   @Throws(IOException::class)
+   private fun createImageFile(): File {
+       var image: File
+       for (i in 0 until Constants.MAX_IMAGES_PER_HYMN) {
+           image = File(currentFolder, "$i.jpg")
+           if (!image.exists()) {
+               image = File(cacheDir, "$i.jpg")
+               if (image.exists()) {
+                   if (!image.delete())
+                       Toast.makeText(mContext, "Konnte altes Foto vor Kamera-öffnen nicht löschen", Toast.LENGTH_LONG).show()
+               }
+               return image
+           }
+       }
+       throw IOException("Datei konnte nicht erstellt werden...")
+   }
+
+   private fun takePhoto() {
+       if (imageList.size >= Constants.MAX_IMAGES_PER_HYMN) {
+           Toast.makeText(mContext, "Max. Bilder pro Lied: ${Constants.MAX_IMAGES_PER_HYMN}", Toast.LENGTH_SHORT).show()
+           return
+       }
+       currentFile = try {
+           createImageFile()
+       } catch (ex: IOException) {
+           Toast.makeText(mContext, "Fehler beim Erstellen einer Datei", Toast.LENGTH_LONG).show()
+           Log.e("Cam", "Error occurred while creating the File: ${ex.message}")
+           return
+       }
+       try {
+           cameraActivityResultLauncher.launch(
+               FileProvider.getUriForFile(mContext, "de.lemke.nakbuch.fileprovider", currentFile!!)
+           )
+       } catch (e: ActivityNotFoundException) {
+           Toast.makeText(mContext, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
+       }
+   }
+   */

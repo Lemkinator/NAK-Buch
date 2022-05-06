@@ -13,7 +13,7 @@ import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.utils.AppUtils
+import de.lemke.nakbuch.domain.settings.OpenBischoffAppUseCase
 
 class HelpActivity : AppCompatActivity() {
     private lateinit var mContext: Context
@@ -45,10 +45,10 @@ class HelpActivity : AppCompatActivity() {
             }
         }
         findViewById<View>(R.id.openPlaystoreBischoffGesangbuch).setOnClickListener {
-            AppUtils.openBischoffApp(mContext, BuchMode.Gesangbuch)
+            OpenBischoffAppUseCase()(mContext, BuchMode.Gesangbuch)
         }
         findViewById<View>(R.id.openPlaystoreBischoffChorbuch).setOnClickListener {
-            AppUtils.openBischoffApp(mContext, BuchMode.Chorbuch)
+            OpenBischoffAppUseCase()(mContext, BuchMode.Chorbuch)
         }
     }
 }
