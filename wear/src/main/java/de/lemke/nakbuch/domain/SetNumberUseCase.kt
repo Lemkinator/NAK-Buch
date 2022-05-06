@@ -1,0 +1,7 @@
+package de.lemke.nakbuch.domain
+
+import de.lemke.nakbuch.data.settingsRepo
+
+class SetNumberUseCase {
+    operator fun invoke(number: String) = settingsRepo.setNumber(number)
+}

@@ -5,7 +5,7 @@
     android:id="@+id/observableScrollViewText"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TextviewActivity"
+    tools:context=".ui.TextviewActivity"
     tools:deviceIds="wear"
     android:scrollbars="vertical">
 
@@ -49,21 +49,25 @@
             android:layout_height="wrap_content"
             android:textColor="@color/sesl_tooltip_foreground"
             android:text="Hier steht der Titel"
-            />
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/tvText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/sesl_tooltip_foreground"
-            android:text="Hier steht dann der Text des Liedes.\n\nUnd hier dann vlt eine Strophe \n\n usw... \n\nusw2... \n\nusw3... \n\nusw4..." />
+            android:text="Hier steht dann der Text des Liedes.\n\nUnd hier dann vlt eine Strophe \n\n usw... \n\nusw2... \n\nusw3... \n\nusw4..."
+            tools:ignore="HardcodedText"
+            />
 
         <TextView
             android:id="@+id/tvCopyright"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="hier steht dann copyright undso \nvlt noch komponist..." />
+            android:text="hier steht dann copyright undso \nvlt noch komponist..."
+            tools:ignore="HardcodedText"
+            />
 
         <Space
             android:layout_width="match_parent"

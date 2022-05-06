@@ -8,9 +8,10 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/appName"
         android:supportsRtl="true"
-        android:theme="@style/OneUITheme">
+        android:theme="@style/OneUITheme"
+        android:name=".App">
 
         <uses-library
             android:name="com.google.android.wearable"
@@ -21,7 +22,7 @@
             android:value="true" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:theme="@style/WatchTheme">
             <meta-data android:name="com.sec.android.app.launcher.icon_theme" android:value="themeColor"/>
@@ -31,15 +32,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TextviewActivity"
+            android:name=".ui.TextviewActivity"
             android:theme="@style/OneUITheme" />
         <activity
-            android:name=".InfoActivity"
+            android:name=".ui.InfoActivity"
             android:theme="@style/OneUITheme" />
         <activity android:name="androidx.wear.activity.ConfirmationActivity" />
 
         <service
-            android:name=".utils.MessageService"
+            android:name=".domain.utils.MessageService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

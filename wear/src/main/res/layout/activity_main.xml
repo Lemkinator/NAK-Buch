@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".MainActivity"
+    tools:context=".ui.MainActivity"
     tools:deviceIds="wear"
     >
 
@@ -142,7 +142,7 @@
             android:layout_marginHorizontal="15dp"
             android:layout_gravity="center"
             app:icon="@drawable/ic_oui4_info"
-            android:text="@string/about_app"
+            android:text="@string/aboutApp"
             />
 
         <Space

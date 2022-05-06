@@ -1,44 +1,48 @@
-package de.lemke.nakbuch
+package de.lemke.nakbuch.ui
 
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.activity.ConfirmationActivity
 import com.google.android.material.button.MaterialButton
-import com.google.gson.Gson
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.lemke.nakbuch.utils.AssetsHelper
-import java.io.ByteArrayInputStream
-import java.io.ObjectInput
-import java.io.ObjectInputStream
+import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.*
+import de.lemke.nakbuch.domain.model.BuchMode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
-    private var gesangbuchSelected = false
-    private var inputOngoing = false
+    private lateinit var buchMode: BuchMode
     private lateinit var mContext: Context
     private lateinit var hymnNrInput: String
     private lateinit var tvHymnNrTitle: TextView
-    //private lateinit var tvHymnNrTitle: CurvedTextView
-    private lateinit var hymns: ArrayList<HashMap<String, String>>
-    private lateinit var sp: SharedPreferences
+    private lateinit var buttonSwitchMode: MaterialButton
+    private var inputOngoing = false
     private var refreshHandler: Handler = Handler(Looper.getMainLooper())
     private var refreshRunnable: Runnable = Runnable {
         inputOngoing = false
         previewHymn(hymnNrInput)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         ThemeUtil(this)
         ThemeUtil.setDarkMode(this, ThemeUtil.DARK_MODE_ENABLED)
-        super.onCreate(savedInstanceState)
-        mContext = this
-        sp = getSharedPreferences(getString(R.string.preference_file_default), MODE_PRIVATE)
-        gesangbuchSelected = sp.getBoolean("gesangbuchSelected", true)
         setContentView(R.layout.activity_main)
+        mContext = this
+        buchMode = GetBuchModeUseCase()()
         tvHymnNrTitle = findViewById(R.id.hymnTitlePreview)
         findViewById<View>(R.id.b_0).setOnClickListener { addToHymnNrInput("0") }
         findViewById<View>(R.id.b_1).setOnClickListener { addToHymnNrInput("1") }
@@ -61,30 +65,35 @@ class MainActivity : AppCompatActivity() {
             inputOngoing = false
             previewHymn(hymnNrInput)
         }
-        val buttonSwitchMode = findViewById<MaterialButton>(R.id.buttonSwitchMode)
-        //buttonSwitchMode.setIcon(AppCompatResources.getDrawable(mContext, R.drawable.ic_samsung_convert));
-        buttonSwitchMode.text = getString(if (gesangbuchSelected) R.string.title_Chorbuch else R.string.title_Gesangbuch)
+        buttonSwitchMode = findViewById(R.id.buttonSwitchMode)
+        updateButtonSwitchMode()
         buttonSwitchMode.setOnClickListener {
-            gesangbuchSelected = !gesangbuchSelected
-            sp.edit().putBoolean("gesangbuchSelected", gesangbuchSelected).apply()
-            buttonSwitchMode.text = getString(if (gesangbuchSelected) R.string.title_Chorbuch else R.string.title_Gesangbuch)
-            startActivity(Intent(mContext, ConfirmationActivity::class.java)
+            buchMode = if (buchMode == BuchMode.Gesangbuch) BuchMode.Chorbuch else BuchMode.Gesangbuch
+            SetBuchModeUseCase()(buchMode)
+            updateButtonSwitchMode()
+            startActivity(
+                Intent(mContext, ConfirmationActivity::class.java)
                     .putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION)
-                    .putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(if (gesangbuchSelected) R.string.title_Gesangbuch else R.string.title_Chorbuch))
+                    .putExtra(
+                        ConfirmationActivity.EXTRA_MESSAGE,
+                        getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleGesangbuch else R.string.titleChorbuch)
+                    )
             )
-            initAssets()
             previewHymn(hymnNrInput)
         }
         findViewById<MaterialButton>(R.id.buttonInfo).setOnClickListener {
             startActivity(Intent(mContext, InfoActivity::class.java))
         }
-        initAssets()
-        hymnNrInput = sp.getString("nr", "")!!
+        hymnNrInput = GetNumberUseCase()()
         previewHymn(hymnNrInput)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(Receiver(), IntentFilter(Intent.ACTION_SEND))
 
         //if (resources.configuration.isScreenRound) { }
+    }
+
+    private fun updateButtonSwitchMode() {
+        buttonSwitchMode.text = getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleChorbuch else R.string.titleGesangbuch)
     }
 
     private fun addToHymnNrInput(s: String) {
@@ -108,55 +117,55 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun previewHymn(nr: String) {
-        val hymnNr = AssetsHelper.validHymnr(gesangbuchSelected, nr)
-        if (hymnNr > 0) {
-            tvHymnNrTitle.text = hymns[hymnNr - 1]["hymnNrAndTitle"]
-            sp.edit().putString("nr", nr).apply()
-        } else {
+        val hymnNr: Int
+        try {
+            hymnNr = nr.toInt()
+            if (hymnNr > 0 && hymnNr < if (buchMode == BuchMode.Gesangbuch) 438 else 462) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val hymn = GetHymnUseCase()(buchMode, hymnNr)
+                    withContext(Dispatchers.Main){
+                        tvHymnNrTitle.text = hymn.numberAndTitle
+                    }
+                }
+                SetNumberUseCase()(nr)
+            } else {
+                tvHymnNrTitle.text = ""
+                SetNumberUseCase()("")
+            }
+        } catch (e: NumberFormatException) {
+            Log.d("InvalidHymNr: ", e.toString())
             tvHymnNrTitle.text = ""
-            sp.edit().putString("nr", "").apply()
+            SetNumberUseCase()("")
         }
     }
+
 
     private fun showHymn(nr: String) {
-        val hymnNr = AssetsHelper.validHymnr(gesangbuchSelected, nr)
-        if (hymnNr > 0) {
-            val myIntent = Intent(mContext, TextviewActivity::class.java)
-            myIntent.putExtra("gesangbuchSelected", gesangbuchSelected)
-            myIntent.putExtra("nr", hymnNr)
-            myIntent.putExtra("nrAndTitle", hymns[hymnNr - 1]["hymnNrAndTitle"])
-            myIntent.putExtra("text", hymns[hymnNr - 1]["hymnText"])
-            myIntent.putExtra("copyright", hymns[hymnNr - 1]["hymnCopyright"])
-            startActivity(myIntent)
+        val hymnNr: Int
+        try {
+            hymnNr = nr.toInt()
+            if (hymnNr > 0 && hymnNr < if (buchMode == BuchMode.Gesangbuch) 438 else 462) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val hymn = GetHymnUseCase()(buchMode, hymnNr)
+                    withContext(Dispatchers.Main){
+                        startActivity(
+                            Intent(mContext, TextviewActivity::class.java)
+                                .putExtra("nrAndTitle", hymn.numberAndTitle)
+                                .putExtra("text", hymn.text)
+                                .putExtra("copyright", hymn.copyright)
+                        )
+                    }
+                }
+            }
+        } catch (e: NumberFormatException) {
+            Log.d("InvalidHymNr: ", e.toString())
         }
+
     }
 
-    private fun initAssets() {
-        hymns = AssetsHelper.getHymnArrayList(mContext, getString(if (gesangbuchSelected) R.string.filename_hymnsGesangbuch else R.string.filename_hymnsChorbuch), sp)
-    }
-
-    @Suppress("UNCHECKED_CAST")
     inner class Receiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) { //Display the following when a new message is received//
-            var bArray = intent.getByteArrayExtra("privateTextGesangbuch")
-            var spKey = "privateTextGesangbuch"
-            if (bArray == null) {
-                bArray = intent.getByteArrayExtra("privateTextChorbuch")
-                spKey = "privateTextChorbuch"
-            }
-            if (bArray == null) return
-            val bis = ByteArrayInputStream(bArray)
-            val `in`: ObjectInput
-            val result: ArrayList<HashMap<String, String>>
-            try {
-                `in` = ObjectInputStream(bis)
-                result = `in`.readObject() as ArrayList<HashMap<String, String>>
-                sp.edit().putString(spKey, Gson().toJson(result)).apply()
-                `in`.close()
-                recreate()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        override fun onReceive(context: Context, intent: Intent) {
+            if (SetPrivateTextsUseCase()(intent)) recreate()
         }
     }
 }

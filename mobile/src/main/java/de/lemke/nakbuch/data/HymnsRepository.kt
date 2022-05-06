@@ -144,20 +144,17 @@ class HymnsRepository(private val sp: SharedPreferences, private val ressources:
         } catch (c: ClassNotFoundException) {
             c.printStackTrace()
         }
-        val result = ArrayList<Hymn>()
-        for (hm: HashMap<String, String> in list!!)
-            result.add(
-                Hymn(
-                    buchMode,
-                    hm["hymnNr"]!!.toInt(),
-                    Rubric(buchMode, hm["hymnRubricIndex"]!!.toInt()),
-                    hm["hymnNrAndTitle"]!!,
-                    hm["hymnTitle"]!!,
-                    hm["hymnText"]!!.replace("</p><p>", "\n\n").replace("<br>", ""),
-                    hm["hymnCopyright"]!!.replace("<br>", ""),
-                )
+        return list!!.map {
+            Hymn(
+                buchMode,
+                it["hymnNr"]!!.toInt(),
+                Rubric(buchMode, it["hymnRubricIndex"]!!.toInt()),
+                it["hymnNrAndTitle"]!!,
+                it["hymnTitle"]!!,
+                it["hymnText"]!!.replace("</p><p>", "\n\n").replace("<br>", ""),
+                it["hymnCopyright"]!!.replace("<br>", ""),
             )
-        return result
+        } as ArrayList<Hymn>
     }
 
     fun deletePrivateTexts() {

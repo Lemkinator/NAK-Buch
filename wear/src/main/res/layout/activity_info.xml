@@ -5,7 +5,7 @@
     android:id="@+id/observableScrollViewInfo"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TextviewActivity"
+    tools:context=".ui.TextviewActivity"
     tools:deviceIds="wear"
     android:scrollbars="vertical">
 
