@@ -6,7 +6,7 @@ import de.lemke.nakbuch.App
 class MuteUseCase {
     operator fun invoke(): Boolean {
         try {
-            val mAudioManager = App.myRepository.audioManager
+            val mAudioManager = App.myAudioManager
             val audioManagerFlag = AudioManager.FLAG_SHOW_UI
             mAudioManager.adjustStreamVolume(
                 AudioManager.STREAM_NOTIFICATION,

@@ -26,7 +26,7 @@ class SetPrivateTextsUseCase {
                 for (uri in result) {
                     var fileName: String? = null
                     if (uri.scheme == "content") {
-                        App.myRepository.contentResolver.query(uri, null, null, null, null)
+                        App.myContentResolver.query(uri, null, null, null, null)
                             .use { cursor ->
                                 if (cursor != null && cursor.moveToFirst()) {
                                     fileName = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
@@ -67,7 +67,7 @@ class SetPrivateTextsUseCase {
         val ois: ObjectInputStream
         val result: ArrayList<HashMap<String, String>>
         try {
-            fis = App.myRepository.contentResolver.openInputStream(uri)
+            fis = App.myContentResolver.openInputStream(uri)
             ois = ObjectInputStream(fis)
             result = ois.readObject() as ArrayList<HashMap<String, String>>
             ByteArrayOutputStream().use { bos ->

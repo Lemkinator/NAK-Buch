@@ -16,7 +16,7 @@ import java.io.File
 import java.time.LocalDate
 import java.util.*
 
-val hymnDataRepo = HymnDataRepository(App.myRepository.hymnDataSharedPreferences, App.myRepository.cacheDir, App.myRepository.filesDir)
+val hymnDataRepo = HymnDataRepository(App.hymnDataSharedPreferences, App.myCacheDir, App.myFilesDir)
 
 class HymnDataRepository(private val spHymns: SharedPreferences, private val cacheDir: File, private val filesDir: File) {
     private var gesangbuchHymnsData: ArrayList<HymnData>? = null

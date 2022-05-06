@@ -10,7 +10,14 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import kotlin.math.max
 import kotlin.math.min
 
-val settingsRepo = SettingsRepository(App.myRepository.defaultSharedPreferences, App.myRepository.resources)
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+
+val settingsRepo = SettingsRepository(App.defaultSharedPreferences, App.myResources)
 
 class SettingsRepository(private val sp: SharedPreferences, private val resources: Resources) {
     companion object {
@@ -99,3 +106,41 @@ class SettingsRepository(private val sp: SharedPreferences, private val resource
     fun setRecentColorList(recentColors: ArrayList<Int>) = sp.edit().putString("recent_colors", Gson().toJson(recentColors)).apply()
 
 }
+
+
+
+
+/** Provides CRUD operations for user settings. */
+class UserSettingsRepository(
+    private val dataStore: DataStore<Preferences>,
+) {
+    /** Returns the current user settings. */
+    suspend fun getSettings(): UserSettings = dataStore.data.map(::settingsFromPreferences).first()
+
+    /**
+     * Updates the current user settings and returns the new settings.
+     * @param f Invoked with the current settings; The settings returned from this function will replace the current ones.
+     */
+    suspend fun updateSettings(f: (UserSettings) -> UserSettings): UserSettings {
+        val prefs = dataStore.edit {
+            val newSettings = f(settingsFromPreferences(it))
+            it[KEY_CART_ID] = newSettings.cartId
+        }
+        return settingsFromPreferences(prefs)
+    }
+
+    private fun settingsFromPreferences(prefs: Preferences) = UserSettings(
+        cartId = prefs[KEY_CART_ID] ?: "",
+    )
+
+    private companion object {
+        private val KEY_CART_ID = stringPreferencesKey("shoppingCartId")
+    }
+}
+
+/** Settings associated with the current user. */
+data class UserSettings(
+    /** The ID of the shopping cart used by this user. */
+    val cartId: String,
+)
+

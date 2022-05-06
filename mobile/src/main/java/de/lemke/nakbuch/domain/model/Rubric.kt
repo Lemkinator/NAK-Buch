@@ -34,16 +34,16 @@ data class Rubric(
 
 private fun isMainRubric(buchMode: BuchMode, index: Int): Boolean {
     val rubricListItem =
-        if (buchMode == BuchMode.Gesangbuch) App.myRepository.resources.getIntArray(R.array.RubricListItemGesangbuch)
-        else App.myRepository.resources.getIntArray(R.array.RubricListItemChorbuch)
+        if (buchMode == BuchMode.Gesangbuch) App.myResources.getIntArray(R.array.RubricListItemGesangbuch)
+        else App.myResources.getIntArray(R.array.RubricListItemChorbuch)
     // check?`if (index < 0 || index >= rubricListItem.size) return true
     return rubricListItem[index] == 0
 }
 
 private fun getRubricName(buchMode: BuchMode, index: Int): String {
     val rubricTitles =
-        if (buchMode == BuchMode.Gesangbuch) App.myRepository.resources.getStringArray(R.array.RubricTitlesGesangbuch)
-        else App.myRepository.resources.getStringArray(R.array.RubricTitlesChorbuch)
+        if (buchMode == BuchMode.Gesangbuch) App.myResources.getStringArray(R.array.RubricTitlesGesangbuch)
+        else App.myResources.getStringArray(R.array.RubricTitlesChorbuch)
     // check? if (index < 0 || index >= rubricTitles.size) return "undefined"
     return rubricTitles[index]
 }

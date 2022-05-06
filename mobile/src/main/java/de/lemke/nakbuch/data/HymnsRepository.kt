@@ -15,6 +15,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.ObjectInputStream
 
+val hymnsRepo = HymnsRepository(App.defaultSharedPreferences, App.myResources)
+
 class HymnsRepository(private val sp: SharedPreferences, private val ressources: Resources) {
     private var allHymnsGesangbuch: ArrayList<Hymn>? = null
     private var allHymnsChorbuch: ArrayList<Hymn>? = null
@@ -169,7 +171,7 @@ class HymnsRepository(private val sp: SharedPreferences, private val ressources:
         val ois: ObjectInputStream
         val result: ArrayList<HashMap<String, String>>
         try {
-            fis = App.myRepository.contentResolver.openInputStream(uri)
+            fis = App.myContentResolver.openInputStream(uri)
             ois = ObjectInputStream(fis)
             result = ois.readObject() as ArrayList<HashMap<String, String>>
             sp.edit().putString(
@@ -269,6 +271,4 @@ class HymnsRepository(private val sp: SharedPreferences, private val ressources:
         }
     }
 }
-
-val hymnsRepo = HymnsRepository(App.myRepository.defaultSharedPreferences, App.myRepository.resources)
 
