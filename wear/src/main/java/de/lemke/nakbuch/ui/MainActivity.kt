@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         val hymnNr: Int
         try {
             hymnNr = nr.toInt()
-            if (hymnNr > 0 && hymnNr < if (buchMode == BuchMode.Gesangbuch) 438 else 462) {
+            if (hymnNr > 0 && hymnNr < GetHymnCountUseCase()(buchMode)) {
                 CoroutineScope(Dispatchers.IO).launch {
                     val hymn = GetHymnUseCase()(buchMode, hymnNr)
                     withContext(Dispatchers.Main){
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         val hymnNr: Int
         try {
             hymnNr = nr.toInt()
-            if (hymnNr > 0 && hymnNr < if (buchMode == BuchMode.Gesangbuch) 438 else 462) {
+            if (hymnNr > 0 && hymnNr < GetHymnCountUseCase()(buchMode)) {
                 CoroutineScope(Dispatchers.IO).launch {
                     val hymn = GetHymnUseCase()(buchMode, hymnNr)
                     withContext(Dispatchers.Main){

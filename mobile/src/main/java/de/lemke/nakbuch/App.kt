@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.room.Room
+import de.lemke.nakbuch.data.database.AppDatabase
 import java.io.File
 
 /**
@@ -29,6 +31,14 @@ class App : Application() {
         myFilesDir = filesDir
         myAudioManager = getSystemService(AppCompatActivity.AUDIO_SERVICE) as AudioManager
         myContentResolver = contentResolver
+
+        database = Room
+            .databaseBuilder(this, AppDatabase::class.java, "app")
+            .apply {
+                if (BuildConfig.DEBUG) fallbackToDestructiveMigration()
+            }
+            .build()
+
         /*
          In a real app we should never use runBlocking {}. Especially not on app start up.
          However, we would need to refactor the ProductsRepository to use Flow. Therefore, we accept this hack for now. After all, it is
@@ -59,5 +69,7 @@ class App : Application() {
         lateinit var myAudioManager: AudioManager
         /** Singleton [ContentResolver] instance. */
         lateinit var myContentResolver: ContentResolver
+        /** Singleton [AppDatabase] instance. */
+        lateinit var database: AppDatabase
     }
 }

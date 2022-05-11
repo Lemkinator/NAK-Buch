@@ -10,6 +10,8 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
+    namespace 'de.lemke.nakbuch'
+
     signingConfigs {
         debug {
             storeFile file(keystoreProperties['storeFile'])
@@ -24,19 +26,19 @@ android {
             keyPassword keystoreProperties['keyPassword']
         }
     }
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "de.lemke.nakbuch"
         minSdk 26
-        targetSdk 31
+        targetSdk 32
         versionCode 62
         versionName "3.4.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    ndkVersion "23.1.7779620"
+    ndkVersion "24.0.8215888"
 
     buildTypes {
         release {

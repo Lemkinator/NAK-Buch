@@ -10,21 +10,14 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import kotlin.math.max
 import kotlin.math.min
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-
 val settingsRepo = SettingsRepository(App.defaultSharedPreferences, App.myResources)
 
 class SettingsRepository(private val sp: SharedPreferences, private val resources: Resources) {
     companion object {
-        private const val TEXT_SIZE_STEP = 2
-        private const val DEFAULT_TEXT_SIZE = 20
-        private const val TEXT_SIZE_MIN = 10
-        private const val TEXT_SIZE_MAX = 50
+        const val TEXT_SIZE_STEP = 2
+        const val DEFAULT_TEXT_SIZE = 20
+        const val TEXT_SIZE_MIN = 10
+        const val TEXT_SIZE_MAX = 50
     }
 
     fun getBuchMode(): BuchMode = if (sp.getBoolean("gesangbuchSelected", true)) BuchMode.Gesangbuch else BuchMode.Chorbuch
@@ -38,7 +31,7 @@ class SettingsRepository(private val sp: SharedPreferences, private val resource
     fun setAppVersionName(versionName: String) = sp.edit().putString("lastAppVersionName", versionName).commit()
 
     fun areEasterEggsEnabled(): Boolean = sp.getBoolean("easterEggs", true)
-    fun setEasterEggsEnabled(enabled:Boolean)= sp.edit().putBoolean("easterEggs", enabled).apply()
+    fun setEasterEggsEnabled(enabled: Boolean) = sp.edit().putBoolean("easterEggs", enabled).apply()
 
     fun getDiscoveredEasterEggs() = ArrayList(sp.getStringSet("discoveredEasterEggs", HashSet())!!)
 
@@ -55,7 +48,7 @@ class SettingsRepository(private val sp: SharedPreferences, private val resource
     }
 
     fun isHistoryEnabled(): Boolean = sp.getBoolean("historyEnabled", true)
-    fun setHistoryEnabled(enabled:Boolean)= sp.edit().putBoolean("historyEnabled", enabled).apply()
+    fun setHistoryEnabled(enabled: Boolean) = sp.edit().putBoolean("historyEnabled", enabled).apply()
 
     fun isSearchModeAlternative(): Boolean = sp.getBoolean("searchAlternativeMode", false)
     fun setSearchModeAlternative(alternative: Boolean) = sp.edit().putBoolean("searchAlternativeMode", alternative).apply()
@@ -98,49 +91,15 @@ class SettingsRepository(private val sp: SharedPreferences, private val resource
         return textSize
     }
 
-    fun getRecentColorList(): ArrayList<Int> = Gson().fromJson(sp.getString("recent_colors",
-        Gson().toJson(intArrayOf(resources.getColor(R.color.primary_color)))),
+    fun getRecentColorList(): ArrayList<Int> = Gson().fromJson(
+        sp.getString(
+            "recent_colors",
+            Gson().toJson(intArrayOf(resources.getColor(R.color.primary_color)))
+        ),
         object : TypeToken<ArrayList<Int?>?>() {}.type
     )
 
     fun setRecentColorList(recentColors: ArrayList<Int>) = sp.edit().putString("recent_colors", Gson().toJson(recentColors)).apply()
 
 }
-
-
-
-
-/** Provides CRUD operations for user settings. */
-class UserSettingsRepository(
-    private val dataStore: DataStore<Preferences>,
-) {
-    /** Returns the current user settings. */
-    suspend fun getSettings(): UserSettings = dataStore.data.map(::settingsFromPreferences).first()
-
-    /**
-     * Updates the current user settings and returns the new settings.
-     * @param f Invoked with the current settings; The settings returned from this function will replace the current ones.
-     */
-    suspend fun updateSettings(f: (UserSettings) -> UserSettings): UserSettings {
-        val prefs = dataStore.edit {
-            val newSettings = f(settingsFromPreferences(it))
-            it[KEY_CART_ID] = newSettings.cartId
-        }
-        return settingsFromPreferences(prefs)
-    }
-
-    private fun settingsFromPreferences(prefs: Preferences) = UserSettings(
-        cartId = prefs[KEY_CART_ID] ?: "",
-    )
-
-    private companion object {
-        private val KEY_CART_ID = stringPreferencesKey("shoppingCartId")
-    }
-}
-
-/** Settings associated with the current user. */
-data class UserSettings(
-    /** The ID of the shopping cart used by this user. */
-    val cartId: String,
-)
 

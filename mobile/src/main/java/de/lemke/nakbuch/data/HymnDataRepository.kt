@@ -27,7 +27,7 @@ class HymnDataRepository(private val spHymns: SharedPreferences, private val cac
     }
 
     suspend fun getHymnData(hymn: Hymn): HymnData {
-        if (hymn.number <= 0 || hymn.number > hymnsRepo.hymnCount(hymn.buchMode)) return HymnData()
+        if (hymn.number <= 0 || hymn.number > hymnsRepo.hymnCount(hymn.buchMode)) return HymnData(hymn.number, hymn.buchMode)
         return getAllHymnData(hymn.buchMode)[hymn.number - 1]
     }
 
@@ -65,7 +65,7 @@ class HymnDataRepository(private val spHymns: SharedPreferences, private val cac
         )
         if (hymnData == null) {
             hymnData = ArrayList()
-            for (i in 0 until hymnsRepo.hymnCount(buchMode)) hymnData.add(HymnData())
+            for (i in 0 until hymnsRepo.hymnCount(buchMode)) hymnData.add(HymnData(i+1, buchMode))
         }
         return hymnData
     }

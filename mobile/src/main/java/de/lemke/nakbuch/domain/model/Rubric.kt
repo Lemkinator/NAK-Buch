@@ -4,17 +4,17 @@ import de.lemke.nakbuch.App
 import de.lemke.nakbuch.R
 
 data class Rubric(
-    val buchMode: BuchMode,
     val index: Int,
+    val buchMode: BuchMode,
     val name: String,
-    val isMain: Boolean
+    val isMain: Boolean,
 ) {
-    constructor(buchMode: BuchMode, index: Int) :
+    constructor(index: Int, buchMode: BuchMode) :
             this(
-                buchMode,
                 index,
+                buchMode,
                 getRubricName(buchMode, index),
-                isMainRubric(buchMode, index)
+                isMainRubric(buchMode, index),
             )
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -28,7 +28,7 @@ data class Rubric(
     }
 
     override fun hashCode(): Int {
-        return index + 32*buchMode.hashCode()
+        return index + 32* buchMode.hashCode()
     }
 }
 
@@ -48,4 +48,4 @@ private fun getRubricName(buchMode: BuchMode, index: Int): String {
     return rubricTitles[index]
 }
 
-val rubricPlaceholder = Rubric(BuchMode.Gesangbuch, -1, "Placeholder", true)
+val rubricPlaceholder = Rubric(-1, BuchMode.Gesangbuch, "Placeholder", true)

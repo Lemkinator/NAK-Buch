@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.lemke.nakbuch">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+<uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- uses-permission android:name="com.android.vending.BILLING" / -->
 
     <!--
     TODO
+        UseCase Parameters
+        UseCases Dispatchers.IO
+        UserSettingsRepo
+        Db
+
+
         replace sp with DataStore
-        use Database for hymnData
+        same tab click change
         such algo
 
         history indextip on scroller?
@@ -27,12 +33,15 @@
 
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_launcher"
         android:label="@string/appName"
         android:resizeableActivity="true"
         android:supportsRtl="true"
         android:theme="@style/OneUITheme"
-        android:name=".App">
+        android:name=".App"
+        tools:targetApi="31">
 
         <!--meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

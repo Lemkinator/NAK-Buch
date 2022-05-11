@@ -63,7 +63,7 @@ class HymnsRepository(private val sp: SharedPreferences, private val ressources:
 
     private suspend fun initRubricList(buchMode: BuchMode): ArrayList<Rubric> {
         val rubList = ArrayList<Rubric>()
-        for (i in 0 until if (buchMode == BuchMode.Gesangbuch) 29 else 31) rubList.add(Rubric(buchMode, i))
+        for (i in 0 until if (buchMode == BuchMode.Gesangbuch) 29 else 31) rubList.add(Rubric(i, buchMode))
         return rubList
     }
 
@@ -146,9 +146,9 @@ class HymnsRepository(private val sp: SharedPreferences, private val ressources:
         }
         return list!!.map {
             Hymn(
-                buchMode,
                 it["hymnNr"]!!.toInt(),
-                Rubric(buchMode, it["hymnRubricIndex"]!!.toInt()),
+                buchMode,
+                Rubric(it["hymnRubricIndex"]!!.toInt(), buchMode),
                 it["hymnNrAndTitle"]!!,
                 it["hymnTitle"]!!,
                 it["hymnText"]!!.replace("</p><p>", "\n\n").replace("<br>", ""),
