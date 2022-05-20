@@ -133,5 +133,11 @@ https://play.google.com/store/apps/details?id=de.lemke.nakbuch
 <br>
 
 ---
+
+### Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/Lemkinator/NAK-Buch.svg)](https://starchart.cc/Lemkinator/NAK-Buch)
+
+---
 Project in Mobile-App-Development at HFU
 
