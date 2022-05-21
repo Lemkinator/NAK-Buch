@@ -14,6 +14,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
+import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
@@ -123,13 +124,25 @@ class TabListSubtabAlphabetic : Fragment() {
                 val onlySelected = HashMap(selected.filter { it.value })
                 when (item.itemId) {
                     R.id.addToFav -> {
+                        val dialog = ProgressDialog(mContext)
+                        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+                        dialog.setCancelable(false)
+                        dialog.show()
                         coroutineScope.launch {
                             setFavoritesFromHymnList(hymnsAlphsort, onlySelected, true)
+                        }.invokeOnCompletion {
+                            dialog.dismiss()
                         }
                     }
                     R.id.removeFromFav -> {
+                        val dialog = ProgressDialog(mContext)
+                        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+                        dialog.setCancelable(false)
+                        dialog.show()
                         coroutineScope.launch {
                             setFavoritesFromHymnList(hymnsAlphsort, onlySelected, false)
+                        }.invokeOnCompletion {
+                            dialog.dismiss()
                         }
                     }
                     else -> {

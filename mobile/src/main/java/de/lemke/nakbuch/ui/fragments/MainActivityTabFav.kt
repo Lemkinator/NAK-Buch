@@ -56,9 +56,12 @@ class MainActivityTabFav : Fragment() {
     private val mHandler = Handler(Looper.getMainLooper())
     private val mShowBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
 
-    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
-    @Inject lateinit var getFavoriteHymns: GetFavoriteHymnsUseCase
-    @Inject lateinit var setFavoritesFromList: SetFavoritesFromPersonalHymnListUseCase
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+    @Inject
+    lateinit var getFavoriteHymns: GetFavoriteHymnsUseCase
+    @Inject
+    lateinit var setFavoritesFromList: SetFavoritesFromPersonalHymnListUseCase
 
 
     override fun onAttach(context: Context) {
@@ -76,9 +79,7 @@ class MainActivityTabFav : Fragment() {
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         swipeRefreshLayout = mRootView.findViewById(R.id.tabFavSwipeRefresh)
         swipeRefreshLayout.setOnRefreshListener {
-            coroutineScope.launch {
-                initList()
-            }
+            initList()
         }
         swipeRefreshLayout.isRefreshing = true
         listView = mRootView.findViewById(R.id.favHymnList)
@@ -94,15 +95,16 @@ class MainActivityTabFav : Fragment() {
     override fun onResume() {
         super.onResume()
         coroutineScope.launch {
+            swipeRefreshLayout.isRefreshing = true
             buchMode = getUserSettings().buchMode
+            favHymns = getFavoriteHymns(buchMode).toMutableList()
+            favHymns.add(PersonalHymn.personalHymnPlaceholder)
             initList()
         }
     }
 
-    private suspend fun initList() {
+    private fun initList() {
         swipeRefreshLayout.isRefreshing = true
-        favHymns = getFavoriteHymns(buchMode).toMutableList()
-        favHymns.add(PersonalHymn.personalHymnPlaceholder)
         selected = HashMap()
         for (i in favHymns.indices) selected[i] = false
         imageAdapter = ImageAdapter()
@@ -144,7 +146,14 @@ class MainActivityTabFav : Fragment() {
             drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
                 if (item.itemId == R.id.menuButtonRemove) {
                     coroutineScope.launch {
-                        setFavoritesFromList(favHymns.toMutableList(), selected.filter { it.value }, false)
+                        swipeRefreshLayout.isRefreshing = true
+                        setFavoritesFromList(favHymns.filterIndexed {
+                                index, personalHymn -> !selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
+                        }.map { it.copy(favorite = false) })
+                        favHymns = favHymns.filterIndexed {
+                                index, personalHymn -> selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
+                        }.toMutableList()
+                        favHymns.add(PersonalHymn.personalHymnPlaceholder)
                         initList()
                     }
                     setSelecting(false)
@@ -225,7 +234,10 @@ class MainActivityTabFav : Fragment() {
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         startActivity(
-                            Intent(mRootView.context, TextviewActivity::class.java).putExtra("hymnId", favHymns[position].hymn.hymnId.toInt())
+                            Intent(mRootView.context, TextviewActivity::class.java).putExtra(
+                                "hymnId",
+                                favHymns[position].hymn.hymnId.toInt()
+                            )
                         )
                     }
                 }

@@ -61,14 +61,15 @@ fun historyToDb(hymn: Hymn, date: LocalDate): HistoryDb =
         date = date
     )
 
-fun personalHymnFromDb(hymnAndRubric: HymnAndRubric?, hymnDataWithLists: HymnDataWithLists?): PersonalHymn =
-    if (hymnDataWithLists == null) PersonalHymn(hymnFromDb(hymnAndRubric))
+fun personalHymnFromDb(personalHymnDb: PersonalHymnDb?): PersonalHymn =
+    if (personalHymnDb == null) PersonalHymn.personalHymnPlaceholder //TODO sense?
+    else if (personalHymnDb.hymnData == null) PersonalHymn(hymnFromDb(personalHymnDb.hymn))
     else PersonalHymn(
-        hymn = hymnFromDb(hymnAndRubric),
-        favorite = hymnDataWithLists.hymnData.favorite == 1,
-        notes = hymnDataWithLists.hymnData.notes,
-        sungOnList = hymnDataWithLists.sungOnList.map { it.date },
-        photoList = hymnDataWithLists.photoList.map { it.uri },
+        hymn = hymnFromDb(personalHymnDb.hymn),
+        favorite = personalHymnDb.hymnData.favorite == 1,
+        notes = personalHymnDb.hymnData.notes,
+        sungOnList = personalHymnDb.sungOnList.map { it.date },
+        photoList = personalHymnDb.photoList.map { it.uri },
     )
 
 fun personalHymnToHymnDataDb(personalHymn: PersonalHymn): HymnDataDb =

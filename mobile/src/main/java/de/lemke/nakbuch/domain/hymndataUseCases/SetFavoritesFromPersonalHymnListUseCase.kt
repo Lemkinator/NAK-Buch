@@ -9,11 +9,9 @@ import javax.inject.Inject
 class SetFavoritesFromPersonalHymnListUseCase @Inject constructor(
     private val hymnDataRepository: HymnDataRepository,
 ) {
-    suspend operator fun invoke(personalHymnList: List<PersonalHymn>, selected: Map<Int, Boolean>, favorite: Boolean) {
+    suspend operator fun invoke(personalHymnList: List<PersonalHymn>) {
         withContext(Dispatchers.Default) {
-            hymnDataRepository.setPersonalHymnsWithoutLists(selected.map {
-                personalHymnList[it.key].copy(favorite = favorite)
-            })
+            hymnDataRepository.setPersonalHymnsWithoutLists(personalHymnList)
         }
     }
 }

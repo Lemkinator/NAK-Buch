@@ -144,21 +144,15 @@ class MainActivityTabNum : Fragment() {
             delay(3000L) //TODO timing
             inputOngoing = false
         }
-        if (hymnNrInput.isBlank()) return
-        if (hymnNrInput == "666") {
+        tvHymnNrTitle.text = hymnNrInput
+        if (hymnNrInput.isBlank())
+        if (hymnNrInput == "666")
             coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntry666) }
-            return
-        }
-        if (hymnNrInput == "999") {
+        if (hymnNrInput == "999")
             coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntry999) }
-            return
-        }
-        if (hymnNrInput == "0" || hymnNrInput == "00" || hymnNrInput == "000") {
+        if (hymnNrInput == "0" || hymnNrInput == "00" || hymnNrInput == "000")
             coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntry0) }
-            return
-        }
         coroutineScope.launch {
-            tvHymnNrTitle.text = hymnNrInput
             val hymnId = HymnId.create(hymnNrInput.toIntOrNull() ?: -1, buchMode)
             if (hymnId != null) {
                 val hymn = getHymn(hymnId)

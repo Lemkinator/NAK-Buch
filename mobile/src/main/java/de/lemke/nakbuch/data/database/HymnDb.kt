@@ -55,3 +55,23 @@ data class HymnAndRubric(
     )
     val rubric: RubricDb,
 )
+
+data class PersonalHymnDb(
+    @Embedded
+    val hymn: HymnDb,
+    @Relation(
+        parentColumn = "hymnId",
+        entityColumn = "hymnId",
+    )
+    val hymnData: HymnDataDb?,
+    @Relation(
+        parentColumn = "hymnId",
+        entityColumn = "hymnId",
+    )
+    val sungOnList: List<SungOnDb>,
+    @Relation(
+        parentColumn = "hymnId",
+        entityColumn = "hymnId",
+    )
+    val photoList: List<PhotoDb>,
+)

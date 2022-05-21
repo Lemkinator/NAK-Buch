@@ -16,6 +16,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
+import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
@@ -140,8 +141,24 @@ class TabListSubtabNumeric : Fragment() {
             drawerLayout.setSelectModeBottomMenu(R.menu.fav_menu) { item: MenuItem ->
                 val onlySelected = HashMap(selected.filter { it.value })
                 when (item.itemId) {
-                    R.id.addToFav -> coroutineScope.launch { setFavoritesFromHymnList(hymns, onlySelected, true) }
-                    R.id.removeFromFav -> coroutineScope.launch { setFavoritesFromHymnList(hymns, onlySelected, false) }
+                    R.id.addToFav -> {
+                        val dialog = ProgressDialog(mContext)
+                        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+                        dialog.setCancelable(false)
+                        dialog.show()
+                        coroutineScope.launch { setFavoritesFromHymnList(hymns, onlySelected, true) }.invokeOnCompletion {
+                            dialog.dismiss()
+                        }
+                    }
+                    R.id.removeFromFav -> {
+                        val dialog = ProgressDialog(mContext)
+                        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+                        dialog.setCancelable(false)
+                        dialog.show()
+                        coroutineScope.launch { setFavoritesFromHymnList(hymns, onlySelected, false) }.invokeOnCompletion {
+                            dialog.dismiss()
+                        }
+                    }
                     else -> {
                         item.badge = item.badge + 1
                         Toast.makeText(mContext, item.title, Toast.LENGTH_SHORT).show()

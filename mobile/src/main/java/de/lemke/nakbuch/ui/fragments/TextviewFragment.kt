@@ -274,6 +274,7 @@ class TextviewFragment : Fragment() {
                 )
                 datePickerDialog.show()
             }
+            initList()
             addHymnToHistoryList(personalHymn.hymn)
         }
         onBackPressedCallback = object : OnBackPressedCallback(false) {
@@ -293,7 +294,6 @@ class TextviewFragment : Fragment() {
             updateTextSize(textSize)
             personalHymn = getPersonalHymn(hymnId)
             initBNV()
-            initList()
             if (getUserSettings().showTextViewTips) {
                 updateUserSettings { it.copy(showTextViewTips = false) }
                 //Handler(Looper.getMainLooper()).postDelayed({

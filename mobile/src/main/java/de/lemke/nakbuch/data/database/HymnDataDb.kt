@@ -1,6 +1,8 @@
 package de.lemke.nakbuch.data.database
 
-import androidx.room.*
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
 import de.lemke.nakbuch.domain.model.HymnId
 
 
@@ -24,21 +26,5 @@ data class HymnDataDb(
     var sungOnList: List<LocalDate> = emptyList(),
     var photoList: List<String> = emptyList(),
     */
-)
-
-
-data class HymnDataWithLists(
-    @Embedded
-    val hymnData: HymnDataDb,
-    @Relation(
-        parentColumn = "hymnId",
-        entityColumn = "hymnId",
-    )
-    val sungOnList: List<SungOnDb>,
-    @Relation(
-        parentColumn = "hymnId",
-        entityColumn = "hymnId",
-    )
-    val photoList: List<PhotoDb>,
 )
 

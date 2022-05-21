@@ -11,8 +11,9 @@ class SetFavoritesFromHymnListUseCase @Inject constructor(
 ) {
         suspend operator fun invoke(hymnList: List<Hymn>, selected: Map<Int, Boolean>, favorite: Boolean) {
         withContext(Dispatchers.Default) {
+            val personalHymns = hymnDataRepository.getAllPersonalHymns(hymnList.first().hymnId.buchMode)
             hymnDataRepository.setPersonalHymns(selected.map {
-                GetPersonalHymnUseCase(hymnDataRepository)(hymnList[it.key].hymnId).copy(favorite = favorite)
+                personalHymns[hymnList[it.key].hymnId.number-1].copy(favorite = favorite)
             })
         }
     }

@@ -29,7 +29,8 @@ class SplashActivity : AppCompatActivity() {
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private val mContext = this
     private lateinit var initDatabaseJob: Job
-    private var launchCanceled = false
+    private lateinit var splashView: SplashView
+    //private var launchCanceled = false
 
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
@@ -41,7 +42,7 @@ class SplashActivity : AppCompatActivity() {
         ThemeUtil(this, "4099ff")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-        val splashView: SplashView = findViewById(R.id.splash)
+        splashView = findViewById(R.id.splash)
         coroutineScope.launch {
             when (intent.getStringExtra("buchModeString")) {
                 BuchMode.Gesangbuch.toString() -> {
@@ -68,7 +69,8 @@ class SplashActivity : AppCompatActivity() {
                 if (!initDatabaseJob.isCompleted)
                     Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
                 else
-                    if (!launchCanceled) launchApp()
+                    //if (!launchCanceled)
+                        launchApp()
             }
 
             override fun onAnimationRepeat(animation: Animation) {}
@@ -78,7 +80,7 @@ class SplashActivity : AppCompatActivity() {
         /*initDatabaseJob.invokeOnCompletion {
             splashView.startSplashAnimation()
         }*/
-        Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
+
     }
 
     private fun launchApp() {
@@ -89,12 +91,13 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        launchCanceled = true
+        //launchCanceled = true
     }
 
     override fun onResume() {
         super.onResume()
-        if (launchCanceled) launchApp()
+        //if (launchCanceled) launchApp()
+        Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
     }
 }
 

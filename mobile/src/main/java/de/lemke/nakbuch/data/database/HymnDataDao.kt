@@ -24,10 +24,10 @@ interface HymnDataDao {
     suspend fun insert(hymnData: HymnDataDb): Long
 
     @Transaction
-    @Query("SELECT * FROM hymn_data WHERE hymnId BETWEEN :minId AND :maxId")
-    suspend fun getAll(minId: Int, maxId: Int): List<HymnDataWithLists>
+    @Query("SELECT * FROM hymn WHERE hymnId BETWEEN :minId AND :maxId")
+    suspend fun getAllPersonalHymns(minId: Int, maxId: Int): List<PersonalHymnDb>
 
     @Transaction
-    @Query("SELECT * FROM hymn_data WHERE hymnId = :hymnId")
-    suspend fun getById(hymnId: Int): HymnDataWithLists?
+    @Query("SELECT * FROM hymn WHERE hymnId = :hymnId")
+    suspend fun getPersonalHymnById(hymnId: Int): PersonalHymnDb?
 }
