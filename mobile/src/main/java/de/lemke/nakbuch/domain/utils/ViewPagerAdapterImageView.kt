@@ -11,7 +11,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import de.lemke.nakbuch.R
 
-class ViewPagerAdapterImageView(context: Context, private val mImages: ArrayList<Uri>) :
+class ViewPagerAdapterImageView(context: Context, private val mImages: List<Uri>) :
     PagerAdapter() {
     private val mLayoutInflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater

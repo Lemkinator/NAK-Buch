@@ -1,23 +1,23 @@
 package de.lemke.nakbuch.data.database
 
-import androidx.room.Entity
+import androidx.room.*
+import de.lemke.nakbuch.domain.model.HymnId
 
 
 @Entity(
     tableName = "hymn_data",
-    primaryKeys = ["number", "buchMode"],
-    /*foreignKeys = [
+    foreignKeys = [
         ForeignKey(
             entity = HymnDb::class,
-            parentColumns = arrayOf("number", "buchMode"),
-            childColumns = arrayOf("number", "buchMode"),
-            onDelete = ForeignKey.CASCADE,
+            parentColumns = arrayOf("hymnId"),
+            childColumns = arrayOf("hymnId"),
+            onDelete = ForeignKey.NO_ACTION,
         )
-    ],*/
+    ],
 )
 data class HymnDataDb(
-    val number: Int,
-    val buchMode: Int,
+    @PrimaryKey
+    val hymnId: HymnId,
     var favorite: Int,
     var notes: String,
     /*
@@ -26,14 +26,24 @@ data class HymnDataDb(
     */
 )
 
-/*
-data class PersonalHymnDb(
+
+data class PersonalHymnDataWithLists(
     @Embedded
     val hymnData: HymnDataDb,
     @Relation(
-        parentColumn = "productId",
-        entityColumn = "id",
+        parentColumn = "hymnId",
+        entityColumn = "hymnId",
     )
-    val hymn: HymnDb,
+    val hymn:HymnDb,
+    @Relation(
+        parentColumn = "hymnId",
+        entityColumn = "hymnId",
+    )
+    val sungOnList: List<SungOnDb>,
+    @Relation(
+        parentColumn = "hymnId",
+        entityColumn = "hymnId",
+    )
+    val photoList: List<PhotoDb>,
 )
- */
+

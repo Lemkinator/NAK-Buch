@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:navigationIcon="@drawable/ic_oui_back"
     app:title="Easter Eggs"
-    app:subtitle="@string/appName"
+    app:subtitle="@string/app_name"
     >
 
     <de.dlyt.yanndroid.oneui.widget.RoundNestedScrollView
@@ -30,19 +30,10 @@
                 android:descendantFocusability="afterDescendants"
                 android:orientation="vertical">
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/discoveredEasterEggsText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/sesl_list_item_padding_horizontal"
-                    android:layout_marginTop="@dimen/sesl_list_divider_inset"
-                    android:layout_marginEnd="@dimen/sesl_list_item_padding_horizontal"
-                    android:layout_marginBottom="@dimen/sesl_list_divider_inset"
-                    android:lineSpacingExtra="4.0sp"
-                    android:text="@string/discoveredEasterEggs"
-                    android:textAppearance="?android:textAppearanceListItem"
-                    android:textColor="@color/sesl_dialog_body_text_color"
-                    android:textSize="20.0sp" />
+                    style="?android:listSeparatorTextViewStyle"
+                    android:text="@string/discoveredEasterEggs" />
 
                 <de.dlyt.yanndroid.oneui.view.RecyclerView
                     android:id="@+id/easterEggList"

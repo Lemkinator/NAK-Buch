@@ -21,7 +21,6 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var buchMode: BuchMode
@@ -121,11 +120,9 @@ class MainActivity : AppCompatActivity() {
         try {
             hymnNr = nr.toInt()
             if (hymnNr > 0 && hymnNr < GetHymnCountUseCase()(buchMode)) {
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     val hymn = GetHymnUseCase()(buchMode, hymnNr)
-                    withContext(Dispatchers.Main){
-                        tvHymnNrTitle.text = hymn.numberAndTitle
-                    }
+                    tvHymnNrTitle.text = hymn.numberAndTitle
                 }
                 SetNumberUseCase()(nr)
             } else {
@@ -145,16 +142,14 @@ class MainActivity : AppCompatActivity() {
         try {
             hymnNr = nr.toInt()
             if (hymnNr > 0 && hymnNr < GetHymnCountUseCase()(buchMode)) {
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     val hymn = GetHymnUseCase()(buchMode, hymnNr)
-                    withContext(Dispatchers.Main){
-                        startActivity(
-                            Intent(mContext, TextviewActivity::class.java)
-                                .putExtra("nrAndTitle", hymn.numberAndTitle)
-                                .putExtra("text", hymn.text)
-                                .putExtra("copyright", hymn.copyright)
-                        )
-                    }
+                    startActivity(
+                        Intent(mContext, TextviewActivity::class.java)
+                            .putExtra("nrAndTitle", hymn.numberAndTitle)
+                            .putExtra("text", hymn.text)
+                            .putExtra("copyright", hymn.copyright)
+                    )
                 }
             }
         } catch (e: NumberFormatException) {

@@ -1,18 +1,26 @@
 package de.lemke.nakbuch.data.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface HymnDao {
+    @Transaction
+    suspend fun insert(hymns: List<HymnDb>) {
+        hymns.forEach { insert(it) }
+    }
 
-    @Insert
-    suspend fun insert(product: HymnDb)
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(hymn: HymnDb)
 
-    @Query("SELECT * FROM hymn WHERE buchMode = :buchMode")
-    suspend fun getAll(buchMode: Int): List<HymnDb>
+    @Transaction
+    @Query("SELECT * FROM hymn WHERE hymnId BETWEEN :minId AND :maxId")
+    suspend fun getAll(minId: Int, maxId: Int): List<HymnAndRubric>
 
-    @Query("SELECT * FROM hymn WHERE buchMode = :buchMode AND number = :number")
-    suspend fun getByNumber(buchMode: Int, number: Int): HymnDb?
+    @Transaction
+    @Query("SELECT * FROM hymn WHERE hymnId = :hymnId")
+    suspend fun getById(hymnId: Int): HymnAndRubric?
+
+    @Query("DELETE FROM hymn")
+    suspend fun deleteAll()
 }

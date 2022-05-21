@@ -13,6 +13,7 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
@@ -22,24 +23,27 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.hymndata.SetFavoritesFromListUseCase
-import de.lemke.nakbuch.domain.hymns.GetAllHymnsSortedAlphabeticalUseCase
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
+import de.lemke.nakbuch.domain.hymnUseCases.GetAllHymnsSortedAlphabeticalUseCase
+import de.lemke.nakbuch.domain.hymndataUseCases.SetFavoritesFromHymnListUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
-import de.lemke.nakbuch.domain.model.hymnPlaceholder
-import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
 import de.lemke.nakbuch.ui.TextviewActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
+@AndroidEntryPoint
 class TabListSubtabAlphabetic : Fragment() {
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
+    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var mRootView: View
     private lateinit var mContext: Context
     private lateinit var buchMode: BuchMode
-    private lateinit var hymnsAlphsort: ArrayList<Hymn>
+    private lateinit var hymnsAlphsort: MutableList<Hymn>
     private lateinit var listView: RecyclerView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var subTabs: TabLayout
@@ -50,6 +54,11 @@ class TabListSubtabAlphabetic : Fragment() {
     private var selected = HashMap<Int, Boolean>()
     private var mSelecting = false
     private var checkAllListening = true
+
+    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
+    @Inject lateinit var getAllHymnsSortedAlphabetical: GetAllHymnsSortedAlphabeticalUseCase
+    @Inject lateinit var setFavoritesFromHymnList: SetFavoritesFromHymnListUseCase
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -62,7 +71,6 @@ class TabListSubtabAlphabetic : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        buchMode = GetBuchModeUseCase()()
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         listView = mRootView.findViewById(R.id.hymnListAlphabetical)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
@@ -74,11 +82,14 @@ class TabListSubtabAlphabetic : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        CoroutineScope(Dispatchers.IO).launch {
-            hymnsAlphsort = GetAllHymnsSortedAlphabeticalUseCase()(buchMode)
-            hymnsAlphsort.add(hymnPlaceholder)
-            withContext(Dispatchers.Main) { initList()}
+
+        coroutineScope.launch {
+            buchMode = getUserSettings().buchMode
+            hymnsAlphsort = getAllHymnsSortedAlphabetical(buchMode).toMutableList()
+            hymnsAlphsort.add(Hymn.hymnPlaceholder)
+            initList()
         }
+
     }
 
     private fun initList() {
@@ -98,7 +109,7 @@ class TabListSubtabAlphabetic : Fragment() {
         listView.addItemDecoration(decoration)
         decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
         val indexScrollView: IndexScrollView = mRootView.findViewById(R.id.indexScrollViewAlphabetical)
-        val list: MutableList<String> = ArrayList()
+        val list: MutableList<String> = mutableListOf()
         for (i in 0 until hymnsAlphsort.size - 1) list.add(hymnsAlphsort[i].title)
         indexScrollView.syncWithRecyclerView(listView, list, true)
         indexScrollView.setIndexBarGravity(1)
@@ -112,13 +123,13 @@ class TabListSubtabAlphabetic : Fragment() {
                 val onlySelected = HashMap(selected.filter { it.value })
                 when (item.itemId) {
                     R.id.addToFav -> {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            SetFavoritesFromListUseCase()(buchMode, hymnsAlphsort, onlySelected, true)
+                        coroutineScope.launch {
+                            setFavoritesFromHymnList(hymnsAlphsort, onlySelected, true)
                         }
                     }
                     R.id.removeFromFav -> {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            SetFavoritesFromListUseCase()(buchMode, hymnsAlphsort, onlySelected, false)
+                        coroutineScope.launch {
+                            setFavoritesFromHymnList(hymnsAlphsort, onlySelected, false)
                         }
                     }
                     else -> {
@@ -172,9 +183,9 @@ class TabListSubtabAlphabetic : Fragment() {
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter internal constructor() :
         RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
-        private var mSections: MutableList<String> = ArrayList()
-        private var mPositionForSection: MutableList<Int> = ArrayList()
-        private var mSectionForPosition: MutableList<Int> = ArrayList()
+        private var mSections: MutableList<String> = mutableListOf()
+        private var mPositionForSection: MutableList<Int> = mutableListOf()
+        private var mSectionForPosition: MutableList<Int> = mutableListOf()
         override fun getItemCount(): Int {
             return hymnsAlphsort.size
         }
@@ -184,7 +195,7 @@ class TabListSubtabAlphabetic : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (hymnsAlphsort[position] != hymnPlaceholder) 0
+            return if (hymnsAlphsort[position] != Hymn.hymnPlaceholder) 0
             else 1
         }
 
@@ -207,7 +218,7 @@ class TabListSubtabAlphabetic : Fragment() {
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         startActivity(
-                            Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", hymnsAlphsort[position].number)
+                            Intent(mRootView.context, TextviewActivity::class.java).putExtra("hymnId", hymnsAlphsort[position].hymnId.toInt())
                         )
                     }
                 }
@@ -229,17 +240,11 @@ class TabListSubtabAlphabetic : Fragment() {
             }
         }
 
-        override fun getSections(): Array<Any> {
-            return mSections.toTypedArray()
-        }
+        override fun getSections(): Array<Any> = mSections.toTypedArray()
 
-        override fun getPositionForSection(i: Int): Int {
-            return mPositionForSection[i]
-        }
+        override fun getPositionForSection(i: Int): Int = mPositionForSection[i]
 
-        override fun getSectionForPosition(i: Int): Int {
-            return mSectionForPosition[i]
-        }
+        override fun getSectionForPosition(i: Int): Int = mSectionForPosition[i]
 
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) :
             RecyclerView.ViewHolder(

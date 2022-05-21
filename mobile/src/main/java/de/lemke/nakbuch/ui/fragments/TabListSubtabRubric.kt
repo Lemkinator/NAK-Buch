@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
@@ -22,21 +24,27 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.hymns.GetAllRubricsUseCase
-import de.lemke.nakbuch.domain.hymns.GetHymnsWithRubricUseCase
-import de.lemke.nakbuch.domain.model.*
-import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
+import de.lemke.nakbuch.domain.hymnUseCases.GetAllRubricsUseCase
+import de.lemke.nakbuch.domain.hymnUseCases.GetHymnsWithRubricUseCase
+import de.lemke.nakbuch.domain.model.BuchMode
+import de.lemke.nakbuch.domain.model.Hymn
+import de.lemke.nakbuch.domain.model.Rubric
 import de.lemke.nakbuch.ui.TextviewActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
+@AndroidEntryPoint
 class TabListSubtabRubric : Fragment() {
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
+    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var mRootView: View
     private lateinit var mContext: Context
-    private lateinit var hymns: ArrayList<Hymn>
-    private lateinit var rubrics: ArrayList<Rubric>
+    private lateinit var hymns: MutableList<Hymn>
+    private lateinit var rubrics: MutableList<Rubric>
     private var currentRubric: Rubric? = null
     private lateinit var buchMode: BuchMode
     private lateinit var listView: RecyclerView
@@ -46,6 +54,11 @@ class TabListSubtabRubric : Fragment() {
     private lateinit var viewPager2List: ViewPager2
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var onBackPressedCallback: OnBackPressedCallback
+
+    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
+    @Inject lateinit var getAllRubrics: GetAllRubricsUseCase
+    @Inject lateinit var getHymnsWithRubric: GetHymnsWithRubricUseCase
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -58,7 +71,6 @@ class TabListSubtabRubric : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        buchMode = GetBuchModeUseCase()()
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         listView = mRootView.findViewById(R.id.hymnListRubric)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
@@ -67,50 +79,49 @@ class TabListSubtabRubric : Fragment() {
         onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 currentRubric = null
-                initList()
+                coroutineScope.launch { initList() }
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        initList()
+        coroutineScope.launch {
+            buchMode = getUserSettings().buchMode
+            initList()
+        }
     }
 
-    private fun initList() {
-        CoroutineScope(Dispatchers.IO).launch {
-            rubrics = GetAllRubricsUseCase()(buchMode)
-            rubrics.add(rubricPlaceholder)
-            onBackPressedCallback.isEnabled = false
-            if (currentRubric != null) {
-                hymns = GetHymnsWithRubricUseCase()(currentRubric!!)
-                hymns.add(0, hymnPlaceholder)
-                hymns.add(hymnPlaceholder)
-                onBackPressedCallback.isEnabled = true
-            }
-            withContext(Dispatchers.Main) {
-                imageAdapter = ImageAdapter()
-                listView.adapter = imageAdapter
-                val divider = TypedValue()
-                mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-                listView.layoutManager = LinearLayoutManager(mContext)
-                val decoration = ItemDecoration()
-                listView.addItemDecoration(decoration)
-                decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
-                listView.itemAnimator = null
-                //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
-                listView.seslSetFastScrollerEnabled(true)
-                listView.seslSetFillBottomEnabled(true)
-                listView.seslSetGoToTopEnabled(true)
-                listView.seslSetLastRoundedCorner(false)
-            }
+    private suspend fun initList() {
+        rubrics = getAllRubrics(buchMode).toMutableList()
+        rubrics.add(Rubric.rubricPlaceholder)
+        onBackPressedCallback.isEnabled = false
+        if (currentRubric != null) {
+            hymns = getHymnsWithRubric(currentRubric!!).toMutableList()
+            Log.d("test", hymns.toString())
+            hymns.add(0, Hymn.hymnPlaceholder)
+            hymns.add(Hymn.hymnPlaceholder)
+            onBackPressedCallback.isEnabled = true
         }
-
+        imageAdapter = ImageAdapter()
+        listView.adapter = imageAdapter
+        val divider = TypedValue()
+        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        listView.layoutManager = LinearLayoutManager(mContext)
+        val decoration = ItemDecoration()
+        listView.addItemDecoration(decoration)
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        listView.itemAnimator = null
+        //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
+        listView.seslSetFastScrollerEnabled(true)
+        listView.seslSetFillBottomEnabled(true)
+        listView.seslSetGoToTopEnabled(true)
+        listView.seslSetLastRoundedCorner(false)
     }
 
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter :
         RecyclerView.Adapter<ImageAdapter.ViewHolder>() {// !!!Sections in inner rubrics not working!!!       , SectionIndexer {
-        /*private var mSections: MutableList<String> = ArrayList()
-        private var mPositionForSection: MutableList<Int> = ArrayList()
-        private var mSectionForPosition: MutableList<Int> = ArrayList()
+        /*private var mSections: MutableList<String> = mutableListOf()
+        private var mPositionForSection: MutableList<Int> = mutableListOf()
+        private var mSectionForPosition: MutableList<Int> = mutableListOf()
 
         init {
             if (rubrikIndex == 0) {
@@ -126,42 +137,26 @@ class TabListSubtabRubric : Fragment() {
                 }
             }
         }
-
-         override fun getSections(): Array<Any> {
-            return mSections.toTypedArray()
-        }
-
-        override fun getPositionForSection(i: Int): Int {
-            return mPositionForSection[i]
-        }
-
-        override fun getSectionForPosition(i: Int): Int {
-            return mSectionForPosition[i]
-        }
-
+        override fun getSections(): Array<Any> = mSections.toTypedArray()
+        override fun getPositionForSection(i: Int): Int = mPositionForSection[i]
+        override fun getSectionForPosition(i: Int): Int = mSectionForPosition[i]
         */
 
-        override fun getItemCount(): Int {
-            return if (currentRubric == null) rubrics.size
-            else hymns.size
+        override fun getItemCount(): Int = if (currentRubric == null) rubrics.size else hymns.size
 
-        }
-
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
+        override fun getItemId(position: Int): Long = position.toLong()
 
         override fun getItemViewType(position: Int): Int {
             return if (currentRubric == null) {
                 when {
-                    rubrics[position] == rubricPlaceholder -> 1
+                    rubrics[position] == Rubric.rubricPlaceholder -> 1
                     rubrics[position].isMain -> 2
                     else -> 0
                 }
             } else {
                 when {
                     position == 0 -> 3
-                    hymns[position] == hymnPlaceholder -> 1
+                    hymns[position] == Hymn.hymnPlaceholder -> 1
                     else -> 0
                 }
             }
@@ -195,13 +190,13 @@ class TabListSubtabRubric : Fragment() {
                 if (currentRubric != null) {
                     holder.textView.text = hymns[position].numberAndTitle
                     holder.parentView.setOnClickListener {
-                        startActivity(Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", hymns[position].number))
+                        startActivity(Intent(mRootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt()))
                     }
                 } else {
                     holder.textView.text = rubrics[position].name
                     holder.parentView.setOnClickListener {
                         currentRubric = rubrics[position]
-                        initList()
+                        coroutineScope.launch { initList() }
                     }
                 }
             }
@@ -212,7 +207,7 @@ class TabListSubtabRubric : Fragment() {
                 holder.textView.text = currentRubric!!.name
                 holder.parentView.setOnClickListener {
                     currentRubric = null
-                    initList()
+                    coroutineScope.launch { initList() }
                 }
             }
         }

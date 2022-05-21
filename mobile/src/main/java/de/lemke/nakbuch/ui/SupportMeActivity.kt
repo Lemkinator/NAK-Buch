@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.play.core.review.ReviewManagerFactory
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
@@ -23,6 +24,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.gms.ads.rewarded.RewardedAd;*/
 
+@AndroidEntryPoint
 class SupportMeActivity : AppCompatActivity() {
     private lateinit var mContext: Context
     private lateinit var mActivity: Activity
@@ -48,7 +50,7 @@ class SupportMeActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:") // only email apps should handle this
             intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email)))
-            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.appName))
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
             intent.putExtra(Intent.EXTRA_TEXT, "")
             try {
                 startActivity(intent)

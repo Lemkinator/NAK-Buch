@@ -1,5 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="appName" translatable="false">NAK Buch</string>
+    <string name="app_name" translatable="false">NAK Buch</string>
+    <string name="titleGesangbuch" translatable="false">Gesangbuch</string>
+    <string name="titleChorbuch" translatable="false">Chorbuch</string>
+    <string name="titleJugendliederbuch" translatable="false">Jugendliederbuch</string>
     <string name="preferenceFileDefault" translatable="false">de.lemke.nakbuch_preferences</string>
     <string name="preferenceFileHymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>
     <string name="email" translatable="false">apps@lemkinator.com</string>
@@ -21,8 +24,6 @@
     <string name="aboutPageOptionalText">Die inoffizielle Gesang und Chorbuch-App der NAK.</string>
     <string name="aboutApp">Über NAK Buch</string>
     <string name="help">Hilfe</string>
-    <string name="titleGesangbuch" translatable="false">Gesangbuch</string>
-    <string name="titleChorbuch" translatable="false">Chorbuch</string>
 
     <string name="number">Nummer</string>
     <string name="list">Liste</string>
@@ -32,8 +33,8 @@
     <string name="rubric">Rubrik</string>
     <string name="removeFromFav">Aus Favoriten löschen</string>
     <string name="addToFav">Zu Favoriten hinzufügen</string>
-    <string name="switchMode">Buch wechseln</string>
-    <string name="switchModeDescription">Schnell zwischen Gesangbuch und Chorbuch wechseln</string>
+    <!--string name="switchMode">Buch wechseln</string-->
+    <!--string name="switchModeDescription">Schnell zwischen Gesangbuch und Chorbuch wechseln</string-->
     <string name="themeColor">Design Farbe</string>
     <string name="themeColorSummary">Ändern der Design Farbe</string>
     <string name="confirmExit">Verlassen bestätigen</string>
@@ -85,7 +86,7 @@
     </plurals>
     <string name="appHint">Urheberrechtlich geschützte Inhalte</string>
     <string name="appHintLong">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
-    <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem Gesang- und Chorbuch der NAK.\n\nBei 118 (von 438) Gesangbuch-Liedern und 256 (von 462) Chorbuch-Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht angezeigt werden können. Die Informationen zum Urheberrecht der einzelnen Lieder wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) Gesangbuch-App und eine (kostenpflichtige) Chorbuch-App herausgegeben hat.\n    "</string>
+    <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem Gesang- und Chorbuch der NAK.\n\nBei 118 (von 438) Gesangbuch-Liedern und 256 (von 462) Chorbuch-Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht (vollständig) angezeigt werden können. Die Informationen zum Urheberrecht der einzelnen Lieder wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) Gesangbuch-App und eine (kostenpflichtige) Chorbuch-App herausgegeben hat.\n    "</string>
     <string name="appHintTextBischoff">"Zu den offiziellen Apps vom Bischoff Verlag: "</string>
     <string name="whyNoFullText">Warum wird nicht der vollständige Text angezeigt?</string>
     <string name="jokeButtonText">Jetzt Premium-Abo abschließen, um urheberrechtlich geschützte Inhalte freizuschalten!</string>
@@ -126,6 +127,7 @@
         <item>&#127942; Master of Easter Eggs! &#127942;</item>
     </string-array>
 
+    <string name="notYetImplemented">Noch nicht implementiert &#129394;</string>
     <string name="buyMeACoffee">Spendier mir einen Kaffee</string>
     <string name="watchAdHeader">Broke? Kein problem</string>
     <string name="watchAd">Freiwillig eine Werbung ansehen</string>
@@ -141,7 +143,7 @@
     <string name="searchTip">Suche öffnen</string>
     <string name="changeSearchMode">Suchmodus ändern</string>
     <!--string name="searchTip">Suche öffnen: \nUm die Spracheingabe zu verwenden, kann nach dem Öffnen der Suche oben rechts auf das Mikrofon-Symbol geklickt werden. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten</string-->
-    <string name="searchHelp">Um die Spracheingabe zu verwenden, oben rechts auf das Mikrofon-Symbol klicken. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten</string>
+    <string name="searchHelp">Um die Spracheingabe zu verwenden, oben rechts auf das Mikrofon-Symbol klicken. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten. Dieses verhalten kann über die Schaltfläche unten verändert werden.</string>
     <string name="noteTip">Notizen anzeigen/ausblenden</string>
     <string name="calendarTip">Kalender anzeigen/ausblenden</string>
     <string name="galleryTip">Foto-Gallerie öffnen</string>
@@ -163,6 +165,8 @@
     <string name="shortcutGesangbuchSummary">Shortcut zum Gesangbuch auf dem Homebildschirm erstellen</string>
     <string name="shortcutChorbuch">Chorbuch shortcut</string>
     <string name="shortcutChorbuchSummary">Shortcut zum Chorbuch auf dem Homebildschirm erstellen</string>
+    <string name="shortcutJugendliederbuch">Jugendliederbuch shortcut</string>
+    <string name="shortcutJugendliederbuchSummary">Shortcut zum Jugendliederbuch auf dem Homebildschirm erstellen</string>
     <string name="imageSettings">Foto-Einstellungen</string>
     <string name="imgResolution">Foto Auflösung</string>
     <string name="imgResolutionSummary">Je größer die Auflösung, umso mehr Speicher wird benötigt</string>
@@ -174,6 +178,7 @@
     <string name="deleteOwnHymnTexts">Eigene Liedtexte löschen</string>
     <string name="sheetMusic">Noten</string>
     <string name="deleteAppDataAndExit">App-Daten löschen und Beenden</string>
+    <string name="deleteAppDataAndExitWarning">Achtung: Dadurch werden alle persönlichen Daten gelöscht. Fortfahren? </string>
     <string name="activeOnNextStart">Beim nächsten App-Start aktiv:</string>
     <string name="toggleHints">Hinweise aktivieren/deaktivieren</string>
     <string name="showScoreboard">Scoreboard ansehen</string>
@@ -198,5 +203,6 @@
     <string name="grantAccess">Berechtigung erteilen</string>
     <string name="deletePhoto">Foto löschen</string>
     <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
+
 
 </resources>

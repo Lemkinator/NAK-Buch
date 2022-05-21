@@ -16,14 +16,22 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.AboutPage
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.settings.DiscoverEasterEggUseCase
-import de.lemke.nakbuch.domain.settings.OpenAppUseCase
+import de.lemke.nakbuch.domain.DiscoverEasterEggUseCase
+import de.lemke.nakbuch.domain.OpenAppUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
+@AndroidEntryPoint
 class AboutActivity : AppCompatActivity() {
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
     private lateinit var mActivity: Activity
     private lateinit var mContext: Context
     private lateinit var aboutPage: AboutPage
@@ -31,6 +39,13 @@ class AboutActivity : AppCompatActivity() {
     private lateinit var appUpdateInfo: AppUpdateInfo
     private lateinit var appUpdateInfoTask: Task<AppUpdateInfo>
     private lateinit var konfettiView: KonfettiView
+
+    @Inject
+    lateinit var discoverEasterEgg: DiscoverEasterEggUseCase
+
+    @Inject
+    lateinit var openApp: OpenAppUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
@@ -42,47 +57,23 @@ class AboutActivity : AppCompatActivity() {
         aboutPage.setUpdateState(AboutPage.LOADING)
         //LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
         appUpdateManager = AppUpdateManagerFactory.create(mContext)
-        aboutPage.setUpdateButtonOnClickListener {
-            startUpdateFlow()
-        }
+        aboutPage.setUpdateButtonOnClickListener { startUpdateFlow() }
         aboutPage.setRetryButtonOnClickListener {
             aboutPage.setUpdateState(AboutPage.LOADING)
             checkUpdate()
         }
-        findViewById<View>(R.id.about_btn_open_in_store).setOnClickListener {
-            OpenAppUseCase()(mContext, packageName, false)
-        }
+        findViewById<View>(R.id.about_btn_open_in_store).setOnClickListener { openApp(packageName, false) }
         findViewById<View>(R.id.about_btn_open_oneui_github).setOnClickListener {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(getString(R.string.oneUIGithubLink))
-                )
-            )
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.oneUIGithubLink))))
         }
-        findViewById<View>(R.id.about_btn_help).setOnClickListener {
-            startActivity(
-                Intent(mContext, HelpActivity::class.java)
-            )
-        }
-        findViewById<View>(R.id.about_btn_support_me).setOnClickListener {
-            startActivity(
-                Intent(mContext, SupportMeActivity::class.java)
-            )
-        }
+        findViewById<View>(R.id.about_btn_help).setOnClickListener { startActivity(Intent(mContext, HelpActivity::class.java)) }
+        findViewById<View>(R.id.about_btn_support_me).setOnClickListener { startActivity(Intent(mContext, SupportMeActivity::class.java)) }
         findViewById<View>(R.id.about_btn_about_me).setOnClickListener {
-            startActivity(
-                Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website)))
-            )
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website))))
         }
         findViewById<View>(R.id.about_btn_tiktk_troll).setOnClickListener {
-            DiscoverEasterEggUseCase()(mContext, konfettiView, R.string.easterEggEntryTikTok)
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(getString(R.string.rickRollTrollLink)) //Rick Roll :D
-                )
-            )
+            CoroutineScope(coroutineContext).launch { discoverEasterEgg(konfettiView, R.string.easterEggEntryTikTok) }
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.rickRollTrollLink)))) //Rick Roll :D
         }
         checkUpdate()
     }

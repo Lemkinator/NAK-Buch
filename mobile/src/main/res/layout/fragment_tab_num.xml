@@ -37,7 +37,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/hymnTitlePreview"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="right"
+                tools:ignore="RtlHardcoded">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/switchSideButton1"
@@ -225,7 +227,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="20dp"
             android:ellipsize="end"
             android:textSize="20sp" />
     </de.dlyt.yanndroid.oneui.widget.NestedScrollView>

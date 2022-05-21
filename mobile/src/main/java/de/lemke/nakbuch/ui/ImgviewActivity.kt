@@ -22,6 +22,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.viewpager.widget.ViewPager
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.CustomButtonClickListener
@@ -29,33 +30,54 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.hymndata.*
-import de.lemke.nakbuch.domain.hymns.GetHymnUseCase
-import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.model.Hymn
-import de.lemke.nakbuch.domain.model.HymnData
-import de.lemke.nakbuch.domain.settings.GetBooleanSettingUseCase
-import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
-import de.lemke.nakbuch.domain.settings.SetBooleanSettingUseCase
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
+import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
+import de.lemke.nakbuch.domain.hymndataUseCases.*
+import de.lemke.nakbuch.domain.model.HymnId
+import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.domain.utils.ViewPagerAdapterImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 
+@AndroidEntryPoint
 class ImgviewActivity : AppCompatActivity() {
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
+    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var mContext: Context
     private var tabLayout: TabLayout? = null
     private lateinit var imgViewPager: ViewPager
     private lateinit var viewPagerAdapterImageView: ViewPagerAdapterImageView
     private lateinit var tipPopupFoto: TipPopup
     private lateinit var tipPopupDelete: TipPopup
-    private lateinit var hymn: Hymn
-    private lateinit var hymnData: HymnData
-    private lateinit var buchMode: BuchMode
+    private lateinit var hymnId: HymnId
+    private lateinit var personalHymn: PersonalHymn
     private lateinit var cameraActivityResultLauncher: ActivityResultLauncher<Uri>
+
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var updateUserSettings: UpdateUserSettingsUseCase
+
+    @Inject
+    lateinit var getPersonalHymn: GetPersonalHymnUseCase
+
+    @Inject
+    lateinit var setPersonalHymn: SetPersonalHymnUseCase
+
+    @Inject
+    lateinit var addPhoto: AddPhotoUseCase
+
+    @Inject
+    lateinit var deletePhoto: DeletePhotoUseCase
+
+    @Inject
+    lateinit var getTempPhotoUri: GetTempPhotoUriUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,76 +85,68 @@ class ImgviewActivity : AppCompatActivity() {
         mContext = this
         setContentView(R.layout.activity_imgview)
         imgViewPager = findViewById(R.id.img_view_pager)
-        buchMode = GetBuchModeUseCase()()
-        CoroutineScope(Dispatchers.IO).launch {
-            hymn = GetHymnUseCase()(buchMode, intent.getIntExtra("nr", -1))
-            hymnData = GetHymnDataUseCase()(hymn)
-            withContext(Dispatchers.Main) {
-                initViewPager()
-                if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-                    drawerLayout.setNavigationButtonIcon(
-                        AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
-                    )
-                    drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
-                    drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
-                    drawerLayout.setTitle(hymn.numberAndTitle)
-                    drawerLayout.setSubtitle(getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleGesangbuch else R.string.titleChorbuch))
-                    initBNV()
-                    if (GetBooleanSettingUseCase()("imageviewTips", true)) {
-                        SetBooleanSettingUseCase()("imageviewTips", false)
+        coroutineScope.launch {
+            val nullableHymnId = HymnId.create(intent.getIntExtra("hymnId", -1))
+            if (nullableHymnId == null) finish()
+            else hymnId = nullableHymnId
+            personalHymn = getPersonalHymn(hymnId)
+            initViewPager()
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+                drawerLayout.setNavigationButtonIcon(
+                    AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
+                )
+                drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
+                drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
+                drawerLayout.setTitle(personalHymn.hymn.numberAndTitle)
+                drawerLayout.setSubtitle(hymnId.buchMode.toString())
+                initBNV()
+                if (getUserSettings().showImageViewTips) {
+                    updateUserSettings { it.copy(showImageViewTips = false) }
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        initTipPopup()
+                        tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT)
+                    }, 50)
 
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            initTipPopup()
-                            tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT)
-                        }, 50)
-
-                    }
-                } else {
-                    val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView)
-                    windowInsetsController?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars()) // Hide both the status bar and the navigation bar
-                }
-            }
-        }
-
-        cameraActivityResultLauncher = registerForActivityResult(TakePicture()) { result: Boolean ->
-            if (result) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val index = if (viewPagerAdapterImageView.count > 0) (imgViewPager.currentItem + 1) else imgViewPager.currentItem
-                    AddPhotoUseCase()(
-                        mContext, hymn, hymnData,
-                        index
-                    ).invokeOnCompletion {
-                        initViewPager(index)
-                    }
                 }
             } else {
-                Toast.makeText(mContext, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
+                val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView)
+                windowInsetsController?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars()) // Hide both the status bar and the navigation bar
+            }
+            cameraActivityResultLauncher = registerForActivityResult(TakePicture()) { result: Boolean ->
+                if (result) {
+                    coroutineScope.launch {
+                        val index = if (viewPagerAdapterImageView.count > 0) (imgViewPager.currentItem + 1) else imgViewPager.currentItem
+                        addPhoto(personalHymn, index).invokeOnCompletion {
+                            coroutineScope.launch {
+                                initViewPager(index)
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(mContext, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
 
-    private fun initViewPager(index: Int = -1) {
-        CoroutineScope(Dispatchers.IO).launch {
-            hymnData = GetHymnDataUseCase()(hymn)
-            withContext(Dispatchers.Main) {
-                hymnData.photoList = hymnData.photoList.filter {Uri.parse(it).toFile().exists()} as ArrayList<String>
-                viewPagerAdapterImageView = ViewPagerAdapterImageView(mContext, hymnData.photoList.map { Uri.parse(it)} as ArrayList<Uri>)
-                imgViewPager.adapter = viewPagerAdapterImageView
-                if (index > 0) imgViewPager.setCurrentItem(min(index,viewPagerAdapterImageView.count), true)
-            }
-        }
+    private suspend fun initViewPager(index: Int = -1) {
+        personalHymn = getPersonalHymn(hymnId)
+        personalHymn.photoList = personalHymn.photoList.filter { it.toFile().exists() }.toMutableList()
+        viewPagerAdapterImageView = ViewPagerAdapterImageView(mContext, personalHymn.photoList)
+        imgViewPager.adapter = viewPagerAdapterImageView
+        if (index > 0) imgViewPager.setCurrentItem(min(index, viewPagerAdapterImageView.count), true)
     }
 
     private fun takePhoto() {
         val maxImagesPerHymn = 20
-        if (hymnData.photoList.size >= maxImagesPerHymn) {
+        if (personalHymn.photoList.size >= maxImagesPerHymn) {
             Toast.makeText(mContext, "Max. Bilder pro Lied: $maxImagesPerHymn", Toast.LENGTH_SHORT).show()
             return
         }
         try {
-            cameraActivityResultLauncher.launch(GetTempPhotoUriUseCase()())
+            cameraActivityResultLauncher.launch(getTempPhotoUri(true))
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(mContext, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
         }
@@ -146,7 +160,7 @@ class ImgviewActivity : AppCompatActivity() {
         }
 
         val favIcon: Drawable
-        if (hymnData.favorite) {
+        if (personalHymn.favorite) {
             favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
             favIcon.colorFilter = PorterDuffColorFilter(
                 resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, mContext.theme), PorterDuff.Mode.SRC_IN
@@ -156,9 +170,9 @@ class ImgviewActivity : AppCompatActivity() {
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                hymnData.favorite = !hymnData.favorite
-                CoroutineScope(Dispatchers.IO).launch {
-                    SetHymnDataUseCase()(hymn, hymnData)
+                personalHymn.favorite = !personalHymn.favorite
+                coroutineScope.launch {
+                    setPersonalHymn(personalHymn)
                 }
                 initBNV()
             }
@@ -175,18 +189,16 @@ class ImgviewActivity : AppCompatActivity() {
         tabLayout!!.addTabCustomButton(binIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val index = imgViewPager.currentItem
-                if (hymnData.photoList.size > 0) {
+                if (personalHymn.photoList.isNotEmpty()) {
                     val dialog = AlertDialog.Builder(mContext)
                         .setTitle(getString(R.string.deletePhoto) + "?")
                         .setMessage(getString(R.string.deleteCurrentPhoto) + "?")
                         .setNeutralButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
                         .setNegativeButton(R.string.delete) { dialogInterface: DialogInterface, _: Int ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                DeletePhotoUseCase()(hymn, hymnData, index)
-                                withContext(Dispatchers.Main) {
-                                    dialogInterface.dismiss()
-                                    initViewPager(min(index, viewPagerAdapterImageView.count - 1))
-                                }
+                            coroutineScope.launch {
+                                deletePhoto(personalHymn, index)
+                                dialogInterface.dismiss()
+                                initViewPager(min(index, viewPagerAdapterImageView.count - 1))
                             }
                         }
                         .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
@@ -228,14 +240,12 @@ class ImgviewActivity : AppCompatActivity() {
    @Throws(IOException::class)
    private fun prepareFolder() {
        val files = currentFolder.listFiles()!!
-       Log.d("test Files", files.contentToString())
        Arrays.sort(files)
        for (i in files.indices) {
            if (!files[i].renameTo(File(currentFolder, "$i.jpg"))) {
                throw IOException("prepareFolder(): Could not rename File:" + files[i].absolutePath)
            }
        }
-       Log.d("test sorted Files", files.contentToString())
    }
 
    @get:Throws(IOException::class)

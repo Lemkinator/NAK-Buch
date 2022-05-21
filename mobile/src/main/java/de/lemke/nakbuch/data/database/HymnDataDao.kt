@@ -1,18 +1,33 @@
 package de.lemke.nakbuch.data.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface HymnDataDao {
+    @Transaction
+    suspend fun upsert(hymnData: HymnDataDb) {
+        val rowId = insert(hymnData)
+        if (rowId == -1L) {
+            update(hymnData)
+        }
+    }
 
-    @Insert
-    suspend fun insert(hymnData: HymnDataDb)
+    @Transaction
+    suspend fun upsert(hymnDatas: List<HymnDataDb>) {
+        hymnDatas.forEach { upsert(it) }
+    }
 
-    @Query("SELECT * FROM hymn_data WHERE buchMode = :buchMode")
-    suspend fun getAll(buchMode: Int): List<HymnDataDb>
+    @Update
+    suspend fun update(hymnData: HymnDataDb)
 
-    @Query("SELECT * FROM hymn_data WHERE buchMode = :buchMode AND number = :number")
-    suspend fun getByNumber(buchMode: Int, number: Int): HymnDataDb?
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(hymnData: HymnDataDb): Long
+
+    @Transaction
+    @Query("SELECT * FROM hymn_data WHERE hymnId BETWEEN :minId AND :maxId")
+    suspend fun getAll(minId: Int, maxId: Int): List<PersonalHymnDataWithLists>
+
+    @Transaction
+    @Query("SELECT * FROM hymn_data WHERE hymnId = :hymnId")
+    suspend fun getById(hymnId: Int): PersonalHymnDataWithLists?
 }

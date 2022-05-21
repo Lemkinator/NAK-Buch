@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.sesl.tabs.TabLayoutMediator
 import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2
 import de.dlyt.yanndroid.oneui.view.ViewPager2
@@ -13,6 +14,7 @@ import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.utils.ViewPager2AdapterTabListSubtabs
 
+@AndroidEntryPoint
 class MainActivityTabList : Fragment() {
     private lateinit var mRootView: View
     private lateinit var mContext: Context
@@ -21,11 +23,7 @@ class MainActivityTabList : Fragment() {
         mContext = context
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mRootView = inflater.inflate(R.layout.fragment_tab_list, container, false)
         return mRootView
     }

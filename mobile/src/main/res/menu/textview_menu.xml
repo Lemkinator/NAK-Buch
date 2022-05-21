@@ -3,11 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
+    <!--item
         android:id="@+id/switchBuchMode"
         android:title="@string/switchMode"
         app:showAsAction="ifRoom"
-        />
+        /-->
 
     <item
         android:id="@+id/mute"
@@ -17,6 +17,11 @@
     <item
         android:id="@+id/dnd"
         android:title="@string/dnd"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/openOfficialApp"
+        android:title="@string/openOfficialApp"
         app:showAsAction="ifRoom" />
 
     <!--

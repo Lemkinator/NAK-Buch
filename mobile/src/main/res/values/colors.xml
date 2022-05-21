@@ -3,4 +3,5 @@
     <color name="primary_color">#ff4099ff</color>
     <color name="gesangbuch_color">#2250ff</color>
     <color name="chorbuch_color">#2220cc</color>
+    <color name="jugendliederbuch_color">#256000</color>
 </resources>

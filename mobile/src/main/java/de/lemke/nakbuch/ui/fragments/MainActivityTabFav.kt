@@ -15,6 +15,7 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
@@ -23,24 +24,28 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.SwipeRefreshLayout
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.hymndata.GetFavoriteHymnsUseCase
-import de.lemke.nakbuch.domain.hymndata.SetFavoritesFromListUseCase
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
+import de.lemke.nakbuch.domain.hymndataUseCases.GetFavoriteHymnsUseCase
+import de.lemke.nakbuch.domain.hymndataUseCases.SetFavoritesFromPersonalHymnListUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
-import de.lemke.nakbuch.domain.model.Hymn
-import de.lemke.nakbuch.domain.model.hymnPlaceholder
-import de.lemke.nakbuch.domain.settings.GetBuchModeUseCase
+import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.ui.TextviewActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
+@AndroidEntryPoint
 class MainActivityTabFav : Fragment() {
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
+    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var buchMode: BuchMode
-    private lateinit var favHymns: ArrayList<Hymn>
+    private lateinit var favHymns: MutableList<PersonalHymn>
     private lateinit var mRootView: View
     private lateinit var mContext: Context
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var listView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var mainTabs: TabLayout
@@ -50,6 +55,12 @@ class MainActivityTabFav : Fragment() {
     private var checkAllListening = true
     private val mHandler = Handler(Looper.getMainLooper())
     private val mShowBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
+
+    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
+    @Inject lateinit var getFavoriteHymns: GetFavoriteHymnsUseCase
+    @Inject lateinit var setFavoritesFromList: SetFavoritesFromPersonalHymnListUseCase
+
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -63,12 +74,15 @@ class MainActivityTabFav : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
-        (mRootView.findViewById(R.id.tabFavSwipeRefresh) as SwipeRefreshLayout).seslSetRefreshOnce(true)
+        swipeRefreshLayout = mRootView.findViewById(R.id.tabFavSwipeRefresh)
+        swipeRefreshLayout.setOnRefreshListener {
+            coroutineScope.launch {
+                initList()
+            }
+        }
+        swipeRefreshLayout.isRefreshing = true
         listView = mRootView.findViewById(R.id.favHymnList)
         mainTabs = requireActivity().findViewById(R.id.main_tabs)
-        buchMode = GetBuchModeUseCase()()
-
-        initList()
         onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
                 setSelecting(false)
@@ -79,54 +93,48 @@ class MainActivityTabFav : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        initList()
+        coroutineScope.launch {
+            buchMode = getUserSettings().buchMode
+            initList()
+        }
     }
 
-    private fun initList() {
-        CoroutineScope(Dispatchers.IO).launch {
-            favHymns = GetFavoriteHymnsUseCase()(buchMode)
-            favHymns.add(hymnPlaceholder)
-            selected = HashMap()
-            for (i in favHymns.indices) selected[i] = false
-            withContext(Dispatchers.Main) {
-                imageAdapter = ImageAdapter()
-                listView.adapter = imageAdapter
-                listView.layoutManager = LinearLayoutManager(mContext)
-                listView.itemAnimator = null
-                listView.seslSetFastScrollerEnabled(true)
-                listView.seslSetFillBottomEnabled(true)
-                listView.seslSetGoToTopEnabled(true)
-                listView.seslSetLastRoundedCorner(false)
-                listView.seslSetLongPressMultiSelectionListener(object :
-                    RecyclerView.SeslLongPressMultiSelectionListener {
-                    override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
-                        if (imageAdapter.getItemViewType(position) == 0) {
-                            toggleItemSelected(position)
-                        }
-                    }
-
-                    override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {
-                        drawerLayout.showSelectModeBottomBar(false)
-                    }
-
-                    override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
-                        mHandler.postDelayed(mShowBottomBarRunnable, 300)
-                    }
-                })
-                val divider = TypedValue()
-                mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-                val decoration = ItemDecoration()
-                listView.addItemDecoration(decoration)
-                decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+    private suspend fun initList() {
+        swipeRefreshLayout.isRefreshing = true
+        favHymns = getFavoriteHymns(buchMode).toMutableList()
+        favHymns.add(PersonalHymn.personalHymnPlaceholder)
+        selected = HashMap()
+        for (i in favHymns.indices) selected[i] = false
+        imageAdapter = ImageAdapter()
+        listView.adapter = imageAdapter
+        listView.layoutManager = LinearLayoutManager(mContext)
+        listView.itemAnimator = null
+        listView.seslSetFastScrollerEnabled(true)
+        listView.seslSetFillBottomEnabled(true)
+        listView.seslSetGoToTopEnabled(true)
+        listView.seslSetLastRoundedCorner(false)
+        listView.seslSetLongPressMultiSelectionListener(object :
+            RecyclerView.SeslLongPressMultiSelectionListener {
+            override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
+                if (imageAdapter.getItemViewType(position) == 0) {
+                    toggleItemSelected(position)
+                }
             }
-        }
 
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                setSelecting(false)
+            override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {
+                drawerLayout.showSelectModeBottomBar(false)
             }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
+
+            override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
+                mHandler.postDelayed(mShowBottomBarRunnable, 300)
+            }
+        })
+        val divider = TypedValue()
+        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        val decoration = ItemDecoration()
+        listView.addItemDecoration(decoration)
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        swipeRefreshLayout.isRefreshing = false
     }
 
     fun setSelecting(enabled: Boolean) {
@@ -134,10 +142,9 @@ class MainActivityTabFav : Fragment() {
             mSelecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
-                val onlySelected = HashMap(selected.filter { it.value })
                 if (item.itemId == R.id.menuButtonRemove) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        SetFavoritesFromListUseCase()(buchMode,  ArrayList(favHymns), onlySelected, false)
+                    coroutineScope.launch {
+                        setFavoritesFromList(favHymns.toMutableList(), selected.filter { it.value }, false)
                         initList()
                     }
                     setSelecting(false)
@@ -195,7 +202,7 @@ class MainActivityTabFav : Fragment() {
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (favHymns[position] != hymnPlaceholder) 0
+            return if (favHymns[position] != PersonalHymn.personalHymnPlaceholder) 0
             else 1
         }
 
@@ -214,11 +221,11 @@ class MainActivityTabFav : Fragment() {
                 holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text = favHymns[position].numberAndTitle
+                holder.textView.text = favHymns[position].hymn.numberAndTitle
                 holder.parentView.setOnClickListener {
                     if (mSelecting) toggleItemSelected(position) else {
                         startActivity(
-                            Intent(mRootView.context, TextviewActivity::class.java).putExtra("nr", favHymns[position].number)
+                            Intent(mRootView.context, TextviewActivity::class.java).putExtra("hymnId", favHymns[position].hymn.hymnId.toInt())
                         )
                     }
                 }

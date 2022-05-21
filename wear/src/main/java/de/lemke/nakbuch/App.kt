@@ -14,7 +14,7 @@ class App : Application() {
         defaultSharedPreferences = getSharedPreferences(getString(R.string.preferenceFileDefault), MODE_PRIVATE)
         myResources = resources
         /*
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             GetAllHymnsUseCase()(BuchMode.Gesangbuch)
             GetAllHymnsUseCase()(BuchMode.Chorbuch)
         }

@@ -106,13 +106,18 @@
     <PreferenceCategory android:title="@string/shortcuts">
         <Preference
             android:key="shortcut_gesangbuch"
-            android:summary="@string/shortcutGesangbuchSummary"
             android:title="@string/shortcutGesangbuch"
+            android:summary="@string/shortcutGesangbuchSummary"
             app:icon="@drawable/ic_oui3_home_shortcut" />
         <Preference
             android:key="shortcut_chorbuch"
-            android:summary="@string/shortcutChorbuchSummary"
             android:title="@string/shortcutChorbuch"
+            android:summary="@string/shortcutChorbuchSummary"
+            app:icon="@drawable/ic_oui3_home_shortcut" />
+        <Preference
+            android:key="shortcut_jugendliederbuch"
+            android:title="@string/shortcutJugendliederbuch"
+            android:summary="@string/shortcutJugendliederbuchSummary"
             app:icon="@drawable/ic_oui3_home_shortcut" />
     </PreferenceCategory>
 

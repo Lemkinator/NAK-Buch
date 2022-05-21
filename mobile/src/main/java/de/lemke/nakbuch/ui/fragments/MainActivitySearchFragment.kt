@@ -14,33 +14,41 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import com.google.android.material.color.MaterialColors
+import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
 import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.hymns.GetSearchListUseCase
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
+import de.lemke.nakbuch.domain.MakeSectionOfTextBoldUseCase
+import de.lemke.nakbuch.domain.hymnUseCases.GetSearchListUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
-import de.lemke.nakbuch.domain.model.hymnPlaceholder
-import de.lemke.nakbuch.domain.settings.*
 import de.lemke.nakbuch.ui.TextviewActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import nl.dionsegijn.konfetti.xml.KonfettiView
+import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
+@AndroidEntryPoint
 class MainActivitySearchFragment : Fragment() {
-    private lateinit var searchList: ArrayList<Hymn>
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
+    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
+    private lateinit var searchList: MutableList<Hymn>
     private lateinit var mRootView: View
     private lateinit var mContext: Context
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var listView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
-    private lateinit var konfettiView: KonfettiView
     private lateinit var buchMode: BuchMode
     private lateinit var search: String
+
+    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
+    @Inject lateinit var getSearchList: GetSearchListUseCase
+    @Inject lateinit var makeSectionOfTextBold: MakeSectionOfTextBoldUseCase
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
@@ -55,37 +63,29 @@ class MainActivitySearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         listView = mRootView.findViewById(R.id.searchList)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
-        konfettiView = mRootView.findViewById(R.id.konfettiViewTabSearch)
-        buchMode = GetBuchModeUseCase()()
-        search = GetSearchUseCase()()
-        initList()
+        coroutineScope.launch {
+            buchMode = getUserSettings().buchMode
+            search = getUserSettings().search
+            initList()
+        }
     }
 
-    private fun initList() {
-        if (AreEasterEggsEnabledUseCase()()) {
-            if (search.replace(" ", "").equals("easteregg", ignoreCase = true)) {
-                DiscoverEasterEggUseCase()(mContext, konfettiView, R.string.easterEggEntrySearch)
-            }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            searchList = GetSearchListUseCase()(buchMode, search)
-            searchList.add(hymnPlaceholder)
-            withContext(Dispatchers.Main) {
-                imageAdapter = ImageAdapter()
-                listView.adapter = imageAdapter
-                val divider = TypedValue()
-                mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-                listView.layoutManager = LinearLayoutManager(mContext)
-                val decoration = ItemDecoration()
-                listView.addItemDecoration(decoration)
-                decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
-                listView.itemAnimator = null
-                listView.seslSetFastScrollerEnabled(true)
-                listView.seslSetFillBottomEnabled(true)
-                listView.seslSetGoToTopEnabled(true)
-                listView.seslSetLastRoundedCorner(false)
-            }
-        }
+    private suspend fun initList() {
+        searchList = getSearchList(buchMode, search).toMutableList() //TODO show favs?
+        searchList.add(Hymn.hymnPlaceholder)
+        imageAdapter = ImageAdapter()
+        listView.adapter = imageAdapter
+        val divider = TypedValue()
+        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        listView.layoutManager = LinearLayoutManager(mContext)
+        val decoration = ItemDecoration()
+        listView.addItemDecoration(decoration)
+        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        listView.itemAnimator = null
+        listView.seslSetFastScrollerEnabled(true)
+        listView.seslSetFillBottomEnabled(true)
+        listView.seslSetGoToTopEnabled(true)
+        listView.seslSetLastRoundedCorner(false)
     }
 
     //Adapter for the Icon RecyclerView
@@ -94,7 +94,7 @@ class MainActivitySearchFragment : Fragment() {
 
         override fun getItemId(position: Int): Long = position.toLong()
 
-        override fun getItemViewType(position: Int): Int = if (searchList[position] != hymnPlaceholder) 0 else 1
+        override fun getItemViewType(position: Int): Int = if (searchList[position] != Hymn.hymnPlaceholder) 0 else 1
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
@@ -115,14 +115,14 @@ class MainActivitySearchFragment : Fragment() {
                     mContext.resources.getColor(R.color.primary_color, mContext.theme)
                 )
                 CoroutineScope(Dispatchers.Main).launch {
-                    holder.textView.text = MakeSectionOfTextBoldUseCase()(hymn.numberAndTitle, search, color, -1)
-                    holder.textViewDescription.text = MakeSectionOfTextBoldUseCase()(hymn.text.replace("\n", "  "), search, color, 20)
-                    holder.textViewCopyright.text = MakeSectionOfTextBoldUseCase()(hymn.copyright, search, color, 5)
+                    holder.textView.text = makeSectionOfTextBold(hymn.numberAndTitle, search, color, -1)
+                    holder.textViewDescription.text = makeSectionOfTextBold(hymn.text.replace("\n", "  "), search, color, 20)
+                    holder.textViewCopyright.text = makeSectionOfTextBold(hymn.copyright, search, color, 5)
                 }
                 holder.parentView.setOnClickListener {
                     startActivity(
                         Intent(mRootView.context, TextviewActivity::class.java)
-                            .putExtra("nr", hymn.number)
+                            .putExtra("hymnId", hymn.hymnId.toInt())
                             .putExtra("boldText", search)
                     )
                 }

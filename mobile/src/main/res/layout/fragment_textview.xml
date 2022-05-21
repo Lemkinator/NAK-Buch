@@ -22,66 +22,56 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="14dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tvText"
+                    android:layout_alignParentTop="true"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="15dp"
-                    android:orientation="vertical">
+                    android:textColor="@color/sesl_tooltip_foreground"
+                    />
 
-                    <TextView
-                        android:id="@+id/tvText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/sesl_tooltip_foreground" />
+                <TextView
+                    android:id="@+id/tvCopyright"
+                    android:layout_below="@+id/tvText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="20dp"
+                    />
 
-                    <TextView
-                        android:id="@+id/tvCopyright"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginVertical="20dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/jokeButton"
+                    android:layout_below="@+id/tvCopyright"
+                    style="@style/ButtonStyle.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginVertical="20dp"
+                    android:maxLines="8"
+                    android:text="@string/jokeButtonText"
+                    android:visibility="gone" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/openOfficialAppButton"
-                        style="@style/ButtonStyle.Transparent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginHorizontal="10dp"
-                        android:maxLines="5"
-                        android:text="@string/openOfficialApp"
-                        android:visibility="gone" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/jokeButton"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_marginVertical="20dp"
-                        android:maxLines="8"
-                        android:text="@string/jokeButtonText"
-                        android:visibility="gone" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/whyNoFullTextButton"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_marginVertical="20dp"
-                        android:maxLines="5"
-                        android:text="@string/whyNoFullText"
-                        android:visibility="gone" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/whyNoFullTextButton"
+                    android:layout_below="@+id/jokeButton"
+                    style="@style/ButtonStyle.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginVertical="20dp"
+                    android:maxLines="5"
+                    android:text="@string/whyNoFullText"
+                    android:visibility="gone" />
 
                     <LinearLayout
                         android:id="@+id/notesGroup"
+                        android:layout_below="@+id/whyNoFullTextButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="30dp"
                         android:orientation="vertical"
                         android:visibility="gone">
 
@@ -137,6 +127,7 @@
 
                     <LinearLayout
                         android:id="@+id/calendarGroup"
+                        android:layout_below="@+id/notesGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -171,9 +162,6 @@
                         </de.dlyt.yanndroid.oneui.widget.RoundLinearLayout>
 
                     </LinearLayout>
-
-
-                </LinearLayout>
 
                 <nl.dionsegijn.konfetti.xml.KonfettiView
                     android:id="@+id/konfettiViewTextview"

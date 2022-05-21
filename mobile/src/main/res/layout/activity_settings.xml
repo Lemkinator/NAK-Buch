@@ -7,7 +7,7 @@
     app:expanded="false"
     app:navigationIcon="@drawable/ic_oui_back"
     app:title="@string/action_settings"
-    app:subtitle="@string/appName"
+    app:subtitle="@string/app_name"
     >
 
     <FrameLayout

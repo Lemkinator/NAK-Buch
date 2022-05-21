@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:drawer_icon="@drawable/ic_oui4_info"
-    app:subtitle="@string/appName"
+    app:subtitle="@string/app_name"
     >
 
     <FrameLayout
@@ -33,5 +33,11 @@
         app:layout_location="footer" />
 
     <include layout="@layout/content_drawer" />
+
+    <nl.dionsegijn.konfetti.xml.KonfettiView
+        android:id="@+id/konfettiViewMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 
 </de.dlyt.yanndroid.oneui.layout.DrawerLayout>

@@ -41,7 +41,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/about_btn_open_oneui_github"
                     style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui_website"
+                    app:icon="@drawable/ic_oui_web_search"
                     android:text="@string/oneUiLibaryGithub"
                     />
 
@@ -55,14 +55,14 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/about_btn_about_me"
                     style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui4_contact"
+                    app:icon="@drawable/ic_oui_website"
                     android:text="@string/aboutMe"
                     />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/about_btn_support_me"
                     style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui3_gift"
+                    app:icon="@drawable/ic_oui_like_off"
                     android:text="@string/supportMe"
                     />
 

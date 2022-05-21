@@ -1,14 +1,15 @@
 package de.lemke.nakbuch.data.database
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
+import de.lemke.nakbuch.domain.model.RubricId
 
 @Entity(
     tableName = "rubric",
-    primaryKeys = ["rubricIndex", "buchMode"],
 )
 data class RubricDb(
-    val rubricIndex: Int,
-    val buchMode: Int,
+    @PrimaryKey
+    val rubricId: RubricId,
     val name: String,
     val isMain: Int,
 )

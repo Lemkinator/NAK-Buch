@@ -1,0 +1,290 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "552ffe7d0fa842c4af92d75f39ca38c4",
+    "entities": [
+      {
+        "tableName": "hymn",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hymnId` INTEGER NOT NULL, `rubricId` INTEGER NOT NULL, `numberAndTitle` TEXT NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `copyright` TEXT NOT NULL, PRIMARY KEY(`hymnId`), FOREIGN KEY(`rubricId`) REFERENCES `rubric`(`rubricId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "hymnId",
+            "columnName": "hymnId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rubricId",
+            "columnName": "rubricId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numberAndTitle",
+            "columnName": "numberAndTitle",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "copyright",
+            "columnName": "copyright",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "hymnId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "rubric",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rubricId"
+            ],
+            "referencedColumns": [
+              "rubricId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "hymn_data",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hymnId` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `notes` TEXT NOT NULL, PRIMARY KEY(`hymnId`), FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "hymnId",
+            "columnName": "hymnId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "favorite",
+            "columnName": "favorite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "hymnId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "hymn",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "hymnId"
+            ],
+            "referencedColumns": [
+              "hymnId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "rubric",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rubricId` INTEGER NOT NULL, `name` TEXT NOT NULL, `isMain` INTEGER NOT NULL, PRIMARY KEY(`rubricId`))",
+        "fields": [
+          {
+            "fieldPath": "rubricId",
+            "columnName": "rubricId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isMain",
+            "columnName": "isMain",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "rubricId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "sung_on",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hymnId` INTEGER NOT NULL, `date` TEXT NOT NULL, PRIMARY KEY(`hymnId`, `date`), FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "hymnId",
+            "columnName": "hymnId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "hymnId",
+            "date"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "hymn",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "hymnId"
+            ],
+            "referencedColumns": [
+              "hymnId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "photo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`index` INTEGER NOT NULL, `hymnId` INTEGER NOT NULL, `uri` TEXT NOT NULL, PRIMARY KEY(`index`), FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hymnId",
+            "columnName": "hymnId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uri",
+            "columnName": "uri",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "index"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "hymn",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "hymnId"
+            ],
+            "referencedColumns": [
+              "hymnId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `hymnId` INTEGER NOT NULL, `date` TEXT NOT NULL, FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hymnId",
+            "columnName": "hymnId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_history_hymnId_date",
+            "unique": true,
+            "columnNames": [
+              "hymnId",
+              "date"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_history_hymnId_date` ON `${TABLE_NAME}` (`hymnId`, `date`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "hymn",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "hymnId"
+            ],
+            "referencedColumns": [
+              "hymnId"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '552ffe7d0fa842c4af92d75f39ca38c4')"
+    ]
+  }
+}

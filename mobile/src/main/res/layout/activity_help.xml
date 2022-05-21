@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:expanded="false"
     app:title="@string/help"
-    app:subtitle="@string/appName"
+    app:subtitle="@string/app_name"
     >
 
 

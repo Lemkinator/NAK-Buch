@@ -10,12 +10,12 @@
         app:showAsAction="always"
        />
 
-    <item
+    <!--item
         android:id="@+id/switchBuchMode"
         android:icon="@drawable/ic_oui_convert"
         android:title="@string/switchMode"
         app:showAsAction="always"
-        />
+        /-->
 
     <item
         android:id="@+id/mute"

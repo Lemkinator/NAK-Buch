@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <files-path
-        name="gesangbuch"
-        path="/gesangbuch/" />
-    <files-path
-        name="chorbuch"
-        path="/chorbuch/" />
+        name="hymnPhotos"
+        path="/hymnPhotos/" />
     <cache-path
         name="tempImages"
         path="/" />
