@@ -29,11 +29,17 @@ class RubricId private constructor(
         }
 
         fun create(rubricIdInt: Int): RubricId? {
+            if (rubricIdInt < 0) return null
             val index = rubricIdInt.mod(BuchMode.intStep)
-            val buchMode = if (rubricIdInt > BuchMode.Jugendliederbuch.toInt()) BuchMode.Jugendliederbuch
-            else if (rubricIdInt > BuchMode.Chorbuch.toInt()) BuchMode.Chorbuch
-            else BuchMode.Gesangbuch
-            return create(index, buchMode)
+            return when (rubricIdInt) {
+                in BuchMode.minId(BuchMode.Gesangbuch) .. BuchMode.maxId(BuchMode.Gesangbuch) ->
+                    create(index, BuchMode.Gesangbuch)
+                in BuchMode.minId(BuchMode.Chorbuch) .. BuchMode.maxId(BuchMode.Chorbuch) ->
+                    create(index, BuchMode.Chorbuch)
+                in BuchMode.minId(BuchMode.Jugendliederbuch) .. BuchMode.maxId(BuchMode.Jugendliederbuch) ->
+                    create(index, BuchMode.Jugendliederbuch)
+                else -> null
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 package de.lemke.nakbuch.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -28,11 +27,11 @@ class TextviewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_textview)
         val viewPager2 = findViewById<ViewPager2>(R.id.viewPager2TextView)
         val hymnId = HymnId.create(intent.getIntExtra("hymnId", -1))
-        Log.d("test", "tvActivity got: $hymnId")
+        //Log.d("test", "tvActivity got: $hymnId")
         if (hymnId == null) finish()
         else {
             viewPager2.adapter = ViewPager2AdapterTextview(this, hymnId, intent.getStringExtra("boldText"))
-            viewPager2.setCurrentItem(hymnId.number - 1, true) //TODO smooth?
+            viewPager2.setCurrentItem(hymnId.number - 1, false) //TODO smooth?
             viewPager2.registerOnPageChangeCallback(object : SeslViewPager2.OnPageChangeCallback() {
                 override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
@@ -47,7 +46,7 @@ class TextviewActivity : AppCompatActivity() {
         fragmentActivity: FragmentActivity, private val hymnId: HymnId, private val boldText: String?
     ) : FragmentStateAdapter(fragmentActivity) {
         override fun createFragment(position: Int): Fragment {
-            return TextviewFragment.newInstance(position + 1 + hymnId.buchMode.toInt(), boldText)
+            return TextviewFragment.newInstance(HymnId.create(position + 1, hymnId.buchMode)!!.toInt(), boldText)
         }
 
         override fun getItemCount(): Int {

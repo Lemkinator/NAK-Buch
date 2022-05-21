@@ -10,6 +10,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class HymnDataRepository @Inject constructor(
+    private val hymnDao: HymnDao,
     private val hymnDataDao: HymnDataDao,
     private val historyDao: HistoryDao,
     private val photoDao: PhotoDao,
@@ -21,11 +22,17 @@ class HymnDataRepository @Inject constructor(
 
     suspend fun addToHistoryList(hymn: Hymn, date: LocalDate) = historyDao.fixedInsert(historyToDb(hymn, date))
 
-    suspend fun getPersonalHymn(hymnId: HymnId): PersonalHymn =
-        personalHymnFromDb(hymnDataDao.getById(hymnId.toInt()))
+    suspend fun getPersonalHymn(hymnId: HymnId): PersonalHymn = personalHymnFromDb(
+        hymnDao.getById(hymnId.toInt()),
+        hymnDataDao.getById(hymnId.toInt())
+    )
 
-    suspend fun getAllPersonalHymns(buchMode: BuchMode): List<PersonalHymn> =
-        hymnDataDao.getAll(BuchMode.minId(buchMode),BuchMode.maxId(buchMode)).map { personalHymnFromDb(it) }
+    suspend fun getFavoritePersonalHymns(buchMode: BuchMode): List<PersonalHymn> =
+        hymnDataDao.getAll(BuchMode.minId(buchMode),BuchMode.maxId(buchMode)).filter {
+            it.hymnData.favorite == 1
+        }.map {
+            personalHymnFromDb(hymnDao.getById(it.hymnData.hymnId.toInt()), it)
+        }
 
     suspend fun setPersonalHymn(personalHymn: PersonalHymn) {
         hymnDataDao.upsert(personalHymnToHymnDataDb(personalHymn))

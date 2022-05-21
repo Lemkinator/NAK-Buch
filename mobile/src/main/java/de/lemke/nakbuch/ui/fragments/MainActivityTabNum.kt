@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,7 +123,6 @@ class MainActivityTabNum : Fragment() {
 
     private fun openHymn() {
         val hymnId = HymnId.create(hymnNrInput.toIntOrNull() ?: -1, buchMode)
-        Log.d("test", "TabNum open hymn: $hymnId")
         if (hymnId != null) startActivity(Intent(mContext, TextviewActivity::class.java).putExtra("hymnId", hymnId.toInt()))
         inputOngoing = false
     }
@@ -147,6 +145,10 @@ class MainActivityTabNum : Fragment() {
             inputOngoing = false
         }
         if (hymnNrInput.isBlank()) return
+        if (hymnNrInput == "666") {
+            coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntry666) }
+            return
+        }
         if (hymnNrInput == "999") {
             coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntry999) }
             return

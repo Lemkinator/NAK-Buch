@@ -27,14 +27,9 @@ data class HymnDataDb(
 )
 
 
-data class PersonalHymnDataWithLists(
+data class HymnDataWithLists(
     @Embedded
     val hymnData: HymnDataDb,
-    @Relation(
-        parentColumn = "hymnId",
-        entityColumn = "hymnId",
-    )
-    val hymn:HymnDb,
     @Relation(
         parentColumn = "hymnId",
         entityColumn = "hymnId",

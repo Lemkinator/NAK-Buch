@@ -9,12 +9,10 @@ import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.net.toFile
@@ -103,10 +101,10 @@ class ImgviewActivity : AppCompatActivity() {
                 initBNV()
                 if (getUserSettings().showImageViewTips) {
                     updateUserSettings { it.copy(showImageViewTips = false) }
-                    Handler(Looper.getMainLooper()).postDelayed({
+                    //Handler(Looper.getMainLooper()).postDelayed({
                         initTipPopup()
                         tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT)
-                    }, 50)
+                    //}, 50)
 
                 }
             } else {
@@ -114,19 +112,19 @@ class ImgviewActivity : AppCompatActivity() {
                 windowInsetsController?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars()) // Hide both the status bar and the navigation bar
             }
-            cameraActivityResultLauncher = registerForActivityResult(TakePicture()) { result: Boolean ->
-                if (result) {
-                    coroutineScope.launch {
-                        val index = if (viewPagerAdapterImageView.count > 0) (imgViewPager.currentItem + 1) else imgViewPager.currentItem
-                        addPhoto(personalHymn, index).invokeOnCompletion {
-                            coroutineScope.launch {
-                                initViewPager(index)
-                            }
+        }
+        cameraActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+            if (result) {
+                coroutineScope.launch {
+                    val index = if (viewPagerAdapterImageView.count > 0) (imgViewPager.currentItem + 1) else imgViewPager.currentItem
+                    addPhoto(personalHymn, index).invokeOnCompletion {
+                        coroutineScope.launch {
+                            initViewPager(index)
                         }
                     }
-                } else {
-                    Toast.makeText(mContext, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
                 }
+            } else {
+                Toast.makeText(mContext, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
             }
         }
     }

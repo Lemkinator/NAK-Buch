@@ -97,6 +97,7 @@
     <string name="easterEggsText" tools:ignore="Typos">"In dieser App gibt es ein paar Easter Eggs (versteckte Besonderheiten).\nKeine Sorge, die Easter Eggs behindern in keiner Weise die Nutzung der App, sondern sind nur dazu da, dir ein Lächeln ins Gesicht zu zaubern.\nFalls du keinen Spaß verstehst oder nicht weißt was du tust, dann klicke bitte auf Deaktivieren.\nDu kannst die Easter Eggs auch später in den Einstellungen aktivieren oder deaktivieren. Dort findest du außerdem ein Scoreboard, welches deinen Entdeckungsfortschritt anzeigt.\n    "</string>
     <string name="easterEggsHelp">"In dieser App gibt es ein paar Easter Eggs (versteckte Besonderheiten).\nKeine Sorge, die Easter Eggs behindern in keiner Weise die Nutzung der App, sondern sind nur dazu da, dir ein Lächeln ins Gesicht zu zaubern.\n    "</string>
 
+    <string name="easterEggEntry666">Lied Nummer 666 eingeben</string>
     <string name="easterEggEntry999">Lied Nummer 999 eingeben</string>
     <string name="easterEggEntry0">Lied Nummer 0 eingeben</string>
     <string name="easterEggEntryPremium">Auf Premium kaufen-Button klicken</string>
@@ -105,23 +106,26 @@
     <string name="easterEggEntryTikTok">\"TikTok-Seite\" entdeckt</string>
     <string name="easterEggEntryComment">Easter-Egg-Kommentar mehrfach angeklickt</string>
     <string name="easterEggEntryHelp">Lang auf den Hilfe-Button klicken</string>
+    <string name="easterEggWhichOfficialApp">Welche offizielle App?</string>
 
     <string name="alreadyDiscoveredEasterEggs">Bereits entdeckte Easter Eggs</string>
-    <string name="easterEggDiscovered">Yeah! Easter Egg entdeckt:</string>
+    <string name="easterEggDiscovered">Yeah! Easter Egg entdeckt: </string>
     <string name="discoveredEasterEggs">Bereits entdeckte Easter Eggs:</string>
     <string name="tips">Tipps</string>
     <string name="showTips">Tipps anzeigen</string>
     <string name="confirmTips">Komm schon… Möchtest du wirklich die Tipps für die Easter Eggs ansehen? Wenn du den Titel "Master of Easter Eggs" mit stolz tragen möchtest, dann klick auf Abbrechen!</string>
-    <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 2 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über NAK-Buch\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n</string>
+    <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 3 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über NAK-Buch\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n- 1 Easter Egg kann über den "Offizielle App Öffnen"-Button entdeckt werden\n</string>
     <string name="easterEggTipsShame">Ich schäme mich</string>
 
     <string-array name="easterEggComments">
         <item>Noch keins gefunden? Dann los! &#128118;</item>
         <item>Sei ehrlich, das war durch Zufall gefunden… &#129300;</item>
         <item>Nicht schlecht, das ist doch schonmal ein Anfang… &#128527;</item>
+        <item>Weiter so, nicht aufgeben! &#128170;</item>
         <item>So langsam füllt sich die Liste mit entdeckten Easter Eggs! &#128269;</item>
         <item>Halbzeit! &#127881;</item>
         <item>Nice! Schon über die Hälfte der Easter Eggs gefunden! &#128048;</item>
+        <item>Und weiter geht die Suche! &#128373;</item>
         <item>Schon ne ganze Menge, stark! &#129299;</item>
         <item>Nur noch 1 fehlt! Komm schon! &#128293;</item>
         <item>&#127942; Master of Easter Eggs! &#127942;</item>

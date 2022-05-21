@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -95,7 +94,6 @@ class TabListSubtabRubric : Fragment() {
         onBackPressedCallback.isEnabled = false
         if (currentRubric != null) {
             hymns = getHymnsWithRubric(currentRubric!!).toMutableList()
-            Log.d("test", hymns.toString())
             hymns.add(0, Hymn.hymnPlaceholder)
             hymns.add(Hymn.hymnPlaceholder)
             onBackPressedCallback.isEnabled = true

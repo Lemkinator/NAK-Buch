@@ -94,8 +94,7 @@ class SettingsActivity : AppCompatActivity() {
         @Inject
         lateinit var mute: MuteUseCase
 
-        @Inject
-        lateinit var doNotDisturb: DoNotDisturbUseCase
+        //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
         @Inject
         lateinit var initDataBase: InitDataBaseUseCase
@@ -177,7 +176,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
             findPreference<Preference>("dnd")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    doNotDisturb()
+                    DoNotDisturbUseCase(mContext)()//doNotDisturb()
                     true
                 }
             confirmExitPref.onPreferenceChangeListener = this

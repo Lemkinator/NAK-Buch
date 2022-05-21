@@ -17,11 +17,13 @@ class OpenAppUseCase @Inject constructor(
         else openAppWithPackageNameOnStore(packageName)
     }
 
-
+    //.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK):
+    // Calling startActivity() from outside of an Activity  context requires the FLAG_ACTIVITY_NEW_TASK flag.
+    // Is this really what you want?
     private fun openAppWithPackageName(packageName: String) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
-            context.startActivity(intent)
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         } else {
             openAppWithPackageNameOnStore(packageName)
         }
@@ -32,11 +34,11 @@ class OpenAppUseCase @Inject constructor(
         intent.data = Uri.parse(context.getString(R.string.playStoreAppLink) + packageName)
         //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
-            context.startActivity(intent)
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         } catch (anfe: ActivityNotFoundException) {
             intent.data =
                 Uri.parse(context.getString(R.string.playStoreLink) + packageName)
-            context.startActivity(intent)
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
     }
 

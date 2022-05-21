@@ -37,7 +37,7 @@ enum class BuchMode {
         const val jugendliederbuchRubricCount = 3 //TODO
         const val intStep = 1000
         fun maxId(buchMode: BuchMode) = buchMode.toInt() + intStep - 1
-        fun minId(buchMode: BuchMode) = buchMode.toInt() + 1
+        fun minId(buchMode: BuchMode) = buchMode.toInt()
         fun fromInt(mode: Int): BuchMode = when (mode) {
             0 * intStep -> Gesangbuch
             1 * intStep -> Chorbuch

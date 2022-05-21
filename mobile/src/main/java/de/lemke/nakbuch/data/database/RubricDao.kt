@@ -14,6 +14,6 @@ interface RubricDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(rubric: RubricDb): Long
 
-    @Query("SELECT * FROM rubric WHERE rubricId = :buchMode")
-    suspend fun getAll(buchMode: Int): List<RubricDb>
+    @Query("SELECT * FROM rubric WHERE rubricId BETWEEN :minId AND :maxId")
+    suspend fun getAll(minId: Int, maxId: Int): List<RubricDb>
 }

@@ -35,7 +35,7 @@ class HymnsRepository @Inject constructor(
 
     suspend fun deleteAllHymns() = hymnDao.deleteAll()
 
-    suspend fun getAllRubrics(buchMode: BuchMode): List<Rubric> = rubricDao.getAll(buchMode.toInt()).map { rubricFromDb(it) }
+    suspend fun getAllRubrics(buchMode: BuchMode): List<Rubric> = rubricDao.getAll(BuchMode.minId(buchMode),BuchMode.maxId(buchMode)).map { rubricFromDb(it) }
 
     suspend fun addRubric(rubric: Rubric) = rubricDao.insert(rubricToDb(rubric))
 

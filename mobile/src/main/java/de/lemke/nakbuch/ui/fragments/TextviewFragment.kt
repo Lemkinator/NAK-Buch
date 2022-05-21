@@ -8,7 +8,6 @@ import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -38,6 +37,7 @@ import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.hymndataUseCases.AddHymnToHistoryListUseCase
 import de.lemke.nakbuch.domain.hymndataUseCases.GetPersonalHymnUseCase
 import de.lemke.nakbuch.domain.hymndataUseCases.SetPersonalHymnUseCase
+import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.HymnId
 import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.domain.utils.TextChangedListener
@@ -101,8 +101,7 @@ class TextviewFragment : Fragment() {
     @Inject
     lateinit var mute: MuteUseCase
 
-    @Inject
-    lateinit var doNotDisturb: DoNotDisturbUseCase
+    //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
     @Inject
     lateinit var openBischoffApp: OpenBischoffAppUseCase
@@ -167,8 +166,13 @@ class TextviewFragment : Fragment() {
                 R.id.mute ->
                     if (!mute()) Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT)
                         .show()
-                R.id.dnd -> doNotDisturb()
-                R.id.openOfficialApp -> openBischoffApp(hymnId.buchMode)
+                R.id.dnd -> DoNotDisturbUseCase(mContext)()//doNotDisturb()
+                R.id.openOfficialApp -> {
+                    coroutineScope.launch {
+                        if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode)
+                        else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
+                    }
+                }
             }
             true
         }
@@ -185,13 +189,15 @@ class TextviewFragment : Fragment() {
 
         coroutineScope.launch {
             personalHymn = getPersonalHymn(hymnId)
-            Log.d("test", "tvFragment hymnId: $hymnId")
-            Log.d("test", "tvFragment personalHymn: ${personalHymn.hymn.hymnId}")
+            //Log.d("test", "tvFragment hymnId: $hymnId")
+            //Log.d("test", "tvFragment personalHymn: ${personalHymn.hymn.hymnId}")
             val color = MaterialColors.getColor(
                 mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
                 mContext.resources.getColor(R.color.primary_color, mContext.theme)
             )
             drawerLayout.setTitle(makeSectionOfTextBold(personalHymn.hymn.numberAndTitle, boldText, color))
+            textSize = getUserSettings().textSize
+            updateTextSize(textSize)
             tvText.text = makeSectionOfTextBold(personalHymn.hymn.text, boldText, color)
             tvCopyright.text = makeSectionOfTextBold(personalHymn.hymn.copyright, boldText, color)
             editTextNotiz.setText(personalHymn.notes)
@@ -268,22 +274,14 @@ class TextviewFragment : Fragment() {
                 )
                 datePickerDialog.show()
             }
-
-            if (getUserSettings().showTextViewTips) {
-                updateUserSettings { it.copy(showTextViewTips = false) }
-                //Handler(Looper.getMainLooper()).postDelayed({
-                initTipPopup()
-                tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)
-                //}, 50)
-            }
             addHymnToHistoryList(personalHymn.hymn)
-            onBackPressedCallback = object : OnBackPressedCallback(false) {
-                override fun handleOnBackPressed() {
-                    setSelecting(false)
-                }
-            }
-            requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
         }
+        onBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                setSelecting(false)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     override fun onResume() {
@@ -291,13 +289,18 @@ class TextviewFragment : Fragment() {
         coroutineScope.launch {
             notesGroup.visibility = if (getUserSettings().notesVisible) View.VISIBLE else View.GONE
             calendarGroup.visibility = if (getUserSettings().sungOnVisible) View.VISIBLE else View.GONE
-            personalHymn = getPersonalHymn(hymnId)
-            Log.d("test", "tvFragment (onResume) hymnId: $hymnId")
-            Log.d("test", "tvFragment (onResume) personalHymn: ${personalHymn.hymn.hymnId}")
             textSize = getUserSettings().textSize
             updateTextSize(textSize)
+            personalHymn = getPersonalHymn(hymnId)
             initBNV()
             initList()
+            if (getUserSettings().showTextViewTips) {
+                updateUserSettings { it.copy(showTextViewTips = false) }
+                //Handler(Looper.getMainLooper()).postDelayed({
+                initTipPopup()
+                tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)
+                //}, 50)
+            }
         }
     }
 

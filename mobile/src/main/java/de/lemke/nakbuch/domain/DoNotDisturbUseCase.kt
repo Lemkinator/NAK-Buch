@@ -7,13 +7,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.lemke.nakbuch.R
-import javax.inject.Inject
 
-class DoNotDisturbUseCase @Inject constructor(
-    @ApplicationContext private val context: Context,
+//java.lang.IllegalStateException: You need to use a Theme.AppCompat theme (or descendant) with this activity.
+
+class DoNotDisturbUseCase( // @Inject constructor(
+    //@ApplicationContext
+    private val context: Context,
 ) {
     operator fun invoke() {
         val mNotificationManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager

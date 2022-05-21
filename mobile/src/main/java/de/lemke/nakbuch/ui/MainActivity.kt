@@ -94,8 +94,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     @Inject
     lateinit var mute: MuteUseCase
 
-    @Inject
-    lateinit var doNotDisturb: DoNotDisturbUseCase
+    //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
 
     private var activityResultLauncher: ActivityResultLauncher<Intent> =
@@ -205,7 +204,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }*/
                 R.id.mute -> if (!mute())
                     Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
-                R.id.dnd -> doNotDisturb()
+                R.id.dnd -> DoNotDisturbUseCase(mContext)()//doNotDisturb()
                 //R.id.info -> startActivity(Intent().setClass(mContext, AboutActivity::class.java))
                 //R.id.settings -> startActivity(Intent().setClass(mContext,SettingsActivity::class.java))
             }

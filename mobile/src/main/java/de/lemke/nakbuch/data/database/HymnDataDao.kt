@@ -25,9 +25,9 @@ interface HymnDataDao {
 
     @Transaction
     @Query("SELECT * FROM hymn_data WHERE hymnId BETWEEN :minId AND :maxId")
-    suspend fun getAll(minId: Int, maxId: Int): List<PersonalHymnDataWithLists>
+    suspend fun getAll(minId: Int, maxId: Int): List<HymnDataWithLists>
 
     @Transaction
     @Query("SELECT * FROM hymn_data WHERE hymnId = :hymnId")
-    suspend fun getById(hymnId: Int): PersonalHymnDataWithLists?
+    suspend fun getById(hymnId: Int): HymnDataWithLists?
 }
