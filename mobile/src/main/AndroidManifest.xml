@@ -2,25 +2,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!--package="de.lemke.nakbuch"
-    Early 2022: Should be moved to build.gradle but "Extract String ressource" not working if missing here :/ -->
+    Early 2022: Should be moved to build.gradle but "Extract String ressource" from context actions not working if missing here?? :/ -->
 
-<uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- uses-permission android:name="com.android.vending.BILLING" / -->
 
     <!--
     TODO
-        optimize numpad
-        improve Database func -> joins,search,...
-
+        database fts
+        search mic button?
+        recycler: duplicate code?
+        context in Fragment? (mContext, nullable getContext())
         same tab click change
         such algo
+        coroutines optimization
 
         history indextip on scroller?
         imgView fullscreen? works on emu
-        (Threading / power management / loading)
         (save to Google Drive?)
         (new Android 12 Splashscreen)
-        (theme farbe) currently not supported
+        (theme color) currently not supported
     -->
 
     <queries>
@@ -30,6 +31,7 @@
     </queries>
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -38,7 +40,6 @@
         android:resizeableActivity="true"
         android:supportsRtl="true"
         android:theme="@style/OneUITheme"
-        android:name=".App"
         tools:targetApi="31">
 
         <!--meta-data
@@ -67,7 +68,7 @@
         <activity android:name=".ui.TextviewActivity" />
         <activity android:name=".ui.ImgviewActivity" />
         <activity android:name=".ui.HelpActivity" />
-        <activity android:name=".ui.SupportMeActivity" />
+        <activity android:name=".ui.AboutMeActivity" />
         <activity
             android:name=".ui.AboutActivity"
             android:theme="@style/OneUIAboutTheme" />
@@ -97,6 +98,10 @@
             android:theme="@style/OneUISplashTheme" />
         <activity
             android:name=".ui.SplashActivityChorbuch"
+            android:exported="true"
+            android:theme="@style/OneUISplashTheme" />
+        <activity
+            android:name=".ui.SplashActivityJugendliederbuch"
             android:exported="true"
             android:theme="@style/OneUISplashTheme" />
         <provider

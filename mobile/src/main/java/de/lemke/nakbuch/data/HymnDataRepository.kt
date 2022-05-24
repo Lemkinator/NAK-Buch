@@ -10,7 +10,6 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class HymnDataRepository @Inject constructor(
-    private val hymnDao: HymnDao,
     private val hymnDataDao: HymnDataDao,
     private val historyDao: HistoryDao,
     private val photoDao: PhotoDao,

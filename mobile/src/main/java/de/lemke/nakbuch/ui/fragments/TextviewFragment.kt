@@ -55,7 +55,7 @@ import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class TextviewFragment : Fragment() {
-    private lateinit var mRootView: View
+    private lateinit var rootView: View
     private lateinit var mContext: Context
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
@@ -84,7 +84,7 @@ class TextviewFragment : Fragment() {
     private lateinit var tipPopupPlus: TipPopup
     private lateinit var tipPopupMinus: TipPopup
     private lateinit var selected: HashMap<Int, Boolean>
-    private var mSelecting = false
+    private var selecting = false
     private var checkAllListening = true
     private lateinit var hymnSungOnList: MutableList<LocalDate?>
     private lateinit var onBackPressedCallback: OnBackPressedCallback
@@ -129,9 +129,9 @@ class TextviewFragment : Fragment() {
             return f
         }
 
-        const val TEXT_SIZE_STEP = 2
-        const val TEXT_SIZE_MIN = 10
-        const val TEXT_SIZE_MAX = 50
+        const val TEXTSIZE_STEP = 2
+        const val TEXTSIZE_MIN = 10
+        const val TEXTSIZE_MAX = 50
     }
 
     override fun onAttach(context: Context) {
@@ -140,20 +140,20 @@ class TextviewFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        mRootView = inflater.inflate(R.layout.fragment_textview, container, false)
+        rootView = inflater.inflate(R.layout.fragment_textview, container, false)
         hymnId = HymnId.create(requireArguments().getInt("hymnId"))!!
         boldText = requireArguments().getString("boldText")
-        return mRootView
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        drawerLayout = mRootView.findViewById(R.id.drawer_layout_textview)
+        drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
         drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         drawerLayout.setNavigationButtonOnClickListener { requireActivity().onBackPressed() }
-        drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
         drawerLayout.setSubtitle(hymnId.buchMode.toString())
+        drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
         drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 /*R.id.switchBuchMode -> {
@@ -173,19 +173,21 @@ class TextviewFragment : Fragment() {
                         else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
                     }
                 }
+                R.id.increaseTextSize -> coroutineScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
+                R.id.decreaseTextSize -> coroutineScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
             }
             true
         }
-        nestedScrollView = mRootView.findViewById(R.id.nestedScrollViewTextview)
-        konfettiView = mRootView.findViewById(R.id.konfettiViewTextview)
-        tvText = mRootView.findViewById(R.id.tvText)
-        tvCopyright = mRootView.findViewById(R.id.tvCopyright)
-        listView = mRootView.findViewById(R.id.hymnHistoryList)
-        notesGroup = mRootView.findViewById(R.id.notesGroup)
-        calendarGroup = mRootView.findViewById(R.id.calendarGroup)
-        editTextNotiz = mRootView.findViewById(R.id.editTextNotiz)
-        jokeButton = mRootView.findViewById(R.id.jokeButton)
-        whyNoFullTextButton = mRootView.findViewById(R.id.whyNoFullTextButton)
+        nestedScrollView = rootView.findViewById(R.id.nestedScrollViewTextview)
+        konfettiView = rootView.findViewById(R.id.konfettiViewTextview)
+        tvText = rootView.findViewById(R.id.tvText)
+        tvCopyright = rootView.findViewById(R.id.tvCopyright)
+        listView = rootView.findViewById(R.id.hymnHistoryList)
+        notesGroup = rootView.findViewById(R.id.notesGroup)
+        calendarGroup = rootView.findViewById(R.id.calendarGroup)
+        editTextNotiz = rootView.findViewById(R.id.editTextNotiz)
+        jokeButton = rootView.findViewById(R.id.jokeButton)
+        whyNoFullTextButton = rootView.findViewById(R.id.whyNoFullTextButton)
 
         coroutineScope.launch {
             personalHymn = getPersonalHymn(hymnId)
@@ -211,6 +213,7 @@ class TextviewFragment : Fragment() {
                     whyNoFullTextButton.visibility = View.VISIBLE
                 }
             }
+            initBNV()
             whyNoFullTextButton.setOnClickListener { startActivity(Intent(mContext, HelpActivity::class.java)) }
             jokeButton.setOnClickListener {
                 coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntryPremium) }
@@ -243,12 +246,12 @@ class TextviewFragment : Fragment() {
                     }
                 }
             })
-            mRootView.findViewById<View>(R.id.buttonKopieren).setOnClickListener {
+            rootView.findViewById<View>(R.id.buttonKopieren).setOnClickListener {
                 Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show()
                 (requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                     .setPrimaryClip(ClipData.newPlainText("Notiz ($hymnId)", editTextNotiz.text.toString()))
             }
-            mRootView.findViewById<View>(R.id.buttonSenden).setOnClickListener {
+            rootView.findViewById<View>(R.id.buttonSenden).setOnClickListener {
                 val sendIntent = Intent(Intent.ACTION_SEND)
                 sendIntent.type = "text/plain"
                 sendIntent.putExtra(Intent.EXTRA_TEXT, editTextNotiz.text.toString())
@@ -257,7 +260,7 @@ class TextviewFragment : Fragment() {
                 startActivity(Intent.createChooser(sendIntent, "Share Via"))
             }
 
-            val addDateButton: MaterialButton = mRootView.findViewById(R.id.addDateButton)
+            val addDateButton: MaterialButton = rootView.findViewById(R.id.addDateButton)
             addDateButton.setOnClickListener {
                 val datePickerDialog = DatePickerDialog(
                     mContext, { _, year, month0, day ->
@@ -294,23 +297,27 @@ class TextviewFragment : Fragment() {
             updateTextSize(textSize)
             personalHymn = getPersonalHymn(hymnId)
             initBNV()
-            if (getUserSettings().showTextViewTips) {
-                updateUserSettings { it.copy(showTextViewTips = false) }
-                //Handler(Looper.getMainLooper()).postDelayed({
-                initTipPopup()
-                tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)
-                //}, 50)
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if (getUserSettings().showTextViewTips) {
+                    updateUserSettings { it.copy(showTextViewTips = false) }
+                    //Handler(Looper.getMainLooper()).postDelayed({
+                    initTipPopup()
+                    tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)
+                    //}, 50)
+                }
             }
         }
     }
 
     private fun initBNV() {
-        if (tabLayout == null) tabLayout = mRootView.findViewById(R.id.textView_bnv)
+        if (tabLayout == null) tabLayout = rootView.findViewById(R.id.textView_bnv)
         else tabLayout!!.removeAllTabs()
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            drawerLayout.inflateToolbarMenu(R.menu.textview_menu_landscape)
             tabLayout!!.isVisible = false
             return
         } else {
+            drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
             tabLayout!!.isVisible = true
         }
         val noteIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
@@ -323,7 +330,6 @@ class TextviewFragment : Fragment() {
                     ), PorterDuff.Mode.SRC_IN
                 )
             }
-
         }
         tabLayout!!.addTabCustomButton(noteIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
@@ -382,9 +388,11 @@ class TextviewFragment : Fragment() {
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                personalHymn.favorite = !personalHymn.favorite
-                coroutineScope.launch { setPersonalHymn(personalHymn.copy()) }
-                initBNV()
+                coroutineScope.launch {
+                    personalHymn.favorite = !personalHymn.favorite
+                    initBNV()
+                    setPersonalHymn(personalHymn.copy())
+                }
             }
         })
         val camIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan)
@@ -399,7 +407,7 @@ class TextviewFragment : Fragment() {
         tabLayout!!.addTabCustomButton(plusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 coroutineScope.launch {
-                    updateTextSize(textSize + TEXT_SIZE_STEP)
+                    updateTextSize(textSize + TEXTSIZE_STEP)
                 }
             }
         })
@@ -407,7 +415,7 @@ class TextviewFragment : Fragment() {
         tabLayout!!.addTabCustomButton(minusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 coroutineScope.launch {
-                    updateTextSize(textSize - TEXT_SIZE_STEP)
+                    updateTextSize(textSize - TEXTSIZE_STEP)
                 }
             }
         })
@@ -417,12 +425,12 @@ class TextviewFragment : Fragment() {
         val menuItemView =
             (drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_action_menu_item_container) as ViewGroup)
                 .getChildAt(0)
-        val noteButton: View = tabLayout!!.getTabAt(0)!!.view
-        val calendarButton: View = tabLayout!!.getTabAt(1)!!.view
-        val favButton: View = tabLayout!!.getTabAt(2)!!.view
-        val fotoButton: View = tabLayout!!.getTabAt(3)!!.view
-        val plusButton: View = tabLayout!!.getTabAt(4)!!.view
-        val minusButton: View = tabLayout!!.getTabAt(5)!!.view
+        val noteButton: View? = tabLayout?.getTabAt(0)?.view
+        val calendarButton: View? = tabLayout?.getTabAt(1)?.view
+        val favButton: View? = tabLayout?.getTabAt(2)?.view
+        val fotoButton: View? = tabLayout?.getTabAt(3)?.view
+        val plusButton: View? = tabLayout?.getTabAt(4)?.view
+        val minusButton: View? = tabLayout?.getTabAt(5)?.view
         tipPopupMenu = TipPopup(menuItemView)
         tipPopupNote = TipPopup(noteButton)
         tipPopupCalendar = TipPopup(calendarButton)
@@ -433,10 +441,7 @@ class TextviewFragment : Fragment() {
         tipPopupMenu.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
         tipPopupNote.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
         tipPopupCalendar.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                mContext.theme
-            )
+            resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme)
         )
         tipPopupFav.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
         tipPopupFoto.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
@@ -461,7 +466,7 @@ class TextviewFragment : Fragment() {
         tipPopupFav.setOnDismissListener { tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupFoto.setOnDismissListener { tipPopupPlus.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupPlus.setOnDismissListener { tipPopupMinus.show(TipPopup.DIRECTION_TOP_LEFT) }
-        tipPopupMenu.setMessage("${getString(R.string.mute)} oder ${getString(R.string.dndMode)}")
+        tipPopupMenu.setMessage("${getString(R.string.mute)} oder ${getString(R.string.dndDescription)}")
         tipPopupNote.setMessage(getString(R.string.noteTip))
         tipPopupCalendar.setMessage(getString(R.string.calendarTip))
         tipPopupFav.setMessage(getString(R.string.addToFav) + "/" + getString(R.string.removeFromFav))
@@ -471,7 +476,7 @@ class TextviewFragment : Fragment() {
     }
 
     private suspend fun updateTextSize(newTextSize: Int): Int {
-        textSize = newTextSize.coerceIn(TEXT_SIZE_MIN, TEXT_SIZE_MAX)
+        textSize = newTextSize.coerceIn(TEXTSIZE_MIN, TEXTSIZE_MAX)
         tvText.textSize = textSize.toFloat()
         tvCopyright.textSize = (textSize - 4).toFloat()
         updateUserSettings { it.copy(textSize = textSize) }
@@ -500,7 +505,7 @@ class TextviewFragment : Fragment() {
 
     fun setSelecting(enabled: Boolean) {
         if (enabled) {
-            mSelecting = true
+            selecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
                 if (item.itemId == R.id.menuButtonRemove) {
@@ -528,7 +533,7 @@ class TextviewFragment : Fragment() {
             }
             onBackPressedCallback.isEnabled = true
         } else {
-            mSelecting = false
+            selecting = false
             for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeCount(0)
@@ -568,7 +573,7 @@ class TextviewFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             if (holder.isItem) {
-                holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
+                holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
 
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
@@ -577,11 +582,11 @@ class TextviewFragment : Fragment() {
                         .toLocalDate()*/
                 holder.textView.text = hymnSungOnList[position]!!.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
                 holder.parentView.setOnClickListener {
-                    if (!mSelecting) setSelecting(true)
+                    if (!selecting) setSelecting(true)
                     toggleItemSelected(position)
                 }
                 holder.parentView.setOnLongClickListener {
-                    if (!mSelecting) setSelecting(true)
+                    if (!selecting) setSelecting(true)
                     toggleItemSelected(position)
                     listView.seslStartLongPressMultiSelection()
                     listView.seslSetLongPressMultiSelectionListener(object :
@@ -618,10 +623,10 @@ class TextviewFragment : Fragment() {
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(mContext, true)
-        private val mSeslRoundedCornerBottom: SeslRoundedCorner
-        private var mDivider: Drawable? = null
-        private var mDividerHeight = 0
+        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(mContext, true)
+        private val seslRoundedCornerBottom: SeslRoundedCorner
+        private var divider: Drawable? = null
+        private var dividerHeight = 0
         override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
@@ -636,12 +641,12 @@ class TextviewFragment : Fragment() {
                     if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
-                if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
-                    mDivider!!.setBounds(0, y, width, mDividerHeight + y)
-                    mDivider!!.draw(canvas)
+                if (divider != null && viewHolder.isItem && shallDrawDivider) {
+                    divider!!.setBounds(0, y, width, dividerHeight + y)
+                    divider!!.draw(canvas)
                 }
                 if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i - 1) != null) mSeslRoundedCornerBottom.drawRoundedCorner(
+                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
                         recyclerView.getChildAt(i - 1),
                         canvas
                     )
@@ -651,15 +656,15 @@ class TextviewFragment : Fragment() {
         }
 
         fun setDivider(d: Drawable) {
-            mDivider = d
-            mDividerHeight = d.intrinsicHeight
+            divider = d
+            dividerHeight = d.intrinsicHeight
             listView.invalidateItemDecorations()
         }
 
         init {
-            mSeslRoundedCornerTop.roundedCorners = 3
-            mSeslRoundedCornerBottom = SeslRoundedCorner(mContext, true)
-            mSeslRoundedCornerBottom.roundedCorners = 12
+            seslRoundedCornerTop.roundedCorners = 3
+            seslRoundedCornerBottom = SeslRoundedCorner(mContext, true)
+            seslRoundedCornerBottom.roundedCorners = 12
         }
     }
 }

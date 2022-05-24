@@ -25,6 +25,18 @@ Note: FTS-enabled tables always use a primary key of type INTEGER and with the c
 If your FTS-table-backed entity defines a primary key, it must use that type and column name.
  */
 
+@Fts4(contentEntity = HymnDb::class)
+@Entity(tableName = "hymn_fts")
+class HymnDbFts(
+    @PrimaryKey
+    @ColumnInfo(name = "rowid")val hymnId: HymnId,
+    val numberAndTitle: String,
+    val title: String,
+    val text: String,
+    val copyright: String,
+)
+
+
 @Entity(
     tableName = "hymn",
     foreignKeys = [

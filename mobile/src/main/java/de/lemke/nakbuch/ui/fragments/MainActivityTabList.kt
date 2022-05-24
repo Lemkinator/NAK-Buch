@@ -1,6 +1,5 @@
 package de.lemke.nakbuch.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,24 +15,18 @@ import de.lemke.nakbuch.domain.utils.ViewPager2AdapterTabListSubtabs
 
 @AndroidEntryPoint
 class MainActivityTabList : Fragment() {
-    private lateinit var mRootView: View
-    private lateinit var mContext: Context
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
-
+    private lateinit var rootView: View
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        mRootView = inflater.inflate(R.layout.fragment_tab_list, container, false)
-        return mRootView
+        rootView = inflater.inflate(R.layout.fragment_tab_list, container, false)
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val subTabs: TabLayout = mRootView.findViewById(R.id.sub_tabs)
+        val subTabs: TabLayout = rootView.findViewById(R.id.sub_tabs)
         subTabs.seslSetSubTabStyle()
         subTabs.tabMode = TabLayout.SESL_MODE_WEIGHT_AUTO
-        val viewPager2: ViewPager2 = mRootView.findViewById(R.id.viewPager2Lists)
+        val viewPager2: ViewPager2 = rootView.findViewById(R.id.viewPager2Lists)
         viewPager2.adapter = ViewPager2AdapterTabListSubtabs(this)
         viewPager2.registerOnPageChangeCallback(object : SeslViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}

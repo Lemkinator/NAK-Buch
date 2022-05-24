@@ -41,8 +41,8 @@ import kotlin.coroutines.CoroutineContext
 class TabListSubtabAlphabetic : Fragment() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var mRootView: View
-    private lateinit var mContext: Context
+    private lateinit var rootView: View
+    private lateinit var mContext: Context //cause getContext() is nullable
     private lateinit var buchMode: BuchMode
     private lateinit var hymnsAlphsort: MutableList<Hymn>
     private lateinit var listView: RecyclerView
@@ -53,7 +53,7 @@ class TabListSubtabAlphabetic : Fragment() {
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var onBackPressedCallback: OnBackPressedCallback
     private var selected = HashMap<Int, Boolean>()
-    private var mSelecting = false
+    private var selecting = false
     private var checkAllListening = true
 
     @Inject lateinit var getUserSettings: GetUserSettingsUseCase
@@ -66,20 +66,20 @@ class TabListSubtabAlphabetic : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        mRootView = inflater.inflate(R.layout.fragment_tab_list_subtab_alphabetic, container, false)
-        return mRootView
+        rootView = inflater.inflate(R.layout.fragment_tab_list_subtab_alphabetic, container, false)
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
-        listView = mRootView.findViewById(R.id.hymnListAlphabetical)
+        listView = rootView.findViewById(R.id.hymnListAlphabetical)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
         mainTabs = requireActivity().findViewById(R.id.main_tabs)
         viewPager2List = requireActivity().findViewById(R.id.viewPager2Lists)
         onBackPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
-                if (mSelecting) setSelecting(false)
+                if (selecting) setSelecting(false)
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
@@ -109,7 +109,7 @@ class TabListSubtabAlphabetic : Fragment() {
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
         decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
-        val indexScrollView: IndexScrollView = mRootView.findViewById(R.id.indexScrollViewAlphabetical)
+        val indexScrollView: IndexScrollView = rootView.findViewById(R.id.indexScrollViewAlphabetical)
         val list: MutableList<String> = mutableListOf()
         for (i in 0 until hymnsAlphsort.size - 1) list.add(hymnsAlphsort[i].title)
         indexScrollView.syncWithRecyclerView(listView, list, true)
@@ -118,7 +118,7 @@ class TabListSubtabAlphabetic : Fragment() {
 
     fun setSelecting(enabled: Boolean) {
         if (enabled) {
-            mSelecting = true
+            selecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.fav_menu) { item: MenuItem ->
                 val onlySelected = HashMap(selected.filter { it.value })
@@ -170,7 +170,7 @@ class TabListSubtabAlphabetic : Fragment() {
             viewPager2List.isUserInputEnabled = false
             onBackPressedCallback.isEnabled = true
         } else {
-            mSelecting = false
+            selecting = false
             for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeCount(0)
@@ -196,9 +196,9 @@ class TabListSubtabAlphabetic : Fragment() {
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter internal constructor() :
         RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
-        private var mSections: MutableList<String> = mutableListOf()
-        private var mPositionForSection: MutableList<Int> = mutableListOf()
-        private var mSectionForPosition: MutableList<Int> = mutableListOf()
+        private var sections: MutableList<String> = mutableListOf()
+        private var positionForSection: MutableList<Int> = mutableListOf()
+        private var sectionForPosition: MutableList<Int> = mutableListOf()
         override fun getItemCount(): Int {
             return hymnsAlphsort.size
         }
@@ -224,19 +224,19 @@ class TabListSubtabAlphabetic : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             if (holder.isItem) {
-                holder.checkBox.visibility = if (mSelecting) View.VISIBLE else View.GONE
+                holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 holder.textView.text = hymnsAlphsort[position].numberAndTitle
                 holder.parentView.setOnClickListener {
-                    if (mSelecting) toggleItemSelected(position) else {
+                    if (selecting) toggleItemSelected(position) else {
                         startActivity(
-                            Intent(mRootView.context, TextviewActivity::class.java).putExtra("hymnId", hymnsAlphsort[position].hymnId.toInt())
+                            Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymnsAlphsort[position].hymnId.toInt())
                         )
                     }
                 }
                 holder.parentView.setOnLongClickListener {
-                    if (!mSelecting) setSelecting(true)
+                    if (!selecting) setSelecting(true)
                     toggleItemSelected(position)
                     listView.seslStartLongPressMultiSelection()
                     listView.seslSetLongPressMultiSelectionListener(object :
@@ -253,11 +253,11 @@ class TabListSubtabAlphabetic : Fragment() {
             }
         }
 
-        override fun getSections(): Array<Any> = mSections.toTypedArray()
+        override fun getSections(): Array<Any> = sections.toTypedArray()
 
-        override fun getPositionForSection(i: Int): Int = mPositionForSection[i]
+        override fun getPositionForSection(i: Int): Int = positionForSection[i]
 
-        override fun getSectionForPosition(i: Int): Int = mSectionForPosition[i]
+        override fun getSectionForPosition(i: Int): Int = sectionForPosition[i]
 
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) :
             RecyclerView.ViewHolder(
@@ -285,22 +285,22 @@ class TabListSubtabAlphabetic : Fragment() {
                 val letter: String = if (i != hymnsAlphsort.size - 1) {
                     hymnsAlphsort[i].title.substring(0, 1).uppercase(Locale.getDefault())
                 } else {
-                    mSections[mSections.size - 1]
+                    sections[sections.size - 1]
                 }
-                if (i == 0 || mSections[mSections.size - 1] != letter) {
-                    mSections.add(letter)
-                    mPositionForSection.add(i)
+                if (i == 0 || sections[sections.size - 1] != letter) {
+                    sections.add(letter)
+                    positionForSection.add(i)
                 }
-                mSectionForPosition.add(mSections.size - 1)
+                sectionForPosition.add(sections.size - 1)
             }
         }
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
-        private val mSeslRoundedCornerBottom: SeslRoundedCorner
-        private var mDivider: Drawable? = null
-        private var mDividerHeight = 0
+        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
+        private val seslRoundedCornerBottom: SeslRoundedCorner
+        private var divider: Drawable? = null
+        private var dividerHeight = 0
         override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
@@ -314,36 +314,36 @@ class TabListSubtabAlphabetic : Fragment() {
                 val shallDrawDivider: Boolean = if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
                     recyclerView.getChildAt(i + 1)
                 ) as ImageAdapter.ViewHolder).isItem else false
-                if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
+                if (divider != null && viewHolder.isItem && shallDrawDivider) {
                     //int moveRTL = isRTL() ? 130 : 0;
                     //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
-                    mDivider!!.setBounds(0, y, width, mDividerHeight + y)
-                    mDivider!!.draw(canvas)
+                    divider!!.setBounds(0, y, width, dividerHeight + y)
+                    divider!!.draw(canvas)
                 }
                 if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) mSeslRoundedCornerTop.drawRoundedCorner(
+                    if (recyclerView.getChildAt(i + 1) != null) seslRoundedCornerTop.drawRoundedCorner(
                         recyclerView.getChildAt(i + 1),
                         canvas
                     )
-                    if (recyclerView.getChildAt(i - 1) != null) mSeslRoundedCornerBottom.drawRoundedCorner(
+                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
                         recyclerView.getChildAt(i - 1),
                         canvas
                     )
                 }
             }
-            mSeslRoundedCornerTop.drawRoundedCorner(canvas)
+            seslRoundedCornerTop.drawRoundedCorner(canvas)
         }
 
         fun setDivider(d: Drawable) {
-            mDivider = d
-            mDividerHeight = d.intrinsicHeight
+            divider = d
+            dividerHeight = d.intrinsicHeight
             listView.invalidateItemDecorations()
         }
 
         init {
-            mSeslRoundedCornerTop.roundedCorners = 3
-            mSeslRoundedCornerBottom = SeslRoundedCorner(requireContext(), true)
-            mSeslRoundedCornerBottom.roundedCorners = 12
+            seslRoundedCornerTop.roundedCorners = 3
+            seslRoundedCornerBottom = SeslRoundedCorner(requireContext(), true)
+            seslRoundedCornerBottom.roundedCorners = 12
         }
     }
 }

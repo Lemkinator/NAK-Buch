@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/increaseTextSize"
+        app:showAsAction="always"
+        android:title="@string/increaseTextsize"
+        android:icon="@drawable/ic_oui_plus"
+        />
+
+    <item
+        android:id="@+id/decreaseTextSize"
+        app:showAsAction="always"
+        android:title="@string/decreaseTextsize"
+        android:icon="@drawable/ic_oui_minus"
+        />
+
+    <item
+        android:id="@+id/mute"
+        android:title="@string/mute"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/dnd"
+        android:title="@string/dnd"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/openOfficialApp"
+        android:title="@string/openOfficialApp"
+        app:showAsAction="ifRoom" />
+
+    <!--
+        android:icon="@drawable/ic_samsung_convert"
+        android:icon="@drawable/ic_samsung_volume_mute"
+        android:icon="@drawable/ic_samsung_remove_2"
+     -->
+
+</menu>

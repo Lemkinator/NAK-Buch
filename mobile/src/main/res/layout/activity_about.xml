@@ -7,81 +7,47 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:optional_text="@string/aboutPageOptionalText"
-    tools:context=".ui.AboutActivity"
-    >
+    tools:context=".ui.AboutActivity">
 
     <de.dlyt.yanndroid.oneui.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fillViewport="true"
-        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior"
-        >
+        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:gravity="center"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                >
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/about_btn_open_in_store"
+                style="@style/ButtonStyle.AboutPage"
+                android:text="@string/openInPlaystore"
+                app:icon="@drawable/ic_oui4_store" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/about_btn_open_in_store"
-                    style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui4_store"
-                    android:text="@string/openInPlaystore"
-                    />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/about_btn_open_oneui_github"
+                style="@style/ButtonStyle.AboutPage"
+                android:text="@string/oneUiLibaryGithub"
+                app:icon="@drawable/ic_oui_web_search" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/about_btn_open_oneui_github"
-                    style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui_web_search"
-                    android:text="@string/oneUiLibaryGithub"
-                    />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/about_btn_help"
+                style="@style/ButtonStyle.AboutPage"
+                android:text="@string/help"
+                app:icon="@drawable/ic_oui4_help" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/about_btn_help"
-                    style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui4_help"
-                    android:text="@string/help"
-                    />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/about_btn_about_me"
+                style="@style/ButtonStyle.AboutPage"
+                android:text="@string/aboutMe"
+                app:icon="@drawable/ic_oui4_contact" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/about_btn_about_me"
-                    style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui_website"
-                    android:text="@string/aboutMe"
-                    />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/about_btn_support_me"
-                    style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui_like_off"
-                    android:text="@string/supportMe"
-                    />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/about_btn_tiktk_troll"
-                    style="@style/ButtonStyle.AboutPage"
-                    app:icon="@drawable/ic_oui_link"
-                    android:text="@string/tiktokTroll"
-                    />
-
-            </LinearLayout>
-
-            <nl.dionsegijn.konfetti.xml.KonfettiView
-                android:id="@+id/konfettiViewAboutPage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
-
-        </RelativeLayout>
+        </LinearLayout>
 
     </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
 

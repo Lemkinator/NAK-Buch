@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -50,6 +49,7 @@ import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.model.BuchMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
@@ -60,14 +60,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     companion object {
         var colorSettingChanged = false
     }
-
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private var mContext: Context = this
-    private var mFragment: Fragment? = null
-    private lateinit var mFragmentManager: FragmentManager
+    private var context: Context = this
     private var currentTab = 0
     private var previousTab = 0
+    private var currentFragment: Fragment? = null
+    private lateinit var fragmentManager: FragmentManager
+    private lateinit var searchJob: Job
     private lateinit var buchMode: BuchMode
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var konfettiView: KonfettiView
@@ -96,7 +96,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
-
     private var activityResultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->
             drawerLayout.onSearchModeVoiceInputResult(result)
@@ -109,13 +108,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         time = System.currentTimeMillis()
-        mContext = this
+        context = this
         drawerLayout = findViewById(R.id.drawer_view)
         tabLayout = findViewById(R.id.main_tabs)
         optionGroup = findViewById(R.id.optiongroup)
         searchHelpFAB = findViewById(R.id.searchHelpFAB)
         konfettiView = findViewById(R.id.konfettiViewMain)
-        mFragmentManager = supportFragmentManager
+        fragmentManager = supportFragmentManager
         ViewSupport.semSetRoundedCorners(window.decorView, 0)
 
         coroutineScope.launch {
@@ -125,6 +124,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 AppStart.NORMAL -> {}
                 AppStart.OLD_ARCHITECTURE -> {}
             }
+            buchMode = getUserSettings().buchMode
+            setCurrentItem()
         }
 
         // TabLayout
@@ -143,14 +144,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
         //DrawerLayout
         drawerLayout.inflateToolbarMenu(R.menu.main)
-        drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(mContext, AboutActivity::class.java)) }
+        drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(context, AboutActivity::class.java)) }
         drawerLayout.setDrawerButtonTooltip(getText(R.string.aboutApp))
         drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.search -> {
                     drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener() {
                         override fun onSearchOpened(search_edittext: EditText) {
-                            coroutineScope.launch {
+                            searchJob = coroutineScope.launch {
                                 search_edittext.setText(getUserSettings().search)
                                 search_edittext.setSelection(0, search_edittext.text.length)
                             }
@@ -168,7 +169,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                         override fun afterTextChanged(s: Editable) {
                             var searchText = s.toString()
-                            coroutineScope.launch {
+                            searchJob.cancel()
+                            searchJob = coroutineScope.launch {
                                 if (getUserSettings().easterEggsEnabled) {
                                     if (searchText.replace(" ", "").equals("easteregg", ignoreCase = true)) {
                                         discoverEasterEgg(konfettiView, R.string.easterEggEntrySearch)
@@ -184,7 +186,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         }
 
                         override fun onKeyboardSearchClick(s: CharSequence) {
-                            coroutineScope.launch {
+                            searchJob.cancel()
+                            searchJob = coroutineScope.launch {
                                 updateUserSettings { it.copy(search = s.toString()) }
                                 setFragment(3)
                             }
@@ -203,8 +206,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 }*/
                 R.id.mute -> if (!mute())
-                    Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
-                R.id.dnd -> DoNotDisturbUseCase(mContext)()//doNotDisturb()
+                    Toast.makeText(context, context.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+                R.id.dnd -> DoNotDisturbUseCase(context)()//doNotDisturb()//
                 //R.id.info -> startActivity(Intent().setClass(mContext, AboutActivity::class.java))
                 //R.id.settings -> startActivity(Intent().setClass(mContext,SettingsActivity::class.java))
             }
@@ -231,19 +234,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 }
                 R.id.ob_settings -> {
-                    startActivity(Intent(mContext, SettingsActivity::class.java))
+                    startActivity(Intent(context, SettingsActivity::class.java))
                 }
                 R.id.ob_about -> {
-                    startActivity(Intent(mContext, AboutActivity::class.java))
+                    startActivity(Intent(context, AboutActivity::class.java))
                 }
                 R.id.ob_help -> {
-                    startActivity(Intent(mContext, HelpActivity::class.java))
+                    startActivity(Intent(context, HelpActivity::class.java))
                 }
                 R.id.ob_about_me -> {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website))))
-                }
-                R.id.ob_support_me -> {
-                    startActivity(Intent(mContext, SupportMeActivity::class.java))
+                    startActivity(Intent(context, AboutMeActivity::class.java))
                 }
             }
             drawerLayout.setDrawerOpen(false, true)
@@ -256,13 +256,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
         searchHelpFAB.setOnClickListener {
             val searchModes = arrayOf<CharSequence>(getString(R.string.onlyExactSearchText), getString(R.string.searchForAllPartialWords))
-            AlertDialog.Builder(mContext)
+            AlertDialog.Builder(context)
                 .setTitle(R.string.help)
                 .setMessage(R.string.searchHelp)
                 .setNeutralButton(R.string.ok, null)
-                .setNegativeButton(R.string.changeSearchMode) { _: DialogInterface, _: Int ->
+                .setNegativeButton(R.string.standardSearchMode) { _: DialogInterface, _: Int ->
                     coroutineScope.launch {
-                        AlertDialog.Builder(mContext)
+                        AlertDialog.Builder(context)
                             .setTitle(getString(R.string.setStandardSearchMode))
                             .setNeutralButton(R.string.ok, null)
                             .setSingleChoiceItems(searchModes, if (getUserSettings().alternativeSearchModeEnabled) 1 else 0)
@@ -275,7 +275,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .create()
                 .show()
         }
-
         val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 coroutineScope.launch {
@@ -287,7 +286,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                             if (System.currentTimeMillis() - time < 3000) {
                                 finishAffinity()
                             } else {
-                                Toast.makeText(mContext, resources.getString(R.string.pressAgainToExit), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, resources.getString(R.string.pressAgainToExit), Toast.LENGTH_SHORT).show()
                                 time = System.currentTimeMillis()
                             }
                         } else {
@@ -299,7 +298,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
-        AppUpdateManagerFactory.create(mContext).appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
+        AppUpdateManagerFactory.create(context).appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
                 drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
             }
@@ -318,7 +317,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         // pre-OneUI
         if (Build.VERSION.SDK_INT <= 28) {
             val res = resources
-            res.configuration.setTo(ThemeUtil.createDarkModeConfig(mContext, newConfig))
+            res.configuration.setTo(ThemeUtil.createDarkModeConfig(context, newConfig))
         }
     }
 
@@ -329,6 +328,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             recreate()
         }
         coroutineScope.launch {
+            /* TODO does mode change somewhere else?
             val newBuchMode = getUserSettings().buchMode
             if (!::buchMode.isInitialized) {
                 buchMode = newBuchMode
@@ -336,18 +336,18 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             } else if (newBuchMode != buchMode) {
                 buchMode = newBuchMode
                 setCurrentItem()
-            }
-            val hints = getUserSettings().hintSet
+            }*/
+            val hints = getUserSettings().hints
             if (hints.remove("appIntroduction")) {
-                updateUserSettings { it.copy(hintSet = hints, showMainTips = true, showTextViewTips = true, showImageViewTips = true) }
+                updateUserSettings { it.copy(hints = hints, showMainTips = true, showTextViewTips = true, showImageViewTips = true) }
             }
             if (hints.contains("appHint")) {
-                AlertDialog.Builder(mContext)
+                AlertDialog.Builder(context)
                     .setTitle(getString(R.string.hint) + ":")
                     .setMessage(getString(R.string.appHintText))
                     .setNegativeButton(getString(R.string.dontShowAgain)) { _: DialogInterface?, _: Int ->
                         hints.remove("appHint")
-                        coroutineScope.launch { updateUserSettings { it.copy(hintSet = hints) } }
+                        coroutineScope.launch { updateUserSettings { it.copy(hints = hints) } }
                     }
                     .setPositiveButton(getString(R.string.ok), null)
                     .setOnDismissListener { coroutineScope.launch { easterEggDialog() } }
@@ -381,29 +381,35 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun setFragment(tabPosition: Int) {
+        if (fragmentManager.isDestroyed) return
         val mTabsTagName: Array<String> = resources.getStringArray(R.array.mainactivity_tab_tag)
         val mTabsClassName: Array<String> = resources.getStringArray(R.array.mainactivity_tab_class)
         val tabName = mTabsTagName[tabPosition]
-        val fragment = mFragmentManager.findFragmentByTag(tabName)
-        mFragment?.let { mFragmentManager.beginTransaction().detach(it).commit() }
+        val fragment = fragmentManager.findFragmentByTag(tabName)
+        currentFragment?.let { fragmentManager.beginTransaction().detach(it).commit() }
         if (fragment != null) {
-            mFragment = fragment
-            mFragmentManager.beginTransaction().attach(fragment).commit()
+            currentFragment = fragment
+            try {
+                fragmentManager.beginTransaction().attach(fragment).commit()
+            } catch (e: IllegalStateException) {
+                //Fatal Exception: java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+                fragmentManager.beginTransaction().attach(fragment).commitAllowingStateLoss()
+            }
         } else {
             //Toast.makeText(applicationContext, "New instance for " + mTabsClassName[tabPosition], Toast.LENGTH_SHORT).show()
             try {
-                mFragment = Class.forName(mTabsClassName[tabPosition]).newInstance() as Fragment
+                currentFragment = Class.forName(mTabsClassName[tabPosition]).newInstance() as Fragment
             } catch (e: Exception) {
                 Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_LONG).show()
                 e.printStackTrace()
             }
-            mFragmentManager.beginTransaction().add(R.id.fragment_container, mFragment!!, tabName).commit()
+            fragmentManager.beginTransaction().add(R.id.fragment_container, currentFragment!!, tabName).commit()
         }
     }
 
     private suspend fun easterEggDialog() {
         if (getUserSettings().showEasterEggHint) {
-            AlertDialog.Builder(mContext)
+            AlertDialog.Builder(context)
                 .setTitle(getString(R.string.easterEggs))
                 .setMessage(getString(R.string.easterEggsText))
                 .setNegativeButton(getString(R.string.deactivate)) { dialogInterface: DialogInterface, _: Int ->
@@ -413,7 +419,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
                 }
                 .setPositiveButton(getString(R.string.ok), null)
-                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
+                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
                 .setNegativeButtonProgress(true)
                 .setOnDismissListener {
                     coroutineScope.launch {
@@ -433,8 +439,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             drawerLayout.findViewById<ViewGroup>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_action_menu_item_container)
         val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
         val searchItemView = toolbarMenuItemContainer.getChildAt(0)
-        val menuItemView = toolbarMenuItemContainer.getChildAt(2)
-        val okButtonView = drawerLayout.findViewById<View>(R.id.b_ok)
+        val menuItemView = toolbarMenuItemContainer.getChildAt(1)
+        val okButtonView = findViewById<View>(R.id.b_ok)
         tipPopupDrawer = TipPopup(drawerButtonView) //,TipPopup.MODE_TRANSLUCENT);
         tipPopupSearch = TipPopup(searchItemView) //,TipPopup.MODE_TRANSLUCENT);
         tipPopupMenuButton = TipPopup(menuItemView) //,TipPopup.MODE_TRANSLUCENT);
@@ -452,7 +458,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         tipPopupMenuButton.setOnDismissListener { tipPopupOkButton.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
         tipPopupSearch.setMessage(getString(R.string.searchTip))
-        tipPopupMenuButton.setMessage(getString(R.string.mute) + " " + getString(R.string.or) + " " + getString(R.string.dndMode))
+        tipPopupMenuButton.setMessage(getString(R.string.mute) + " " + getString(R.string.or) + " " + getString(R.string.dndDescription))
         tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
     }
 
@@ -528,8 +534,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
                 Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
             }
-            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
-            .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, mContext.theme))
+            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
+            .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, context.theme))
             .setPositiveButtonProgress(true)
             .setNegativeButtonProgress(true)
             .create()
@@ -563,7 +569,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     fun progressDialog(view: View) {
-        val dialog = ProgressDialog(mContext)
+        val dialog = ProgressDialog(context)
         dialog.isIndeterminate = true
         dialog.setCancelable(true)
         dialog.setCanceledOnTouchOutside(true)
@@ -576,7 +582,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     private fun progressDialogCircleOnly(view: View) {
-        val dialog = ProgressDialog(mContext)
+        val dialog = ProgressDialog(context)
         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
         dialog.setCancelable(true)
         dialog.setCanceledOnTouchOutside(true)

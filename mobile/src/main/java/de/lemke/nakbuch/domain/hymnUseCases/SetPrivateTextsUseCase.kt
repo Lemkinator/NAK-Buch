@@ -56,6 +56,12 @@ class SetPrivateTextsUseCase @Inject constructor(
                                 ok.append(" ${BuchMode.Chorbuch}")
                                 sendToWear(uri, "/privateTextChorbuch")
                             }
+                        }else if (fileName?.matches("""hymnsJugendliederbuch.*\.txt""".toRegex()) == true) {
+                            if (setPrivateTexts(uri, BuchMode.Jugendliederbuch)) {
+                                if (ok.isNotEmpty()) ok.append(", ")
+                                ok.append(" ${BuchMode.Jugendliederbuch}")
+                                sendToWear(uri, "/privateTextJugendliederbuch")
+                            }
                         }
                     }
                     return@withContext if (ok.toString().isEmpty())

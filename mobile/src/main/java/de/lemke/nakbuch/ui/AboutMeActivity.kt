@@ -1,8 +1,6 @@
 package de.lemke.nakbuch.ui
 
-import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -12,9 +10,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.play.core.review.ReviewManagerFactory
 import dagger.hilt.android.AndroidEntryPoint
+import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.DiscoverEasterEggUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import nl.dionsegijn.konfetti.xml.KonfettiView
+import javax.inject.Inject
 
 /*import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
@@ -25,12 +30,13 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.gms.ads.rewarded.RewardedAd;*/
 
 @AndroidEntryPoint
-class SupportMeActivity : AppCompatActivity() {
-    private lateinit var mContext: Context
-    private lateinit var mActivity: Activity
-
+class AboutMeActivity : AppCompatActivity() {
+    private lateinit var konfettiView: KonfettiView
     //private lateinit var mRewardedAd: RewardedAd
     //private lateinit var watchAdButton: MaterialButton
+
+    @Inject
+    lateinit var discoverEasterEgg: DiscoverEasterEggUseCase
 
     companion object {
         private const val AD_UNIT_ID = "ca-app-pub-5655920768524739/5575349013"
@@ -39,13 +45,19 @@ class SupportMeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
-        mContext = this
-        mActivity = this
-        setContentView(R.layout.activity_support_me)
+        setContentView(R.layout.activity_about_me)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_support_me)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
+        konfettiView = findViewById(R.id.konfettiViewAboutMePage)
 
+        findViewById<View>(R.id.websiteButton).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.myWebsite))))
+        }
+        findViewById<View>(R.id.ticktocktrollButton).setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch { discoverEasterEgg(konfettiView, R.string.easterEggEntryTikTok) }
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.rickRollTrollLink)))) //Rick Roll :D
+        }
         findViewById<View>(R.id.supportMeButton).setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:") // only email apps should handle this
@@ -55,26 +67,32 @@ class SupportMeActivity : AppCompatActivity() {
             try {
                 startActivity(intent)
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(mContext, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
             }
         }
+        findViewById<View>(R.id.reviewCommentButton).setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.writeReview))
+                .setMessage(getString(R.string.reviewComment))
+                .setNeutralButton(R.string.ok, null)
+        }
         findViewById<View>(R.id.writeReviewButton).setOnClickListener {
-            val manager = ReviewManagerFactory.create(mContext)
+            val manager = ReviewManagerFactory.create(this)
             //val manager = FakeReviewManager(mContext);
             val request = manager.requestReviewFlow()
             request.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val reviewInfo = task.result
-                    val flow = manager.launchReviewFlow(mActivity, reviewInfo)
+                    val flow = manager.launchReviewFlow(this, reviewInfo)
                     flow.addOnCompleteListener { task2 ->
                         if (task2.isSuccessful) {
                             //Toast.makeText(mContext, "Vielen Dank für deine Bewertung", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(mContext, getString(R.string.error) + ": " + task2.exception, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, getString(R.string.error) + ": " + task2.exception, Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
-                    Toast.makeText(mContext, R.string.taskFailed, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.taskFailed, Toast.LENGTH_SHORT).show()
                     // There was some problem, log or handle the error code.
                     //@ReviewErrorCode val reviewErrorCode = (task.exception as TaskException).errorCode
                 }

@@ -37,8 +37,8 @@ class MainActivitySearchFragment : Fragment() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var searchList: MutableList<Hymn>
-    private lateinit var mRootView: View
-    private lateinit var mContext: Context
+    private lateinit var rootView: View
+    private lateinit var mContext: Context //cause getContext() is nullable
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var listView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
@@ -55,13 +55,13 @@ class MainActivitySearchFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        mRootView = inflater.inflate(R.layout.fragment_search, container, false)
-        return mRootView
+        rootView = inflater.inflate(R.layout.fragment_search, container, false)
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        listView = mRootView.findViewById(R.id.searchList)
+        listView = rootView.findViewById(R.id.searchList)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         coroutineScope.launch {
             buchMode = getUserSettings().buchMode
@@ -121,7 +121,7 @@ class MainActivitySearchFragment : Fragment() {
                 }
                 holder.parentView.setOnClickListener {
                     startActivity(
-                        Intent(mRootView.context, TextviewActivity::class.java)
+                        Intent(rootView.context, TextviewActivity::class.java)
                             .putExtra("hymnId", hymn.hymnId.toInt())
                             .putExtra("boldText", search)
                     )

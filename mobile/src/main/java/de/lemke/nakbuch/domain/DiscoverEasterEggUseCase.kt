@@ -3,7 +3,6 @@ package de.lemke.nakbuch.domain
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.nakbuch.R
@@ -28,9 +27,7 @@ class DiscoverEasterEggUseCase @Inject constructor(
         withContext(Dispatchers.Default) {
             if (getUserSettings().easterEggsEnabled) {
                 val discoveredEasterEggs = getUserSettings().discoveredEasterEggs
-                Log.d("eastereggs", discoveredEasterEggs.toString())
                 if (discoveredEasterEggs.add(easterEggEntryName)) {
-                    Log.d("eastereggs", "hier")
                     updateUserSettings { it.copy(discoveredEasterEggs = discoveredEasterEggs) }
                     withContext(Dispatchers.Main) {
                         showKonfetti(konfettiView)

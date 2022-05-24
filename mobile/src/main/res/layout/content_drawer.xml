@@ -58,21 +58,12 @@
                     app:icon="@drawable/ic_oui4_info"
                     app:text="@string/aboutApp" />
 
-                <View style="@style/DrawerDividerStyle" />
-
                 <de.dlyt.yanndroid.oneui.widget.OptionButton
                     android:id="@+id/ob_about_me"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_oui_website"
+                    app:icon="@drawable/ic_oui4_contact"
                     app:text="@string/aboutMe" />
-
-                <de.dlyt.yanndroid.oneui.widget.OptionButton
-                    android:id="@+id/ob_support_me"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_oui_like_off"
-                    app:text="@string/supportMe" />
 
                 <View style="@style/DrawerDividerStyle" />
 

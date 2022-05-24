@@ -17,7 +17,7 @@ import java.time.LocalDate
     indices = [Index(
         value = ["hymnId", "date"],
         unique = true
-    )]
+    )],
 
 )
 data class HistoryDb(

@@ -6,7 +6,7 @@
     <string name="preferenceFileDefault" translatable="false">de.lemke.nakbuch_preferences</string>
     <string name="preferenceFileHymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>
     <string name="email" translatable="false">apps@lemkinator.com</string>
-    <string name="website" translatable="false">https://www.lemkinator.com</string>
+    <string name="myWebsite" translatable="false">https://www.lemkinator.com</string>
     <string name="privacyWebsite" translatable="false">https://www.lemkinator.com/nakbuch-datenschutz</string>
     <string name="playStoreAppLink" translatable="false">market://details?id=</string>
     <string name="playStoreLink" translatable="false">https://play.google.com/store/apps/details?id=</string>
@@ -42,13 +42,16 @@
     <string name="dontShowAgain">Nicht erneut zeigen</string>
     <string name="savedNote">Notiz Gespeichert</string>
     <string name="openInPlaystore">In Play Store öffnen</string>
+    <string name="website">Webseite</string>
     <string name="notes">Notizen</string>
     <string name="insertNote">Hier Notizen eintippen</string>
     <string name="sungOn">Gesungen am</string>
     <string name="systemDefault">Systemeinstellung</string>
     <string name="muteAllAudioStreams">Alle Audio-Streams stummschalten</string>
     <string name="dnd">Bitte-Nicht-Stören</string>
-    <string name="dndMode">Bitte-Nicht-Stören Modus aktivieren</string>
+    <string name="dndDescription">Bitte-Nicht-Stören Modus aktivieren/deaktivieren</string>
+    <string name="dndActivated">Bitte-Nicht-Stören Modus wurde aktiviert</string>
+    <string name="dndDeactivated">Bitte-Nicht-Stören Modus wurde deaktiviert</string>
     <string name="back">Zurück</string>
     <string name="next">Weiter</string>
     <string name="ok" translatable="false" tools:ignore="ButtonCase,Typos">Ok</string>
@@ -114,7 +117,7 @@
     <string name="tips">Tipps</string>
     <string name="showTips">Tipps anzeigen</string>
     <string name="confirmTips">Komm schon… Möchtest du wirklich die Tipps für die Easter Eggs ansehen? Wenn du den Titel "Master of Easter Eggs" mit stolz tragen möchtest, dann klick auf Abbrechen!</string>
-    <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 3 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über NAK-Buch\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n- 1 Easter Egg kann über den "Offizielle App Öffnen"-Button entdeckt werden\n</string>
+    <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 3 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über mich\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n- 1 Easter Egg kann über den "Offizielle App Öffnen"-Button entdeckt werden\n</string>
     <string name="easterEggTipsShame">Ich schäme mich</string>
 
     <string-array name="easterEggComments">
@@ -138,6 +141,7 @@
     <string name="supportMeText">Falls du mich in irgendeiner Weise unterstützen möchtest, dann sende mir gerne eine Email</string>
     <string name="rateApp">App im Play-Store Bewerten</string>
     <string name="writeReview">Bewertung schreiben</string>
+    <string name="reviewComment">Um ein optimales Nutzererlebnis zu gewährleisten, verwaltet Google Play wann und wie oft einem Nutzer der Bewertungsdialog angezeigt werden kann. Deshalb kann es vorkommen, dass diese Schaltfläche in manchen Fällen keine Aktion durchführt.\nAlternativ kann die Bewertung dann im Play Store geschrieben werden. Der schnellste Weg dorthin, ist über die Schaltfläche "In Play Store öffnen" auf der "Über NAK Buch"-Seite.</string>
     <string name="share">Teilen</string>
     <string name="shareApp">App Teilen</string>
     <string name="shareAppText">Schau mal hier, die neue nicht-offizielle, kostenlose Gesang- und Chorbuch-App der NAK in modernem Design: https://play.google.com/store/apps/details?id=</string>
@@ -145,7 +149,7 @@
 
     <string name="menuGeneralTip">Hier tippen, um die Menu-Navigation zu öffnen. \nDiese App wurde nach Samsungs OneUI-Richtlinien entwickelt. Die Titelleiste kann auf jedem Bildschirm "nach unten gezogen werden", um eine angenehme (einhändige) Bedienung der oberen Knöpfe auch auf Geräten mit größerem Bildschirm zu gewährleisten.</string>
     <string name="searchTip">Suche öffnen</string>
-    <string name="changeSearchMode">Suchmodus ändern</string>
+    <string name="standardSearchMode">Standard Suchmodus</string>
     <!--string name="searchTip">Suche öffnen: \nUm die Spracheingabe zu verwenden, kann nach dem Öffnen der Suche oben rechts auf das Mikrofon-Symbol geklickt werden. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten</string-->
     <string name="searchHelp">Um die Spracheingabe zu verwenden, oben rechts auf das Mikrofon-Symbol klicken. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten. Dieses verhalten kann über die Schaltfläche unten verändert werden.</string>
     <string name="noteTip">Notizen anzeigen/ausblenden</string>

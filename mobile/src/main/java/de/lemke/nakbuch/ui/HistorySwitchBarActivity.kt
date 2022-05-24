@@ -43,11 +43,11 @@ import kotlin.coroutines.CoroutineContext
 class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var historyList: MutableList<Pair<Hymn, LocalDate>>
+    private lateinit var history: MutableList<Pair<Hymn, LocalDate>>
     private lateinit var listView: RecyclerView
-    private lateinit var mContext: Context
+    private lateinit var context: Context
     private lateinit var switchBarLayout: SwitchBarLayout
-    private var mEnabled: Boolean = true
+    private var enabled: Boolean = true
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -61,7 +61,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
-        mContext = this
+        context = this
         setContentView(R.layout.activity_history)
         listView = findViewById(R.id.historyList)
         switchBarLayout = findViewById(R.id.switchbarlayout_history)
@@ -80,7 +80,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
         coroutineScope.launch {
-            mEnabled = updateUserSettings{ it.copy(historyEnabled = z) }.historyEnabled
+            enabled = updateUserSettings{ it.copy(historyEnabled = z) }.historyEnabled
             initList()
         }
     }
@@ -88,22 +88,22 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     public override fun onResume() {
         super.onResume()
         coroutineScope.launch {
-            mEnabled = getUserSettings().historyEnabled
-            switchBarLayout.switchBar.isChecked = mEnabled
+            enabled = getUserSettings().historyEnabled
+            switchBarLayout.switchBar.isChecked = enabled
             initList()
         }
     }
 
     private suspend fun initList() {
-        historyList = getHistoryList().toMutableList()
-        historyList.add(Pair(Hymn.hymnPlaceholder, LocalDate.MIN))
+        history = getHistoryList().toMutableList()
+        history.add(Pair(Hymn.hymnPlaceholder, LocalDate.MIN))
         listView.adapter = ImageAdapter()
         val divider = TypedValue()
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.layoutManager = LinearLayoutManager(mContext)
+        listView.layoutManager = LinearLayoutManager(context)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(context, divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetIndexTipEnabled(true)
         listView.seslSetFastScrollerEnabled(true)
@@ -114,39 +114,39 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
     inner class ImageAdapter internal constructor() :
         RecyclerView.Adapter<ImageAdapter.ViewHolder>(), SectionIndexer {
-        private var mSections: MutableList<String> = mutableListOf()
-        private var mPositionForSection: MutableList<Int> = mutableListOf()
-        private var mSectionForPosition: MutableList<Int> = mutableListOf()
+        private var sections: MutableList<String> = mutableListOf()
+        private var positionForSection: MutableList<Int> = mutableListOf()
+        private var sectionForPosition: MutableList<Int> = mutableListOf()
 
         init {
-            if (historyList.size > 1) {
-                historyList.forEachIndexed { index, pair ->
+            if (history.size > 1) {
+                history.forEachIndexed { index, pair ->
                     val date: String =
-                        if (index != historyList.size - 1) pair.second.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
-                        else mSections[mSections.size - 1]
-                    if (index == 0 || mSections[mSections.size - 1] != date) {
-                        mSections.add(date)
-                        mPositionForSection.add(index)
+                        if (index != history.size - 1) pair.second.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+                        else sections[sections.size - 1]
+                    if (index == 0 || sections[sections.size - 1] != date) {
+                        sections.add(date)
+                        positionForSection.add(index)
                     }
-                    mSectionForPosition.add(mSections.size - 1)
+                    sectionForPosition.add(sections.size - 1)
                 }
             }
         }
 
         override fun getSections(): Array<Any> {
-            return mSections.toTypedArray()
+            return sections.toTypedArray()
         }
 
         override fun getPositionForSection(i: Int): Int {
-            return if (mPositionForSection.size > 0) mPositionForSection[i] else 0
+            return if (positionForSection.size > 0) positionForSection[i] else 0
         }
 
         override fun getSectionForPosition(i: Int): Int {
-            return if (mSectionForPosition.size > 0) mSectionForPosition[i] else 0
+            return if (sectionForPosition.size > 0) sectionForPosition[i] else 0
         }
 
         override fun getItemCount(): Int {
-            return historyList.size
+            return history.size
         }
 
         override fun getItemId(position: Int): Long {
@@ -154,7 +154,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         }
 
         override fun getItemViewType(position: Int): Int {
-            return if (historyList[position].first != Hymn.hymnPlaceholder) 0
+            return if (history[position].first != Hymn.hymnPlaceholder) 0
             else 1
         }
 
@@ -170,7 +170,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
         @SuppressLint("SetTextI18n")
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val hymnPair = historyList[position]
+            val hymnPair = history[position]
             if (holder.isItem) {
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 holder.textView.text = hymnPair.second.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)) +
@@ -178,10 +178,10 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                 holder.parentView.setOnClickListener {
                     coroutineScope.launch {
                         //updateUserSettings{ it.copy(buchMode = hymnPair.first.hymnId.buchMode) } //change Mode here? no
-                        startActivity(Intent(mContext, TextviewActivity::class.java).putExtra("hymnId", hymnPair.first.hymnId.toInt()))
+                        startActivity(Intent(context, TextviewActivity::class.java).putExtra("hymnId", hymnPair.first.hymnId.toInt()))
                     }
                 }
-                holder.parentView.allViews.forEach { view -> view.isEnabled = mEnabled }
+                holder.parentView.allViews.forEach { view -> view.isEnabled = enabled }
             }
         }
 
@@ -203,10 +203,10 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(mContext, true)
-        private val mSeslRoundedCornerBottom: SeslRoundedCorner
-        private var mDivider: Drawable? = null
-        private var mDividerHeight = 0
+        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(context, true)
+        private val seslRoundedCornerBottom: SeslRoundedCorner
+        private var divider: Drawable? = null
+        private var dividerHeight = 0
         override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
@@ -220,34 +220,34 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                     if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
-                if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
-                    mDivider!!.setBounds(0, y, width, mDividerHeight + y)
-                    mDivider!!.draw(canvas)
+                if (divider != null && viewHolder.isItem && shallDrawDivider) {
+                    divider!!.setBounds(0, y, width, dividerHeight + y)
+                    divider!!.draw(canvas)
                 }
                 if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) mSeslRoundedCornerTop.drawRoundedCorner(
+                    if (recyclerView.getChildAt(i + 1) != null) seslRoundedCornerTop.drawRoundedCorner(
                         recyclerView.getChildAt(i + 1),
                         canvas
                     )
-                    if (recyclerView.getChildAt(i - 1) != null) mSeslRoundedCornerBottom.drawRoundedCorner(
+                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
                         recyclerView.getChildAt(i - 1),
                         canvas
                     )
                 }
             }
-            mSeslRoundedCornerTop.drawRoundedCorner(canvas)
+            seslRoundedCornerTop.drawRoundedCorner(canvas)
         }
 
         fun setDivider(d: Drawable) {
-            mDivider = d
-            mDividerHeight = d.intrinsicHeight
+            divider = d
+            dividerHeight = d.intrinsicHeight
             listView.invalidateItemDecorations()
         }
 
         init {
-            mSeslRoundedCornerTop.roundedCorners = 3
-            mSeslRoundedCornerBottom = SeslRoundedCorner(mContext, true)
-            mSeslRoundedCornerBottom.roundedCorners = 12
+            seslRoundedCornerTop.roundedCorners = 3
+            seslRoundedCornerBottom = SeslRoundedCorner(context, true)
+            seslRoundedCornerBottom.roundedCorners = 12
         }
     }
 }

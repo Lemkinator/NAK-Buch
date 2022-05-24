@@ -12,7 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.InitDataBaseUseCase
+import de.lemke.nakbuch.domain.InitDatabaseUseCase
 import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +27,6 @@ import kotlin.coroutines.CoroutineContext
 class SplashActivity : AppCompatActivity() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private val mContext = this
     private lateinit var initDatabaseJob: Job
     private lateinit var splashView: SplashView
     //private var launchCanceled = false
@@ -36,7 +35,7 @@ class SplashActivity : AppCompatActivity() {
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
     @Inject
-    lateinit var initDataBase: InitDataBaseUseCase
+    lateinit var initDatabase: InitDatabaseUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this, "4099ff")
@@ -44,23 +43,14 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         splashView = findViewById(R.id.splash)
         coroutineScope.launch {
-            when (intent.getStringExtra("buchModeString")) {
-                BuchMode.Gesangbuch.toString() -> {
-                    updateUserSettings{ it.copy(buchMode = BuchMode.Gesangbuch) }
-                    splashView.setImage(
-                        AppCompatResources.getDrawable(mContext, R.drawable.ic_launcher_foreground2),
-                        AppCompatResources.getDrawable(mContext, R.drawable.ic_launcher_background)
-                    )
-                    splashView.text = BuchMode.Gesangbuch.toString()
-                }
-                BuchMode.Chorbuch.toString() -> {
-                    updateUserSettings{ it.copy(buchMode = BuchMode.Chorbuch) }
-                    splashView.setImage(
-                        AppCompatResources.getDrawable(mContext, R.drawable.ic_launcher_foreground2),
-                        AppCompatResources.getDrawable(mContext, R.drawable.ic_launcher_background)
-                    )
-                    splashView.text = BuchMode.Chorbuch.toString()
-                }
+            val buchMode = BuchMode.fromInt(intent.getIntExtra("buchMode", -1))
+            if (buchMode != null) {
+                updateUserSettings { it.copy(buchMode = buchMode) }
+                splashView.setImage(
+                    AppCompatResources.getDrawable(this@SplashActivity, R.drawable.ic_launcher_foreground2),
+                    AppCompatResources.getDrawable(this@SplashActivity, R.drawable.ic_launcher_background)
+                )
+                splashView.text = buchMode.toString()
             }
         }
         splashView.setSplashAnimationListener(object : Animation.AnimationListener {
@@ -69,24 +59,18 @@ class SplashActivity : AppCompatActivity() {
                 if (!initDatabaseJob.isCompleted)
                     Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
                 else
-                    //if (!launchCanceled)
-                        launchApp()
+                //if (!launchCanceled)
+                    launchApp()
             }
 
             override fun onAnimationRepeat(animation: Animation) {}
         })
 
-        initDatabaseJob = initDataBase()
+        initDatabaseJob = initDatabase()
         /*initDatabaseJob.invokeOnCompletion {
             splashView.startSplashAnimation()
         }*/
 
-    }
-
-    private fun launchApp() {
-        startActivity(Intent().setClass(applicationContext, MainActivity::class.java))
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        finish()
     }
 
     override fun onPause() {
@@ -99,6 +83,12 @@ class SplashActivity : AppCompatActivity() {
         //if (launchCanceled) launchApp()
         Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
     }
+
+    private fun launchApp() {
+        startActivity(Intent().setClass(applicationContext, MainActivity::class.java))
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        finish()
+    }
 }
 
 @SuppressLint("CustomSplashScreen")
@@ -107,7 +97,7 @@ class SplashActivityGesangbuch : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ThemeUtil(this)
         startActivity(
-            Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchModeString", BuchMode.Gesangbuch.toString())
+            Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchMode", BuchMode.Gesangbuch.toInt())
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
@@ -120,7 +110,7 @@ class SplashActivityChorbuch : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ThemeUtil(this)
         startActivity(
-            Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchModeString", BuchMode.Chorbuch.toString())
+            Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchMode", BuchMode.Chorbuch.toInt())
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
@@ -133,7 +123,7 @@ class SplashActivityJugendliederbuch : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ThemeUtil(this)
         startActivity(
-            Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchModeString", BuchMode.Jugendliederbuch.toString())
+            Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchMode", BuchMode.Jugendliederbuch.toInt())
         )
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()

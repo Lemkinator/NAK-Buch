@@ -11,13 +11,13 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import de.lemke.nakbuch.R
 
-class ViewPagerAdapterImageView(context: Context, private val mImages: List<Uri>) :
+class ViewPagerAdapterImageView(context: Context, private val images: List<Uri>) :
     PagerAdapter() {
-    private val mLayoutInflater: LayoutInflater =
+    private val layoutInflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getCount(): Int {
-        return mImages.size
+        return images.size
     }
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
@@ -25,11 +25,11 @@ class ViewPagerAdapterImageView(context: Context, private val mImages: List<Uri>
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val itemView = mLayoutInflater.inflate(R.layout.img, container, false)
+        val itemView = layoutInflater.inflate(R.layout.img, container, false)
         //PhotoView imageView = itemView.findViewById(R.id.imageView);
         //imageView.setImageURI(mImages.get(position));
         val imageView: SubsamplingScaleImageView = itemView.findViewById(R.id.imageView)
-        imageView.setImage(ImageSource.uri(mImages[position]))
+        imageView.setImage(ImageSource.uri(images[position]))
         imageView.maxScale = imageView.maxScale * 3
         //imageView.setOnLongClickListener();
         container.addView(itemView)

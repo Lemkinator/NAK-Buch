@@ -13,7 +13,7 @@ import java.io.InputStream
 import java.io.ObjectInputStream
 import javax.inject.Inject
 
-class InitDataBaseUseCase @Inject constructor(
+class InitDatabaseUseCase @Inject constructor(
     private val hymnsRepository: HymnsRepository,
     private val getHymnCount: GetHymnCountUseCase,
     @ApplicationContext private val context: Context,
@@ -38,35 +38,7 @@ class InitDataBaseUseCase @Inject constructor(
         if (hymnsRepository.getAllRubrics(buchMode).size < rubricCountJugendliederbuch)
             hymnsRepository.addRubrics(List(rubricCountJugendliederbuch) { index -> Rubric(RubricId.create(index, buchMode)!!) })
         if (hymnsRepository.getAllHymns(buchMode).size < getHymnCount(buchMode) || forceInit)
-        //hymnsRepository.addHymns(getAllHymnsFromAssets(buchMode))
-            hymnsRepository.addHymns(
-                listOf(
-                    Hymn(
-                        HymnId.create(1, BuchMode.Jugendliederbuch)!!,
-                        Rubric(RubricId.create(0, BuchMode.Jugendliederbuch)!!),
-                        "1. Titel",
-                        "Titel",
-                        "Hier steht der Text",
-                        "Text: Leonard Lemke (*2000)"
-                    ),
-                    Hymn(
-                        HymnId.create(2, BuchMode.Jugendliederbuch)!!,
-                        Rubric(RubricId.create(1, BuchMode.Jugendliederbuch)!!),
-                        "2. Lied",
-                        "Lied",
-                        "Hier steht der Text vom Lied",
-                        "Text: Leonard Lemke (*2000)"
-                    ),
-                    Hymn(
-                        HymnId.create(3, BuchMode.Jugendliederbuch)!!,
-                        Rubric(RubricId.create(1, BuchMode.Jugendliederbuch)!!),
-                        "3. Song",
-                        "Song",
-                        "Hier steht der Text vom Song",
-                        "Text: Leonard Lemke (*2000)"
-                    )
-                )
-            )
+            hymnsRepository.addHymns(getAllHymnsFromAssets(buchMode))
     }
 
     @Suppress("unchecked_Cast")

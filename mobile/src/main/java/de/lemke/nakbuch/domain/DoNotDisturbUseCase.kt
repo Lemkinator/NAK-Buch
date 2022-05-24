@@ -6,20 +6,27 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.lemke.nakbuch.R
 
 //java.lang.IllegalStateException: You need to use a Theme.AppCompat theme (or descendant) with this activity.
-
-class DoNotDisturbUseCase( // @Inject constructor(
+class DoNotDisturbUseCase(
+//) @Inject constructor(
     //@ApplicationContext
     private val context: Context,
 ) {
     operator fun invoke() {
-        val mNotificationManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
-        if (mNotificationManager.isNotificationPolicyAccessGranted) {
-            mNotificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+        val notificationManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
+        if (notificationManager.isNotificationPolicyAccessGranted) {
+            if (notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE) {
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                Toast.makeText(context, context.getString(R.string.dndDeactivated), Toast.LENGTH_LONG).show()
+            } else {
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
+                Toast.makeText(context, context.getString(R.string.dndActivated), Toast.LENGTH_LONG).show()
+            }
         } else {
             showNotificationAccessMissing()
         }

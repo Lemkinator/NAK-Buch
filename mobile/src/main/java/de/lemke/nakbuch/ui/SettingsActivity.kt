@@ -61,8 +61,7 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragment(), Preference.OnPreferenceChangeListener {
         private val coroutineContext: CoroutineContext = Dispatchers.Main
         private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-        private lateinit var mContext: Context
-        private lateinit var mActivity: SettingsActivity
+        private lateinit var settingsActivity: SettingsActivity
         private var lastTimeVersionClicked: Long = 0
         private var clickCounter = 0
         private lateinit var pickTextsActivityResultLauncher: ActivityResultLauncher<String>
@@ -80,7 +79,7 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var versionHiddenMenuPref: PreferenceScreen
         private var tipCard: TipsCardViewPreference? = null
         private var tipCardSpacing: PreferenceCategory? = null
-        private var mRelatedCard: PreferencesRelatedCard? = null
+        private var relatedCard: PreferencesRelatedCard? = null
 
         @Inject
         lateinit var setPrivateTexts: SetPrivateTextsUseCase
@@ -97,12 +96,11 @@ class SettingsActivity : AppCompatActivity() {
         //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
         @Inject
-        lateinit var initDataBase: InitDataBaseUseCase
+        lateinit var initDataBase: InitDatabaseUseCase
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
-            mContext = context
-            if (activity is SettingsActivity) mActivity = activity as SettingsActivity
+            if (activity is SettingsActivity) settingsActivity = activity as SettingsActivity
         }
 
         override fun onCreatePreferences(bundle: Bundle?, str: String?) {
@@ -114,7 +112,7 @@ class SettingsActivity : AppCompatActivity() {
             lastTimeVersionClicked = System.currentTimeMillis()
             pickTextsActivityResultLauncher = registerForActivityResult(GetMultipleContents()) { result: List<Uri>? ->
                 coroutineScope.launch {
-                    val dialog = ProgressDialog(mContext)
+                    val dialog = ProgressDialog(settingsActivity)
                     dialog.isIndeterminate = false
                     dialog.setTitle("Eigene LiedTexte werden hinzugefügt...")
                     dialog.setButton(
@@ -129,59 +127,61 @@ class SettingsActivity : AppCompatActivity() {
             }
             pickFolderActivityResultLauncher =
                 registerForActivityResult(OpenDocumentTree()) { result: Uri? ->
-                    if (result == null) Toast.makeText(mContext, "Fehler: Kein Ordner Ausgewählt", Toast.LENGTH_LONG).show()
-                    else Toast.makeText(mContext, getString(R.string.notYetImplemented), Toast.LENGTH_LONG).show()
+                    if (result == null) Toast.makeText(settingsActivity, "Fehler: Kein Ordner Ausgewählt", Toast.LENGTH_LONG).show()
+                    else Toast.makeText(settingsActivity, getString(R.string.notYetImplemented), Toast.LENGTH_LONG).show()
                 }
             initPreferences()
         }
 
         @SuppressLint("RestrictedApi", "UnspecifiedImmutableFlag")
         private fun initPreferences() {
-            val darkMode = ThemeUtil.getDarkMode(mContext)
+            val darkMode = ThemeUtil.getDarkMode(settingsActivity)
             darkModePref = findPreference("dark_mode")!!
             autoDarkModePref = findPreference("dark_mode_auto")!!
             confirmExitPref = findPreference("confirmExit")!!
             historyPref = findPreference("historyEnabled")!!
-            easterEggsPref = findPreference("easterEggs")!!
+            easterEggsPref = findPreference("easterEggsEnabled")!!
             hintsPref = findPreference("hints")!!
             resolutionPref = findPreference("imgResolution")!!
             qualityPref = findPreference("imgQuality")!!
             versionHiddenMenuPref = findPreference("version_hidden_menu")!!
             colorPickerPref = findPreference("color")!!
 
+            historyPref.onPreferenceChangeListener = this
+            easterEggsPref.onPreferenceChangeListener = this
             darkModePref.onPreferenceChangeListener = this
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
             darkModePref.isEnabled = darkMode != ThemeUtil.DARK_MODE_AUTO
-            darkModePref.value = if (SeslMisc.isLightTheme(mContext)) "0" else "1"
+            darkModePref.value = if (SeslMisc.isLightTheme(settingsActivity)) "0" else "1"
             autoDarkModePref.onPreferenceChangeListener = this
             autoDarkModePref.isChecked = darkMode == ThemeUtil.DARK_MODE_AUTO
             coroutineScope.launch {
-                val recentColors = getUserSettings().recentColorList
+                val recentColors = getUserSettings().recentColors
                 for (recent_color in recentColors) colorPickerPref.onColorSet(recent_color)
                 colorPickerPref.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _: Preference?, colorInt: Any ->
                         val color = Color.valueOf((colorInt as Int))
                         recentColors.add(colorInt)
-                        coroutineScope.launch { updateUserSettings { it.copy(recentColorList = recentColors) } }
-                        ThemeUtil.setColor(mActivity, color.red(), color.green(), color.blue())
+                        coroutineScope.launch { updateUserSettings { it.copy(recentColors = recentColors) } }
+                        ThemeUtil.setColor(settingsActivity, color.red(), color.green(), color.blue())
                         MainActivity.colorSettingChanged = true
                         true
                     }
             }
             findPreference<Preference>("audio_streams")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    if (!mute()) Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+                    if (!mute()) Toast.makeText(settingsActivity, settingsActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
                     true
                 }
             findPreference<Preference>("dnd")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    DoNotDisturbUseCase(mContext)()//doNotDisturb()
+                    DoNotDisturbUseCase(settingsActivity)()//doNotDisturb()
                     true
                 }
             confirmExitPref.onPreferenceChangeListener = this
             hintsPref.onPreferenceChangeListener = this
-            coroutineScope.launch { hintsPref.values = getUserSettings().hintSet }
+            coroutineScope.launch { hintsPref.values = getUserSettings().hints }
             resolutionPref.onPreferenceChangeListener = this
             qualityPref.onPreferenceChangeListener = this
             findPreference<Preference>("shortcut_gesangbuch")!!.onPreferenceClickListener =
@@ -197,8 +197,8 @@ class SettingsActivity : AppCompatActivity() {
                 }
             try {
                 versionHiddenMenuPref.title =
-                    mContext.getString(de.dlyt.yanndroid.oneui.R.string.sesl_version) + " " + mContext.packageManager.getPackageInfo(
-                        mContext.packageName,
+                    settingsActivity.getString(de.dlyt.yanndroid.oneui.R.string.sesl_version) + " " + settingsActivity.packageManager.getPackageInfo(
+                        settingsActivity.packageName,
                         0
                     ).versionName
             } catch (nnfe: NameNotFoundException) {
@@ -217,7 +217,7 @@ class SettingsActivity : AppCompatActivity() {
                                 getString(R.string.deleteAppDataAndExit)
                             )
                             var option = 0
-                            AlertDialog.Builder(mContext)
+                            AlertDialog.Builder(settingsActivity)
                                 .setCancelable(false)
                                 .setTitle(R.string.hiddenMenu)
                                 .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
@@ -237,13 +237,13 @@ class SettingsActivity : AppCompatActivity() {
                                             dialogInterface.dismiss()
                                         }
                                         3 -> {
-                                            AlertDialog.Builder(mContext)
+                                            AlertDialog.Builder(settingsActivity)
                                                 .setCancelable(false)
                                                 .setTitle(R.string.deleteAppDataAndExit)
                                                 .setMessage(R.string.deleteAppDataAndExitWarning)
                                                 .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
                                                 .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                                                    (mContext.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+                                                    (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
                                                 }
                                                 .create()
                                                 .show()
@@ -269,28 +269,28 @@ class SettingsActivity : AppCompatActivity() {
                     tipCard!!.isVisible = false
                     tipCardSpacing?.isVisible = false
                     coroutineScope.launch {
-                        val s: MutableSet<String> = getUserSettings().hintSet
+                        val s: MutableSet<String> = getUserSettings().hints
                         s.remove("tipcard")
-                        hintsPref.values = updateUserSettings { it.copy(hintSet = s) }.hintSet
+                        hintsPref.values = updateUserSettings { it.copy(hints = s) }.hints
                     }
                 }
 
                 override fun onViewClicked(view: View) {
-                    startActivity(Intent(mContext, HelpActivity::class.java))
+                    startActivity(Intent(settingsActivity, HelpActivity::class.java))
                 }
             })
         }
 
         private fun createShortcut(id: String): Boolean {
-            val shortcutManager = mContext.getSystemService(ShortcutManager::class.java)
+            val shortcutManager = settingsActivity.getSystemService(ShortcutManager::class.java)
             if (shortcutManager.isRequestPinShortcutSupported) {
-                val pinShortcutInfo = ShortcutInfo.Builder(mContext, id).build()
+                val pinShortcutInfo = ShortcutInfo.Builder(settingsActivity, id).build()
                 val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)
                 val successCallback: PendingIntent =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, PendingIntent.FLAG_MUTABLE)
+                        PendingIntent.getBroadcast(settingsActivity, 0, pinnedShortcutCallbackIntent, PendingIntent.FLAG_MUTABLE)
                     } else {
-                        PendingIntent.getBroadcast(mContext, 0, pinnedShortcutCallbackIntent, 0)
+                        PendingIntent.getBroadcast(settingsActivity, 0, pinnedShortcutCallbackIntent, 0)
                     }
                 shortcutManager.requestPinShortcut(pinShortcutInfo, successCallback.intentSender)
             }
@@ -299,7 +299,7 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            requireView().setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.item_background_color, mContext.theme))
+            requireView().setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.item_background_color, settingsActivity.theme))
         }
 
         override fun onStart() {
@@ -308,7 +308,7 @@ class SettingsActivity : AppCompatActivity() {
                 confirmExitPref.isChecked = getUserSettings().confirmExit
                 easterEggsPref.isChecked = getUserSettings().easterEggsEnabled
                 historyPref.isChecked = getUserSettings().historyEnabled
-                val showTipCard = getUserSettings().hintSet.contains("tipcard")
+                val showTipCard = getUserSettings().hints.contains("tipcard")
                 tipCard?.isVisible = showTipCard
                 tipCardSpacing?.isVisible = showTipCard
             }
@@ -317,12 +317,12 @@ class SettingsActivity : AppCompatActivity() {
 
         @Suppress("UNCHECKED_CAST")
         override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-            val currentDarkMode = ThemeUtil.getDarkMode(mContext).toString()
+            val currentDarkMode = ThemeUtil.getDarkMode(settingsActivity).toString()
             when (preference.key) {
                 "dark_mode" -> {
                     if (currentDarkMode !== newValue) {
                         ThemeUtil.setDarkMode(
-                            mActivity,
+                            settingsActivity,
                             if (newValue == "0") ThemeUtil.DARK_MODE_DISABLED else ThemeUtil.DARK_MODE_ENABLED
                         )
                     }
@@ -331,7 +331,7 @@ class SettingsActivity : AppCompatActivity() {
                 "dark_mode_auto" -> {
                     if (newValue as Boolean) {
                         darkModePref.isEnabled = false
-                        ThemeUtil.setDarkMode(mActivity, ThemeUtil.DARK_MODE_AUTO)
+                        ThemeUtil.setDarkMode(settingsActivity, ThemeUtil.DARK_MODE_AUTO)
                     } else {
                         darkModePref.isEnabled = true
                     }
@@ -341,9 +341,17 @@ class SettingsActivity : AppCompatActivity() {
                     coroutineScope.launch { updateUserSettings { it.copy(confirmExit = newValue as Boolean) } }
                     return true
                 }
+                "historyEnabled" -> {
+                    coroutineScope.launch { updateUserSettings { it.copy(historyEnabled = newValue as Boolean) } }
+                    return true
+                }
+                "easterEggsEnabled" -> {
+                    coroutineScope.launch { updateUserSettings { it.copy(easterEggsEnabled = newValue as Boolean) } }
+                    return true
+                }
                 "hints" -> {
                     coroutineScope.launch {
-                        val hintSet = updateUserSettings { it.copy(hintSet = newValue as MutableSet<String>) }.hintSet
+                        val hintSet = updateUserSettings { it.copy(hints = newValue as MutableSet<String>) }.hints
                         hintsPref.values = hintSet
                         tipCard?.isVisible = hintSet.contains("tipcard")
                         tipCardSpacing?.isVisible = hintSet.contains("tipcard")
@@ -379,19 +387,11 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun setRelatedCardView() {
-            if (mRelatedCard == null) {
-                mRelatedCard = createRelatedCard(mContext)
-                mRelatedCard?.setTitleText(getString(de.dlyt.yanndroid.oneui.R.string.sec_relative_description))
-                mRelatedCard?.addButton(getString(R.string.help)) { startActivity(Intent(mContext, HelpActivity::class.java)) }
-                    ?.addButton(getString(R.string.aboutMe)) {
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse(getString(R.string.website))
-                            )
-                        )
-                    }
-                    ?.addButton(getString(R.string.supportMe)) { startActivity(Intent(mContext, SupportMeActivity::class.java)) }
+            if (relatedCard == null) {
+                relatedCard = createRelatedCard(settingsActivity)
+                relatedCard?.setTitleText(getString(de.dlyt.yanndroid.oneui.R.string.sec_relative_description))
+                relatedCard?.addButton(getString(R.string.help)) { startActivity(Intent(settingsActivity, HelpActivity::class.java)) }
+                    ?.addButton(getString(R.string.aboutMe)) { startActivity(Intent(settingsActivity, AboutMeActivity::class.java)) }
                     ?.show(this)
             }
         }

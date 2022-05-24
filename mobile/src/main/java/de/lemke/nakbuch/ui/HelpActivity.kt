@@ -1,7 +1,6 @@
 package de.lemke.nakbuch.ui
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -19,19 +18,15 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class HelpActivity : AppCompatActivity() {
-    private lateinit var mContext: Context
-    private lateinit var drawerLayout: DrawerLayout
-
     @Inject
     lateinit var openBischoffApp: OpenBischoffAppUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
-        mContext = this
         setContentView(R.layout.activity_help)
-        drawerLayout = findViewById(R.id.drawer_help)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_help)
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setNavigationButtonOnClickListener { finish() }
         findViewById<View>(R.id.contactMeButton).setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO)
@@ -42,7 +37,7 @@ class HelpActivity : AppCompatActivity() {
             try {
                 startActivity(intent)
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(mContext, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
             }
         }
         findViewById<View>(R.id.openPlaystoreBischoffGesangbuch).setOnClickListener { openBischoffApp(BuchMode.Gesangbuch) }

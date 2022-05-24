@@ -40,7 +40,7 @@ import kotlin.coroutines.CoroutineContext
 class TabListSubtabRubric : Fragment() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var mRootView: View
+    private lateinit var rootView: View
     private lateinit var mContext: Context
     private lateinit var hymns: MutableList<Hymn>
     private lateinit var rubrics: MutableList<Rubric>
@@ -64,14 +64,14 @@ class TabListSubtabRubric : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        mRootView = inflater.inflate(R.layout.fragment_tab_list_subtab_rubric, container, false)
-        return mRootView
+        rootView = inflater.inflate(R.layout.fragment_tab_list_subtab_rubric, container, false)
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
-        listView = mRootView.findViewById(R.id.hymnListRubric)
+        listView = rootView.findViewById(R.id.hymnListRubric)
         subTabs = requireActivity().findViewById(R.id.sub_tabs)
         mainTabs = requireActivity().findViewById(R.id.main_tabs)
         viewPager2List = requireActivity().findViewById(R.id.viewPager2Lists)
@@ -116,28 +116,28 @@ class TabListSubtabRubric : Fragment() {
 
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter :
-        RecyclerView.Adapter<ImageAdapter.ViewHolder>() {// !!!Sections in inner rubrics not working!!!       , SectionIndexer {
-        /*private var mSections: MutableList<String> = mutableListOf()
-        private var mPositionForSection: MutableList<Int> = mutableListOf()
-        private var mSectionForPosition: MutableList<Int> = mutableListOf()
+        RecyclerView.Adapter<ImageAdapter.ViewHolder>() {/* !!!Sections in inner rubrics not working!!!       , SectionIndexer {
+        private var sections: MutableList<String> = mutableListOf()
+        private var positionForSection: MutableList<Int> = mutableListOf()
+        private var sectionForPosition: MutableList<Int> = mutableListOf()
 
         init {
             if (rubrikIndex == 0) {
                 for (i in rubList.indices) {
                     val rubName: String =
                         if (i != rubList.size - 1 && rubList[i].containsKey("mainRub")) { rubList[i]["hymnNrAndTitle"]!! }
-                        else { mSections[mSections.size - 1] }
-                    if (i == 0 || mSections[mSections.size - 1] != rubName) {
-                        mSections.add(rubName)
-                        mPositionForSection.add(i)
+                        else { sections[sections.size - 1] }
+                    if (i == 0 || sections[sections.size - 1] != rubName) {
+                        sections.add(rubName)
+                        positionForSection.add(i)
                     }
-                    mSectionForPosition.add(mSections.size - 1)
+                    sectionForPosition.add(sections.size - 1)
                 }
             }
         }
-        override fun getSections(): Array<Any> = mSections.toTypedArray()
-        override fun getPositionForSection(i: Int): Int = mPositionForSection[i]
-        override fun getSectionForPosition(i: Int): Int = mSectionForPosition[i]
+        override fun getSections(): Array<Any> = sections.toTypedArray()
+        override fun getPositionForSection(i: Int): Int = positionForSection[i]
+        override fun getSectionForPosition(i: Int): Int = sectionForPosition[i]
         */
 
         override fun getItemCount(): Int = if (currentRubric == null) rubrics.size else hymns.size
@@ -174,21 +174,11 @@ class TabListSubtabRubric : Fragment() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            /*if (holder.isBackHeader) {
-                holder.textView.text = rubrikIndexName
-                holder.parentView.setOnClickListener {
-                    if (rubrics[position].containsKey("backHeader")) {
-                        rubrikIndex = 0
-                        initList()
-                    }
-                }
-            }*/
             if (holder.isItem) {
-                //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 if (currentRubric != null) {
                     holder.textView.text = hymns[position].numberAndTitle
                     holder.parentView.setOnClickListener {
-                        startActivity(Intent(mRootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt()))
+                        startActivity(Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt()))
                     }
                 } else {
                     holder.textView.text = rubrics[position].name
@@ -198,9 +188,7 @@ class TabListSubtabRubric : Fragment() {
                     }
                 }
             }
-            if (holder.isHeader) {
-                holder.textView.text = rubrics[position].name
-            }
+            if (holder.isHeader) holder.textView.text = rubrics[position].name
             if (holder.isBackHeader) {
                 holder.textView.text = currentRubric!!.name
                 holder.parentView.setOnClickListener {
@@ -234,10 +222,10 @@ class TabListSubtabRubric : Fragment() {
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
-        private val mSeslRoundedCornerBottom: SeslRoundedCorner
-        private var mDivider: Drawable? = null
-        private var mDividerHeight = 0
+        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
+        private val seslRoundedCornerBottom: SeslRoundedCorner
+        private var divider: Drawable? = null
+        private var dividerHeight = 0
         override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
             super.seslOnDispatchDraw(canvas, recyclerView, state)
             val childCount = recyclerView.childCount
@@ -252,36 +240,36 @@ class TabListSubtabRubric : Fragment() {
                     if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
-                if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
+                if (divider != null && viewHolder.isItem && shallDrawDivider) {
                     //int moveRTL = isRTL() ? 130 : 0;
                     //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
-                    mDivider!!.setBounds(0, y, width, mDividerHeight + y)
-                    mDivider!!.draw(canvas)
+                    divider!!.setBounds(0, y, width, dividerHeight + y)
+                    divider!!.draw(canvas)
                 }
                 if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) mSeslRoundedCornerTop.drawRoundedCorner(
+                    if (recyclerView.getChildAt(i + 1) != null) seslRoundedCornerTop.drawRoundedCorner(
                         recyclerView.getChildAt(i + 1),
                         canvas
                     )
-                    if (recyclerView.getChildAt(i - 1) != null) mSeslRoundedCornerBottom.drawRoundedCorner(
+                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
                         recyclerView.getChildAt(i - 1),
                         canvas
                     )
                 }
             }
-            mSeslRoundedCornerTop.drawRoundedCorner(canvas)
+            seslRoundedCornerTop.drawRoundedCorner(canvas)
         }
 
         fun setDivider(d: Drawable) {
-            mDivider = d
-            mDividerHeight = d.intrinsicHeight
+            divider = d
+            dividerHeight = d.intrinsicHeight
             listView.invalidateItemDecorations()
         }
 
         init {
-            mSeslRoundedCornerTop.roundedCorners = 3
-            mSeslRoundedCornerBottom = SeslRoundedCorner(requireContext(), true)
-            mSeslRoundedCornerBottom.roundedCorners = 12
+            seslRoundedCornerTop.roundedCorners = 3
+            seslRoundedCornerBottom = SeslRoundedCorner(requireContext(), true)
+            seslRoundedCornerBottom.roundedCorners = 12
         }
     }
 }

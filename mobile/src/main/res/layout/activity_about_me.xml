@@ -5,21 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:expanded="false"
-    app:title="@string/supportMe">
+    app:title="@string/aboutMe">
 
-
-    <FrameLayout
+    <de.dlyt.yanndroid.oneui.widget.NestedScrollView
+        android:id="@+id/nestedScrollViewHelp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_location="main_content">
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
 
-        <de.dlyt.yanndroid.oneui.widget.NestedScrollView
-            android:id="@+id/nestedScrollViewHelp"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:scrollbars="vertical"
-            app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -92,32 +90,55 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     style="?android:listSeparatorTextViewStyle"
-                    android:text="@string/supportMe" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="@dimen/rounded_corner_size"
-                    android:text="@string/supportMeText" />
+                    android:text="@string/aboutMe" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="24dp"
-                    android:layout_marginVertical="10dp"
-                    android:orientation="vertical">
-
+                    android:layout_marginVertical="7dp"
+                    android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/supportMeButton"
+                        android:id="@+id/websiteButton"
                         style="@style/ButtonStyle.Filled"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
-                        android:text="@string/writeEmail"
-                        app:icon="@drawable/ic_oui4_mail" />
+                        android:layout_weight="1"
+                        android:text="@string/website"
+                        app:icon="@drawable/ic_oui_website" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/ticktocktrollButton"
+                        style="@style/ButtonStyle.Filled"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_weight="1"
+                        android:text="@string/tiktokTroll"
+                        app:icon="@drawable/ic_oui_link" />
 
                 </LinearLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="?android:listSeparatorTextViewStyle"
+                    android:text="@string/supportMe" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="25dp"
+                    android:text="@string/supportMeText" />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/supportMeButton"
+                    style="@style/ButtonStyle.Filled"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/number_button_height"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginVertical="7dp"
+                    android:text="@string/writeEmail"
+                    app:icon="@drawable/ic_oui4_mail" />
 
 
                 <com.google.android.material.textview.MaterialTextView
@@ -128,17 +149,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="24dp"
-                    android:layout_marginVertical="10dp"
-                    android:orientation="vertical">
+                    android:layout_marginVertical="7dp"
+                    android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/writeReviewButton"
                         style="@style/ButtonStyle.Filled"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        android:layout_weight="1"
                         android:text="@string/writeReview"
                         app:icon="@drawable/ic_oui_pen" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/reviewCommentButton"
+                        style="@style/ButtonStyle.Transparent"
+                        android:layout_width="@dimen/number_button_height"
+                        android:layout_height="@dimen/number_button_height"
+                        app:icon="@drawable/ic_oui4_help" />
 
                 </LinearLayout>
 
@@ -146,29 +174,26 @@
                     style="?android:listSeparatorTextViewStyle"
                     android:text="@string/share" />
 
-                <LinearLayout
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/shareAppButton"
+                    style="@style/ButtonStyle.Filled"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/number_button_height"
                     android:layout_marginHorizontal="24dp"
-                    android:layout_marginVertical="10dp"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/shareAppButton"
-                        style="@style/ButtonStyle.Filled"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
-                        android:text="@string/shareApp"
-                        app:icon="@drawable/ic_oui4_share" />
-
-                </LinearLayout>
+                    android:layout_marginVertical="7dp"
+                    android:text="@string/shareApp"
+                    app:icon="@drawable/ic_oui4_share" />
 
             </LinearLayout>
 
-        </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
+            <nl.dionsegijn.konfetti.xml.KonfettiView
+                android:id="@+id/konfettiViewAboutMePage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-    </FrameLayout>
+        </RelativeLayout>
+
+    </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
 
 </de.dlyt.yanndroid.oneui.layout.DrawerLayout>
 

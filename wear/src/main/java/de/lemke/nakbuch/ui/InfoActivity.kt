@@ -48,19 +48,14 @@ class InfoActivity : AppCompatActivity() {
             remoteActivityHelper.startRemoteActivity(remoteIntent)
             startActivity(
                 Intent(this, ConfirmationActivity::class.java)
-                    .putExtra(
-                        ConfirmationActivity.EXTRA_ANIMATION_TYPE,
-                        ConfirmationActivity.OPEN_ON_PHONE_ANIMATION
-                    )
+                    .putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.OPEN_ON_PHONE_ANIMATION)
                     .putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Auf Telefon geöffnet")
             )
         } catch (cancellationException: CancellationException) {
             startActivity(
                 Intent(this, ConfirmationActivity::class.java)
-                    .putExtra(
-                        ConfirmationActivity.EXTRA_ANIMATION_TYPE,
-                        ConfirmationActivity.FAILURE_ANIMATION
-                    ).putExtra(ConfirmationActivity.EXTRA_MESSAGE, cancellationException.toString())
+                    .putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION)
+                    .putExtra(ConfirmationActivity.EXTRA_MESSAGE, cancellationException.toString())
             )
         }
     }

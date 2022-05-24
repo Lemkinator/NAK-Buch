@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "552ffe7d0fa842c4af92d75f39ca38c4",
+    "identityHash": "7fdef898cd09ef6cf614a96c0adff883",
     "entities": [
       {
         "tableName": "hymn",
@@ -65,6 +65,61 @@
             ]
           }
         ]
+      },
+      {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "hymn",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_BEFORE_UPDATE BEFORE UPDATE ON `hymn` BEGIN DELETE FROM `hymn_fts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_BEFORE_DELETE BEFORE DELETE ON `hymn` BEGIN DELETE FROM `hymn_fts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_AFTER_UPDATE AFTER UPDATE ON `hymn` BEGIN INSERT INTO `hymn_fts`(`docid`, `numberAndTitle`, `title`, `text`, `copyright`) VALUES (NEW.`rowid`, NEW.`numberAndTitle`, NEW.`title`, NEW.`text`, NEW.`copyright`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_AFTER_INSERT AFTER INSERT ON `hymn` BEGIN INSERT INTO `hymn_fts`(`docid`, `numberAndTitle`, `title`, `text`, `copyright`) VALUES (NEW.`rowid`, NEW.`numberAndTitle`, NEW.`title`, NEW.`text`, NEW.`copyright`); END"
+        ],
+        "tableName": "hymn_fts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`numberAndTitle` TEXT NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `copyright` TEXT NOT NULL, content=`hymn`)",
+        "fields": [
+          {
+            "fieldPath": "numberAndTitle",
+            "columnName": "numberAndTitle",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "copyright",
+            "columnName": "copyright",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "rowid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       },
       {
         "tableName": "hymn_data",
@@ -210,7 +265,18 @@
           ],
           "autoGenerate": false
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_photo_hymnId_uri",
+            "unique": true,
+            "columnNames": [
+              "hymnId",
+              "uri"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_photo_hymnId_uri` ON `${TABLE_NAME}` (`hymnId`, `uri`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "hymn",
@@ -284,7 +350,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '552ffe7d0fa842c4af92d75f39ca38c4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7fdef898cd09ef6cf614a96c0adff883')"
     ]
   }
 }

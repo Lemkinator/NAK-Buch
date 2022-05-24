@@ -1,8 +1,11 @@
 package de.lemke.nakbuch.domain
 
-import de.lemke.nakbuch.data.hymnsRepo
+import de.lemke.nakbuch.data.HymnsRepository
 import de.lemke.nakbuch.domain.model.BuchMode
+import javax.inject.Inject
 
-class GetHymnCountUseCase {
-    operator fun invoke(buchMode: BuchMode): Int = hymnsRepo.hymnCount(buchMode)
+class GetHymnCountUseCase @Inject constructor(
+    private val hymnsRepository: HymnsRepository,
+) {
+    operator fun invoke(buchMode: BuchMode): Int = hymnsRepository.hymnCount(buchMode)
 }

@@ -1,6 +1,5 @@
 package de.lemke.nakbuch.ui
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender.SendIntentException
@@ -20,28 +19,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.AboutPage
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.DiscoverEasterEggUseCase
 import de.lemke.nakbuch.domain.OpenAppUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class AboutActivity : AppCompatActivity() {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private lateinit var mActivity: Activity
-    private lateinit var mContext: Context
+    private lateinit var context: Context
     private lateinit var aboutPage: AboutPage
     private lateinit var appUpdateManager: AppUpdateManager
     private lateinit var appUpdateInfo: AppUpdateInfo
     private lateinit var appUpdateInfoTask: Task<AppUpdateInfo>
-    private lateinit var konfettiView: KonfettiView
-
-    @Inject
-    lateinit var discoverEasterEgg: DiscoverEasterEggUseCase
 
     @Inject
     lateinit var openApp: OpenAppUseCase
@@ -50,13 +37,12 @@ class AboutActivity : AppCompatActivity() {
         ThemeUtil(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
-        mContext = this
-        konfettiView = findViewById(R.id.konfettiViewAboutPage)
+        context = this
         aboutPage = findViewById(R.id.about_page)
         aboutPage.setToolbarExpandable(true)
         aboutPage.setUpdateState(AboutPage.LOADING)
         //LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
-        appUpdateManager = AppUpdateManagerFactory.create(mContext)
+        appUpdateManager = AppUpdateManagerFactory.create(context)
         aboutPage.setUpdateButtonOnClickListener { startUpdateFlow() }
         aboutPage.setRetryButtonOnClickListener {
             aboutPage.setUpdateState(AboutPage.LOADING)
@@ -66,15 +52,8 @@ class AboutActivity : AppCompatActivity() {
         findViewById<View>(R.id.about_btn_open_oneui_github).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.oneUIGithubLink))))
         }
-        findViewById<View>(R.id.about_btn_help).setOnClickListener { startActivity(Intent(mContext, HelpActivity::class.java)) }
-        findViewById<View>(R.id.about_btn_support_me).setOnClickListener { startActivity(Intent(mContext, SupportMeActivity::class.java)) }
-        findViewById<View>(R.id.about_btn_about_me).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website))))
-        }
-        findViewById<View>(R.id.about_btn_tiktk_troll).setOnClickListener {
-            CoroutineScope(coroutineContext).launch { discoverEasterEgg(konfettiView, R.string.easterEggEntryTikTok) }
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.rickRollTrollLink)))) //Rick Roll :D
-        }
+        findViewById<View>(R.id.about_btn_help).setOnClickListener { startActivity(Intent(context, HelpActivity::class.java)) }
+        findViewById<View>(R.id.about_btn_about_me).setOnClickListener { startActivity(Intent(context, AboutMeActivity::class.java)) }
         checkUpdate()
     }
 
@@ -97,7 +76,7 @@ class AboutActivity : AppCompatActivity() {
         if (requestCode == UPDATEREQUESTCODE) {
             if (resultCode != RESULT_OK) {
                 Log.e("Update: ", "Update flow failed! Result code: $resultCode")
-                Toast.makeText(mContext, "Fehler beim Update-Prozess: $resultCode", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Fehler beim Update-Prozess: $resultCode", Toast.LENGTH_LONG).show()
                 aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
             }
         }
@@ -119,7 +98,7 @@ class AboutActivity : AppCompatActivity() {
             }
         }
         appUpdateInfoTask.addOnFailureListener { appUpdateInfo: Exception ->
-            Toast.makeText(mContext, appUpdateInfo.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, appUpdateInfo.message, Toast.LENGTH_LONG).show()
             aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
         }
     }
@@ -129,7 +108,7 @@ class AboutActivity : AppCompatActivity() {
             appUpdateManager.startUpdateFlowForResult( // Pass the intent that is returned by 'getAppUpdateInfo()'.
                 appUpdateInfo,  //AppUpdateType.FLEXIBLE,
                 AppUpdateType.IMMEDIATE,
-                mActivity,
+                this,
                 UPDATEREQUESTCODE
             )
         } catch (e: SendIntentException) {

@@ -46,7 +46,7 @@ import kotlin.math.min
 class ImgviewActivity : AppCompatActivity() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var mContext: Context
+    private lateinit var context: Context
     private var tabLayout: TabLayout? = null
     private lateinit var imgViewPager: ViewPager
     private lateinit var viewPagerAdapterImageView: ViewPagerAdapterImageView
@@ -80,7 +80,7 @@ class ImgviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ThemeUtil(this)
-        mContext = this
+        context = this
         setContentView(R.layout.activity_imgview)
         imgViewPager = findViewById(R.id.img_view_pager)
         coroutineScope.launch {
@@ -92,7 +92,7 @@ class ImgviewActivity : AppCompatActivity() {
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
                 drawerLayout.setNavigationButtonIcon(
-                    AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
+                    AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
                 )
                 drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
                 drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
@@ -124,7 +124,7 @@ class ImgviewActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Toast.makeText(mContext, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -132,7 +132,7 @@ class ImgviewActivity : AppCompatActivity() {
     private suspend fun initViewPager(index: Int = -1) {
         personalHymn = getPersonalHymn(hymnId)
         personalHymn.photoList = personalHymn.photoList.filter { it.toFile().exists() }.toMutableList()
-        viewPagerAdapterImageView = ViewPagerAdapterImageView(mContext, personalHymn.photoList)
+        viewPagerAdapterImageView = ViewPagerAdapterImageView(context, personalHymn.photoList)
         imgViewPager.adapter = viewPagerAdapterImageView
         if (index > 0) imgViewPager.setCurrentItem(min(index, viewPagerAdapterImageView.count), true)
     }
@@ -140,13 +140,13 @@ class ImgviewActivity : AppCompatActivity() {
     private fun takePhoto() {
         val maxImagesPerHymn = 20
         if (personalHymn.photoList.size >= maxImagesPerHymn) {
-            Toast.makeText(mContext, "Max. Bilder pro Lied: $maxImagesPerHymn", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Max. Bilder pro Lied: $maxImagesPerHymn", Toast.LENGTH_SHORT).show()
             return
         }
         try {
             cameraActivityResultLauncher.launch(getTempPhotoUri(true))
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(mContext, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -159,12 +159,12 @@ class ImgviewActivity : AppCompatActivity() {
 
         val favIcon: Drawable
         if (personalHymn.favorite) {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
+            favIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
             favIcon.colorFilter = PorterDuffColorFilter(
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, mContext.theme), PorterDuff.Mode.SRC_IN
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, context.theme), PorterDuff.Mode.SRC_IN
             )
         } else {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
+            favIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
@@ -176,19 +176,19 @@ class ImgviewActivity : AppCompatActivity() {
             }
         })
 
-        val camIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera)
+        val camIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera)
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 takePhoto()
             }
         })
 
-        val binIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete)
+        val binIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete)
         tabLayout!!.addTabCustomButton(binIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val index = imgViewPager.currentItem
                 if (personalHymn.photoList.isNotEmpty()) {
-                    val dialog = AlertDialog.Builder(mContext)
+                    val dialog = AlertDialog.Builder(context)
                         .setTitle(getString(R.string.deletePhoto) + "?")
                         .setMessage(getString(R.string.deleteCurrentPhoto) + "?")
                         .setNeutralButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
@@ -199,7 +199,7 @@ class ImgviewActivity : AppCompatActivity() {
                                 initViewPager(min(index, viewPagerAdapterImageView.count - 1))
                             }
                         }
-                        .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme))
+                        .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
                         .setNegativeButtonProgress(true)
                         .create()
                     dialog.show()

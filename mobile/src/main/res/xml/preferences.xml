@@ -31,7 +31,7 @@
             app:icon="@drawable/ic_oui4_volume_mute" />
         <Preference
             android:key="dnd"
-            android:summary="@string/dndMode"
+            android:summary="@string/dndDescription"
             android:title="@string/dnd"
             app:icon="@drawable/ic_oui4_remove" />
         <CheckBoxPreference
@@ -55,7 +55,7 @@
 
     <PreferenceCategory android:title="@string/easterEggs">
         <SwitchPreferenceScreen
-            android:key="easterEggs"
+            android:key="easterEggsEnabled"
             android:summary="@string/showScoreboard"
             android:title="@string/easterEggs"
             app:icon="@drawable/ic_oui_biometric_face">

@@ -42,8 +42,8 @@ class UserSettingsRepository@Inject constructor(
             it[KEY_JOKE_BUTTON_VISIBLE] = newSettings.jokeButtonVisible
             it[KEY_NOTES_VISIBLE] = newSettings.notesVisible
             it[KEY_SUNG_ON_VISIBLE] = newSettings.sungOnVisible
-            it[KEY_RECENT_COLOR_LIST] = Gson().toJson(newSettings.recentColorList)
-            it[KEY_HINT_SET] = Gson().toJson(newSettings.hintSet)
+            it[KEY_RECENT_COLORS] = Gson().toJson(newSettings.recentColors)
+            it[KEY_HINTS] = Gson().toJson(newSettings.hints)
             it[KEY_DISCOVERED_EASTEREGGS] = Gson().toJson(newSettings.discoveredEasterEggs)
             it[KEY_SHOW_MAIN_TIPS] = newSettings.showMainTips
             it[KEY_SHOW_TEXTVIEW_TIPS] = newSettings.showTextViewTips
@@ -60,7 +60,7 @@ class UserSettingsRepository@Inject constructor(
 
     private fun settingsFromPreferences(prefs: Preferences) = UserSettings(
         number = prefs[KEY_NUMBER] ?: "",
-        buchMode = BuchMode.fromInt(prefs[KEY_BUCH_MODE] ?: BuchMode.Gesangbuch.toInt()),
+        buchMode = BuchMode.fromInt(prefs[KEY_BUCH_MODE]) ?: BuchMode.Gesangbuch,
         search = prefs[KEY_SEARCH] ?: "",
         lastVersionCode = prefs[KEY_LAST_VERSION_CODE] ?: -1,
         lastVersionName = prefs[KEY_LAST_VERSION_NAME] ?: "0.0",
@@ -72,9 +72,9 @@ class UserSettingsRepository@Inject constructor(
         jokeButtonVisible = prefs[KEY_JOKE_BUTTON_VISIBLE] ?: true,
         notesVisible = prefs[KEY_NOTES_VISIBLE] ?: false,
         sungOnVisible = prefs[KEY_SUNG_ON_VISIBLE] ?: false,
-        recentColorList = Gson().fromJson(prefs[KEY_RECENT_COLOR_LIST], object : TypeToken<MutableList<Int>?>() {}.type)
+        recentColors = Gson().fromJson(prefs[KEY_RECENT_COLORS], object : TypeToken<MutableList<Int>?>() {}.type)
             ?: mutableListOf(context.resources.getColor(R.color.primary_color, context.theme)),
-        hintSet = Gson().fromJson(prefs[KEY_HINT_SET], object : TypeToken<MutableSet<String>?>() {}.type)
+        hints = Gson().fromJson(prefs[KEY_HINTS], object : TypeToken<MutableSet<String>?>() {}.type)
             ?: (context.resources.getStringArray(R.array.hint_values)).toMutableSet(),
         discoveredEasterEggs = Gson().fromJson(prefs[KEY_DISCOVERED_EASTEREGGS], object : TypeToken<MutableSet<String>?>() {}.type)
             ?: mutableSetOf(),
@@ -104,8 +104,8 @@ class UserSettingsRepository@Inject constructor(
         private val KEY_JOKE_BUTTON_VISIBLE = booleanPreferencesKey("jokeButtonVisible")
         private val KEY_NOTES_VISIBLE = booleanPreferencesKey("noteVisible")
         private val KEY_SUNG_ON_VISIBLE = booleanPreferencesKey("sungOnVisible")
-        private val KEY_RECENT_COLOR_LIST = stringPreferencesKey("recentColorList")
-        private val KEY_HINT_SET = stringPreferencesKey("hintSet")
+        private val KEY_RECENT_COLORS = stringPreferencesKey("recentColorList")
+        private val KEY_HINTS = stringPreferencesKey("hintSet")
         private val KEY_DISCOVERED_EASTEREGGS = stringPreferencesKey("discoveredEasterEggs")
         private val KEY_SHOW_MAIN_TIPS = booleanPreferencesKey("showMainTips")
         private val KEY_SHOW_TEXTVIEW_TIPS = booleanPreferencesKey("showTextViewTips")
@@ -148,9 +148,9 @@ data class UserSettings(
     /** Is Sung-On visible*/
     val sungOnVisible: Boolean,
     /** Recent ColorList*/
-    val recentColorList: MutableList<Int>,
+    val recentColors: MutableList<Int>,
     /** Set with Hints to show*/
-    val hintSet: MutableSet<String>,
+    val hints: MutableSet<String>,
     /** Set with discovered EasterEggs*/
     val discoveredEasterEggs: MutableSet<String>,
     /** show MainView Tips*/
