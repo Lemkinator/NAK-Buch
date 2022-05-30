@@ -58,42 +58,44 @@ class TabListSubtabNumeric : Fragment() {
     private val handler = Handler(Looper.getMainLooper())
     private val showBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
 
-    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
-    @Inject lateinit var getAllHymns: GetAllHymnsUseCase
-    @Inject lateinit var setFavoritesFromHymnList: SetFavoritesFromHymnListUseCase
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var getAllHymns: GetAllHymnsUseCase
+
+    @Inject
+    lateinit var setFavoritesFromHymnList: SetFavoritesFromHymnListUseCase
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_tab_list_subtab_numeric, container, false)
         return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        drawerLayout = requireActivity().findViewById(R.id.drawer_view)
+        val activity = requireActivity()
         listView = rootView.findViewById(R.id.hymnList)
-        subTabs = requireActivity().findViewById(R.id.sub_tabs)
-        mainTabs = requireActivity().findViewById(R.id.main_tabs)
-        viewPager2List = requireActivity().findViewById(R.id.viewPager2Lists)
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                if (selecting) setSelecting(false)
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        drawerLayout = activity.findViewById(R.id.drawer_view)
+        subTabs = activity.findViewById(R.id.sub_tabs)
+        mainTabs = activity.findViewById(R.id.main_tabs)
+        viewPager2List = activity.findViewById(R.id.viewPager2Lists)
         coroutineScope.launch {
             buchMode = getUserSettings().buchMode
             hymns = getAllHymns(buchMode).toMutableList()
             hymns.add(Hymn.hymnPlaceholder)
             initList()
+            onBackPressedCallback = object : OnBackPressedCallback(false) {
+                override fun handleOnBackPressed() {
+                    if (selecting) setSelecting(false)
+                }
+            }
+            requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
         }
     }
 
@@ -112,9 +114,7 @@ class TabListSubtabNumeric : Fragment() {
         listView.seslSetLongPressMultiSelectionListener(object :
             RecyclerView.SeslLongPressMultiSelectionListener {
             override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
-                if (imageAdapter.getItemViewType(position) == 0) {
-                    toggleItemSelected(position)
-                }
+                if (imageAdapter.getItemViewType(position) == 0) toggleItemSelected(position)
             }
 
             override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {
@@ -125,8 +125,6 @@ class TabListSubtabNumeric : Fragment() {
                 handler.postDelayed(showBottomBarRunnable, 300)
             }
         })
-
-        //divider
         val divider = TypedValue()
         val decoration = ItemDecoration()
         mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
@@ -146,7 +144,9 @@ class TabListSubtabNumeric : Fragment() {
                         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
                         dialog.setCancelable(false)
                         dialog.show()
-                        coroutineScope.launch { setFavoritesFromHymnList(hymns, onlySelected, true) }.invokeOnCompletion {
+                        coroutineScope.launch {
+                            setFavoritesFromHymnList(hymns, onlySelected, true)
+                        }.invokeOnCompletion {
                             dialog.dismiss()
                         }
                     }
@@ -155,7 +155,9 @@ class TabListSubtabNumeric : Fragment() {
                         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
                         dialog.setCancelable(false)
                         dialog.show()
-                        coroutineScope.launch { setFavoritesFromHymnList(hymns, onlySelected, false) }.invokeOnCompletion {
+                        coroutineScope.launch {
+                            setFavoritesFromHymnList(hymns, onlySelected, false)
+                        }.invokeOnCompletion {
                             dialog.dismiss()
                         }
                     }
@@ -214,50 +216,32 @@ class TabListSubtabNumeric : Fragment() {
         private var sections: MutableList<String> = mutableListOf()
         private var positionForSection: MutableList<Int> = mutableListOf()
         private var sectionForPosition: MutableList<Int> = mutableListOf()
-
-        init {
-            for (i in hymns.indices) {
-                if (i != hymns.size - 1) {
-                    sections.add(hymns[i].hymnId.number.toString())
-                    positionForSection.add(i)
-                }
-                sectionForPosition.add(sections.size - 1)
-            }
-
-        }
-
         override fun getSections(): Array<Any> = sections.toTypedArray()
-
         override fun getPositionForSection(i: Int): Int = positionForSection[i]
-
         override fun getSectionForPosition(i: Int): Int = sectionForPosition[i]
-
         override fun getItemCount(): Int = hymns.size
-
         override fun getItemId(position: Int): Long = position.toLong()
-
         override fun getItemViewType(position: Int): Int = if (hymns[position] != Hymn.hymnPlaceholder) 0 else 1
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
             when (viewType) {
                 0 -> resId = R.layout.listview_item
                 1 -> resId = R.layout.listview_bottom_spacing
             }
-            val view = LayoutInflater.from(parent.context).inflate(resId, parent, false)
-            return ViewHolder(view, viewType)
+            return ViewHolder(LayoutInflater.from(parent.context).inflate(resId, parent, false), viewType)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             if (holder.isItem) {
                 holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
-                //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 holder.textView.text = hymns[position].numberAndTitle
                 holder.parentView.setOnClickListener {
                     if (selecting) toggleItemSelected(position)
                     else {
-                        startActivity(Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt()))
+                        startActivity(
+                            Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt())
+                        )
                     }
                 }
                 holder.parentView.setOnLongClickListener {
@@ -272,19 +256,27 @@ class TabListSubtabNumeric : Fragment() {
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
-
-            //lateinit var imageView: ImageView
             lateinit var textView: TextView
             lateinit var checkBox: CheckBox
 
             init {
                 if (isItem) {
                     parentView = itemView as RelativeLayout
-                    //imageView = parentView.findViewById(R.id.icon_tab_item_image);
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
                     checkBox = parentView.findViewById(R.id.checkbox)
                 }
             }
+        }
+
+        init {
+            for (i in hymns.indices) {
+                if (i != hymns.size - 1) {
+                    sections.add(hymns[i].hymnId.number.toString())
+                    positionForSection.add(i)
+                }
+                sectionForPosition.add(sections.size - 1)
+            }
+
         }
     }
 
@@ -307,8 +299,6 @@ class TabListSubtabNumeric : Fragment() {
                     recyclerView.getChildAt(i + 1)
                 ) as ImageAdapter.ViewHolder).isItem else false
                 if (divider != null && viewHolder.isItem && shallDrawDivider) {
-                    //int moveRTL = isRTL() ? 130 : 0;
-                    //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
                     divider!!.setBounds(0, y, width, dividerHeight + y)
                     divider!!.draw(canvas)
                 }

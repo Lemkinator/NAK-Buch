@@ -58,8 +58,10 @@ class MainActivityTabFav : Fragment() {
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
+
     @Inject
     lateinit var getFavoriteHymns: GetFavoriteHymnsUseCase
+
     @Inject
     lateinit var setFavoritesFromList: SetFavoritesFromPersonalHymnListUseCase
 
@@ -76,20 +78,19 @@ class MainActivityTabFav : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        drawerLayout = requireActivity().findViewById(R.id.drawer_view)
+        val activity = requireActivity()
+        drawerLayout = activity.findViewById(R.id.drawer_view)
+        mainTabs = activity.findViewById(R.id.main_tabs)
         swipeRefreshLayout = rootView.findViewById(R.id.tabFavSwipeRefresh)
-        swipeRefreshLayout.setOnRefreshListener {
-            initList()
-        }
-        swipeRefreshLayout.isRefreshing = true
         listView = rootView.findViewById(R.id.favHymnList)
-        mainTabs = requireActivity().findViewById(R.id.main_tabs)
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                setSelecting(false)
+        coroutineScope.launch {
+            swipeRefreshLayout.isRefreshing = true
+            swipeRefreshLayout.setOnRefreshListener { initList() }
+            onBackPressedCallback = object : OnBackPressedCallback(false) {
+                override fun handleOnBackPressed() { setSelecting(false) }
             }
+            activity.onBackPressedDispatcher.addCallback(onBackPressedCallback)
         }
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     override fun onResume() {
@@ -118,9 +119,7 @@ class MainActivityTabFav : Fragment() {
         listView.seslSetLongPressMultiSelectionListener(object :
             RecyclerView.SeslLongPressMultiSelectionListener {
             override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
-                if (imageAdapter.getItemViewType(position) == 0) {
-                    toggleItemSelected(position)
-                }
+                if (imageAdapter.getItemViewType(position) == 0) toggleItemSelected(position)
             }
 
             override fun onLongPressMultiSelectionStarted(x: Int, y: Int) {
@@ -132,8 +131,8 @@ class MainActivityTabFav : Fragment() {
             }
         })
         val divider = TypedValue()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         val decoration = ItemDecoration()
+        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.addItemDecoration(decoration)
         decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
         swipeRefreshLayout.isRefreshing = false
@@ -147,11 +146,11 @@ class MainActivityTabFav : Fragment() {
                 if (item.itemId == R.id.menuButtonRemove) {
                     coroutineScope.launch {
                         swipeRefreshLayout.isRefreshing = true
-                        setFavoritesFromList(favHymns.filterIndexed {
-                                index, personalHymn -> !selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
+                        setFavoritesFromList(favHymns.filterIndexed { index, personalHymn ->
+                            !selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
                         }.map { it.copy(favorite = false) })
-                        favHymns = favHymns.filterIndexed {
-                                index, personalHymn -> selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
+                        favHymns = favHymns.filterIndexed { index, personalHymn ->
+                            selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
                         }.toMutableList()
                         favHymns.add(PersonalHymn.personalHymnPlaceholder)
                         initList()
@@ -202,18 +201,11 @@ class MainActivityTabFav : Fragment() {
 
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
-        override fun getItemCount(): Int {
-            return favHymns.size
-        }
+        override fun getItemCount(): Int = favHymns.size
 
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
+        override fun getItemId(position: Int): Long = position.toLong()
 
-        override fun getItemViewType(position: Int): Int {
-            return if (favHymns[position] != PersonalHymn.personalHymnPlaceholder) 0
-            else 1
-        }
+        override fun getItemViewType(position: Int): Int = if (favHymns[position] != PersonalHymn.personalHymnPlaceholder) 0 else 1
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
@@ -221,15 +213,13 @@ class MainActivityTabFav : Fragment() {
                 0 -> resId = R.layout.listview_item
                 1 -> resId = R.layout.listview_bottom_spacing
             }
-            val view = LayoutInflater.from(parent.context).inflate(resId, parent, false)
-            return ViewHolder(view, viewType)
+            return ViewHolder(LayoutInflater.from(parent.context).inflate(resId, parent, false), viewType)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             if (holder.isItem) {
                 holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
-                //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 holder.textView.text = favHymns[position].hymn.numberAndTitle
                 holder.parentView.setOnClickListener {
                     if (selecting) toggleItemSelected(position) else {
@@ -250,21 +240,15 @@ class MainActivityTabFav : Fragment() {
             }
         }
 
-        inner class ViewHolder internal constructor(itemView: View, viewType: Int) :
-            RecyclerView.ViewHolder(
-                itemView
-            ) {
+        inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
-
-            //ImageView imageView;
             lateinit var textView: TextView
             lateinit var checkBox: CheckBox
 
             init {
                 if (isItem) {
                     parentView = itemView as RelativeLayout
-                    //imageView = parentView.findViewById(R.id.icon_tab_item_image);
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
                     checkBox = parentView.findViewById(R.id.checkbox)
                 }
@@ -292,8 +276,6 @@ class MainActivityTabFav : Fragment() {
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
                 if (divider != null && viewHolder.isItem && shallDrawDivider) {
-                    //int moveRTL = isRTL() ? 130 : 0;
-                    //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
                     divider!!.setBounds(0, y, width, dividerHeight + y)
                     divider!!.draw(canvas)
                 }

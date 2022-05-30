@@ -11,23 +11,11 @@ class HymnsRepository @Inject constructor(
     private val hymnDao: HymnDao,
     private val rubricDao: RubricDao,
 ) {
-    fun hymnCount(buchMode: BuchMode) = when (buchMode) {
-        BuchMode.Gesangbuch -> BuchMode.gesangbuchHymnsCount
-        BuchMode.Chorbuch -> BuchMode.chorbuchHymnsCount
-        BuchMode.Jugendliederbuch -> BuchMode.jugendliederbuchHymnsCount
-    }
-
-    fun rubricCount(buchMode: BuchMode) = when (buchMode) {
-        BuchMode.Gesangbuch -> BuchMode.gesangbuchRubricCount
-        BuchMode.Chorbuch -> BuchMode.chorbuchRubricCount
-        BuchMode.Jugendliederbuch -> BuchMode.jugendliederbuchRubricCount
-    }
-
     suspend fun search(buchMode: BuchMode, search: String): List<Hymn> =
-        hymnDao.search(BuchMode.minId(buchMode), BuchMode.maxId(buchMode), "*$search*").map { hymnFromDb(it) }
+        hymnDao.search(buchMode.minId, buchMode.maxId, search).map { hymnFromDb(it) }
 
     suspend fun getAllHymns(buchMode: BuchMode): List<Hymn> =
-        hymnDao.getAll(BuchMode.minId(buchMode), BuchMode.maxId(buchMode)).map { hymnFromDb(it) }
+        hymnDao.getAll(buchMode.minId, buchMode.maxId).map { hymnFromDb(it) }
 
     suspend fun getHymnByNumber(hymnId: HymnId): Hymn = hymnFromDb(hymnDao.getById(hymnId.toInt()))
 
@@ -40,7 +28,7 @@ class HymnsRepository @Inject constructor(
     suspend fun deleteAllHymns() = hymnDao.deleteAll()
 
     suspend fun getAllRubrics(buchMode: BuchMode): List<Rubric> =
-        rubricDao.getAll(BuchMode.minId(buchMode), BuchMode.maxId(buchMode)).map { rubricFromDb(it) }
+        rubricDao.getAll(buchMode.minId, buchMode.maxId).map { rubricFromDb(it) }
 
     suspend fun addRubric(rubric: Rubric) = rubricDao.insert(rubricToDb(rubric))
 

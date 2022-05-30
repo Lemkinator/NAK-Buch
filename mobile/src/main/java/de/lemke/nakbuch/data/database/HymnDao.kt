@@ -25,29 +25,19 @@ interface HymnDao {
     suspend fun deleteAll()
 
     @Transaction
-    @Query("SELECT * FROM hymn JOIN hymn_fts ON hymn.hymnId = hymn_fts.rowid " +
-            "WHERE " +
-            "(hymnId BETWEEN :minId AND :maxId) " +
-            "AND " +
-            "(hymn_fts MATCH :search || '*')" )
-    suspend fun search(minId: Int, maxId: Int, search:String): List<HymnAndRubric>
-}
+    @Query(
+        """SELECT * FROM hymn JOIN hymn_fts ON hymn.hymnId = hymn_fts.rowid 
+        WHERE 
+        (hymnId BETWEEN :minId AND :maxId) 
+        AND
+        (hymn_fts MATCH :search)"""
+    )
+    suspend fun search(minId: Int, maxId: Int, search: String): List<HymnAndRubric>
 
-/*
-SELECT name
-FROM (
-      SELECT name, 1 as matched
-      FROM nametable
-      WHERE name MATCH 'fast'
-    UNION ALL
-      SELECT name, 1 as matched
-      FROM nametable
-      WHERE name MATCH 'food'
-    UNION ALL
-      SELECT name, 1 as matched
-      FROM nametable
-      WHERE name MATCH 'restaurant'
-  )
-GROUP BY name
-ORDER BY SUM(matched) DESC, name
- */
+    @Transaction
+    @Query(
+        """SELECT * FROM hymn JOIN hymn_fts ON hymn.hymnId = hymn_fts.rowid 
+        WHERE hymn_fts MATCH :search """
+    )
+    suspend fun search(search: String): List<HymnAndRubric>
+}

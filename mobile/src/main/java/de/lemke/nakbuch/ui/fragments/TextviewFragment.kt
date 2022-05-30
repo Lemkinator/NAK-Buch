@@ -148,36 +148,6 @@ class TextviewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
-        drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
-        drawerLayout.setNavigationButtonOnClickListener { requireActivity().onBackPressed() }
-        drawerLayout.setSubtitle(hymnId.buchMode.toString())
-        drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
-        drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                /*R.id.switchBuchMode -> {
-                    coroutineScope.launch {
-                        buchMode = updateUserSettings{ it.copy(buchMode = !it.buchMode) }.buchMode
-                        startActivity(Intent(mRootView.context, TextviewActivity::class.java).putExtra("hymnId", hymnId))
-                        requireActivity().finish()
-                    }
-                }*/
-                R.id.mute ->
-                    if (!mute()) Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT)
-                        .show()
-                R.id.dnd -> DoNotDisturbUseCase(mContext)()//doNotDisturb()
-                R.id.openOfficialApp -> {
-                    coroutineScope.launch {
-                        if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode)
-                        else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
-                    }
-                }
-                R.id.increaseTextSize -> coroutineScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
-                R.id.decreaseTextSize -> coroutineScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
-            }
-            true
-        }
         nestedScrollView = rootView.findViewById(R.id.nestedScrollViewTextview)
         konfettiView = rootView.findViewById(R.id.konfettiViewTextview)
         tvText = rootView.findViewById(R.id.tvText)
@@ -188,24 +158,24 @@ class TextviewFragment : Fragment() {
         editTextNotiz = rootView.findViewById(R.id.editTextNotiz)
         jokeButton = rootView.findViewById(R.id.jokeButton)
         whyNoFullTextButton = rootView.findViewById(R.id.whyNoFullTextButton)
+        drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setSubtitle(hymnId.buchMode.toString())
+        drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
 
         coroutineScope.launch {
             personalHymn = getPersonalHymn(hymnId)
-            //Log.d("test", "tvFragment hymnId: $hymnId")
-            //Log.d("test", "tvFragment personalHymn: ${personalHymn.hymn.hymnId}")
             val color = MaterialColors.getColor(
                 mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
                 mContext.resources.getColor(R.color.primary_color, mContext.theme)
             )
             drawerLayout.setTitle(makeSectionOfTextBold(personalHymn.hymn.numberAndTitle, boldText, color))
-            textSize = getUserSettings().textSize
-            updateTextSize(textSize)
             tvText.text = makeSectionOfTextBold(personalHymn.hymn.text, boldText, color)
             tvCopyright.text = makeSectionOfTextBold(personalHymn.hymn.copyright, boldText, color)
-            editTextNotiz.setText(personalHymn.notes)
-
+            val userSettings = getUserSettings()
+            updateTextSize(userSettings.textSize)
             if (personalHymn.hymn.text.contains("urheberrechtlich geschützt...", ignoreCase = true)) {
-                if (getUserSettings().jokeButtonVisible && getUserSettings().easterEggsEnabled) {
+                if (userSettings.jokeButtonVisible && userSettings.easterEggsEnabled) {
                     jokeButton.visibility = View.VISIBLE
                     whyNoFullTextButton.visibility = View.GONE
                 } else {
@@ -213,7 +183,9 @@ class TextviewFragment : Fragment() {
                     whyNoFullTextButton.visibility = View.VISIBLE
                 }
             }
+            editTextNotiz.setText(personalHymn.notes)
             initBNV()
+            initList()
             whyNoFullTextButton.setOnClickListener { startActivity(Intent(mContext, HelpActivity::class.java)) }
             jokeButton.setOnClickListener {
                 coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntryPremium) }
@@ -259,51 +231,60 @@ class TextviewFragment : Fragment() {
                 sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 startActivity(Intent.createChooser(sendIntent, "Share Via"))
             }
-
-            val addDateButton: MaterialButton = rootView.findViewById(R.id.addDateButton)
-            addDateButton.setOnClickListener {
-                val datePickerDialog = DatePickerDialog(
-                    mContext, { _, year, month0, day ->
-                        val month = month0 + 1
-                        val date = LocalDate.of(year, month, day)
-                        if (!hymnSungOnList.contains(date)) {
-                            hymnSungOnList.add(date)
-                            personalHymn.sungOnList = hymnSungOnList.filterNotNull().distinct().sortedDescending()
-                            coroutineScope.launch { setPersonalHymn(personalHymn.copy()) }
-                            setSelecting(false)
-                            initList()
-                        }
-                    }, LocalDate.now().year, LocalDate.now().monthValue - 1, LocalDate.now().dayOfMonth
-                )
-                datePickerDialog.show()
+            val datePickerDialog = DatePickerDialog(
+                mContext, { _, year, month, day ->
+                    val date = LocalDate.of(year, month + 1, day)
+                    if (!hymnSungOnList.contains(date)) {
+                        hymnSungOnList.add(date)
+                        personalHymn.sungOnList = hymnSungOnList.filterNotNull().distinct().sortedDescending()
+                        coroutineScope.launch { setPersonalHymn(personalHymn.copy()) }
+                        setSelecting(false)
+                        initList()
+                    }
+                }, LocalDate.now().year, LocalDate.now().monthValue - 1, LocalDate.now().dayOfMonth
+            )
+            rootView.findViewById<MaterialButton>(R.id.addDateButton).setOnClickListener { datePickerDialog.show() }
+            drawerLayout.setNavigationButtonOnClickListener { requireActivity().onBackPressed() }
+            drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
+            drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
+                when (item.itemId) {
+                    R.id.increaseTextSize -> coroutineScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
+                    R.id.decreaseTextSize -> coroutineScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
+                    R.id.dnd -> DoNotDisturbUseCase(mContext)()//doNotDisturb()
+                    R.id.mute ->
+                        if (!mute()) Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+                    R.id.openOfficialApp -> coroutineScope.launch {
+                        if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode)
+                        else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
+                    }
+                }
+                true
             }
-            initList()
+            onBackPressedCallback = object : OnBackPressedCallback(false) {
+                override fun handleOnBackPressed() {
+                    setSelecting(false)
+                }
+            }
+            requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
             addHymnToHistoryList(personalHymn.hymn)
         }
-        onBackPressedCallback = object : OnBackPressedCallback(false) {
-            override fun handleOnBackPressed() {
-                setSelecting(false)
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
     }
 
     override fun onResume() {
         super.onResume()
         coroutineScope.launch {
-            notesGroup.visibility = if (getUserSettings().notesVisible) View.VISIBLE else View.GONE
-            calendarGroup.visibility = if (getUserSettings().sungOnVisible) View.VISIBLE else View.GONE
-            textSize = getUserSettings().textSize
+            val userSettings = getUserSettings()
+            notesGroup.visibility = if (userSettings.notesVisible) View.VISIBLE else View.GONE
+            calendarGroup.visibility = if (userSettings.sungOnVisible) View.VISIBLE else View.GONE
+            textSize = userSettings.textSize
             updateTextSize(textSize)
             personalHymn = getPersonalHymn(hymnId)
             initBNV()
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                if (getUserSettings().showTextViewTips) {
+                if (userSettings.showTextViewTips) {
                     updateUserSettings { it.copy(showTextViewTips = false) }
-                    //Handler(Looper.getMainLooper()).postDelayed({
                     initTipPopup()
                     tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)
-                    //}, 50)
                 }
             }
         }
@@ -321,9 +302,19 @@ class TextviewFragment : Fragment() {
             tabLayout!!.isVisible = true
         }
         val noteIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
+        val dateIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
         coroutineScope.launch {
-            if (getUserSettings().notesVisible) {
+            val userSettings = getUserSettings()
+            if (userSettings.notesVisible) {
                 noteIcon!!.colorFilter = PorterDuffColorFilter(
+                    MaterialColors.getColor(
+                        mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, mContext.theme)
+                    ), PorterDuff.Mode.SRC_IN
+                )
+            }
+            if (userSettings.sungOnVisible) {
+                dateIcon!!.colorFilter = PorterDuffColorFilter(
                     MaterialColors.getColor(
                         mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
                         resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, mContext.theme)
@@ -349,17 +340,6 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val dateIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
-        coroutineScope.launch {
-            if (getUserSettings().sungOnVisible) {
-                dateIcon!!.colorFilter = PorterDuffColorFilter(
-                    MaterialColors.getColor(
-                        mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, mContext.theme)
-                    ), PorterDuff.Mode.SRC_IN
-                )
-            }
-        }
         tabLayout!!.addTabCustomButton(dateIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 coroutineScope.launch {
@@ -475,11 +455,11 @@ class TextviewFragment : Fragment() {
         tipPopupMinus.setMessage(getString(R.string.decreaseTextsize))
     }
 
-    private suspend fun updateTextSize(newTextSize: Int): Int {
+    private fun updateTextSize(newTextSize: Int): Int {
         textSize = newTextSize.coerceIn(TEXTSIZE_MIN, TEXTSIZE_MAX)
         tvText.textSize = textSize.toFloat()
         tvCopyright.textSize = (textSize - 4).toFloat()
-        updateUserSettings { it.copy(textSize = textSize) }
+        coroutineScope.launch { updateUserSettings { it.copy(textSize = textSize) } }
         return textSize
     }
 

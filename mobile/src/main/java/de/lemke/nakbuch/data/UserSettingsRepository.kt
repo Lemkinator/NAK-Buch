@@ -127,18 +127,10 @@ data class UserSettings(
     val number: String,
     /** Current Search  */
     val search: String,
-    /** Last App-Version-Code */
-    val lastVersionCode: Int,
-    /** Last App-Version-Name */
-    val lastVersionName: String,
     /** Text Size */
     val textSize: Int,
     /** Easter Eggs enabled */
     val easterEggsEnabled: Boolean,
-    /** true if EasterEgg-Tips were shown */
-    val easterEggTipsUsed: Boolean,
-    /** History enabled */
-    val historyEnabled: Boolean,
     /** Is alternative Search-Mode enabled */
     val alternativeSearchModeEnabled: Boolean,
     /** Is Joke-Button visible*/
@@ -147,6 +139,18 @@ data class UserSettings(
     val notesVisible: Boolean,
     /** Is Sung-On visible*/
     val sungOnVisible: Boolean,
+    /** True if numberfield is on right side*/
+    val numberFieldRightSide: Boolean,
+    /** confirm Exit*/
+    val confirmExit: Boolean,
+    /** Last App-Version-Code */
+    val lastVersionCode: Int,
+    /** Last App-Version-Name */
+    val lastVersionName: String,
+    /** true if EasterEgg-Tips were shown */
+    val easterEggTipsUsed: Boolean,
+    /** History enabled */
+    val historyEnabled: Boolean,
     /** Recent ColorList*/
     val recentColors: MutableList<Int>,
     /** Set with Hints to show*/
@@ -163,14 +167,10 @@ data class UserSettings(
     val showAppDisclaimer: Boolean,
     /** show EasterEggHint Tips*/
     val showEasterEggHint: Boolean,
-    /** True if numberfield is on right side*/
-    val numberFieldRightSide: Boolean,
     /** Photo Quality*/
     val photoQuality: Quality,
     /** Photo Resolution*/
     val photoResolution: Resolution,
-    /** confirm Exit*/
-    val confirmExit: Boolean,
 )
 
 enum class Resolution(val value: Int) {

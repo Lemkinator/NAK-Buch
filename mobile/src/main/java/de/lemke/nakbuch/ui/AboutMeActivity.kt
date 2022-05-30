@@ -1,6 +1,7 @@
 package de.lemke.nakbuch.ui
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +16,7 @@ import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.DiscoverEasterEggUseCase
+import de.lemke.nakbuch.domain.OpenAppUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,6 +33,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd;*/
 
 @AndroidEntryPoint
 class AboutMeActivity : AppCompatActivity() {
+    private lateinit var context: Context
     private lateinit var konfettiView: KonfettiView
     //private lateinit var mRewardedAd: RewardedAd
     //private lateinit var watchAdButton: MaterialButton
@@ -38,14 +41,18 @@ class AboutMeActivity : AppCompatActivity() {
     @Inject
     lateinit var discoverEasterEgg: DiscoverEasterEggUseCase
 
+    @Inject
+    lateinit var openApp: OpenAppUseCase
+
     companion object {
         private const val AD_UNIT_ID = "ca-app-pub-5655920768524739/5575349013"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about_me)
+        context = this
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_support_me)
         drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
@@ -67,18 +74,20 @@ class AboutMeActivity : AppCompatActivity() {
             try {
                 startActivity(intent)
             } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(this, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
             }
         }
         findViewById<View>(R.id.reviewCommentButton).setOnClickListener {
-            AlertDialog.Builder(this)
+            AlertDialog.Builder(context)
                 .setTitle(getString(R.string.writeReview))
                 .setMessage(getString(R.string.reviewComment))
                 .setNeutralButton(R.string.ok, null)
+                .setPositiveButton(R.string.toPlaystore) { _, _ -> openApp(packageName, false)}
+                .show()
         }
         findViewById<View>(R.id.writeReviewButton).setOnClickListener {
-            val manager = ReviewManagerFactory.create(this)
-            //val manager = FakeReviewManager(mContext);
+            val manager = ReviewManagerFactory.create(context)
+            //val manager = FakeReviewManager(context);
             val request = manager.requestReviewFlow()
             request.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -88,11 +97,11 @@ class AboutMeActivity : AppCompatActivity() {
                         if (task2.isSuccessful) {
                             //Toast.makeText(mContext, "Vielen Dank für deine Bewertung", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(this, getString(R.string.error) + ": " + task2.exception, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, getString(R.string.error) + ": " + task2.exception, Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
-                    Toast.makeText(this, R.string.taskFailed, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.taskFailed, Toast.LENGTH_SHORT).show()
                     // There was some problem, log or handle the error code.
                     //@ReviewErrorCode val reviewErrorCode = (task.exception as TaskException).errorCode
                 }

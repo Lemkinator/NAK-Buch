@@ -22,14 +22,14 @@ class HymnDataRepository @Inject constructor(
     suspend fun addToHistoryList(hymn: Hymn, date: LocalDate) = historyDao.fixedInsert(historyToDb(hymn, date))
 
     suspend fun getPersonalHymn(hymnId: HymnId): PersonalHymn = personalHymnFromDb(
-        hymnDataDao.getPersonalHymnById(hymnId.toInt())
+        hymnDataDao.getPersonalHymnByHymnId(hymnId.toInt())
     )
 
     suspend fun getAllPersonalHymns(buchMode: BuchMode): List<PersonalHymn> =
-        hymnDataDao.getAllPersonalHymns(BuchMode.minId(buchMode),BuchMode.maxId(buchMode)).map { personalHymnFromDb(it) }
+        hymnDataDao.getAllPersonalHymns(buchMode.minId, buchMode.maxId).map { personalHymnFromDb(it) }
 
     suspend fun setPersonalHymn(personalHymn: PersonalHymn) {
-        hymnDataDao.upsert(personalHymnToHymnDataDb(personalHymn))
+        setPersonalHymnWithoutLists(personalHymn)
         sungOnDao.delete(personalHymn.hymn.hymnId.toInt())
         sungOnDao.insert(personalHymnToSungOnDbList(personalHymn))
         photoDao.delete(personalHymn.hymn.hymnId.toInt())
@@ -39,7 +39,7 @@ class HymnDataRepository @Inject constructor(
     suspend fun setPersonalHymnWithoutLists(personalHymn: PersonalHymn) = hymnDataDao.upsert(personalHymnToHymnDataDb(personalHymn))
 
     suspend fun setPersonalHymns(personalHymns: List<PersonalHymn>) {
-        hymnDataDao.upsert(personalHymns.map { personalHymnToHymnDataDb(it) })
+        setPersonalHymnsWithoutLists(personalHymns)
         personalHymns.forEach {
             sungOnDao.delete(it.hymn.hymnId.toInt())
             sungOnDao.insert(personalHymnToSungOnDbList(it))
@@ -49,6 +49,7 @@ class HymnDataRepository @Inject constructor(
             photoDao.insert(personalHymnToPhotoDbList(it))
         }
     }
+
     suspend fun setPersonalHymnsWithoutLists(personalHymns: List<PersonalHymn>) {
         hymnDataDao.upsert(personalHymns.map { personalHymnToHymnDataDb(it) })
     }

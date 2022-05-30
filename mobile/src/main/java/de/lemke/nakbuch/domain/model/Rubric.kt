@@ -23,23 +23,16 @@ class RubricId private constructor(
     companion object {
         val rubricIdPlaceholder = RubricId(-1, BuchMode.Gesangbuch)
         fun create(index: Int, buchMode: BuchMode): RubricId? {
-            if (index < 0 || index >= getRubricListItemList(buchMode).size) return null
-            if (index < 0 || index >= getRubricTitlesList(buchMode).size) return null
+            if (index < 0 || index >= buchMode.rubricListItemList.size) return null
+            if (index < 0 || index >= buchMode.rubricTitlesList.size) return null
             return RubricId(index, buchMode)
         }
 
         fun create(rubricIdInt: Int): RubricId? {
             if (rubricIdInt < 0) return null
             val index = rubricIdInt.mod(BuchMode.intStep)
-            return when (rubricIdInt) {
-                in BuchMode.minId(BuchMode.Gesangbuch) .. BuchMode.maxId(BuchMode.Gesangbuch) ->
-                    create(index, BuchMode.Gesangbuch)
-                in BuchMode.minId(BuchMode.Chorbuch) .. BuchMode.maxId(BuchMode.Chorbuch) ->
-                    create(index, BuchMode.Chorbuch)
-                in BuchMode.minId(BuchMode.Jugendliederbuch) .. BuchMode.maxId(BuchMode.Jugendliederbuch) ->
-                    create(index, BuchMode.Jugendliederbuch)
-                else -> null
-            }
+            val buchMode = BuchMode.fromHymnId(rubricIdInt) ?: return null
+            return create(index, buchMode)
         }
     }
 }
@@ -73,92 +66,9 @@ data class Rubric(
 }
 
 private fun isMainRubric(rubricId: RubricId): Boolean {
-    return getRubricListItemList(rubricId.buchMode)[rubricId.index] == 0
+    return rubricId.buchMode.rubricListItemList[rubricId.index] == 0
 }
 
 private fun getRubricName(rubricId: RubricId): String {
-    return getRubricTitlesList(rubricId.buchMode)[rubricId.index]
-}
-
-fun getRubricListItemList(buchMode: BuchMode): List<Int> {
-    return when (buchMode) {
-        BuchMode.Gesangbuch -> listOf(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1)
-        BuchMode.Chorbuch -> listOf(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1)
-        BuchMode.Jugendliederbuch -> listOf(1,1,1) //TODO
-    }
-
-}
-
-fun getRubricTitlesList(buchMode: BuchMode): List<String> {
-    return when (buchMode) {
-        BuchMode.Gesangbuch -> {
-            listOf(
-                "Das geistliche Jahr",
-                "Advent",
-                "Weihnachten",
-                "Jahreswende",
-                "Palmsonntag",
-                "Karfreitag - Christi Leiden",
-                "Ostern",
-                "Christi Himmelfahrt",
-                "Pfingsten",
-                "Bußtag - Einsicht und Umkehr",
-                "Gottesdienst",
-                "Einladung - Heilsverlangen - Heiligung",
-                "Glaube - Vertrauen - Trost",
-                "Gottes Liebe - Nächstenliebe",
-                "Vergebung - Gnade",
-                "Lob - Dank - Anbetung",
-                "Sakramente",
-                "Heilige Taufe",
-                "Heiliges Abendmahl",
-                "Heilige Versiegelung",
-                "Segenshandlungen",
-                "Konfirmation",
-                "Trauung",
-                "Den Glauben leben",
-                "Morgen und Abend",
-                "Gemeinde - Gemeinschaft",
-                "Sendung - Nachfolge - Bekenntnis",
-                "Verheißung - Erwartung - Erfüllung",
-                "Sterben - Ewiges Leben"
-            )
-        }
-        BuchMode.Chorbuch -> {
-            listOf(
-                "Das geistliche Jahr",
-                "Advent",
-                "Weihnachten",
-                "Jahreswechsel",
-                "Palmsonntag",
-                "Passion",
-                "Ostern",
-                "Himmelfahrt",
-                "Pfingsten",
-                "Erntedank",
-                "Gottesdienst",
-                "Einladung - Heilsverlangen - Heiligung",
-                "Anbetung",
-                "Glaube - Vertrauen",
-                "Trost - Mut - Frieden",
-                "Gnade - Vergebung",
-                "Lobpreis Gottes",
-                "Sakramente",
-                "Heilige Taufe",
-                "Heiliges Abendmahl",
-                "Heilige Versiegelung",
-                "Segenshandlungen",
-                "Konfirmation",
-                "Trauung",
-                "Den Glauben leben",
-                "Morgen - Abend",
-                "Gottes Liebe - Nächstenliebe",
-                "Mitarbeit - Gemeinschaft",
-                "Sendung - Nachfolge - Bekenntnis",
-                "Verheißung - Erwartung - Erfüllung",
-                "Sterben - Ewiges Leben"
-            )
-        }
-        BuchMode.Jugendliederbuch -> listOf("Jugendliederbuch Rubrik", "Rubrik 1", "Rubrik 2") //TODO
-    }
+    return rubricId.buchMode.rubricTitlesList[rubricId.index]
 }

@@ -109,6 +109,11 @@
         <item>1</item>
         <item>1</item>
     </integer-array>
+    <integer-array name="RubricListItemJugendliederbuch">
+    <item>1</item>
+    <item>1</item>
+    <item>1</item>
+    </integer-array>
     <string-array name="RubricTitlesGesangbuch">
         <item>Das geistliche Jahr</item>
         <item>Advent</item>
@@ -172,5 +177,10 @@
         <item>Sendung - Nachfolge - Bekenntnis</item>
         <item>Verheißung - Erwartung - Erfüllung</item>
         <item>Sterben - Ewiges Leben</item>
+    </string-array>
+    <string-array name="RubricTitlesJugendliederbuch">
+    <item>Jugendliederbuch Rubrik</item>
+    <item>Rubrik 1</item>
+    <item>Rubrik 2</item>
     </string-array>
 </resources>

@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         ThemeUtil.setDarkMode(this, ThemeUtil.DARK_MODE_ENABLED)
         setContentView(R.layout.activity_main)
         mContext = this

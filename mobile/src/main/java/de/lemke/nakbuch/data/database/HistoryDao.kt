@@ -8,7 +8,7 @@ interface HistoryDao {
     @Transaction
     suspend fun fixedInsert(history: HistoryDb) {
         insert(history)
-        if (countEntries() > 1000) //TODO
+        if (countEntries() > 2000) //TODO
             deleteLastEntry()
     }
 
@@ -17,7 +17,7 @@ interface HistoryDao {
     suspend fun insert(history: HistoryDb)
 
     @Transaction
-    @Query("SELECT * FROM history;") //LIMIT 1000?
+    @Query("SELECT * FROM history ORDER BY date DESC, id DESC;") //LIMIT 1000?
     suspend fun getAll(): List<HymnAndHistory>
 
     @Query("SELECT COUNT(*) FROM history;")

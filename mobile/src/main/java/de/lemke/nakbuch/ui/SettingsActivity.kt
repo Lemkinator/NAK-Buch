@@ -161,9 +161,9 @@ class SettingsActivity : AppCompatActivity() {
                 for (recent_color in recentColors) colorPickerPref.onColorSet(recent_color)
                 colorPickerPref.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _: Preference?, colorInt: Any ->
-                        val color = Color.valueOf((colorInt as Int))
-                        recentColors.add(colorInt)
+                        recentColors.add(colorInt as Int)
                         coroutineScope.launch { updateUserSettings { it.copy(recentColors = recentColors) } }
+                        val color = Color.valueOf(colorInt)
                         ThemeUtil.setColor(settingsActivity, color.red(), color.green(), color.blue())
                         MainActivity.colorSettingChanged = true
                         true

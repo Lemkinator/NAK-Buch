@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.sesl.tabs.TabLayoutMediator
+import de.dlyt.yanndroid.oneui.sesl.viewpager2.adapter.FragmentStateAdapter
 import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2
 import de.dlyt.yanndroid.oneui.view.ViewPager2
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.utils.ViewPager2AdapterTabListSubtabs
 
 @AndroidEntryPoint
 class MainActivityTabList : Fragment() {
@@ -38,5 +38,20 @@ class MainActivityTabList : Fragment() {
             tab.text = tabTitle[position]
         }
         tlm.attach()
+    }
+}
+
+class ViewPager2AdapterTabListSubtabs(fragment: Fragment) : FragmentStateAdapter(fragment) {
+    override fun createFragment(position: Int): Fragment {
+        when (position) {
+            0 -> return TabListSubtabNumeric()
+            1 -> return TabListSubtabAlphabetic()
+            2 -> return TabListSubtabRubric()
+        }
+        return TabListSubtabNumeric()
+    }
+
+    override fun getItemCount(): Int {
+        return 3
     }
 }

@@ -59,7 +59,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     lateinit var getHistoryList: GetHistoryListUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         context = this
         setContentView(R.layout.activity_history)

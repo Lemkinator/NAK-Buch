@@ -68,7 +68,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         setContentView(R.layout.activity_easteregg)
         context = this
         easterEggComments = resources.getStringArray(R.array.easterEggComments)
@@ -91,13 +91,13 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             time = System.currentTimeMillis()
         }
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_easteregg)
-                switchBarLayout.switchBar.addOnSwitchChangeListener(this)
+        switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
         switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
         switchBarLayout.setOnToolbarMenuItemClickListener { //reset button
             coroutineScope.launch {
-                updateUserSettings{it.copy(discoveredEasterEggs = mutableSetOf()) }
+                updateUserSettings { it.copy(discoveredEasterEggs = mutableSetOf()) }
                 initList()
             }
             true
@@ -124,7 +124,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                                 .setMessage(getString(R.string.easterEggTips))
                                 .setNegativeButton(R.string.easterEggTipsShame) { _: DialogInterface?, _: Int ->
                                     coroutineScope.launch {
-                                        updateUserSettings{it.copy(easterEggTipsUsed = true)}
+                                        updateUserSettings { it.copy(easterEggTipsUsed = true) }
                                         initList()
                                     }
                                     Toast.makeText(context, "Zu Recht...", Toast.LENGTH_SHORT).show()
@@ -162,7 +162,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
         coroutineScope.launch {
-            enabled = updateUserSettings{it.copy(easterEggsEnabled = z)}.easterEggsEnabled
+            enabled = updateUserSettings { it.copy(easterEggsEnabled = z) }.easterEggsEnabled
             initList()
         }
     }
@@ -171,7 +171,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
     private suspend fun initList() {
         discoveredEasterEggs = getUserSettings().discoveredEasterEggs.toMutableList()
         easterEggsHeader.text = getString(R.string.alreadyDiscoveredEasterEggs) +
-                (if (getUserSettings().easterEggTipsUsed) " (mit Tipps)" else "" )+
+                (if (getUserSettings().easterEggTipsUsed) " (mit Tipps)" else "") +
                 " (${discoveredEasterEggs.size}/${easterEggComments.size - 1}):"
         easterEggCommentButton.text = easterEggComments[discoveredEasterEggs.size]
         discoveredEasterEggs.add("") //placeholder
@@ -240,6 +240,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         inner class ViewHolder internal constructor(itemView: View?, viewType: Int) : RecyclerView.ViewHolder(itemView!!) {
             var isItem: Boolean = viewType == 0
             var parentView: RelativeLayout? = null
+
             //ImageView imageView;
             var textView: TextView? = null
 

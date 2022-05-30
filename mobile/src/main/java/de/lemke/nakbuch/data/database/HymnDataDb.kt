@@ -22,9 +22,5 @@ data class HymnDataDb(
     val hymnId: HymnId,
     var favorite: Int,
     var notes: String,
-    /*
-    var sungOnList: List<LocalDate> = emptyList(),
-    var photoList: List<String> = emptyList(),
-    */
 )
 

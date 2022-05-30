@@ -28,6 +28,10 @@ interface HymnDataDao {
     suspend fun getAllPersonalHymns(minId: Int, maxId: Int): List<PersonalHymnDb>
 
     @Transaction
+    @Query("SELECT * FROM hymn_data WHERE hymnId = :hymnId")
+    suspend fun getHymnDataByHymnId(hymnId: Int): HymnDataDb?
+
+    @Transaction
     @Query("SELECT * FROM hymn WHERE hymnId = :hymnId")
-    suspend fun getPersonalHymnById(hymnId: Int): PersonalHymnDb?
+    suspend fun getPersonalHymnByHymnId(hymnId: Int): PersonalHymnDb?
 }

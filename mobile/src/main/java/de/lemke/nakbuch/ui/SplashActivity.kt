@@ -38,7 +38,7 @@ class SplashActivity : AppCompatActivity() {
     lateinit var initDatabase: InitDatabaseUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this, "4099ff")
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         splashView = findViewById(R.id.splash)
@@ -95,7 +95,7 @@ class SplashActivity : AppCompatActivity() {
 class SplashActivityGesangbuch : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         startActivity(
             Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchMode", BuchMode.Gesangbuch.toInt())
         )

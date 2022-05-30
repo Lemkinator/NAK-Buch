@@ -67,129 +67,73 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_1"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="1"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_2"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="2"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_3"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="3"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_4"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="4"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_5"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="5"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_6"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="6"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_7"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="7"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_8"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="8"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_9"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="9"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_z"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/number_button_margin"
-                        app:icon="@drawable/ic_oui_back_2"
-                        app:iconGravity="textTop"
-                        app:iconSize="40dp"
-                        app:iconTint="@color/white" />
+                        style="@style/NumberButton"
+                        app:icon="@drawable/ic_oui_back_2" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_0"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/number_button_margin"
+                        style="@style/NumberButton"
                         android:text="0"
-                        android:textSize="@dimen/number_button_textSize"
                         tools:ignore="HardcodedText" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/b_ok"
-                        style="@style/ButtonStyle.Colored"
-                        android:layout_width="@dimen/number_button_width"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/number_button_margin"
-                        android:tooltipText="@string/openInTextView"
-                        app:icon="@drawable/ic_oui3_selected"
-                        app:iconGravity="textTop"
-                        app:iconSize="45dp"
-                        app:iconTint="@color/white" />
+                        style="@style/NumberButton"
+                        app:icon="@drawable/ic_oui3_selected" />
                 </GridLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -200,7 +144,6 @@
                     android:layout_marginEnd="5dp"
                     android:layout_weight="1"
                     android:animateLayoutChanges="true"
-                    android:tooltipText="@string/moveNumpad"
                     android:visibility="gone"
                     app:cornerRadius="30dp"
                     app:icon="@drawable/ic_oui_arrow_right"

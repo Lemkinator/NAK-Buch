@@ -22,7 +22,7 @@ class HelpActivity : AppCompatActivity() {
     lateinit var openBischoffApp: OpenBischoffAppUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_help)

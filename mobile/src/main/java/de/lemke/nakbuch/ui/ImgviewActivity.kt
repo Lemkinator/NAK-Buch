@@ -79,7 +79,7 @@ class ImgviewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         context = this
         setContentView(R.layout.activity_imgview)
         imgViewPager = findViewById(R.id.img_view_pager)

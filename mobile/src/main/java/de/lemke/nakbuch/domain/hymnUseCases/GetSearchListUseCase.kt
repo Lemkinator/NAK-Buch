@@ -19,13 +19,13 @@ class GetSearchListUseCase @Inject constructor(
         return@withContext if (search.isNullOrBlank()) emptyList()
         else if (search.startsWith("\"") && search.endsWith("\"") && search.length > 2) {
             val newSearch = search.substring(1, search.length - 1)
-            hymnsRepository.search(buchMode, newSearch)
+            hymnsRepository.search(buchMode, sanitizeSearchQuery(newSearch))
             /*if (getUserSettings().alternativeSearchModeEnabled)
                 hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, setOf(newSearch)) }
             else
                 hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, newSearch.trim().split(" ").toSet()) }*/
         } else {
-            hymnsRepository.search(buchMode, search)
+            hymnsRepository.search(buchMode, sanitizeSearchQuery(search))
             /*if (getUserSettings().alternativeSearchModeEnabled)
                 hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, search.trim().split(" ").toSet()) }
             else
@@ -42,5 +42,9 @@ class GetSearchListUseCase @Inject constructor(
                 return true
         }
         return false
+    }
+
+    private fun sanitizeSearchQuery(query: String): String {
+        return "*${query.replace(Regex.fromLiteral("\""), "\"\"")}*"
     }
 }

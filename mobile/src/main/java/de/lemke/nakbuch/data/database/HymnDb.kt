@@ -11,8 +11,6 @@ have your entities backed by a virtual table that uses either the FTS3 or FTS4 S
 To use this capability, available in Room 2.1.0 and higher, add the @Fts3 or @Fts4 annotation to a given entity,
 as shown in the following code snippet:
 
-// Use `@Fts3` only if your app has strict disk space requirements or if you
-// require compatibility with an older SQLite version.
 @Fts4
 @Entity(tableName = "users")
 data class User(
@@ -67,6 +65,29 @@ data class HymnAndRubric(
     )
     val rubric: RubricDb,
 )
+
+data class HymnAndRubricWithMatchInfo(
+    @Embedded
+    val hymn: HymnDb,
+    @Relation(
+        parentColumn = "rubricId",
+        entityColumn = "rubricId",
+    )
+    val rubric: RubricDb,
+    @ColumnInfo(name = "matchInfo")
+    val matchInfo: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as HymnAndRubricWithMatchInfo
+        if (hymn != other.hymn) return false
+        if (!matchInfo.contentEquals(other.matchInfo)) return false
+        return true
+    }
+    override fun hashCode(): Int = 31 * hymn.hashCode() + matchInfo.contentHashCode()
+}
+
 
 data class PersonalHymnDb(
     @Embedded

@@ -5,9 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:expanded="false"
-    app:title="@string/help"
     app:subtitle="@string/app_name"
-    >
+    app:title="@string/help">
 
 
     <FrameLayout
@@ -36,27 +35,24 @@
                     android:text="@string/appHintText"
                     android:textSize="17sp" />
 
-                <TextView
-                    android:id="@+id/tvHelpTextBischoff"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:gravity="center"
-                    android:text="@string/appHintTextBischoff"
-                    android:textSize="17sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="?android:listSeparatorTextViewStyle"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/appHintTextBischoff" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/openPlaystoreBischoffGesangbuch"
                         style="@style/ButtonStyle.Transparent"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_marginStart="7dp"
+                        android:layout_marginEnd="3dp"
                         android:text="@string/titleGesangbuch"
                         app:icon="@drawable/ic_oui4_store" />
 
@@ -64,24 +60,23 @@
                         android:id="@+id/openPlaystoreBischoffChorbuch"
                         style="@style/ButtonStyle.Transparent"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
+                        android:layout_height="@dimen/number_button_height"
+                        android:layout_marginStart="3dp"
                         android:text="@string/titleChorbuch"
                         app:icon="@drawable/ic_oui4_store" />
 
                 </LinearLayout>
 
-                <View
-                    style="@style/DrawerDividerStyle"
-                    android:layout_margin="10dp" />
+                <com.google.android.material.textview.MaterialTextView
+                    style="?android:listSeparatorTextViewStyle"
+                    android:text="@string/contact" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/contactMeButton"
-                    style="@style/ButtonStyle.Filled"
+                    style="@style/ButtonStyle.Transparent"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="@dimen/number_button_height"
+                    android:layout_marginStart="7dp"
                     android:text="@string/contactMe"
                     app:icon="@drawable/ic_oui4_mail" />
 

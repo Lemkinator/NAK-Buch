@@ -10,48 +10,51 @@ import java.time.LocalDate
 object Converters {
     /** Returns the int representation of the [hymnId]. */
     @TypeConverter
-    fun hymnIdtoTb(hymnId: HymnId): Int {
-        return hymnId.toInt()
-    }
+    fun hymnIdtoTb(hymnId: HymnId): Int = hymnId.toInt()
 
     /** Returns the [HymnId] represented by the [hymntIdInt]. */
     @TypeConverter
-    fun hymnIdFromDb(hymntIdInt: Int): HymnId? {
-        return HymnId.create(hymntIdInt)
-    }
+    fun hymnIdFromDb(hymntIdInt: Int): HymnId? = HymnId.create(hymntIdInt)
+
     /** Returns the int representation of the [rubricId]. */
     @TypeConverter
-    fun rubricIdtoTb(rubricId: RubricId): Int {
-        return rubricId.toInt()
-    }
+    fun rubricIdtoTb(rubricId: RubricId): Int = rubricId.toInt()
 
     /** Returns the [RubricId] represented by the [rubricIdInt]. */
     @TypeConverter
-    fun rubricIdFromDb(rubricIdInt: Int): RubricId? {
-        return RubricId.create(rubricIdInt)
-    }
+    fun rubricIdFromDb(rubricIdInt: Int): RubricId? = RubricId.create(rubricIdInt)
 
     /** Returns the string representation of the [uri]. */
     @TypeConverter
-    fun uriToDb(uri: Uri): String {
-        return uri.toString()
-    }
+    fun uriToDb(uri: Uri): String = uri.toString()
 
     /** Returns the [Uri] represented by the [uriString]. */
     @TypeConverter
-    fun uriFromDb(uriString: String): Uri {
-        return Uri.parse(uriString)
-    }
+    fun uriFromDb(uriString: String): Uri = Uri.parse(uriString)
 
     /** Returns the string representation of the [localDate]. */
     @TypeConverter
-    fun localDateToDb(localDate: LocalDate): String {
-        return localDate.toString()
-    }
+    fun localDateToDb(localDate: LocalDate): String = localDate.toString()
 
     /** Returns the [LocalDate] represented by the [localDateString]. */
     @TypeConverter
-    fun localDateFromDb(localDateString: String): LocalDate {
-        return LocalDate.parse(localDateString)
-    }
+    fun localDateFromDb(localDateString: String): LocalDate = LocalDate.parse(localDateString)
+
+    @TypeConverter
+    fun colorFromDb(recentColorsDb: RecentColorsDb): Int = recentColorsDb.colorInt
+
+    @TypeConverter
+    fun colorToDb(colorInt: Int): RecentColorsDb = RecentColorsDb(colorInt)
+
+    @TypeConverter
+    fun hintFromDb(hintDb: HintDb): String = hintDb.hint
+
+    @TypeConverter
+    fun hintToDb(hint: String): HintDb = HintDb(hint)
+
+    @TypeConverter
+    fun easterEggFromDb(easterEggsDb: EasterEggsDb): String = easterEggsDb.easterEgg
+
+    @TypeConverter
+    fun easterEggToDb(easterEgg: String): EasterEggsDb = EasterEggsDb(easterEgg)
 }

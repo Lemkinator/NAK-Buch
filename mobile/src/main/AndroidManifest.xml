@@ -2,26 +2,31 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!--package="de.lemke.nakbuch"
-    Early 2022: Should be moved to build.gradle but "Extract String ressource" from context actions not working if missing here?? :/ -->
+    Early 2022 (Gradle 7.2): Should be moved to build.gradle but "Extract String ressource" from context actions not working if missing here!?? :/ -->
 
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- uses-permission android:name="com.android.vending.BILLING" / -->
 
     <!--
     TODO
-        database fts
-        search mic button?
+        database fts???
         recycler: duplicate code?
+        DoNotDisturb -> context
         context in Fragment? (mContext, nullable getContext())
-        same tab click change
-        such algo
-        coroutines optimization
+        coroutines optimization (order, nested coroutines?)
 
-        history indextip on scroller?
+        UserSettings (set, list) -> db?
+
+        xml konfetti on top?
+
         imgView fullscreen? works on emu
         (save to Google Drive?)
         (new Android 12 Splashscreen)
         (theme color) currently not supported
+
+        Identify sources of slow UI rendering by using the Janky Frames track in the CPU Profiler tool.
+        The Janky Frames track by default shows only janky frames as candidates for investigation,
+        so you can quickly hone in where the problem is.
     -->
 
     <queries>
@@ -40,7 +45,7 @@
         android:resizeableActivity="true"
         android:supportsRtl="true"
         android:theme="@style/OneUITheme"
-        tools:targetApi="31">
+        tools:targetApi="32">
 
         <!--meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

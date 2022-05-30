@@ -18,7 +18,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -60,12 +60,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     companion object {
         var colorSettingChanged = false
     }
+
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private var context: Context = this
     private var currentTab = 0
     private var previousTab = 0
     private var currentFragment: Fragment? = null
+    private var time: Long = 0
+    private lateinit var context: Context
     private lateinit var fragmentManager: FragmentManager
     private lateinit var searchJob: Job
     private lateinit var buchMode: BuchMode
@@ -78,6 +80,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var tipPopupSearch: TipPopup
     private lateinit var tipPopupMenuButton: TipPopup
     private lateinit var tipPopupOkButton: TipPopup
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -96,17 +99,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
-    private var activityResultLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(StartActivityForResult()) { result: ActivityResult? ->
-            drawerLayout.onSearchModeVoiceInputResult(result)
-        }
-    private var time: Long = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this, "4099ff")
-        //val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         time = System.currentTimeMillis()
         context = this
         drawerLayout = findViewById(R.id.drawer_view)
@@ -148,63 +144,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         drawerLayout.setDrawerButtonTooltip(getText(R.string.aboutApp))
         drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.search -> {
-                    drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener() {
-                        override fun onSearchOpened(search_edittext: EditText) {
-                            searchJob = coroutineScope.launch {
-                                search_edittext.setText(getUserSettings().search)
-                                search_edittext.setSelection(0, search_edittext.text.length)
-                            }
-                            searchHelpFAB.visibility = View.VISIBLE
-                        }
-
-                        override fun onSearchDismissed(search_edittext: EditText) {
-                            setCurrentItem()
-                            searchHelpFAB.visibility = View.GONE
-                        }
-
-                        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-                        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-
-                        override fun afterTextChanged(s: Editable) {
-                            var searchText = s.toString()
-                            searchJob.cancel()
-                            searchJob = coroutineScope.launch {
-                                if (getUserSettings().easterEggsEnabled) {
-                                    if (searchText.replace(" ", "").equals("easteregg", ignoreCase = true)) {
-                                        discoverEasterEgg(konfettiView, R.string.easterEggEntrySearch)
-                                        s.clear()
-                                        searchText = ""
-                                        val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                                        inputManager.hideSoftInputFromWindow(currentFocus!!.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-                                    }
-                                }
-                                updateUserSettings { it.copy(search = searchText) }
-                                setFragment(3)
-                            }
-                        }
-
-                        override fun onKeyboardSearchClick(s: CharSequence) {
-                            searchJob.cancel()
-                            searchJob = coroutineScope.launch {
-                                updateUserSettings { it.copy(search = s.toString()) }
-                                setFragment(3)
-                            }
-                        }
-
-                        override fun onVoiceInputClick(intent: Intent) {
-                            activityResultLauncher.launch(intent)
-                        }
-                    })
-                    drawerLayout.showSearchMode()
-                }
-                /*R.id.switchBuchMode -> {
-                    coroutineScope.launch {
-                        buchMode = (updateUserSettings { it.copy(buchMode = !it.buchMode) }).buchMode
-                        setCurrentItem()
-                    }
-                }*/
+                R.id.search -> drawerLayout.showSearchMode()
                 R.id.mute -> if (!mute())
                     Toast.makeText(context, context.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
                 R.id.dnd -> DoNotDisturbUseCase(context)()//doNotDisturb()//
@@ -213,6 +153,54 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             true
         }
+        drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener() {
+            override fun onSearchOpened(search_edittext: EditText) {
+                searchJob = coroutineScope.launch {
+                    search_edittext.setText(getUserSettings().search)
+                    search_edittext.setSelection(0, search_edittext.text.length)
+                }
+                searchHelpFAB.visibility = View.VISIBLE
+            }
+
+            override fun onSearchDismissed(search_edittext: EditText) {
+                setCurrentItem()
+                searchHelpFAB.visibility = View.GONE
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable) {
+                var searchText = s.toString()
+                searchJob.cancel()
+                searchJob = coroutineScope.launch {
+                    if (getUserSettings().easterEggsEnabled) {
+                        if (searchText.replace(" ", "").equals("easteregg", ignoreCase = true)) {
+                            discoverEasterEgg(konfettiView, R.string.easterEggEntrySearch)
+                            s.clear()
+                            searchText = ""
+                            val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                            inputManager.hideSoftInputFromWindow(currentFocus!!.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                        }
+                    }
+                    updateUserSettings { it.copy(search = searchText) }
+                    setFragment(3)
+                }
+            }
+
+            override fun onKeyboardSearchClick(s: CharSequence) {
+                searchJob.cancel()
+                searchJob = coroutineScope.launch {
+                    updateUserSettings { it.copy(search = s.toString()) }
+                    setFragment(3)
+                }
+            }
+
+            override fun onVoiceInputClick(intent: Intent) {
+                activityResultLauncher.launch(intent)
+            }
+        })
         optionGroup.setOnOptionButtonClickListener { _: OptionButton, checkedId: Int, _: Int ->
             when (checkedId) {
                 R.id.ob_gesangbuch -> {
@@ -233,18 +221,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         setCurrentItem()
                     }
                 }
-                R.id.ob_settings -> {
-                    startActivity(Intent(context, SettingsActivity::class.java))
-                }
-                R.id.ob_about -> {
-                    startActivity(Intent(context, AboutActivity::class.java))
-                }
-                R.id.ob_help -> {
-                    startActivity(Intent(context, HelpActivity::class.java))
-                }
-                R.id.ob_about_me -> {
-                    startActivity(Intent(context, AboutMeActivity::class.java))
-                }
+                R.id.ob_settings -> startActivity(Intent(context, SettingsActivity::class.java))
+                R.id.ob_about -> startActivity(Intent(context, AboutActivity::class.java))
+                R.id.ob_help -> startActivity(Intent(context, HelpActivity::class.java))
+                R.id.ob_about_me -> startActivity(Intent(context, AboutMeActivity::class.java))
             }
             drawerLayout.setDrawerOpen(false, true)
             updateOptionbuttons()
@@ -283,42 +263,37 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         setCurrentItem()
                     } else {
                         if (getUserSettings().confirmExit) {
-                            if (System.currentTimeMillis() - time < 3000) {
-                                finishAffinity()
-                            } else {
+                            if (System.currentTimeMillis() - time < 3000) finishAffinity()
+                            else {
                                 Toast.makeText(context, resources.getString(R.string.pressAgainToExit), Toast.LENGTH_SHORT).show()
                                 time = System.currentTimeMillis()
                             }
-                        } else {
-                            finishAffinity()
-                        }
+                        } else finishAffinity()
                     }
 
                 }
             }
         }
         onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
+            drawerLayout.onSearchModeVoiceInputResult(result)
+        }
         AppUpdateManagerFactory.create(context).appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE)
                 drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
-            }
         }
     }
 
     public override fun attachBaseContext(context: Context) {
         // pre-OneUI
-        if (Build.VERSION.SDK_INT <= 28) {
-            super.attachBaseContext(ThemeUtil.createDarkModeContextWrapper(context))
-        } else super.attachBaseContext(context)
+        if (Build.VERSION.SDK_INT <= 28) super.attachBaseContext(ThemeUtil.createDarkModeContextWrapper(context))
+        else super.attachBaseContext(context)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         // pre-OneUI
-        if (Build.VERSION.SDK_INT <= 28) {
-            val res = resources
-            res.configuration.setTo(ThemeUtil.createDarkModeConfig(context, newConfig))
-        }
+        if (Build.VERSION.SDK_INT <= 28) resources.configuration.setTo(ThemeUtil.createDarkModeConfig(context, newConfig))
     }
 
     override fun onResume() {
@@ -339,7 +314,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }*/
             val hints = getUserSettings().hints
             if (hints.remove("appIntroduction")) {
-                updateUserSettings { it.copy(hints = hints, showMainTips = true, showTextViewTips = true, showImageViewTips = true) }
+                updateUserSettings { it.copy(hints = hints) }
+                updateUserSettings { it.copy(showMainTips = true, showTextViewTips = true, showImageViewTips = true) }
             }
             if (hints.contains("appHint")) {
                 AlertDialog.Builder(context)
@@ -373,10 +349,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun updateOptionbuttons() {
         drawerLayout.setTitle(buchMode.toString())
-        when (buchMode) {
-            BuchMode.Gesangbuch -> optionGroup.selectedOptionButton = findViewById(R.id.ob_gesangbuch)
-            BuchMode.Chorbuch -> optionGroup.selectedOptionButton = findViewById(R.id.ob_chorbuch)
-            BuchMode.Jugendliederbuch -> optionGroup.selectedOptionButton = findViewById(R.id.ob_jugendliederbuch)
+        optionGroup.selectedOptionButton = when (buchMode) {
+            BuchMode.Gesangbuch -> findViewById(R.id.ob_gesangbuch)
+            BuchMode.Chorbuch -> findViewById(R.id.ob_chorbuch)
+            BuchMode.Jugendliederbuch -> findViewById(R.id.ob_jugendliederbuch)
         }
     }
 
@@ -413,19 +389,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .setTitle(getString(R.string.easterEggs))
                 .setMessage(getString(R.string.easterEggsText))
                 .setNegativeButton(getString(R.string.deactivate)) { dialogInterface: DialogInterface, _: Int ->
-                    coroutineScope.launch {
-                        updateUserSettings { it.copy(easterEggsEnabled = false) }
-                    }
+                    coroutineScope.launch { updateUserSettings { it.copy(easterEggsEnabled = false) } }
                     Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
                 }
                 .setPositiveButton(getString(R.string.ok), null)
                 .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
                 .setNegativeButtonProgress(true)
-                .setOnDismissListener {
-                    coroutineScope.launch {
-                        showTipPopup()
-                    }
-                }
+                .setOnDismissListener { coroutineScope.launch { showTipPopup() } }
                 .create()
                 .show()
             updateUserSettings { it.copy(showEasterEggHint = false) }

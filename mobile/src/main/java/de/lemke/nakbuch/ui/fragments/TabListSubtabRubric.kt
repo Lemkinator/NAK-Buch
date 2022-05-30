@@ -54,9 +54,14 @@ class TabListSubtabRubric : Fragment() {
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var onBackPressedCallback: OnBackPressedCallback
 
-    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
-    @Inject lateinit var getAllRubrics: GetAllRubricsUseCase
-    @Inject lateinit var getHymnsWithRubric: GetHymnsWithRubricUseCase
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var getAllRubrics: GetAllRubricsUseCase
+
+    @Inject
+    lateinit var getHymnsWithRubric: GetHymnsWithRubricUseCase
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -70,20 +75,21 @@ class TabListSubtabRubric : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        drawerLayout = requireActivity().findViewById(R.id.drawer_view)
+        val activity = requireActivity()
         listView = rootView.findViewById(R.id.hymnListRubric)
-        subTabs = requireActivity().findViewById(R.id.sub_tabs)
-        mainTabs = requireActivity().findViewById(R.id.main_tabs)
-        viewPager2List = requireActivity().findViewById(R.id.viewPager2Lists)
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                currentRubric = null
-                coroutineScope.launch { initList() }
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        drawerLayout = activity.findViewById(R.id.drawer_view)
+        subTabs = activity.findViewById(R.id.sub_tabs)
+        mainTabs = activity.findViewById(R.id.main_tabs)
+        viewPager2List = activity.findViewById(R.id.viewPager2Lists)
         coroutineScope.launch {
             buchMode = getUserSettings().buchMode
+            onBackPressedCallback = object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    currentRubric = null
+                    coroutineScope.launch { initList() }
+                }
+            }
+            requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
             initList()
         }
     }
@@ -178,7 +184,9 @@ class TabListSubtabRubric : Fragment() {
                 if (currentRubric != null) {
                     holder.textView.text = hymns[position].numberAndTitle
                     holder.parentView.setOnClickListener {
-                        startActivity(Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt()))
+                        startActivity(
+                            Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt())
+                        )
                     }
                 } else {
                     holder.textView.text = rubrics[position].name
@@ -202,7 +210,6 @@ class TabListSubtabRubric : Fragment() {
             var isItem: Boolean = viewType == 0
             var isHeader: Boolean = viewType == 2
             var isBackHeader: Boolean = viewType == 3
-
             lateinit var parentView: RelativeLayout
             lateinit var imageView: ImageView
             lateinit var textView: TextView
@@ -241,8 +248,6 @@ class TabListSubtabRubric : Fragment() {
                         recyclerView.getChildAt(i + 1)
                     ) as ImageAdapter.ViewHolder).isItem else false
                 if (divider != null && viewHolder.isItem && shallDrawDivider) {
-                    //int moveRTL = isRTL() ? 130 : 0;
-                    //mDivider.setBounds(130 - moveRTL, y, width - moveRTL, mDividerHeight + y);
                     divider!!.setBounds(0, y, width, dividerHeight + y)
                     divider!!.draw(canvas)
                 }

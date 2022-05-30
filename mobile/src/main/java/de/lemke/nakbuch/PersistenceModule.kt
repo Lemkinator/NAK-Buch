@@ -33,6 +33,12 @@ object
         @ApplicationContext context: Context,
     ): AppDatabase = Room.databaseBuilder(context, AppDatabase::class.java, "app")
         //.createFromAsset("databases/app.db")
+        /*.addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                db.execSQL("INSERT INTO hymn_fts(hymn_fts) VALUES ('rebuild')")
+            }
+        })*/
         .apply {
             if (BuildConfig.DEBUG) fallbackToDestructiveMigration()
         }

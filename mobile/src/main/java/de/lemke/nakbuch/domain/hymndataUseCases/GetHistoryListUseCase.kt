@@ -9,6 +9,6 @@ class GetHistoryListUseCase @Inject constructor(
     private val hymnDataRepository: HymnDataRepository,
 ) {
     suspend operator fun invoke() = withContext(Dispatchers.Default) {
-        hymnDataRepository.getHistoryList().asReversed()
+        hymnDataRepository.getHistoryList()
     }
 }

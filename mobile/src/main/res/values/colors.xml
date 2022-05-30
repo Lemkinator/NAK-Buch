@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_color">#ff4099ff</color>
-    <color name="gesangbuch_color">#2250ff</color>
-    <color name="chorbuch_color">#2220cc</color>
-    <color name="jugendliederbuch_color">#256000</color>
+    <color name="primary_color">#6F9DD1</color>
+    <color name="gesangbuch_color">#CD6F9DD1</color>
+    <color name="chorbuch_color">#9A6F9DD1</color>
+    <color name="jugendliederbuch_color">#5D8743</color>
 </resources>

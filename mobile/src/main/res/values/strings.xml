@@ -42,6 +42,7 @@
     <string name="dontShowAgain">Nicht erneut zeigen</string>
     <string name="savedNote">Notiz Gespeichert</string>
     <string name="openInPlaystore">In Play Store öffnen</string>
+    <string name="toPlaystore">Zum Play Store</string>
     <string name="website">Webseite</string>
     <string name="notes">Notizen</string>
     <string name="insertNote">Hier Notizen eintippen</string>
@@ -141,7 +142,7 @@
     <string name="supportMeText">Falls du mich in irgendeiner Weise unterstützen möchtest, dann sende mir gerne eine Email</string>
     <string name="rateApp">App im Play-Store Bewerten</string>
     <string name="writeReview">Bewertung schreiben</string>
-    <string name="reviewComment">Um ein optimales Nutzererlebnis zu gewährleisten, verwaltet Google Play wann und wie oft einem Nutzer der Bewertungsdialog angezeigt werden kann. Deshalb kann es vorkommen, dass diese Schaltfläche in manchen Fällen keine Aktion durchführt.\nAlternativ kann die Bewertung dann im Play Store geschrieben werden. Der schnellste Weg dorthin, ist über die Schaltfläche "In Play Store öffnen" auf der "Über NAK Buch"-Seite.</string>
+    <string name="reviewComment">Um ein optimales Nutzererlebnis zu gewährleisten, verwaltet Google Play wann und wie oft einem Nutzer der Bewertungsdialog angezeigt werden kann. Deshalb kann es vorkommen, dass diese Schaltfläche in manchen Fällen keine Aktion durchführt.\nAlternativ kann die Bewertung dann im Play Store geschrieben werden.</string>
     <string name="share">Teilen</string>
     <string name="shareApp">App Teilen</string>
     <string name="shareAppText">Schau mal hier, die neue nicht-offizielle, kostenlose Gesang- und Chorbuch-App der NAK in modernem Design: https://play.google.com/store/apps/details?id=</string>
@@ -177,9 +178,9 @@
     <string name="shortcutJugendliederbuchSummary">Shortcut zum Jugendliederbuch auf dem Homebildschirm erstellen</string>
     <string name="imageSettings">Foto-Einstellungen</string>
     <string name="imgResolution">Foto Auflösung</string>
-    <string name="imgResolutionSummary">Je größer die Auflösung, umso mehr Speicher wird benötigt</string>
+    <string name="imgResolutionSummary">Je größer die Auflösung, desto mehr Speicher wird benötigt</string>
     <string name="imgQuality">Foto Qualität</string>
-    <string name="imgQualitySummary">Je besser die Qualität, umso mehr Speicher wird benötigt</string>
+    <string name="imgQualitySummary">Je besser die Qualität, desto mehr Speicher wird benötigt</string>
 
     <string name="fotoError">Kein Foto ausgewählt oder Fehler beim Verarbeiten des Fotos…</string>
     <string name="addOwnHymnTexts">Eigene Liedtexte hinzufügen</string>
@@ -211,6 +212,7 @@
     <string name="grantAccess">Berechtigung erteilen</string>
     <string name="deletePhoto">Foto löschen</string>
     <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
+    <string name="contact">Kontakt</string>
 
 
 </resources>

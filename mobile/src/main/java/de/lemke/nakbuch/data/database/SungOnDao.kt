@@ -15,10 +15,8 @@ interface SungOnDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(sungOn: SungOnDb)
 
-    /*
-    @Query("SELECT * FROM sung_on WHERE hymnId = :hymnId")
-    suspend fun getByNumber(hymnId: Int): List<SungOnDb>
-     */
+    @Query("SELECT * FROM sung_on WHERE hymnId = :hymnId ORDER BY date DESC")
+    suspend fun getByHymnId(hymnId: Int): List<SungOnDb>
 
     @Query("DELETE FROM sung_on WHERE hymnId = :hymnId AND date = :date")
     suspend fun delete(hymnId: Int, date: LocalDate)
