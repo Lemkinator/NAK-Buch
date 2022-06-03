@@ -1,6 +1,5 @@
 package de.lemke.nakbuch.ui.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -43,7 +42,6 @@ class MainActivityTabFav : Fragment() {
     private lateinit var buchMode: BuchMode
     private lateinit var favHymns: MutableList<PersonalHymn>
     private lateinit var rootView: View
-    private lateinit var mContext: Context //cause getContext() is nullable
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var listView: RecyclerView
@@ -64,12 +62,6 @@ class MainActivityTabFav : Fragment() {
 
     @Inject
     lateinit var setFavoritesFromList: SetFavoritesFromPersonalHymnListUseCase
-
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_tab_fav, container, false)
@@ -110,7 +102,7 @@ class MainActivityTabFav : Fragment() {
         for (i in favHymns.indices) selected[i] = false
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
-        listView.layoutManager = LinearLayoutManager(mContext)
+        listView.layoutManager = LinearLayoutManager(context)
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
@@ -132,9 +124,9 @@ class MainActivityTabFav : Fragment() {
         })
         val divider = TypedValue()
         val decoration = ItemDecoration()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
         swipeRefreshLayout.isRefreshing = false
     }
 
@@ -158,7 +150,7 @@ class MainActivityTabFav : Fragment() {
                     setSelecting(false)
                 } else {
                     item.badge = item.badge + 1
-                    Toast.makeText(mContext, item.title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
                 }
                 true
             }

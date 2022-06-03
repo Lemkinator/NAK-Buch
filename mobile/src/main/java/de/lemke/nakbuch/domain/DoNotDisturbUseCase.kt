@@ -8,13 +8,13 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.qualifiers.ActivityContext
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.lemke.nakbuch.R
+import javax.inject.Inject
 
-//java.lang.IllegalStateException: You need to use a Theme.AppCompat theme (or descendant) with this activity.
-class DoNotDisturbUseCase(
-//) @Inject constructor(
-    //@ApplicationContext
+class DoNotDisturbUseCase @Inject constructor(
+    @ActivityContext
     private val context: Context,
 ) {
     operator fun invoke() {
@@ -53,13 +53,13 @@ class DoNotDisturbUseCase(
             .setNegativeButtonColor(
                 context.resources.getColor(
                     de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
-                    context.theme
+                    null
                 )
             )
             .setPositiveButtonColor(
                 context.resources.getColor(
                     de.dlyt.yanndroid.oneui.R.color.sesl_functional_green,
-                    context.theme
+                    null
                 )
             )
             .create()

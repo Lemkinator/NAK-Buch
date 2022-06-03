@@ -1,21 +1,20 @@
 package de.lemke.nakbuch.data
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import dagger.hilt.android.qualifiers.ApplicationContext
-import de.lemke.nakbuch.R
+import de.lemke.nakbuch.data.database.EasterEggsDb
+import de.lemke.nakbuch.data.database.HintDb
+import de.lemke.nakbuch.data.database.RecentColorsDb
+import de.lemke.nakbuch.data.database.SettingsDao
 import de.lemke.nakbuch.domain.model.BuchMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /** Provides CRUD operations for user settings. */
-class UserSettingsRepository@Inject constructor(
-    @ApplicationContext private val context: Context,
+class UserSettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
+    private val settingsDao: SettingsDao,
 ) {
 
 
@@ -42,9 +41,6 @@ class UserSettingsRepository@Inject constructor(
             it[KEY_JOKE_BUTTON_VISIBLE] = newSettings.jokeButtonVisible
             it[KEY_NOTES_VISIBLE] = newSettings.notesVisible
             it[KEY_SUNG_ON_VISIBLE] = newSettings.sungOnVisible
-            it[KEY_RECENT_COLORS] = Gson().toJson(newSettings.recentColors)
-            it[KEY_HINTS] = Gson().toJson(newSettings.hints)
-            it[KEY_DISCOVERED_EASTEREGGS] = Gson().toJson(newSettings.discoveredEasterEggs)
             it[KEY_SHOW_MAIN_TIPS] = newSettings.showMainTips
             it[KEY_SHOW_TEXTVIEW_TIPS] = newSettings.showTextViewTips
             it[KEY_SHOW_IMAGEVIEW_TIPS] = newSettings.showImageViewTips
@@ -57,6 +53,7 @@ class UserSettingsRepository@Inject constructor(
         }
         return settingsFromPreferences(prefs)
     }
+
 
     private fun settingsFromPreferences(prefs: Preferences) = UserSettings(
         number = prefs[KEY_NUMBER] ?: "",
@@ -72,12 +69,6 @@ class UserSettingsRepository@Inject constructor(
         jokeButtonVisible = prefs[KEY_JOKE_BUTTON_VISIBLE] ?: true,
         notesVisible = prefs[KEY_NOTES_VISIBLE] ?: false,
         sungOnVisible = prefs[KEY_SUNG_ON_VISIBLE] ?: false,
-        recentColors = Gson().fromJson(prefs[KEY_RECENT_COLORS], object : TypeToken<MutableList<Int>?>() {}.type)
-            ?: mutableListOf(context.resources.getColor(R.color.primary_color, context.theme)),
-        hints = Gson().fromJson(prefs[KEY_HINTS], object : TypeToken<MutableSet<String>?>() {}.type)
-            ?: (context.resources.getStringArray(R.array.hint_values)).toMutableSet(),
-        discoveredEasterEggs = Gson().fromJson(prefs[KEY_DISCOVERED_EASTEREGGS], object : TypeToken<MutableSet<String>?>() {}.type)
-            ?: mutableSetOf(),
         showMainTips = prefs[KEY_SHOW_MAIN_TIPS] ?: true,
         showTextViewTips = prefs[KEY_SHOW_TEXTVIEW_TIPS] ?: true,
         showImageViewTips = prefs[KEY_SHOW_IMAGEVIEW_TIPS] ?: true,
@@ -88,6 +79,24 @@ class UserSettingsRepository@Inject constructor(
         photoResolution = Resolution.fromInt(prefs[KEY_PHOTO_RESOLUTION]),
         confirmExit = prefs[KEY_CONFIRM_EXIT] ?: true,
     )
+
+    suspend fun getDiscoveredEasterEggs(): Set<String> = settingsDao.getDiscoveredEasterEggs().map { it.easterEgg }.toSet()
+
+    suspend fun discoverEasterEgg(easterEgg: String): Boolean = settingsDao.discoverEasterEgg(EasterEggsDb(easterEgg))
+
+    suspend fun resetEasterEggs() = settingsDao.deleteDiscoveredEasterEggs()
+
+    suspend fun getRecentColors(): List<Int> = settingsDao.getRecentColors().map { it.color }
+
+    suspend fun setRecentColors(recentColors: List<Int>) = settingsDao.insertColors(recentColors.map { RecentColorsDb(color = it) })
+
+    suspend fun deleteRecentColors() = settingsDao.deleteRecentColors()
+
+    suspend fun getHints() : Set<String> = settingsDao.getHints().map{ it.hint }.toSet()
+
+    suspend fun setHints(hints: Set<String>) = settingsDao.insertHints(hints.map { HintDb(it) }.toSet())
+
+    suspend fun deleteHints() = settingsDao.deleteHints()
 
     private companion object {
         private val KEY_BUCH_MODE = intPreferencesKey("buchMode")
@@ -104,9 +113,6 @@ class UserSettingsRepository@Inject constructor(
         private val KEY_JOKE_BUTTON_VISIBLE = booleanPreferencesKey("jokeButtonVisible")
         private val KEY_NOTES_VISIBLE = booleanPreferencesKey("noteVisible")
         private val KEY_SUNG_ON_VISIBLE = booleanPreferencesKey("sungOnVisible")
-        private val KEY_RECENT_COLORS = stringPreferencesKey("recentColorList")
-        private val KEY_HINTS = stringPreferencesKey("hintSet")
-        private val KEY_DISCOVERED_EASTEREGGS = stringPreferencesKey("discoveredEasterEggs")
         private val KEY_SHOW_MAIN_TIPS = booleanPreferencesKey("showMainTips")
         private val KEY_SHOW_TEXTVIEW_TIPS = booleanPreferencesKey("showTextViewTips")
         private val KEY_SHOW_IMAGEVIEW_TIPS = booleanPreferencesKey("showImageViewTips")
@@ -151,12 +157,6 @@ data class UserSettings(
     val easterEggTipsUsed: Boolean,
     /** History enabled */
     val historyEnabled: Boolean,
-    /** Recent ColorList*/
-    val recentColors: MutableList<Int>,
-    /** Set with Hints to show*/
-    val hints: MutableSet<String>,
-    /** Set with discovered EasterEggs*/
-    val discoveredEasterEggs: MutableSet<String>,
     /** show MainView Tips*/
     val showMainTips: Boolean,
     /** show TextView Tips*/

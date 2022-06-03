@@ -14,6 +14,8 @@ import javax.inject.Inject
 
 class InitDatabaseUseCase @Inject constructor(
     private val hymnsRepository: HymnsRepository,
+    private val setRecentColors: SetRecentColorsUseCase,
+    private val setHints: SetHintsUseCase,
     @ApplicationContext private val context: Context,
 ) {
     operator fun invoke(forceInit: Boolean = false): Job = CoroutineScope(Dispatchers.Default).launch {
@@ -23,6 +25,8 @@ class InitDatabaseUseCase @Inject constructor(
             if (hymnsRepository.getAllHymns(buchMode).size < buchMode.hymnCount || forceInit)
                 hymnsRepository.addHymns(getAllHymnsFromAssets(buchMode))
         }
+        //setRecentColors(listOf(context.resources.getColor(R.color.primary_color, context.theme)))
+        //setHints(context.resources.getStringArray(R.array.hint_values).toSet())
     }
 
     @Suppress("unchecked_Cast")

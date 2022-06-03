@@ -16,7 +16,7 @@ interface PhotoDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(photo: PhotoDb)
 
-    @Query("SELECT * FROM photo WHERE hymnId = :hymnId")
+    @Query("SELECT * FROM photo WHERE hymnId = :hymnId ORDER BY position")
     suspend fun getByHymnId(hymnId: Int): List<PhotoDb>
 
     @Query("DELETE FROM photo WHERE hymnId = :hymnId")

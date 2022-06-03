@@ -8,44 +8,48 @@ import androidx.room.Query
 @Dao
 interface SettingsDao {
 
-    @Insert(
-        onConflict = OnConflictStrategy.IGNORE,
-        entity = RecentColorsDb::class
-    )
-    suspend fun insertColor(colorInt: Int)
+    @Insert(onConflict = OnConflictStrategy.IGNORE,)
+    suspend fun insertColor(colorInt: RecentColorsDb)
+    suspend fun insertColors(items: List<RecentColorsDb>) {
+        items.forEach { insertColor(it) }
+    }
 
-    @Insert(
-        onConflict = OnConflictStrategy.IGNORE,
-        entity = HintDb::class
-    )
-    suspend fun insertHint(hint: String)
-    suspend fun insertHints(items: List<String>) {
+    @Query("SELECT * FROM recent_colors")
+    suspend fun getRecentColors(): List<RecentColorsDb>
+
+    @Query("DELETE FROM recent_colors")
+    suspend fun deleteRecentColors()
+
+
+
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE,)
+    suspend fun insertHint(hint: HintDb)
+
+    suspend fun insertHints(items: Set<HintDb>) {
         items.forEach { insertHint(it) }
     }
 
-    suspend fun discoverEasterEgg(easterEgg: String) = (insertEasterEgg(easterEgg) == -1L)
-
-    @Insert(
-        onConflict = OnConflictStrategy.IGNORE,
-        entity = EasterEggsDb::class
-    )
-    suspend fun insertEasterEgg(easterEgg: String): Long
-
-    @Query("SELECT * FROM recent_colors")
-    suspend fun getRecentColors(): List<Int>
-
     @Query("SELECT * FROM hints")
-    suspend fun getHints(): List<String>
-
-    @Query("SELECT * FROM discovered_eastereggs")
-    suspend fun getDiscoveredEasterEggs(): List<String>
-
-    @Query("DELETE FROM discovered_eastereggs")
-    suspend fun deleteDiscoveredEasterEggs()
+    suspend fun getHints(): List<HintDb>
 
     @Query("DELETE FROM hints")
     suspend fun deleteHints()
 
     @Query("DELETE FROM hints WHERE hint = :hint")
     suspend fun deleteHint(hint: String)
+
+
+
+
+    suspend fun discoverEasterEgg(easterEgg: EasterEggsDb):Boolean = (insertEasterEgg(easterEgg) == -1L)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE,)
+    suspend fun insertEasterEgg(easterEgg: EasterEggsDb): Long
+
+    @Query("SELECT * FROM discovered_eastereggs")
+    suspend fun getDiscoveredEasterEggs(): List<EasterEggsDb>
+
+    @Query("DELETE FROM discovered_eastereggs")
+    suspend fun deleteDiscoveredEasterEggs()
 }

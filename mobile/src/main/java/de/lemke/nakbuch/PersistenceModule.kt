@@ -73,6 +73,11 @@ object
     fun providePhotoDao(
         database: AppDatabase,
     ):  PhotoDao = database.photoDao()
+
+    @Provides
+    fun provideSettingsDao(
+        database: AppDatabase,
+    ):  SettingsDao = database.settingsDao()
 }
 
 

@@ -1,6 +1,5 @@
 package de.lemke.nakbuch.ui.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -38,7 +37,6 @@ class MainActivitySearchFragment : Fragment() {
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var searchList: MutableList<Hymn>
     private lateinit var rootView: View
-    private lateinit var mContext: Context //cause getContext() is nullable
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var listView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
@@ -48,11 +46,6 @@ class MainActivitySearchFragment : Fragment() {
     @Inject lateinit var getUserSettings: GetUserSettingsUseCase
     @Inject lateinit var getSearchList: GetSearchListUseCase
     @Inject lateinit var makeSectionOfTextBold: MakeSectionOfTextBoldUseCase
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_search, container, false)
@@ -76,11 +69,12 @@ class MainActivitySearchFragment : Fragment() {
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
         val divider = TypedValue()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.layoutManager = LinearLayoutManager(mContext)
+        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        
+        listView.layoutManager = LinearLayoutManager(context)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
@@ -111,8 +105,8 @@ class MainActivitySearchFragment : Fragment() {
                 //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 val hymn = searchList[position]
                 val color = MaterialColors.getColor(
-                    mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                    mContext.resources.getColor(R.color.primary_color, mContext.theme)
+                    context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                    context!!.resources.getColor(R.color.primary_color, context!!.theme)
                 )
                 CoroutineScope(Dispatchers.Main).launch {
                     holder.textView.text = makeSectionOfTextBold(hymn.numberAndTitle, search, color, -1)
@@ -152,7 +146,7 @@ class MainActivitySearchFragment : Fragment() {
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(mContext, true)
+        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(context, true)
         private val mSeslRoundedCornerBottom: SeslRoundedCorner
         private var mDivider: Drawable? = null
         private var mDividerHeight = 0
@@ -195,7 +189,7 @@ class MainActivitySearchFragment : Fragment() {
 
         init {
             mSeslRoundedCornerTop.roundedCorners = 3
-            mSeslRoundedCornerBottom = SeslRoundedCorner(mContext, true)
+            mSeslRoundedCornerBottom = SeslRoundedCorner(context, true)
             mSeslRoundedCornerBottom.roundedCorners = 12
         }
     }

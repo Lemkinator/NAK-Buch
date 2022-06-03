@@ -56,7 +56,6 @@ import kotlin.coroutines.CoroutineContext
 @AndroidEntryPoint
 class TextviewFragment : Fragment() {
     private lateinit var rootView: View
-    private lateinit var mContext: Context
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private var boldText: String? = null
@@ -101,7 +100,7 @@ class TextviewFragment : Fragment() {
     @Inject
     lateinit var mute: MuteUseCase
 
-    //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
+    @Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
     @Inject
     lateinit var openBischoffApp: OpenBischoffAppUseCase
@@ -134,11 +133,6 @@ class TextviewFragment : Fragment() {
         const val TEXTSIZE_MAX = 50
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_textview, container, false)
         hymnId = HymnId.create(requireArguments().getInt("hymnId"))!!
@@ -159,15 +153,15 @@ class TextviewFragment : Fragment() {
         jokeButton = rootView.findViewById(R.id.jokeButton)
         whyNoFullTextButton = rootView.findViewById(R.id.whyNoFullTextButton)
         drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setSubtitle(hymnId.buchMode.toString())
         drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
 
         coroutineScope.launch {
             personalHymn = getPersonalHymn(hymnId)
             val color = MaterialColors.getColor(
-                mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                mContext.resources.getColor(R.color.primary_color, mContext.theme)
+                context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                context!!.resources.getColor(R.color.primary_color, context!!.theme)
             )
             drawerLayout.setTitle(makeSectionOfTextBold(personalHymn.hymn.numberAndTitle, boldText, color))
             tvText.text = makeSectionOfTextBold(personalHymn.hymn.text, boldText, color)
@@ -186,10 +180,10 @@ class TextviewFragment : Fragment() {
             editTextNotiz.setText(personalHymn.notes)
             initBNV()
             initList()
-            whyNoFullTextButton.setOnClickListener { startActivity(Intent(mContext, HelpActivity::class.java)) }
+            whyNoFullTextButton.setOnClickListener { startActivity(Intent(context, HelpActivity::class.java)) }
             jokeButton.setOnClickListener {
                 coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntryPremium) }
-                AlertDialog.Builder(mContext)
+                AlertDialog.Builder(context!!)
                     .setTitle(getString(R.string.jokeTitle))
                     .setMessage(getString(R.string.jokeMessage))
                     .setNegativeButton(getString(R.string.ForeverICantTakeAJoke)) { _: DialogInterface?, _: Int ->
@@ -197,7 +191,7 @@ class TextviewFragment : Fragment() {
                     }
                     .setPositiveButton(getString(R.string.onlyThisTime), null)
                     .setNegativeButtonColor(
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, mContext.theme)
+                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context!!.theme)
                     ).show()
                 jokeButton.visibility = View.GONE
             }
@@ -219,7 +213,7 @@ class TextviewFragment : Fragment() {
                 }
             })
             rootView.findViewById<View>(R.id.buttonKopieren).setOnClickListener {
-                Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.copied), Toast.LENGTH_SHORT).show()
                 (requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                     .setPrimaryClip(ClipData.newPlainText("Notiz ($hymnId)", editTextNotiz.text.toString()))
             }
@@ -232,7 +226,7 @@ class TextviewFragment : Fragment() {
                 startActivity(Intent.createChooser(sendIntent, "Share Via"))
             }
             val datePickerDialog = DatePickerDialog(
-                mContext, { _, year, month, day ->
+                context, { _, year, month, day ->
                     val date = LocalDate.of(year, month + 1, day)
                     if (!hymnSungOnList.contains(date)) {
                         hymnSungOnList.add(date)
@@ -250,9 +244,9 @@ class TextviewFragment : Fragment() {
                 when (item.itemId) {
                     R.id.increaseTextSize -> coroutineScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
                     R.id.decreaseTextSize -> coroutineScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
-                    R.id.dnd -> DoNotDisturbUseCase(mContext)()//doNotDisturb()
+                    R.id.dnd -> doNotDisturb()
                     R.id.mute ->
-                        if (!mute()) Toast.makeText(mContext, mContext.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+                        if (!mute()) Toast.makeText(context, context!!.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
                     R.id.openOfficialApp -> coroutineScope.launch {
                         if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode)
                         else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
@@ -301,23 +295,23 @@ class TextviewFragment : Fragment() {
             drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
             tabLayout!!.isVisible = true
         }
-        val noteIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
-        val dateIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
+        val noteIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
+        val dateIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
         coroutineScope.launch {
             val userSettings = getUserSettings()
             if (userSettings.notesVisible) {
                 noteIcon!!.colorFilter = PorterDuffColorFilter(
                     MaterialColors.getColor(
-                        mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, mContext.theme)
+                        context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context!!.theme)
                     ), PorterDuff.Mode.SRC_IN
                 )
             }
             if (userSettings.sungOnVisible) {
                 dateIcon!!.colorFilter = PorterDuffColorFilter(
                     MaterialColors.getColor(
-                        mContext, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, mContext.theme)
+                        context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context!!.theme)
                     ), PorterDuff.Mode.SRC_IN
                 )
             }
@@ -359,12 +353,12 @@ class TextviewFragment : Fragment() {
         })
         val favIcon: Drawable
         if (personalHymn.favorite) {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
+            favIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
             favIcon.colorFilter = PorterDuffColorFilter(
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, mContext.theme), PorterDuff.Mode.SRC_IN
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, context!!.theme), PorterDuff.Mode.SRC_IN
             )
         } else {
-            favIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
+            favIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
@@ -375,15 +369,15 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val camIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan)
+        val camIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan)
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                val myIntent = Intent(mContext, ImgviewActivity::class.java)
+                val myIntent = Intent(context, ImgviewActivity::class.java)
                 myIntent.putExtra("hymnId", hymnId.toInt())
                 startActivity(myIntent)
             }
         })
-        val plusIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
+        val plusIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
         tabLayout!!.addTabCustomButton(plusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 coroutineScope.launch {
@@ -391,7 +385,7 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val minusIcon = AppCompatResources.getDrawable(mContext, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus)
+        val minusIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus)
         tabLayout!!.addTabCustomButton(minusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 coroutineScope.launch {
@@ -418,15 +412,15 @@ class TextviewFragment : Fragment() {
         tipPopupFoto = TipPopup(fotoButton)
         tipPopupPlus = TipPopup(plusButton)
         tipPopupMinus = TipPopup(minusButton)
-        tipPopupMenu.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
-        tipPopupNote.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
+        tipPopupMenu.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
+        tipPopupNote.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
         tipPopupCalendar.setBackgroundColor(
-            resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme)
+            resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme)
         )
-        tipPopupFav.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
-        tipPopupFoto.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
-        tipPopupPlus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
-        tipPopupMinus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, mContext.theme))
+        tipPopupFav.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
+        tipPopupFoto.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
+        tipPopupPlus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
+        tipPopupMinus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
         tipPopupMenu.setExpanded(true)
         tipPopupNote.setExpanded(true)
         tipPopupCalendar.setExpanded(true)
@@ -469,13 +463,13 @@ class TextviewFragment : Fragment() {
         selected = HashMap()
         for (i in hymnSungOnList.indices) selected[i] = false
         val divider = TypedValue()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.layoutManager = LinearLayoutManager(mContext)
+        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        listView.layoutManager = LinearLayoutManager(context)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
@@ -495,7 +489,7 @@ class TextviewFragment : Fragment() {
                     initList()
                 } else {
                     item.badge = item.badge + 1
-                    Toast.makeText(mContext, item.title, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
                 }
                 true
             }
@@ -603,7 +597,7 @@ class TextviewFragment : Fragment() {
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(mContext, true)
+        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(context, true)
         private val seslRoundedCornerBottom: SeslRoundedCorner
         private var divider: Drawable? = null
         private var dividerHeight = 0
@@ -643,7 +637,7 @@ class TextviewFragment : Fragment() {
 
         init {
             seslRoundedCornerTop.roundedCorners = 3
-            seslRoundedCornerBottom = SeslRoundedCorner(mContext, true)
+            seslRoundedCornerBottom = SeslRoundedCorner(context, true)
             seslRoundedCornerBottom.roundedCorners = 12
         }
     }

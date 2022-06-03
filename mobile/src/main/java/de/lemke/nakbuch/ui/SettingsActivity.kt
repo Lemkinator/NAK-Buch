@@ -91,9 +91,21 @@ class SettingsActivity : AppCompatActivity() {
         lateinit var updateUserSettings: UpdateUserSettingsUseCase
 
         @Inject
+        lateinit var getHints: GetHintsUseCase
+
+        @Inject
+        lateinit var setHints: SetHintsUseCase
+
+        @Inject
+        lateinit var getRecentColors: GetRecentColorsUseCase
+
+        @Inject
+        lateinit var setRecentColors: SetRecentColorsUseCase
+
+        @Inject
         lateinit var mute: MuteUseCase
 
-        //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
+        @Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
         @Inject
         lateinit var initDataBase: InitDatabaseUseCase
@@ -157,12 +169,12 @@ class SettingsActivity : AppCompatActivity() {
             autoDarkModePref.onPreferenceChangeListener = this
             autoDarkModePref.isChecked = darkMode == ThemeUtil.DARK_MODE_AUTO
             coroutineScope.launch {
-                val recentColors = getUserSettings().recentColors
+                val recentColors = getRecentColors().toMutableList()
                 for (recent_color in recentColors) colorPickerPref.onColorSet(recent_color)
                 colorPickerPref.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _: Preference?, colorInt: Any ->
                         recentColors.add(colorInt as Int)
-                        coroutineScope.launch { updateUserSettings { it.copy(recentColors = recentColors) } }
+                        coroutineScope.launch { setRecentColors(recentColors) }
                         val color = Color.valueOf(colorInt)
                         ThemeUtil.setColor(settingsActivity, color.red(), color.green(), color.blue())
                         MainActivity.colorSettingChanged = true
@@ -171,17 +183,21 @@ class SettingsActivity : AppCompatActivity() {
             }
             findPreference<Preference>("audio_streams")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    if (!mute()) Toast.makeText(settingsActivity, settingsActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+                    if (!mute()) Toast.makeText(
+                        settingsActivity,
+                        settingsActivity.getString(R.string.failedToMuteStreams),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     true
                 }
             findPreference<Preference>("dnd")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
-                    DoNotDisturbUseCase(settingsActivity)()//doNotDisturb()
+                    doNotDisturb()
                     true
                 }
             confirmExitPref.onPreferenceChangeListener = this
             hintsPref.onPreferenceChangeListener = this
-            coroutineScope.launch { hintsPref.values = getUserSettings().hints }
+            coroutineScope.launch { hintsPref.values = getHints() }
             resolutionPref.onPreferenceChangeListener = this
             qualityPref.onPreferenceChangeListener = this
             findPreference<Preference>("shortcut_gesangbuch")!!.onPreferenceClickListener =
@@ -269,9 +285,10 @@ class SettingsActivity : AppCompatActivity() {
                     tipCard!!.isVisible = false
                     tipCardSpacing?.isVisible = false
                     coroutineScope.launch {
-                        val s: MutableSet<String> = getUserSettings().hints
-                        s.remove("tipcard")
-                        hintsPref.values = updateUserSettings { it.copy(hints = s) }.hints
+                        val hints: MutableSet<String> = getHints().toMutableSet()
+                        hints.remove("tipcard")
+                        hintsPref.values = hints
+                        setHints(hints)
                     }
                 }
 
@@ -299,7 +316,12 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            requireView().setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.item_background_color, settingsActivity.theme))
+            requireView().setBackgroundColor(
+                resources.getColor(
+                    de.dlyt.yanndroid.oneui.R.color.item_background_color,
+                    settingsActivity.theme
+                )
+            )
         }
 
         override fun onStart() {
@@ -308,7 +330,7 @@ class SettingsActivity : AppCompatActivity() {
                 confirmExitPref.isChecked = getUserSettings().confirmExit
                 easterEggsPref.isChecked = getUserSettings().easterEggsEnabled
                 historyPref.isChecked = getUserSettings().historyEnabled
-                val showTipCard = getUserSettings().hints.contains("tipcard")
+                val showTipCard = getHints().contains("tipcard")
                 tipCard?.isVisible = showTipCard
                 tipCardSpacing?.isVisible = showTipCard
             }
@@ -351,7 +373,8 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 "hints" -> {
                     coroutineScope.launch {
-                        val hintSet = updateUserSettings { it.copy(hints = newValue as MutableSet<String>) }.hints
+                        val hintSet = newValue as MutableSet<String>
+                        setHints(hintSet)
                         hintsPref.values = hintSet
                         tipCard?.isVisible = hintSet.contains("tipcard")
                         tipCardSpacing?.isVisible = hintSet.contains("tipcard")

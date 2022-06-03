@@ -5,8 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "recent_colors")
 data class RecentColorsDb(
-    @PrimaryKey
-    val colorInt: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val color: Int,
 )
 
 @Entity(tableName = "hints")

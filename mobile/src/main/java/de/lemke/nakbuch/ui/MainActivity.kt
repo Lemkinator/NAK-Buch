@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var previousTab = 0
     private var currentFragment: Fragment? = null
     private var time: Long = 0
-    private lateinit var context: Context
     private lateinit var fragmentManager: FragmentManager
     private lateinit var searchJob: Job
     private lateinit var buchMode: BuchMode
@@ -92,19 +91,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     lateinit var discoverEasterEgg: DiscoverEasterEggUseCase
 
     @Inject
+    lateinit var getHints: GetHintsUseCase
+
+    @Inject
+    lateinit var setHints: SetHintsUseCase
+
+    @Inject
     lateinit var checkAppStart: CheckAppStartUseCase
 
     @Inject
     lateinit var mute: MuteUseCase
 
-    //@Inject lateinit var doNotDisturb: DoNotDisturbUseCase
+    @Inject lateinit var doNotDisturb: DoNotDisturbUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         ThemeUtil(this, resources.getString(R.color.primary_color))
         time = System.currentTimeMillis()
-        context = this
         drawerLayout = findViewById(R.id.drawer_view)
         tabLayout = findViewById(R.id.main_tabs)
         optionGroup = findViewById(R.id.optiongroup)
@@ -140,16 +144,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
         //DrawerLayout
         drawerLayout.inflateToolbarMenu(R.menu.main)
-        drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(context, AboutActivity::class.java)) }
+        drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java)) }
         drawerLayout.setDrawerButtonTooltip(getText(R.string.aboutApp))
         drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.search -> drawerLayout.showSearchMode()
                 R.id.mute -> if (!mute())
-                    Toast.makeText(context, context.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
-                R.id.dnd -> DoNotDisturbUseCase(context)()//doNotDisturb()//
-                //R.id.info -> startActivity(Intent().setClass(mContext, AboutActivity::class.java))
-                //R.id.settings -> startActivity(Intent().setClass(mContext,SettingsActivity::class.java))
+                    Toast.makeText(this@MainActivity, this@MainActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+                R.id.dnd -> doNotDisturb()
+                //R.id.info -> startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java))
+                //R.id.settings -> startActivity(Intent().setClass(this@MainActivity,SettingsActivity::class.java))
             }
             true
         }
@@ -221,10 +225,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         setCurrentItem()
                     }
                 }
-                R.id.ob_settings -> startActivity(Intent(context, SettingsActivity::class.java))
-                R.id.ob_about -> startActivity(Intent(context, AboutActivity::class.java))
-                R.id.ob_help -> startActivity(Intent(context, HelpActivity::class.java))
-                R.id.ob_about_me -> startActivity(Intent(context, AboutMeActivity::class.java))
+                R.id.ob_settings -> startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+                R.id.ob_about -> startActivity(Intent(this@MainActivity, AboutActivity::class.java))
+                R.id.ob_help -> startActivity(Intent(this@MainActivity, HelpActivity::class.java))
+                R.id.ob_about_me -> startActivity(Intent(this@MainActivity, AboutMeActivity::class.java))
             }
             drawerLayout.setDrawerOpen(false, true)
             updateOptionbuttons()
@@ -236,13 +240,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
         searchHelpFAB.setOnClickListener {
             val searchModes = arrayOf<CharSequence>(getString(R.string.onlyExactSearchText), getString(R.string.searchForAllPartialWords))
-            AlertDialog.Builder(context)
+            AlertDialog.Builder(this@MainActivity)
                 .setTitle(R.string.help)
                 .setMessage(R.string.searchHelp)
                 .setNeutralButton(R.string.ok, null)
                 .setNegativeButton(R.string.standardSearchMode) { _: DialogInterface, _: Int ->
                     coroutineScope.launch {
-                        AlertDialog.Builder(context)
+                        AlertDialog.Builder(this@MainActivity)
                             .setTitle(getString(R.string.setStandardSearchMode))
                             .setNeutralButton(R.string.ok, null)
                             .setSingleChoiceItems(searchModes, if (getUserSettings().alternativeSearchModeEnabled) 1 else 0)
@@ -265,7 +269,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         if (getUserSettings().confirmExit) {
                             if (System.currentTimeMillis() - time < 3000) finishAffinity()
                             else {
-                                Toast.makeText(context, resources.getString(R.string.pressAgainToExit), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@MainActivity, resources.getString(R.string.pressAgainToExit), Toast.LENGTH_SHORT).show()
                                 time = System.currentTimeMillis()
                             }
                         } else finishAffinity()
@@ -278,7 +282,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
             drawerLayout.onSearchModeVoiceInputResult(result)
         }
-        AppUpdateManagerFactory.create(context).appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
+        AppUpdateManagerFactory.create(this).appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE)
                 drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
         }
@@ -293,7 +297,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         // pre-OneUI
-        if (Build.VERSION.SDK_INT <= 28) resources.configuration.setTo(ThemeUtil.createDarkModeConfig(context, newConfig))
+        if (Build.VERSION.SDK_INT <= 28) resources.configuration.setTo(ThemeUtil.createDarkModeConfig(this, newConfig))
     }
 
     override fun onResume() {
@@ -312,18 +316,18 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 buchMode = newBuchMode
                 setCurrentItem()
             }*/
-            val hints = getUserSettings().hints
+            val hints = getHints().toMutableSet()
             if (hints.remove("appIntroduction")) {
-                updateUserSettings { it.copy(hints = hints) }
+                setHints(hints)
                 updateUserSettings { it.copy(showMainTips = true, showTextViewTips = true, showImageViewTips = true) }
             }
             if (hints.contains("appHint")) {
-                AlertDialog.Builder(context)
+                AlertDialog.Builder(this@MainActivity)
                     .setTitle(getString(R.string.hint) + ":")
                     .setMessage(getString(R.string.appHintText))
                     .setNegativeButton(getString(R.string.dontShowAgain)) { _: DialogInterface?, _: Int ->
                         hints.remove("appHint")
-                        coroutineScope.launch { updateUserSettings { it.copy(hints = hints) } }
+                        coroutineScope.launch { setHints(hints) }
                     }
                     .setPositiveButton(getString(R.string.ok), null)
                     .setOnDismissListener { coroutineScope.launch { easterEggDialog() } }
@@ -385,7 +389,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private suspend fun easterEggDialog() {
         if (getUserSettings().showEasterEggHint) {
-            AlertDialog.Builder(context)
+            AlertDialog.Builder(this@MainActivity)
                 .setTitle(getString(R.string.easterEggs))
                 .setMessage(getString(R.string.easterEggsText))
                 .setNegativeButton(getString(R.string.deactivate)) { dialogInterface: DialogInterface, _: Int ->
@@ -393,7 +397,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
                 }
                 .setPositiveButton(getString(R.string.ok), null)
-                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
+                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
                 .setNegativeButtonProgress(true)
                 .setOnDismissListener { coroutineScope.launch { showTipPopup() } }
                 .create()
@@ -504,8 +508,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
                 Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
             }
-            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
-            .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, context.theme))
+            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
+            .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, this@MainActivity.theme))
             .setPositiveButtonProgress(true)
             .setNegativeButtonProgress(true)
             .create()
@@ -539,7 +543,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     fun progressDialog(view: View) {
-        val dialog = ProgressDialog(context)
+        val dialog = ProgressDialog(this)
         dialog.isIndeterminate = true
         dialog.setCancelable(true)
         dialog.setCanceledOnTouchOutside(true)
@@ -552,7 +556,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @Suppress("UNUSED_PARAMETER", "unused")
     private fun progressDialogCircleOnly(view: View) {
-        val dialog = ProgressDialog(context)
+        val dialog = ProgressDialog(this)
         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
         dialog.setCancelable(true)
         dialog.setCanceledOnTouchOutside(true)

@@ -80,7 +80,7 @@ fun personalHymnFromDb(personalHymnDb: PersonalHymnDb?): PersonalHymn =
         favorite = personalHymnDb.hymnData.favorite == 1,
         notes = personalHymnDb.hymnData.notes,
         sungOnList = personalHymnDb.sungOnList.map { it.date }.reversed(),
-        photoList = personalHymnDb.photoList.map { it.uri },
+        photoList = personalHymnDb.photoList.sortedBy{it.position}.map { it.uri },
     )
 
 fun personalHymnToHymnDataDb(personalHymn: PersonalHymn): HymnDataDb =
@@ -101,9 +101,8 @@ fun personalHymnToSungOnDbList(personalHymn: PersonalHymn): List<SungOnDb> =
 fun personalHymnToPhotoDbList(personalHymn: PersonalHymn): List<PhotoDb> =
     personalHymn.photoList.mapIndexed { index, uri ->
         PhotoDb(
-            index = index,
+            position = index,
             hymnId = personalHymn.hymn.hymnId,
             uri = uri
         )
     }
-

@@ -1,7 +1,6 @@
 package de.lemke.nakbuch.ui
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Configuration
 import android.graphics.PorterDuff
@@ -46,7 +45,6 @@ import kotlin.math.min
 class ImgviewActivity : AppCompatActivity() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var context: Context
     private var tabLayout: TabLayout? = null
     private lateinit var imgViewPager: ViewPager
     private lateinit var viewPagerAdapterImageView: ViewPagerAdapterImageView
@@ -80,7 +78,6 @@ class ImgviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ThemeUtil(this, resources.getString(R.color.primary_color))
-        context = this
         setContentView(R.layout.activity_imgview)
         imgViewPager = findViewById(R.id.img_view_pager)
         coroutineScope.launch {
@@ -92,7 +89,7 @@ class ImgviewActivity : AppCompatActivity() {
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
                 drawerLayout.setNavigationButtonIcon(
-                    AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
+                    AppCompatResources.getDrawable(this@ImgviewActivity, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back)
                 )
                 drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
                 drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
@@ -102,8 +99,8 @@ class ImgviewActivity : AppCompatActivity() {
                 if (getUserSettings().showImageViewTips) {
                     updateUserSettings { it.copy(showImageViewTips = false) }
                     //Handler(Looper.getMainLooper()).postDelayed({
-                        initTipPopup()
-                        tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT)
+                    initTipPopup()
+                    tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT)
                     //}, 50)
 
                 }
@@ -116,15 +113,13 @@ class ImgviewActivity : AppCompatActivity() {
         cameraActivityResultLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
             if (result) {
                 coroutineScope.launch {
-                    val index = if (viewPagerAdapterImageView.count > 0) (imgViewPager.currentItem + 1) else imgViewPager.currentItem
+                    val index = if (viewPagerAdapterImageView.count > 0) (imgViewPager.currentItem + 1) else 0
                     addPhoto(personalHymn, index).invokeOnCompletion {
-                        coroutineScope.launch {
-                            initViewPager(index)
-                        }
+                        coroutineScope.launch { initViewPager(index) }
                     }
                 }
             } else {
-                Toast.makeText(context, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
+                Toast.makeText(this@ImgviewActivity, getString(R.string.fotoError), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -132,7 +127,7 @@ class ImgviewActivity : AppCompatActivity() {
     private suspend fun initViewPager(index: Int = -1) {
         personalHymn = getPersonalHymn(hymnId)
         personalHymn.photoList = personalHymn.photoList.filter { it.toFile().exists() }.toMutableList()
-        viewPagerAdapterImageView = ViewPagerAdapterImageView(context, personalHymn.photoList)
+        viewPagerAdapterImageView = ViewPagerAdapterImageView(this, personalHymn.photoList)
         imgViewPager.adapter = viewPagerAdapterImageView
         if (index > 0) imgViewPager.setCurrentItem(min(index, viewPagerAdapterImageView.count), true)
     }
@@ -140,13 +135,13 @@ class ImgviewActivity : AppCompatActivity() {
     private fun takePhoto() {
         val maxImagesPerHymn = 20
         if (personalHymn.photoList.size >= maxImagesPerHymn) {
-            Toast.makeText(context, "Max. Bilder pro Lied: $maxImagesPerHymn", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Max. Bilder pro Lied: $maxImagesPerHymn", Toast.LENGTH_SHORT).show()
             return
         }
         try {
             cameraActivityResultLauncher.launch(getTempPhotoUri(true))
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(context, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -159,13 +154,11 @@ class ImgviewActivity : AppCompatActivity() {
 
         val favIcon: Drawable
         if (personalHymn.favorite) {
-            favIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
+            favIcon = AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
             favIcon.colorFilter = PorterDuffColorFilter(
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, context.theme), PorterDuff.Mode.SRC_IN
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, this.theme), PorterDuff.Mode.SRC_IN
             )
-        } else {
-            favIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
-        }
+        } else favIcon = AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 personalHymn.favorite = !personalHymn.favorite
@@ -176,19 +169,19 @@ class ImgviewActivity : AppCompatActivity() {
             }
         })
 
-        val camIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera)
+        val camIcon = AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_camera)
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 takePhoto()
             }
         })
 
-        val binIcon = AppCompatResources.getDrawable(context, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete)
+        val binIcon = AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_delete)
         tabLayout!!.addTabCustomButton(binIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val index = imgViewPager.currentItem
                 if (personalHymn.photoList.isNotEmpty()) {
-                    val dialog = AlertDialog.Builder(context)
+                    val dialog = AlertDialog.Builder(this@ImgviewActivity)
                         .setTitle(getString(R.string.deletePhoto) + "?")
                         .setMessage(getString(R.string.deleteCurrentPhoto) + "?")
                         .setNeutralButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
@@ -199,7 +192,12 @@ class ImgviewActivity : AppCompatActivity() {
                                 initViewPager(min(index, viewPagerAdapterImageView.count - 1))
                             }
                         }
-                        .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context.theme))
+                        .setNegativeButtonColor(
+                            resources.getColor(
+                                de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
+                                this@ImgviewActivity.theme
+                            )
+                        )
                         .setNegativeButtonProgress(true)
                         .create()
                     dialog.show()
@@ -207,9 +205,9 @@ class ImgviewActivity : AppCompatActivity() {
             }
         })
 
-        //Drawable rotateLeft = AppCompatResources.getDrawable(mContext, R.drawable.ic_samsung_refresh);
-        //Drawable rotateLeft = AppCompatResources.getDrawable(mContext, R.drawable.ic_samsung_undo);
-        /*Drawable rotateLeft = AppCompatResources.getDrawable(mContext, R.drawable.ic_samsung_sync);
+        //Drawable rotateLeft = AppCompatResources.getDrawable(this, R.drawable.ic_samsung_refresh);
+        //Drawable rotateLeft = AppCompatResources.getDrawable(this, R.drawable.ic_samsung_undo);
+        /*Drawable rotateLeft = AppCompatResources.getDrawable(this, R.drawable.ic_samsung_sync);
         tabLayout.addTabCustomButton(rotateLeft, new CustomButtonClickListener(tabLayout) {
             @Override
             public void onClick(View v) {
@@ -273,7 +271,7 @@ class ImgviewActivity : AppCompatActivity() {
        }
        if (f!!.exists()) {
            if (!f.delete())
-               Toast.makeText(mContext, "Datei konnte nicht gelöscht werden...", Toast.LENGTH_LONG).show()
+               Toast.makeText(this, "Datei konnte nicht gelöscht werden...", Toast.LENGTH_LONG).show()
        }
    }
 
@@ -286,7 +284,7 @@ class ImgviewActivity : AppCompatActivity() {
                image = File(cacheDir, "$i.jpg")
                if (image.exists()) {
                    if (!image.delete())
-                       Toast.makeText(mContext, "Konnte altes Foto vor Kamera-öffnen nicht löschen", Toast.LENGTH_LONG).show()
+                       Toast.makeText(this, "Konnte altes Foto vor Kamera-öffnen nicht löschen", Toast.LENGTH_LONG).show()
                }
                return image
            }
@@ -296,22 +294,22 @@ class ImgviewActivity : AppCompatActivity() {
 
    private fun takePhoto() {
        if (imageList.size >= Constants.MAX_IMAGES_PER_HYMN) {
-           Toast.makeText(mContext, "Max. Bilder pro Lied: ${Constants.MAX_IMAGES_PER_HYMN}", Toast.LENGTH_SHORT).show()
+           Toast.makeText(this, "Max. Bilder pro Lied: ${Constants.MAX_IMAGES_PER_HYMN}", Toast.LENGTH_SHORT).show()
            return
        }
        currentFile = try {
            createImageFile()
        } catch (ex: IOException) {
-           Toast.makeText(mContext, "Fehler beim Erstellen einer Datei", Toast.LENGTH_LONG).show()
+           Toast.makeText(this, "Fehler beim Erstellen einer Datei", Toast.LENGTH_LONG).show()
            Log.e("Cam", "Error occurred while creating the File: ${ex.message}")
            return
        }
        try {
            cameraActivityResultLauncher.launch(
-               FileProvider.getUriForFile(mContext, "de.lemke.nakbuch.fileprovider", currentFile!!)
+               FileProvider.getUriForFile(this, "de.lemke.nakbuch.fileprovider", currentFile!!)
            )
        } catch (e: ActivityNotFoundException) {
-           Toast.makeText(mContext, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
+           Toast.makeText(this, "Kamera konnte nicht geöffnet werden...", Toast.LENGTH_SHORT).show()
        }
    }
    */

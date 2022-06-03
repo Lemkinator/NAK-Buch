@@ -24,7 +24,7 @@ class TextviewActivity : AppCompatActivity() {
         if (hymnId == null) finish()
         else {
             viewPager2.adapter = ViewPager2AdapterTextview(this, hymnId, intent.getStringExtra("boldText"))
-            viewPager2.setCurrentItem(hymnId.number - 1, false) //TODO smooth?
+            viewPager2.setCurrentItem(hymnId.number - 1, false)
             viewPager2.registerOnPageChangeCallback(object : SeslViewPager2.OnPageChangeCallback() {
                 override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 

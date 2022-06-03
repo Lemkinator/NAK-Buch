@@ -6,6 +6,7 @@ import android.os.Looper
 import android.widget.Toast
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.data.UserSettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import nl.dionsegijn.konfetti.core.*
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 class DiscoverEasterEggUseCase @Inject constructor(
     private val getUserSettings: GetUserSettingsUseCase,
-    private val updateUserSettings: UpdateUserSettingsUseCase,
+    private val userSettingsRepository: UserSettingsRepository,
     @ApplicationContext private val context: Context,
 ) {
     suspend operator fun invoke(konfettiView: KonfettiView, easterEggEntryNameResourceId: Int) =
@@ -26,13 +27,10 @@ class DiscoverEasterEggUseCase @Inject constructor(
     suspend operator fun invoke(konfettiView: KonfettiView, easterEggEntryName: String) {
         withContext(Dispatchers.Default) {
             if (getUserSettings().easterEggsEnabled) {
-                val discoveredEasterEggs = getUserSettings().discoveredEasterEggs
-                if (discoveredEasterEggs.add(easterEggEntryName)) {
-                    updateUserSettings { it.copy(discoveredEasterEggs = discoveredEasterEggs) }
+                if (userSettingsRepository.discoverEasterEgg(easterEggEntryName)) {
                     withContext(Dispatchers.Main) {
                         showKonfetti(konfettiView)
-                        Toast.makeText(context, context.getString(R.string.easterEggDiscovered) + easterEggEntryName, Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(context, context.getString(R.string.easterEggDiscovered) + easterEggEntryName, Toast.LENGTH_SHORT).show()
                     }
                 }
             }

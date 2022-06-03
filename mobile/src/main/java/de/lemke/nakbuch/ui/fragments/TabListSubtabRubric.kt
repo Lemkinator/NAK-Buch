@@ -1,6 +1,5 @@
 package de.lemke.nakbuch.ui.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -40,11 +39,10 @@ import kotlin.coroutines.CoroutineContext
 class TabListSubtabRubric : Fragment() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
+    private var currentRubric: Rubric? = null
     private lateinit var rootView: View
-    private lateinit var mContext: Context
     private lateinit var hymns: MutableList<Hymn>
     private lateinit var rubrics: MutableList<Rubric>
-    private var currentRubric: Rubric? = null
     private lateinit var buchMode: BuchMode
     private lateinit var listView: RecyclerView
     private lateinit var drawerLayout: DrawerLayout
@@ -62,11 +60,6 @@ class TabListSubtabRubric : Fragment() {
 
     @Inject
     lateinit var getHymnsWithRubric: GetHymnsWithRubricUseCase
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_tab_list_subtab_rubric, container, false)
@@ -107,11 +100,11 @@ class TabListSubtabRubric : Fragment() {
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
         val divider = TypedValue()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.layoutManager = LinearLayoutManager(mContext)
+        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        listView.layoutManager = LinearLayoutManager(context)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
         listView.itemAnimator = null
         //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
         listView.seslSetFastScrollerEnabled(true)

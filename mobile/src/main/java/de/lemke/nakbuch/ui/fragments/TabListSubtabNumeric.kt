@@ -1,6 +1,5 @@
 package de.lemke.nakbuch.ui.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -42,7 +41,6 @@ class TabListSubtabNumeric : Fragment() {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var rootView: View
-    private lateinit var mContext: Context //cause getContext() is nullable
     private lateinit var buchMode: BuchMode
     private lateinit var hymns: MutableList<Hymn>
     private lateinit var listView: RecyclerView
@@ -66,11 +64,6 @@ class TabListSubtabNumeric : Fragment() {
 
     @Inject
     lateinit var setFavoritesFromHymnList: SetFavoritesFromHymnListUseCase
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_tab_list_subtab_numeric, container, false)
@@ -102,7 +95,7 @@ class TabListSubtabNumeric : Fragment() {
     private fun initList() {
         selected = HashMap()
         for (i in hymns.indices) selected[i] = false
-        listView.layoutManager = LinearLayoutManager(mContext)
+        listView.layoutManager = LinearLayoutManager(context)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
         listView.itemAnimator = null
@@ -127,9 +120,9 @@ class TabListSubtabNumeric : Fragment() {
         })
         val divider = TypedValue()
         val decoration = ItemDecoration()
-        mContext.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(mContext, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
     }
 
     fun setSelecting(enabled: Boolean) {
@@ -140,7 +133,7 @@ class TabListSubtabNumeric : Fragment() {
                 val onlySelected = HashMap(selected.filter { it.value })
                 when (item.itemId) {
                     R.id.addToFav -> {
-                        val dialog = ProgressDialog(mContext)
+                        val dialog = ProgressDialog(context)
                         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
                         dialog.setCancelable(false)
                         dialog.show()
@@ -151,7 +144,7 @@ class TabListSubtabNumeric : Fragment() {
                         }
                     }
                     R.id.removeFromFav -> {
-                        val dialog = ProgressDialog(mContext)
+                        val dialog = ProgressDialog(context)
                         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
                         dialog.setCancelable(false)
                         dialog.show()
@@ -163,7 +156,7 @@ class TabListSubtabNumeric : Fragment() {
                     }
                     else -> {
                         item.badge = item.badge + 1
-                        Toast.makeText(mContext, item.title, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
                     }
                 }
                 setSelecting(false)

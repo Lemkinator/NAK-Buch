@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7fdef898cd09ef6cf614a96c0adff883",
+    "identityHash": "4283058e1881e721173600930774cc65",
     "entities": [
       {
         "tableName": "hymn",
@@ -238,11 +238,11 @@
       },
       {
         "tableName": "photo",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`index` INTEGER NOT NULL, `hymnId` INTEGER NOT NULL, `uri` TEXT NOT NULL, PRIMARY KEY(`index`), FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`position` INTEGER NOT NULL, `hymnId` INTEGER NOT NULL, `uri` TEXT NOT NULL, PRIMARY KEY(`position`), FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
-            "fieldPath": "index",
-            "columnName": "index",
+            "fieldPath": "position",
+            "columnName": "position",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -261,7 +261,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "index"
+            "position"
           ],
           "autoGenerate": false
         },
@@ -345,12 +345,78 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "recent_colors",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `color` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "hints",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hint` TEXT NOT NULL, PRIMARY KEY(`hint`))",
+        "fields": [
+          {
+            "fieldPath": "hint",
+            "columnName": "hint",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "hint"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "discovered_eastereggs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`easterEgg` TEXT NOT NULL, PRIMARY KEY(`easterEgg`))",
+        "fields": [
+          {
+            "fieldPath": "easterEgg",
+            "columnName": "easterEgg",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "easterEgg"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7fdef898cd09ef6cf614a96c0adff883')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4283058e1881e721173600930774cc65')"
     ]
   }
 }

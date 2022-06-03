@@ -11,15 +11,10 @@
     TODO
         database fts???
         recycler: duplicate code?
-        DoNotDisturb -> context
-        context in Fragment? (mContext, nullable getContext())
         coroutines optimization (order, nested coroutines?)
-
-        UserSettings (set, list) -> db?
 
         xml konfetti on top?
 
-        imgView fullscreen? works on emu
         (save to Google Drive?)
         (new Android 12 Splashscreen)
         (theme color) currently not supported

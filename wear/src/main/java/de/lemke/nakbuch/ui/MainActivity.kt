@@ -27,7 +27,6 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     private val coroutineContext = Dispatchers.Main
     private val coroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var mContext: Context
     private lateinit var buchMode: BuchMode
     private lateinit var hymnNrInput: String
     private lateinit var tvHymnNrTitle: TextView
@@ -59,7 +58,6 @@ class MainActivity : AppCompatActivity() {
         ThemeUtil(this, resources.getString(R.color.primary_color))
         ThemeUtil.setDarkMode(this, ThemeUtil.DARK_MODE_ENABLED)
         setContentView(R.layout.activity_main)
-        mContext = this
         tvHymnNrTitle = findViewById(R.id.hymnTitlePreview)
         buttonSwitchMode = findViewById(R.id.buttonSwitchMode)
         coroutineScope.launch {
@@ -94,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                     updateUserSettings {it.copy(buchMode = buchMode)}
                     updateButtonSwitchMode()
                     startActivity(
-                        Intent(mContext, ConfirmationActivity::class.java)
+                        Intent(this@MainActivity, ConfirmationActivity::class.java)
                             .putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION)
                             .putExtra(
                                 ConfirmationActivity.EXTRA_MESSAGE,
@@ -105,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             findViewById<MaterialButton>(R.id.buttonInfo).setOnClickListener {
-                startActivity(Intent(mContext, InfoActivity::class.java))
+                startActivity(Intent(this@MainActivity, InfoActivity::class.java))
             }
         }
 
@@ -156,7 +154,7 @@ class MainActivity : AppCompatActivity() {
                 coroutineScope.launch {
                     val hymn = getHymn(buchMode, hymnNr)
                     startActivity(
-                        Intent(mContext, TextviewActivity::class.java)
+                        Intent(this@MainActivity, TextviewActivity::class.java)
                             .putExtra("nrAndTitle", hymn.numberAndTitle)
                             .putExtra("text", hymn.text)
                             .putExtra("copyright", hymn.copyright)

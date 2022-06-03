@@ -1,6 +1,5 @@
 package de.lemke.nakbuch.ui
 
-import android.content.Context
 import android.content.Intent
 import android.content.IntentSender.SendIntentException
 import android.net.Uri
@@ -24,7 +23,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AboutActivity : AppCompatActivity() {
-    private lateinit var context: Context
     private lateinit var aboutPage: AboutPage
     private lateinit var appUpdateManager: AppUpdateManager
     private lateinit var appUpdateInfo: AppUpdateInfo
@@ -37,12 +35,11 @@ class AboutActivity : AppCompatActivity() {
         ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
-        context = this
         aboutPage = findViewById(R.id.about_page)
         aboutPage.setToolbarExpandable(true)
         aboutPage.setUpdateState(AboutPage.LOADING)
         //LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
-        appUpdateManager = AppUpdateManagerFactory.create(context)
+        appUpdateManager = AppUpdateManagerFactory.create(this)
         aboutPage.setUpdateButtonOnClickListener { startUpdateFlow() }
         aboutPage.setRetryButtonOnClickListener {
             aboutPage.setUpdateState(AboutPage.LOADING)
@@ -52,8 +49,8 @@ class AboutActivity : AppCompatActivity() {
         findViewById<View>(R.id.about_btn_open_oneui_github).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.oneUIGithubLink))))
         }
-        findViewById<View>(R.id.about_btn_help).setOnClickListener { startActivity(Intent(context, HelpActivity::class.java)) }
-        findViewById<View>(R.id.about_btn_about_me).setOnClickListener { startActivity(Intent(context, AboutMeActivity::class.java)) }
+        findViewById<View>(R.id.about_btn_help).setOnClickListener { startActivity(Intent(this@AboutActivity, HelpActivity::class.java)) }
+        findViewById<View>(R.id.about_btn_about_me).setOnClickListener { startActivity(Intent(this@AboutActivity, AboutMeActivity::class.java)) }
         checkUpdate()
     }
 
@@ -76,7 +73,7 @@ class AboutActivity : AppCompatActivity() {
         if (requestCode == UPDATEREQUESTCODE) {
             if (resultCode != RESULT_OK) {
                 Log.e("Update: ", "Update flow failed! Result code: $resultCode")
-                Toast.makeText(context, "Fehler beim Update-Prozess: $resultCode", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AboutActivity, "Fehler beim Update-Prozess: $resultCode", Toast.LENGTH_LONG).show()
                 aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
             }
         }
@@ -98,7 +95,7 @@ class AboutActivity : AppCompatActivity() {
             }
         }
         appUpdateInfoTask.addOnFailureListener { appUpdateInfo: Exception ->
-            Toast.makeText(context, appUpdateInfo.message, Toast.LENGTH_LONG).show()
+            Toast.makeText(this@AboutActivity, appUpdateInfo.message, Toast.LENGTH_LONG).show()
             aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
         }
     }

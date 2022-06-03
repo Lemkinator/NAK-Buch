@@ -24,7 +24,7 @@ import de.lemke.nakbuch.domain.model.HymnId
 )
 data class PhotoDb(
     @PrimaryKey
-    val index: Int,
+    val position: Int,
     val hymnId: HymnId,
     val uri: Uri,
 )

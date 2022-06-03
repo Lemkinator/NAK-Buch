@@ -39,22 +39,4 @@ object Converters {
     /** Returns the [LocalDate] represented by the [localDateString]. */
     @TypeConverter
     fun localDateFromDb(localDateString: String): LocalDate = LocalDate.parse(localDateString)
-
-    @TypeConverter
-    fun colorFromDb(recentColorsDb: RecentColorsDb): Int = recentColorsDb.colorInt
-
-    @TypeConverter
-    fun colorToDb(colorInt: Int): RecentColorsDb = RecentColorsDb(colorInt)
-
-    @TypeConverter
-    fun hintFromDb(hintDb: HintDb): String = hintDb.hint
-
-    @TypeConverter
-    fun hintToDb(hint: String): HintDb = HintDb(hint)
-
-    @TypeConverter
-    fun easterEggFromDb(easterEggsDb: EasterEggsDb): String = easterEggsDb.easterEgg
-
-    @TypeConverter
-    fun easterEggToDb(easterEgg: String): EasterEggsDb = EasterEggsDb(easterEgg)
 }

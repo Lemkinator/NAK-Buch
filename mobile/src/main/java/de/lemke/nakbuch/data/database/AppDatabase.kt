@@ -14,9 +14,9 @@ import androidx.room.TypeConverters
         SungOnDb::class,
         PhotoDb::class,
         HistoryDb::class,
-        /*RecentColorsDb::class,
+        RecentColorsDb::class,
         HintDb::class,
-        EasterEggsDb::class,*/
+        EasterEggsDb::class,
     ],
     exportSchema = true,
     /*autoMigrations = [
@@ -32,5 +32,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun sungOnDao(): SungOnDao
     abstract fun photoDao(): PhotoDao
     abstract fun historyDao(): HistoryDao
-    //abstract fun settingsDao(): SettingsDao
+    abstract fun settingsDao(): SettingsDao
 }

@@ -1,7 +1,6 @@
 package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.graphics.Canvas
@@ -31,9 +30,7 @@ import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.dlyt.yanndroid.oneui.widget.Switch
 import de.dlyt.yanndroid.oneui.widget.SwitchBar
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.DiscoverEasterEggUseCase
-import de.lemke.nakbuch.domain.GetUserSettingsUseCase
-import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
+import de.lemke.nakbuch.domain.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,16 +42,15 @@ import kotlin.coroutines.CoroutineContext
 class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
     private val coroutineContext: CoroutineContext = Dispatchers.Main
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var context: Context
     private lateinit var discoveredEasterEggs: MutableList<String>
     private lateinit var easterEggCommentButton: MaterialButton
     private lateinit var easterEggsHeader: TextView
     private lateinit var floatingActionButton: FloatingActionButton
     private lateinit var listView: RecyclerView
     private lateinit var konfettiView: KonfettiView
+    private lateinit var easterEggComments: Array<String>
     private var time: Long = 0
     private var clickCounter = 0
-    private lateinit var easterEggComments: Array<String>
     private var enabled: Boolean = true
 
     @Inject
@@ -66,11 +62,16 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
     @Inject
     lateinit var discoverEasterEgg: DiscoverEasterEggUseCase
 
+    @Inject
+    lateinit var getDiscoveredEasterEggs: GetDiscoveredEasterEggsUseCase
+
+    @Inject
+    lateinit var resetEasterEggs: ResetEasterEggsUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ThemeUtil(this, resources.getString(R.color.primary_color))
         setContentView(R.layout.activity_easteregg)
-        context = this
         easterEggComments = resources.getStringArray(R.array.easterEggComments)
         konfettiView = findViewById(R.id.konfettiViewEasterEgg)
         listView = findViewById(R.id.easterEggList)
@@ -97,7 +98,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
         switchBarLayout.setOnToolbarMenuItemClickListener { //reset button
             coroutineScope.launch {
-                updateUserSettings { it.copy(discoveredEasterEggs = mutableSetOf()) }
+                resetEasterEggs()
                 initList()
             }
             true
@@ -127,7 +128,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                                         updateUserSettings { it.copy(easterEggTipsUsed = true) }
                                         initList()
                                     }
-                                    Toast.makeText(context, "Zu Recht...", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@EasterEggSwitchBarActivity, "Zu Recht...", Toast.LENGTH_SHORT).show()
                                 }
                                 .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, theme))
                                 .setCancelable(false)
@@ -135,7 +136,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                             dialog2.show()
                         }
                         .setPositiveButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel) { _: DialogInterface?, _: Int ->
-                            Toast.makeText(context, "Besser isses auch...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@EasterEggSwitchBarActivity, "Besser isses auch...", Toast.LENGTH_SHORT).show()
                         }
                         .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, theme))
                         .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, theme))
@@ -169,7 +170,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
 
     @SuppressLint("SetTextI18n")
     private suspend fun initList() {
-        discoveredEasterEggs = getUserSettings().discoveredEasterEggs.toMutableList()
+        discoveredEasterEggs = getDiscoveredEasterEggs().toMutableList()
         easterEggsHeader.text = getString(R.string.alreadyDiscoveredEasterEggs) +
                 (if (getUserSettings().easterEggTipsUsed) " (mit Tipps)" else "") +
                 " (${discoveredEasterEggs.size}/${easterEggComments.size - 1}):"
@@ -197,16 +198,16 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
             resources.getColor(
                 if (enabled) de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color
                 else de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark,
-                context.theme
+                this.theme
             )
         )
         easterEggCommentButton.isEnabled = enabled
         easterEggCommentButton.setTextColor(
             if (enabled) MaterialColors.getColor(
-                context,
+                this,
                 de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color, context.theme)
-            ) else resources.getColor(de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark, context.theme)
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color, this.theme)
+            ) else resources.getColor(de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark, this.theme)
         )
         floatingActionButton.isEnabled = enabled
     }
@@ -255,7 +256,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(context, true)
+        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(this@EasterEggSwitchBarActivity, true)
         private val seslRoundedCornerBottom: SeslRoundedCorner
         private var divider: Drawable? = null
         private var dividerHeight = 0
@@ -297,7 +298,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
 
         init {
             seslRoundedCornerTop.roundedCorners = 3
-            seslRoundedCornerBottom = SeslRoundedCorner(context, true)
+            seslRoundedCornerBottom = SeslRoundedCorner(this@EasterEggSwitchBarActivity, true)
             seslRoundedCornerBottom.roundedCorners = 12
         }
     }

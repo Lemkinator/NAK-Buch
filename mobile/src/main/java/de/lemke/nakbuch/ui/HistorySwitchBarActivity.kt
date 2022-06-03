@@ -1,7 +1,6 @@
 package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -45,7 +44,6 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var history: MutableList<Pair<Hymn, LocalDate>>
     private lateinit var listView: RecyclerView
-    private lateinit var context: Context
     private lateinit var switchBarLayout: SwitchBarLayout
     private var enabled: Boolean = true
 
@@ -61,7 +59,6 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
-        context = this
         setContentView(R.layout.activity_history)
         listView = findViewById(R.id.historyList)
         switchBarLayout = findViewById(R.id.switchbarlayout_history)
@@ -100,10 +97,10 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         listView.adapter = ImageAdapter()
         val divider = TypedValue()
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.layoutManager = LinearLayoutManager(context)
+        listView.layoutManager = LinearLayoutManager(this)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(context, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(this, divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetIndexTipEnabled(true)
         listView.seslSetFastScrollerEnabled(true)
@@ -178,7 +175,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
                 holder.parentView.setOnClickListener {
                     coroutineScope.launch {
                         //updateUserSettings{ it.copy(buchMode = hymnPair.first.hymnId.buchMode) } //change Mode here? no
-                        startActivity(Intent(context, TextviewActivity::class.java).putExtra("hymnId", hymnPair.first.hymnId.toInt()))
+                        startActivity(Intent(this@HistorySwitchBarActivity, TextviewActivity::class.java).putExtra("hymnId", hymnPair.first.hymnId.toInt()))
                     }
                 }
                 holder.parentView.allViews.forEach { view -> view.isEnabled = enabled }
@@ -203,7 +200,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     }
 
     inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(context, true)
+        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(this@HistorySwitchBarActivity, true)
         private val seslRoundedCornerBottom: SeslRoundedCorner
         private var divider: Drawable? = null
         private var dividerHeight = 0
@@ -246,7 +243,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
         init {
             seslRoundedCornerTop.roundedCorners = 3
-            seslRoundedCornerBottom = SeslRoundedCorner(context, true)
+            seslRoundedCornerBottom = SeslRoundedCorner(this@HistorySwitchBarActivity, true)
             seslRoundedCornerBottom.roundedCorners = 12
         }
     }
