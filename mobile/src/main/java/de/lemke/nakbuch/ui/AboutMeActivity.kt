@@ -32,12 +32,6 @@ class AboutMeActivity : AppCompatActivity() {
     @Inject
     lateinit var openApp: OpenAppUseCase
 
-    /*
-    companion object {
-        private const val AD_UNIT_ID = "ca-app-pub-5655920768524739/5575349013"
-    }
-    */
-
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)

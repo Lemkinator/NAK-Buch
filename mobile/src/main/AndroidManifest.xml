@@ -36,12 +36,6 @@
         android:theme="@style/OneUITheme"
         tools:targetApi="32">
 
-        <!--meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5655920768524739~3712954071"/-->
-
-        <!--meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" / firebase not used anyways -->
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
