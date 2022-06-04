@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
@@ -29,16 +30,11 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.Rubric
 import de.lemke.nakbuch.ui.TextviewActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class TabListSubtabRubric : Fragment() {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private var currentRubric: Rubric? = null
     private lateinit var rootView: View
     private lateinit var hymns: MutableList<Hymn>
@@ -74,12 +70,12 @@ class TabListSubtabRubric : Fragment() {
         subTabs = activity.findViewById(R.id.sub_tabs)
         mainTabs = activity.findViewById(R.id.main_tabs)
         viewPager2List = activity.findViewById(R.id.viewPager2Lists)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
             onBackPressedCallback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     currentRubric = null
-                    coroutineScope.launch { initList() }
+                    lifecycleScope.launch { initList() }
                 }
             }
             requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
@@ -185,7 +181,7 @@ class TabListSubtabRubric : Fragment() {
                     holder.textView.text = rubrics[position].name
                     holder.parentView.setOnClickListener {
                         currentRubric = rubrics[position]
-                        coroutineScope.launch { initList() }
+                        lifecycleScope.launch { initList() }
                     }
                 }
             }
@@ -194,7 +190,7 @@ class TabListSubtabRubric : Fragment() {
                 holder.textView.text = currentRubric!!.name
                 holder.parentView.setOnClickListener {
                     currentRubric = null
-                    coroutineScope.launch { initList() }
+                    lifecycleScope.launch { initList() }
                 }
             }
         }

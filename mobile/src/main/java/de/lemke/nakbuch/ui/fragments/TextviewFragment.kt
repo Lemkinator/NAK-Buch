@@ -18,6 +18,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,23 +44,19 @@ import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.domain.utils.TextChangedListener
 import de.lemke.nakbuch.ui.HelpActivity
 import de.lemke.nakbuch.ui.ImgviewActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class TextviewFragment : Fragment() {
-    private lateinit var rootView: View
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private var boldText: String? = null
     private var textSize: Int = 0
+    private var tabLayout: TabLayout? = null
+    private lateinit var rootView: View
     private lateinit var hymnId: HymnId
     private lateinit var personalHymn: PersonalHymn
     private lateinit var tvText: TextView
@@ -70,7 +67,6 @@ class TextviewFragment : Fragment() {
     private lateinit var notesGroup: LinearLayout
     private lateinit var calendarGroup: LinearLayout
     private lateinit var nestedScrollView: NestedScrollView
-    private var tabLayout: TabLayout? = null
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var konfettiView: KonfettiView
     private lateinit var listView: RecyclerView
@@ -100,7 +96,8 @@ class TextviewFragment : Fragment() {
     @Inject
     lateinit var mute: MuteUseCase
 
-    @Inject lateinit var doNotDisturb: DoNotDisturbUseCase
+    @Inject
+    lateinit var doNotDisturb: DoNotDisturbUseCase
 
     @Inject
     lateinit var openBischoffApp: OpenBischoffAppUseCase
@@ -155,20 +152,22 @@ class TextviewFragment : Fragment() {
         drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
         drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setSubtitle(hymnId.buchMode.toString())
-        drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
 
-        coroutineScope.launch {
+        lifecycleScope.launch {
             personalHymn = getPersonalHymn(hymnId)
             val color = MaterialColors.getColor(
                 context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
                 context!!.resources.getColor(R.color.primary_color, context!!.theme)
             )
-            drawerLayout.setTitle(makeSectionOfTextBold(personalHymn.hymn.numberAndTitle, boldText, color))
-            tvText.text = makeSectionOfTextBold(personalHymn.hymn.text, boldText, color)
-            tvCopyright.text = makeSectionOfTextBold(personalHymn.hymn.copyright, boldText, color)
             val userSettings = getUserSettings()
             updateTextSize(userSettings.textSize)
-            if (personalHymn.hymn.text.contains("urheberrechtlich geschützt...", ignoreCase = true)) {
+            drawerLayout.setTitle(
+                makeSectionOfTextBold(personalHymn.hymn.numberAndTitle, boldText, color, userSettings.alternativeSearchModeEnabled)
+            )
+            tvText.text = makeSectionOfTextBold(personalHymn.hymn.text, boldText, color, userSettings.alternativeSearchModeEnabled)
+            tvCopyright.text =
+                makeSectionOfTextBold(personalHymn.hymn.copyright, boldText, color, userSettings.alternativeSearchModeEnabled)
+            if (personalHymn.hymn.containsCopyright) {
                 if (userSettings.jokeButtonVisible && userSettings.easterEggsEnabled) {
                     jokeButton.visibility = View.VISIBLE
                     whyNoFullTextButton.visibility = View.GONE
@@ -178,36 +177,39 @@ class TextviewFragment : Fragment() {
                 }
             }
             editTextNotiz.setText(personalHymn.notes)
+            drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
             initBNV()
             initList()
             whyNoFullTextButton.setOnClickListener { startActivity(Intent(context, HelpActivity::class.java)) }
             jokeButton.setOnClickListener {
-                coroutineScope.launch { discoverEasterEgg(konfettiView, R.string.easterEggEntryPremium) }
-                AlertDialog.Builder(context!!)
-                    .setTitle(getString(R.string.jokeTitle))
-                    .setMessage(getString(R.string.jokeMessage))
-                    .setNegativeButton(getString(R.string.ForeverICantTakeAJoke)) { _: DialogInterface?, _: Int ->
-                        coroutineScope.launch { updateUserSettings { it.copy(jokeButtonVisible = false) } }
-                    }
-                    .setPositiveButton(getString(R.string.onlyThisTime), null)
-                    .setNegativeButtonColor(
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context!!.theme)
-                    ).show()
+                lifecycleScope.launch {
+                    discoverEasterEgg(konfettiView, R.string.easterEggEntryPremium)
+                    AlertDialog.Builder(context!!)
+                        .setTitle(getString(R.string.jokeTitle))
+                        .setMessage(getString(R.string.jokeMessage))
+                        .setNegativeButton(getString(R.string.ForeverICantTakeAJoke)) { _: DialogInterface?, _: Int ->
+                            lifecycleScope.launch { updateUserSettings { it.copy(jokeButtonVisible = false) } }
+                        }
+                        .setPositiveButton(getString(R.string.onlyThisTime), null)
+                        .setNegativeButtonColor(
+                            resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context!!.theme)
+                        ).show()
+                }
                 jokeButton.visibility = View.GONE
             }
             editTextNotiz.addTextChangedListener(object :
                 TextChangedListener<EditText>(editTextNotiz) {
                 override fun onTextChanged(target: EditText, s: Editable) {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         if (::personalHymn.isInitialized) {
                             personalHymn.notes = editTextNotiz.text.toString()
                             setPersonalHymn(personalHymn.copy())
                         }
                         if (s.toString().replace(" ", "").equals("easteregg", ignoreCase = true)) {
-                            discoverEasterEgg(konfettiView, R.string.easterEggEntryNote)
-                            s.clear()
                             (requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                                 .hideSoftInputFromWindow(requireActivity().currentFocus!!.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                            s.clear()
+                            discoverEasterEgg(konfettiView, R.string.easterEggEntryNote)
                         }
                     }
                 }
@@ -231,7 +233,7 @@ class TextviewFragment : Fragment() {
                     if (!hymnSungOnList.contains(date)) {
                         hymnSungOnList.add(date)
                         personalHymn.sungOnList = hymnSungOnList.filterNotNull().distinct().sortedDescending()
-                        coroutineScope.launch { setPersonalHymn(personalHymn.copy()) }
+                        lifecycleScope.launch { setPersonalHymn(personalHymn.copy()) }
                         setSelecting(false)
                         initList()
                     }
@@ -242,12 +244,12 @@ class TextviewFragment : Fragment() {
             drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
             drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
                 when (item.itemId) {
-                    R.id.increaseTextSize -> coroutineScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
-                    R.id.decreaseTextSize -> coroutineScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
+                    R.id.increaseTextSize -> lifecycleScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
+                    R.id.decreaseTextSize -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
                     R.id.dnd -> doNotDisturb()
                     R.id.mute ->
                         if (!mute()) Toast.makeText(context, context!!.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
-                    R.id.openOfficialApp -> coroutineScope.launch {
+                    R.id.openOfficialApp -> lifecycleScope.launch {
                         if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode)
                         else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
                     }
@@ -266,7 +268,7 @@ class TextviewFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        coroutineScope.launch {
+        lifecycleScope.launch {
             val userSettings = getUserSettings()
             notesGroup.visibility = if (userSettings.notesVisible) View.VISIBLE else View.GONE
             calendarGroup.visibility = if (userSettings.sungOnVisible) View.VISIBLE else View.GONE
@@ -297,7 +299,7 @@ class TextviewFragment : Fragment() {
         }
         val noteIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
         val dateIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             val userSettings = getUserSettings()
             if (userSettings.notesVisible) {
                 noteIcon!!.colorFilter = PorterDuffColorFilter(
@@ -318,7 +320,7 @@ class TextviewFragment : Fragment() {
         }
         tabLayout!!.addTabCustomButton(noteIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     if ((updateUserSettings { it.copy(notesVisible = !it.notesVisible) }).notesVisible) {
                         notesGroup.visibility = View.VISIBLE
                         drawerLayout.setExpanded(false, true)
@@ -336,7 +338,7 @@ class TextviewFragment : Fragment() {
         })
         tabLayout!!.addTabCustomButton(dateIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     if ((updateUserSettings { it.copy(sungOnVisible = !it.sungOnVisible) }).sungOnVisible) {
                         calendarGroup.visibility = View.VISIBLE
                         drawerLayout.setExpanded(false, true)
@@ -362,7 +364,7 @@ class TextviewFragment : Fragment() {
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     personalHymn.favorite = !personalHymn.favorite
                     initBNV()
                     setPersonalHymn(personalHymn.copy())
@@ -380,7 +382,7 @@ class TextviewFragment : Fragment() {
         val plusIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
         tabLayout!!.addTabCustomButton(plusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     updateTextSize(textSize + TEXTSIZE_STEP)
                 }
             }
@@ -388,7 +390,7 @@ class TextviewFragment : Fragment() {
         val minusIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus)
         tabLayout!!.addTabCustomButton(minusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     updateTextSize(textSize - TEXTSIZE_STEP)
                 }
             }
@@ -420,7 +422,12 @@ class TextviewFragment : Fragment() {
         tipPopupFav.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
         tipPopupFoto.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
         tipPopupPlus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
-        tipPopupMinus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
+        tipPopupMinus.setBackgroundColor(
+            resources.getColor(
+                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
+                context!!.theme
+            )
+        )
         tipPopupMenu.setExpanded(true)
         tipPopupNote.setExpanded(true)
         tipPopupCalendar.setExpanded(true)
@@ -453,7 +460,7 @@ class TextviewFragment : Fragment() {
         textSize = newTextSize.coerceIn(TEXTSIZE_MIN, TEXTSIZE_MAX)
         tvText.textSize = textSize.toFloat()
         tvCopyright.textSize = (textSize - 4).toFloat()
-        coroutineScope.launch { updateUserSettings { it.copy(textSize = textSize) } }
+        lifecycleScope.launch { updateUserSettings { it.copy(textSize = textSize) } }
         return textSize
     }
 
@@ -484,7 +491,7 @@ class TextviewFragment : Fragment() {
             drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
                 if (item.itemId == R.id.menuButtonRemove) {
                     personalHymn.sungOnList = hymnSungOnList.filterNotNull().filterIndexed { index, _ -> selected[index] == false }
-                    coroutineScope.launch { setPersonalHymn(personalHymn.copy()) }
+                    lifecycleScope.launch { setPersonalHymn(personalHymn.copy()) }
                     setSelecting(false)
                     initList()
                 } else {

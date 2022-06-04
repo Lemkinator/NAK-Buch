@@ -113,7 +113,7 @@
     <string name="easterEggWhichOfficialApp">Welche offizielle App?</string>
 
     <string name="alreadyDiscoveredEasterEggs">Bereits entdeckte Easter Eggs</string>
-    <string name="easterEggDiscovered">Yeah! Easter Egg entdeckt: </string>
+    <string name="easterEggDiscovered">Yeah! Easter Egg entdeckt:&#160;</string>
     <string name="discoveredEasterEggs">Bereits entdeckte Easter Eggs:</string>
     <string name="tips">Tipps</string>
     <string name="showTips">Tipps anzeigen</string>
@@ -213,6 +213,7 @@
     <string name="deletePhoto">Foto löschen</string>
     <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
     <string name="contact">Kontakt</string>
+    <string name="easterEggAlreadyDiscovered">Denkst wohl das funktioniert nochmal? :D</string>
 
 
 </resources>

@@ -22,9 +22,9 @@ class HelpActivity : AppCompatActivity() {
     lateinit var openBischoffApp: OpenBischoffAppUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
+        ThemeUtil(this)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_help)
         drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setNavigationButtonOnClickListener { finish() }

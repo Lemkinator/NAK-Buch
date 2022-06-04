@@ -98,6 +98,7 @@ class SetPrivateTextsUseCase @Inject constructor(
                 it["hymnTitle"]!!,
                 it["hymnText"]!!.replace("</p><p>", "\n\n").replace("<br>", ""),
                 it["hymnCopyright"]!!.replace("<br>", ""),
+                it["hymnText"]!!.contains("urheberrechtlich geschützt...", ignoreCase = true)
             )
         })
         return true

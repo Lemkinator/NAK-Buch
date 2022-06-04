@@ -4,7 +4,7 @@ import androidx.room.*
 import de.lemke.nakbuch.domain.model.HymnId
 import de.lemke.nakbuch.domain.model.RubricId
 
-/* TODO
+/*
 Support full-text search
 If your app requires very quick access to databases information through full-text search (FTS),
 have your entities backed by a virtual table that uses either the FTS3 or FTS4 SQLite extension module.
@@ -23,6 +23,7 @@ Note: FTS-enabled tables always use a primary key of type INTEGER and with the c
 If your FTS-table-backed entity defines a primary key, it must use that type and column name.
  */
 
+/*
 @Fts4(contentEntity = HymnDb::class)
 @Entity(tableName = "hymn_fts")
 class HymnDbFts(
@@ -32,38 +33,6 @@ class HymnDbFts(
     val title: String,
     val text: String,
     val copyright: String,
-)
-
-
-@Entity(
-    tableName = "hymn",
-    foreignKeys = [
-        ForeignKey(
-            entity = RubricDb::class,
-            parentColumns = arrayOf("rubricId"),
-            childColumns = arrayOf("rubricId"),
-            onDelete = ForeignKey.CASCADE,
-        )
-    ],
-)
-data class HymnDb(
-    @PrimaryKey
-    val hymnId: HymnId,
-    val rubricId: RubricId,
-    val numberAndTitle: String,
-    val title: String,
-    val text: String,
-    val copyright: String,
-)
-
-data class HymnAndRubric(
-    @Embedded
-    val hymn: HymnDb,
-    @Relation(
-        parentColumn = "rubricId",
-        entityColumn = "rubricId",
-    )
-    val rubric: RubricDb,
 )
 
 data class HymnAndRubricWithMatchInfo(
@@ -88,6 +57,40 @@ data class HymnAndRubricWithMatchInfo(
     override fun hashCode(): Int = 31 * hymn.hashCode() + matchInfo.contentHashCode()
 }
 
+*/
+
+
+@Entity(
+    tableName = "hymn",
+    foreignKeys = [
+        ForeignKey(
+            entity = RubricDb::class,
+            parentColumns = arrayOf("rubricId"),
+            childColumns = arrayOf("rubricId"),
+            onDelete = ForeignKey.CASCADE,
+        )
+    ],
+)
+data class HymnDb(
+    @PrimaryKey
+    val hymnId: HymnId,
+    val rubricId: RubricId,
+    val numberAndTitle: String,
+    val title: String,
+    val text: String,
+    val copyright: String,
+    val containsCopyright: Int,
+)
+
+data class HymnAndRubric(
+    @Embedded
+    val hymn: HymnDb,
+    @Relation(
+        parentColumn = "rubricId",
+        entityColumn = "rubricId",
+    )
+    val rubric: RubricDb,
+)
 
 data class PersonalHymnDb(
     @Embedded

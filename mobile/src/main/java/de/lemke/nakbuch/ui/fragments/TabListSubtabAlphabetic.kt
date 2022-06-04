@@ -4,8 +4,6 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +12,7 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
@@ -31,17 +30,14 @@ import de.lemke.nakbuch.domain.hymndataUseCases.SetFavoritesFromHymnListUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.ui.TextviewActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class TabListSubtabAlphabetic : Fragment() {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var rootView: View
     private lateinit var buchMode: BuchMode
     private lateinit var hymnsAlphsort: MutableList<Hymn>
@@ -52,11 +48,11 @@ class TabListSubtabAlphabetic : Fragment() {
     private lateinit var viewPager2List: ViewPager2
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private lateinit var showBottomBarJob: Job
     private var selected = HashMap<Int, Boolean>()
     private var selecting = false
     private var checkAllListening = true
-    private val handler = Handler(Looper.getMainLooper())
-    private val showBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
+
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -80,7 +76,7 @@ class TabListSubtabAlphabetic : Fragment() {
         subTabs = activity.findViewById(R.id.sub_tabs)
         mainTabs = activity.findViewById(R.id.main_tabs)
         viewPager2List = activity.findViewById(R.id.viewPager2Lists)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
             hymnsAlphsort = getAllHymnsSortedAlphabetical(buchMode).toMutableList()
             hymnsAlphsort.add(Hymn.hymnPlaceholder)
@@ -117,7 +113,10 @@ class TabListSubtabAlphabetic : Fragment() {
             }
 
             override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
-                handler.postDelayed(showBottomBarRunnable, 300)
+                showBottomBarJob = lifecycleScope.launch {
+                    delay(300)
+                    drawerLayout.showSelectModeBottomBar(true)
+                }
             }
         })
         val divider = TypedValue()
@@ -144,7 +143,7 @@ class TabListSubtabAlphabetic : Fragment() {
                         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
                         dialog.setCancelable(false)
                         dialog.show()
-                        coroutineScope.launch {
+                        lifecycleScope.launch {
                             setFavoritesFromHymnList(hymnsAlphsort, onlySelected, true)
                         }.invokeOnCompletion {
                             dialog.dismiss()
@@ -155,7 +154,7 @@ class TabListSubtabAlphabetic : Fragment() {
                         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
                         dialog.setCancelable(false)
                         dialog.show()
-                        coroutineScope.launch {
+                        lifecycleScope.launch {
                             setFavoritesFromHymnList(hymnsAlphsort, onlySelected, false)
                         }.invokeOnCompletion {
                             dialog.dismiss()
@@ -188,7 +187,7 @@ class TabListSubtabAlphabetic : Fragment() {
             onBackPressedCallback.isEnabled = true
         } else {
             selecting = false
-            handler.removeCallbacks(showBottomBarRunnable)
+            showBottomBarJob.cancel()
             for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeCount(0)

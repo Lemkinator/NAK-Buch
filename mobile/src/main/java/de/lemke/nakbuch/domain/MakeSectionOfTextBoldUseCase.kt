@@ -6,63 +6,63 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import javax.inject.Inject
 
-class MakeSectionOfTextBoldUseCase @Inject constructor(
-    private val getUserSettings: GetUserSettingsUseCase,
-) {
-
-    suspend operator fun invoke(text: String, textToBold: String?, color: Int): SpannableStringBuilder {
-        return invoke(text, textToBold, color, -1)
+class MakeSectionOfTextBoldUseCase @Inject constructor() {
+    operator fun invoke(text: String, textToBold: String?, color: Int, alternativeSearchModeEnabled: Boolean): SpannableStringBuilder {
+        return invoke(text, textToBold?.trim(), color, -1, alternativeSearchModeEnabled)
     }
 
-    suspend operator fun invoke(text: String, textToBold: String?, color:Int, lengthBefore: Int): SpannableStringBuilder {
+    operator fun invoke(
+        text: String,
+        textToBold: String?,
+        color: Int,
+        lengthBefore: Int,
+        alternativeSearchModeEnabled: Boolean
+    ): SpannableStringBuilder {
         if (textToBold != null && textToBold.isNotEmpty()) {
-            if (textToBold.startsWith("\"") && textToBold.endsWith("\"")) {
+            if (textToBold.trim().startsWith("\"") && textToBold.trim().endsWith("\"")) {
                 if (textToBold.length > 2) {
                     val s = textToBold.substring(1, textToBold.length - 1)
-                    return if (getUserSettings().alternativeSearchModeEnabled) {
-                        makeSectionOfTextBold(SpannableStringBuilder(text), hashSetOf(s),color, lengthBefore)
-                    } else {
-                        makeSectionOfTextBold(SpannableStringBuilder(text), HashSet(s.trim().split(" ")),color, lengthBefore)
-                    }
+                    return if (alternativeSearchModeEnabled)
+                        makeSectionOfTextBold(SpannableStringBuilder(text), hashSetOf(s.trim()), color, lengthBefore)
+                    else
+                        makeSectionOfTextBold(SpannableStringBuilder(text), HashSet(s.trim().split(" ")), color, lengthBefore)
                 }
             } else {
-                return if (getUserSettings().alternativeSearchModeEnabled) {
-                    makeSectionOfTextBold(SpannableStringBuilder(text), HashSet(textToBold.trim().split(" ")), color,  lengthBefore)
-                } else {
-                    makeSectionOfTextBold(SpannableStringBuilder(text), hashSetOf(textToBold), color,  lengthBefore)
-                }
+                return if (alternativeSearchModeEnabled)
+                    makeSectionOfTextBold(SpannableStringBuilder(text), HashSet(textToBold.trim().split(" ")), color, lengthBefore)
+                else
+                    makeSectionOfTextBold(SpannableStringBuilder(text), hashSetOf(textToBold.trim()), color, lengthBefore)
             }
         }
         return SpannableStringBuilder(text)
     }
 
     private fun makeSectionOfTextBold(builder: SpannableStringBuilder, textToBold: String, color: Int): SpannableStringBuilder {
-        if (textToBold.isEmpty() || textToBold.trim() == "") {
-            return builder
-        }
-        var testText = builder.toString()
-        if (!testText.contains(textToBold, ignoreCase = true)) {
-            return builder
-        }
-        var startingIndex = testText.indexOf(textToBold, ignoreCase = true)
+        var text = builder.toString()
+        if (textToBold.isEmpty() || !text.contains(textToBold, ignoreCase = true)) return builder
+        var startingIndex = text.indexOf(textToBold, ignoreCase = true)
         var endingIndex = startingIndex + textToBold.length
         var offset = 0 //for multiple replaces
-        var firstSearchIndex = testText.length
+        var firstSearchIndex = text.length
         while (startingIndex >= 0) {
             builder.setSpan(StyleSpan(Typeface.BOLD_ITALIC), offset + startingIndex, offset + endingIndex, 0)
-            builder.setSpan(
-                ForegroundColorSpan(color),
-                offset + startingIndex, offset + endingIndex, 0) //Spanned.SPAN_EXCLUSIVE_EXCLUSIVE );
+            builder.setSpan(ForegroundColorSpan(color), offset + startingIndex, offset + endingIndex, 0)
+            //Spanned.SPAN_EXCLUSIVE_EXCLUSIVE );
             if (startingIndex < firstSearchIndex) firstSearchIndex = startingIndex
-            testText = testText.substring(endingIndex)
+            text = text.substring(endingIndex)
             offset += endingIndex
-            startingIndex = testText.indexOf(textToBold, ignoreCase = true)
+            startingIndex = text.indexOf(textToBold, ignoreCase = true)
             endingIndex = startingIndex + textToBold.length
         }
         return builder
     }
 
-    private fun makeSectionOfTextBold(spannableStringBuilder: SpannableStringBuilder, textsToBold: HashSet<String>, color: Int, lengthBefore: Int): SpannableStringBuilder {
+    private fun makeSectionOfTextBold(
+        spannableStringBuilder: SpannableStringBuilder,
+        textsToBold: HashSet<String>,
+        color: Int,
+        lengthBefore: Int
+    ): SpannableStringBuilder {
         var builder = spannableStringBuilder
         val text = builder.toString()
         var firstSearchIndex = text.length
@@ -72,6 +72,9 @@ class MakeSectionOfTextBoldUseCase @Inject constructor(
                 builder = makeSectionOfTextBold(builder, textItem, color)
             }
         }
-        return if (firstSearchIndex != text.length && lengthBefore >= 0) builder.delete(0, 0.coerceAtLeast(firstSearchIndex - lengthBefore)) else builder
+        return if (firstSearchIndex != text.length && lengthBefore >= 0) builder.delete(
+            0,
+            0.coerceAtLeast(firstSearchIndex - lengthBefore)
+        ) else builder
     }
 }

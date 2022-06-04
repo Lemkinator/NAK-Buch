@@ -4,7 +4,7 @@ class HymnId private constructor(
     val number: Int,
     val buchMode: BuchMode,
 ) {
-    override fun toString():String = "$buchMode: $number"
+    override fun toString(): String = "$buchMode: $number"
 
     fun toInt(): Int {
         return number + buchMode.toInt()
@@ -44,7 +44,8 @@ data class Hymn(
     val numberAndTitle: String,
     val title: String,
     val text: String,
-    val copyright: String
+    val copyright: String,
+    val containsCopyright: Boolean,
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -58,10 +59,11 @@ data class Hymn(
     override fun hashCode(): Int {
         return hymnId.hashCode()
     }
+
     companion object {
         val hymnPlaceholder = Hymn(
             HymnId.hymnIdPlaceholder,
-            Rubric.rubricPlaceholder, "Placeholder", "Placeholder", "Placeholder", "Placeholder"
+            Rubric.rubricPlaceholder, "Placeholder", "Placeholder", "Placeholder", "Placeholder", false
         )
     }
 }

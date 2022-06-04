@@ -11,8 +11,10 @@ class HymnsRepository @Inject constructor(
     private val hymnDao: HymnDao,
     private val rubricDao: RubricDao,
 ) {
+    /* fts with leading wildcard not possible??
     suspend fun search(buchMode: BuchMode, search: String): List<Hymn> =
         hymnDao.search(buchMode.minId, buchMode.maxId, search).map { hymnFromDb(it) }
+        */
 
     suspend fun getAllHymns(buchMode: BuchMode): List<Hymn> =
         hymnDao.getAll(buchMode.minId, buchMode.maxId).map { hymnFromDb(it) }

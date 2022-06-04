@@ -6,7 +6,7 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.HymnId
 import de.lemke.nakbuch.domain.model.PersonalHymn
-import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class HymnDataRepository @Inject constructor(
@@ -17,9 +17,9 @@ class HymnDataRepository @Inject constructor(
 ) {
     suspend fun deleteHistory() = historyDao.deleteAll()
 
-    suspend fun getHistoryList(): List<Pair<Hymn, LocalDate>> = historyDao.getAll().map { historyFromDb(it) }
+    suspend fun getHistoryList(): List<Pair<Hymn, LocalDateTime>> = historyDao.getAll().map { historyFromDb(it) }
 
-    suspend fun addToHistoryList(hymn: Hymn, date: LocalDate) = historyDao.fixedInsert(historyToDb(hymn, date))
+    suspend fun addToHistoryList(hymn: Hymn, date: LocalDateTime) = historyDao.fixedInsert(historyToDb(hymn, date))
 
     suspend fun getPersonalHymn(hymnId: HymnId): PersonalHymn = personalHymnFromDb(
         hymnDataDao.getPersonalHymnByHymnId(hymnId.toInt())

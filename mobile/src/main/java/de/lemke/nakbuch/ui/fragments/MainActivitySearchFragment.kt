@@ -12,6 +12,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
@@ -25,16 +26,11 @@ import de.lemke.nakbuch.domain.hymnUseCases.GetSearchListUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.ui.TextviewActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class MainActivitySearchFragment : Fragment() {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var searchList: MutableList<Hymn>
     private lateinit var rootView: View
     private lateinit var drawerLayout: DrawerLayout
@@ -43,9 +39,14 @@ class MainActivitySearchFragment : Fragment() {
     private lateinit var buchMode: BuchMode
     private lateinit var search: String
 
-    @Inject lateinit var getUserSettings: GetUserSettingsUseCase
-    @Inject lateinit var getSearchList: GetSearchListUseCase
-    @Inject lateinit var makeSectionOfTextBold: MakeSectionOfTextBoldUseCase
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var getSearchList: GetSearchListUseCase
+
+    @Inject
+    lateinit var makeSectionOfTextBold: MakeSectionOfTextBoldUseCase
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         rootView = inflater.inflate(R.layout.fragment_search, container, false)
@@ -56,7 +57,7 @@ class MainActivitySearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         listView = rootView.findViewById(R.id.searchList)
         drawerLayout = requireActivity().findViewById(R.id.drawer_view)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
             search = getUserSettings().search
             initList()
@@ -70,7 +71,6 @@ class MainActivitySearchFragment : Fragment() {
         listView.adapter = imageAdapter
         val divider = TypedValue()
         context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        
         listView.layoutManager = LinearLayoutManager(context)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
@@ -102,16 +102,17 @@ class MainActivitySearchFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             if (holder.isItem) {
-                //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
                 val hymn = searchList[position]
                 val color = MaterialColors.getColor(
                     context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
                     context!!.resources.getColor(R.color.primary_color, context!!.theme)
                 )
-                CoroutineScope(Dispatchers.Main).launch {
-                    holder.textView.text = makeSectionOfTextBold(hymn.numberAndTitle, search, color, -1)
-                    holder.textViewDescription.text = makeSectionOfTextBold(hymn.text.replace("\n", "  "), search, color, 20)
-                    holder.textViewCopyright.text = makeSectionOfTextBold(hymn.copyright, search, color, 5)
+                lifecycleScope.launch {
+                    val alternativeSearchModeEnabled = getUserSettings().alternativeSearchModeEnabled
+                    holder.textView.text = makeSectionOfTextBold(hymn.numberAndTitle, search, color, -1, alternativeSearchModeEnabled)
+                    holder.textViewDescription.text =
+                        makeSectionOfTextBold(hymn.text.replace("\n", "  "), search, color, 20, alternativeSearchModeEnabled)
+                    holder.textViewCopyright.text = makeSectionOfTextBold(hymn.copyright, search, color, 5, alternativeSearchModeEnabled)
                 }
                 holder.parentView.setOnClickListener {
                     startActivity(
@@ -127,8 +128,6 @@ class MainActivitySearchFragment : Fragment() {
             RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
-
-            //ImageView imageView;
             lateinit var textView: TextView
             lateinit var textViewDescription: TextView
             lateinit var textViewCopyright: TextView
@@ -136,7 +135,6 @@ class MainActivitySearchFragment : Fragment() {
             init {
                 if (isItem) {
                     parentView = itemView as RelativeLayout
-                    //imageView = parentView.findViewById(R.id.icon_tab_item_image);
                     textView = parentView.findViewById(R.id.search_tab_item_text)
                     textViewDescription = parentView.findViewById(R.id.search_tab_item_description)
                     textViewCopyright = parentView.findViewById(R.id.search_tab_item_copyright)

@@ -24,11 +24,11 @@ interface HymnDao {
     @Query("DELETE FROM hymn")
     suspend fun deleteAll()
 
-    @Transaction
+    /*@Transaction
     @Query(
         """SELECT * FROM hymn JOIN hymn_fts ON hymn.hymnId = hymn_fts.rowid 
         WHERE 
-        (hymnId BETWEEN :minId AND :maxId) 
+        (hymn_fts.rowid BETWEEN :minId AND :maxId) 
         AND
         (hymn_fts MATCH :search)"""
     )
@@ -39,5 +39,5 @@ interface HymnDao {
         """SELECT * FROM hymn JOIN hymn_fts ON hymn.hymnId = hymn_fts.rowid 
         WHERE hymn_fts MATCH :search """
     )
-    suspend fun search(search: String): List<HymnAndRubric>
+    suspend fun search(search: String): List<HymnAndRubric>*/
 }

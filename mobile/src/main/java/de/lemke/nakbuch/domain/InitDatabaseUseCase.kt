@@ -25,6 +25,7 @@ class InitDatabaseUseCase @Inject constructor(
             if (hymnsRepository.getAllHymns(buchMode).size < buchMode.hymnCount || forceInit)
                 hymnsRepository.addHymns(getAllHymnsFromAssets(buchMode))
         }
+        //TODO create new db prepop
         //setRecentColors(listOf(context.resources.getColor(R.color.primary_color, context.theme)))
         //setHints(context.resources.getStringArray(R.array.hint_values).toSet())
     }
@@ -51,7 +52,8 @@ class InitDatabaseUseCase @Inject constructor(
                 it["hymnTitle"]!!,
                 it["hymnText"]!!.replace("</p><p>", "\n\n").replace("<br>", ""),
                 it["hymnCopyright"]!!.replace("<br>", ""),
-            )
+                it["hymnText"]!!.contains("urheberrechtlich geschützt...", ignoreCase = true)
+                )
         }
     }
 }

@@ -3,7 +3,7 @@ package de.lemke.nakbuch.data.database
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.domain.model.Rubric
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 fun rubricFromDb(rubricDb: RubricDb): Rubric =
     //if (rubricDb == null) null // rubricPlaceholder?
@@ -11,7 +11,7 @@ fun rubricFromDb(rubricDb: RubricDb): Rubric =
         Rubric(
         rubricId = rubricDb.rubricId,
         name = rubricDb.name,
-        isMain = (rubricDb.isMain == 0),
+        isMain = rubricDb.isMain == 0,
     )
 
 fun rubricToDb(rubric: Rubric): RubricDb =
@@ -29,10 +29,11 @@ fun hymnFromDb(hymnDb: HymnDb): Hymn =
         title = hymnDb.title,
         text = hymnDb.text,
         copyright = hymnDb.copyright,
+        containsCopyright = hymnDb.containsCopyright == 1,
     )
 
 fun hymnFromDb(hymnAndRubric: HymnAndRubric?): Hymn =
-    if (hymnAndRubric == null) Hymn.hymnPlaceholder //TODO Sense??
+    if (hymnAndRubric == null) Hymn.hymnPlaceholder
     else Hymn(
         hymnId = hymnAndRubric.hymn.hymnId,
         rubric = rubricFromDb(hymnAndRubric.rubric),
@@ -40,6 +41,7 @@ fun hymnFromDb(hymnAndRubric: HymnAndRubric?): Hymn =
         title = hymnAndRubric.hymn.title,
         text = hymnAndRubric.hymn.text,
         copyright = hymnAndRubric.hymn.copyright,
+        containsCopyright = hymnAndRubric.hymn.containsCopyright == 1
     )
 
 fun hymnToDb(hymn: Hymn): HymnDb =
@@ -50,19 +52,17 @@ fun hymnToDb(hymn: Hymn): HymnDb =
         title = hymn.title,
         text = hymn.text,
         copyright = hymn.copyright,
+        containsCopyright = if (hymn.containsCopyright) 1 else 0,
     )
 
-fun historyFromDb(hymnAndHistory: HymnAndHistory): Pair<Hymn, LocalDate> =
-    Pair(hymnFromDb(hymnAndHistory.hymn), hymnAndHistory.history.date)
+fun historyFromDb(hymnAndHistory: HymnAndHistory): Pair<Hymn, LocalDateTime> =
+    Pair(hymnFromDb(hymnAndHistory.hymn), hymnAndHistory.history.dateTime)
 
-fun historyToDb(hymn: Hymn, date: LocalDate): HistoryDb =
-    HistoryDb(
-        hymnId = hymn.hymnId,
-        date = date
-    )
+fun historyToDb(hymn: Hymn, dateTime: LocalDateTime): HistoryDb =
+    HistoryDb(hymnId = hymn.hymnId, date = dateTime.toLocalDate(), dateTime = dateTime)
 
 fun personalHymnFromDb(hymnAndRubric: HymnAndRubric?, hymnDataDb: HymnDataDb?, sungOnList: List<SungOnDb>, photoList: List<PhotoDb>): PersonalHymn =
-    if (hymnAndRubric == null) PersonalHymn.personalHymnPlaceholder //TODO sense?
+    if (hymnAndRubric == null) PersonalHymn.personalHymnPlaceholder
     else if (hymnDataDb == null) PersonalHymn(hymnFromDb(hymnAndRubric))
     else PersonalHymn(
         hymn = hymnFromDb(hymnAndRubric),
@@ -73,7 +73,7 @@ fun personalHymnFromDb(hymnAndRubric: HymnAndRubric?, hymnDataDb: HymnDataDb?, s
     )
 
 fun personalHymnFromDb(personalHymnDb: PersonalHymnDb?): PersonalHymn =
-    if (personalHymnDb == null) PersonalHymn.personalHymnPlaceholder //TODO sense?
+    if (personalHymnDb == null) PersonalHymn.personalHymnPlaceholder
     else if (personalHymnDb.hymnData == null) PersonalHymn(hymnFromDb(personalHymnDb.hymn))
     else PersonalHymn(
         hymn = hymnFromDb(personalHymnDb.hymn),

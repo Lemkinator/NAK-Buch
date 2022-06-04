@@ -38,7 +38,7 @@ class AboutActivity : AppCompatActivity() {
         aboutPage = findViewById(R.id.about_page)
         aboutPage.setToolbarExpandable(true)
         aboutPage.setUpdateState(AboutPage.LOADING)
-        //LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
+        //status: LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
         appUpdateManager = AppUpdateManagerFactory.create(this)
         aboutPage.setUpdateButtonOnClickListener { startUpdateFlow() }
         aboutPage.setRetryButtonOnClickListener {

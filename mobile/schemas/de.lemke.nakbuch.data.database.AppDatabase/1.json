@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4283058e1881e721173600930774cc65",
+    "identityHash": "487324a498c24632af325ac13fb8d9ff",
     "entities": [
       {
         "tableName": "hymn",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hymnId` INTEGER NOT NULL, `rubricId` INTEGER NOT NULL, `numberAndTitle` TEXT NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `copyright` TEXT NOT NULL, PRIMARY KEY(`hymnId`), FOREIGN KEY(`rubricId`) REFERENCES `rubric`(`rubricId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hymnId` INTEGER NOT NULL, `rubricId` INTEGER NOT NULL, `numberAndTitle` TEXT NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `copyright` TEXT NOT NULL, `containsCopyright` INTEGER NOT NULL, PRIMARY KEY(`hymnId`), FOREIGN KEY(`rubricId`) REFERENCES `rubric`(`rubricId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "hymnId",
@@ -43,6 +43,12 @@
             "columnName": "copyright",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "containsCopyright",
+            "columnName": "containsCopyright",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -65,61 +71,6 @@
             ]
           }
         ]
-      },
-      {
-        "ftsVersion": "FTS4",
-        "ftsOptions": {
-          "tokenizer": "simple",
-          "tokenizerArgs": [],
-          "contentTable": "hymn",
-          "languageIdColumnName": "",
-          "matchInfo": "FTS4",
-          "notIndexedColumns": [],
-          "prefixSizes": [],
-          "preferredOrder": "ASC"
-        },
-        "contentSyncTriggers": [
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_BEFORE_UPDATE BEFORE UPDATE ON `hymn` BEGIN DELETE FROM `hymn_fts` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_BEFORE_DELETE BEFORE DELETE ON `hymn` BEGIN DELETE FROM `hymn_fts` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_AFTER_UPDATE AFTER UPDATE ON `hymn` BEGIN INSERT INTO `hymn_fts`(`docid`, `numberAndTitle`, `title`, `text`, `copyright`) VALUES (NEW.`rowid`, NEW.`numberAndTitle`, NEW.`title`, NEW.`text`, NEW.`copyright`); END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_hymn_fts_AFTER_INSERT AFTER INSERT ON `hymn` BEGIN INSERT INTO `hymn_fts`(`docid`, `numberAndTitle`, `title`, `text`, `copyright`) VALUES (NEW.`rowid`, NEW.`numberAndTitle`, NEW.`title`, NEW.`text`, NEW.`copyright`); END"
-        ],
-        "tableName": "hymn_fts",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`numberAndTitle` TEXT NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `copyright` TEXT NOT NULL, content=`hymn`)",
-        "fields": [
-          {
-            "fieldPath": "numberAndTitle",
-            "columnName": "numberAndTitle",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "title",
-            "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "text",
-            "columnName": "text",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "copyright",
-            "columnName": "copyright",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "rowid"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [],
-        "foreignKeys": []
       },
       {
         "tableName": "hymn_data",
@@ -293,7 +244,7 @@
       },
       {
         "tableName": "history",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `hymnId` INTEGER NOT NULL, `date` TEXT NOT NULL, FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `hymnId` INTEGER NOT NULL, `date` TEXT NOT NULL, `dateTime` TEXT NOT NULL, FOREIGN KEY(`hymnId`) REFERENCES `hymn`(`hymnId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -310,6 +261,12 @@
           {
             "fieldPath": "date",
             "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateTime",
+            "columnName": "dateTime",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -416,7 +373,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4283058e1881e721173600930774cc65')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '487324a498c24632af325ac13fb8d9ff')"
     ]
   }
 }

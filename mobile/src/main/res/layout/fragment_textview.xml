@@ -7,7 +7,7 @@
     android:keepScreenOn="true"
     app:expanded="false">
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_location="main_content">
@@ -162,17 +162,16 @@
 
                     </LinearLayout>
 
-                <nl.dionsegijn.konfetti.xml.KonfettiView
-                    android:id="@+id/konfettiViewTextview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
             </RelativeLayout>
-
 
         </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
 
-    </FrameLayout>
+        <nl.dionsegijn.konfetti.xml.KonfettiView
+            android:id="@+id/konfettiViewTextview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
 
     <de.dlyt.yanndroid.oneui.widget.TabLayout
         android:id="@+id/textView_bnv"

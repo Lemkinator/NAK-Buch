@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
     version = 1,
     entities = [
         HymnDb::class,
-        HymnDbFts::class,
+        //HymnDbFts::class,
         HymnDataDb::class,
         RubricDb::class,
         SungOnDb::class,

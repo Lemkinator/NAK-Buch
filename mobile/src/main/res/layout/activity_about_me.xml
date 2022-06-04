@@ -26,68 +26,6 @@
                 android:layout_marginRight="30dp"
                 android:orientation="vertical">
 
-                <!--com.google.android.material.textview.MaterialTextView
-                    style="?android:listSeparatorTextViewStyle"
-                    android:text="@string/buyMeACoffee" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginVertical="10dp"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/coffeeButtonSmall"
-                        style="@style/ButtonStyle.Filled"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
-                        android:text="Klein"
-                        app:icon="@drawable/ic_oui_like_off" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/coffeeButtonMedium"
-                        style="@style/ButtonStyle.Filled"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
-                        android:text="Mittel"
-                        app:icon="@drawable/ic_oui_favorite_off" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/coffeeButtonLarge"
-                        style="@style/ButtonStyle.Filled"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
-                        android:text="Groß"
-                        app:icon="@drawable/ic_oui3_gift" />
-
-                </LinearLayout>
-
-                <com.google.android.material.textview.MaterialTextView
-                    style="?android:listSeparatorTextViewStyle"
-                    android:text="@string/watchAdHeader" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginVertical="10dp"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/watchAdButton"
-                        style="@style/ButtonStyle.Filled"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/number_button_height"
-                        android:layout_margin="@dimen/number_button_margin"
-                        android:text="@string/watchAd"
-                        app:icon="@drawable/ic_oui_play" />
-
-                </LinearLayout-->
-
                 <com.google.android.material.textview.MaterialTextView
                     style="?android:listSeparatorTextViewStyle"
                     android:text="@string/aboutMe" />

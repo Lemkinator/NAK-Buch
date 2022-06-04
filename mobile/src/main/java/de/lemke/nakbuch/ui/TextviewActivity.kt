@@ -35,8 +35,7 @@ class TextviewActivity : AppCompatActivity() {
         }
     }
 
-    inner class ViewPager2AdapterTextview(
-        fragmentActivity: FragmentActivity, private val hymnId: HymnId, private val boldText: String?
+    inner class ViewPager2AdapterTextview(fragmentActivity: FragmentActivity, private val hymnId: HymnId, private val boldText: String?
     ) : FragmentStateAdapter(fragmentActivity) {
         override fun createFragment(position: Int): Fragment =
             TextviewFragment.newInstance(HymnId.create(position + 1, hymnId.buchMode)!!.toInt(), boldText)

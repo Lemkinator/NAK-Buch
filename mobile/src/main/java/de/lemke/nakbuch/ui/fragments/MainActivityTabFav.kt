@@ -4,8 +4,6 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +12,7 @@ import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
@@ -29,16 +28,14 @@ import de.lemke.nakbuch.domain.hymndataUseCases.SetFavoritesFromPersonalHymnList
 import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.ui.TextviewActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class MainActivityTabFav : Fragment() {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
+    
     private lateinit var buchMode: BuchMode
     private lateinit var favHymns: MutableList<PersonalHymn>
     private lateinit var rootView: View
@@ -49,10 +46,9 @@ class MainActivityTabFav : Fragment() {
     private lateinit var mainTabs: TabLayout
     private lateinit var onBackPressedCallback: OnBackPressedCallback
     private lateinit var selected: HashMap<Int, Boolean>
+    private lateinit var showBottomBarJob: Job
     private var selecting = false
     private var checkAllListening = true
-    private val handler = Handler(Looper.getMainLooper())
-    private val showBottomBarRunnable = Runnable { drawerLayout.showSelectModeBottomBar(true) }
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -75,11 +71,13 @@ class MainActivityTabFav : Fragment() {
         mainTabs = activity.findViewById(R.id.main_tabs)
         swipeRefreshLayout = rootView.findViewById(R.id.tabFavSwipeRefresh)
         listView = rootView.findViewById(R.id.favHymnList)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             swipeRefreshLayout.isRefreshing = true
             swipeRefreshLayout.setOnRefreshListener { initList() }
             onBackPressedCallback = object : OnBackPressedCallback(false) {
-                override fun handleOnBackPressed() { setSelecting(false) }
+                override fun handleOnBackPressed() {
+                    setSelecting(false)
+                }
             }
             activity.onBackPressedDispatcher.addCallback(onBackPressedCallback)
         }
@@ -87,7 +85,7 @@ class MainActivityTabFav : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        coroutineScope.launch {
+        lifecycleScope.launch {
             swipeRefreshLayout.isRefreshing = true
             buchMode = getUserSettings().buchMode
             favHymns = getFavoriteHymns(buchMode).toMutableList()
@@ -119,7 +117,10 @@ class MainActivityTabFav : Fragment() {
             }
 
             override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
-                handler.postDelayed(showBottomBarRunnable, 300)
+                showBottomBarJob = lifecycleScope.launch {
+                    delay(300)
+                    drawerLayout.showSelectModeBottomBar(true)
+                }
             }
         })
         val divider = TypedValue()
@@ -136,7 +137,7 @@ class MainActivityTabFav : Fragment() {
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
                 if (item.itemId == R.id.menuButtonRemove) {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         swipeRefreshLayout.isRefreshing = true
                         setFavoritesFromList(favHymns.filterIndexed { index, personalHymn ->
                             !selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
@@ -171,6 +172,7 @@ class MainActivityTabFav : Fragment() {
             onBackPressedCallback.isEnabled = true
         } else {
             selecting = false
+            showBottomBarJob.cancel()
             for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
             drawerLayout.setSelectModeCount(0)

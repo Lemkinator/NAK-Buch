@@ -7,9 +7,8 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -23,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -47,13 +47,11 @@ import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.model.BuchMode
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -61,8 +59,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         var colorSettingChanged = false
     }
 
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private var currentTab = 0
     private var previousTab = 0
     private var currentFragment: Fragment? = null
@@ -102,7 +98,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     @Inject
     lateinit var mute: MuteUseCase
 
-    @Inject lateinit var doNotDisturb: DoNotDisturbUseCase
+    @Inject
+    lateinit var doNotDisturb: DoNotDisturbUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,7 +114,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         fragmentManager = supportFragmentManager
         ViewSupport.semSetRoundedCorners(window.decorView, 0)
 
-        coroutineScope.launch {
+        lifecycleScope.launch {
             when (checkAppStart()) {
                 AppStart.FIRST_TIME -> {}
                 AppStart.FIRST_TIME_VERSION -> {}
@@ -152,14 +149,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 R.id.mute -> if (!mute())
                     Toast.makeText(this@MainActivity, this@MainActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
                 R.id.dnd -> doNotDisturb()
-                //R.id.info -> startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java))
-                //R.id.settings -> startActivity(Intent().setClass(this@MainActivity,SettingsActivity::class.java))
             }
             true
         }
         drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener() {
             override fun onSearchOpened(search_edittext: EditText) {
-                searchJob = coroutineScope.launch {
+                searchJob = lifecycleScope.launch {
                     search_edittext.setText(getUserSettings().search)
                     search_edittext.setSelection(0, search_edittext.text.length)
                 }
@@ -178,7 +173,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             override fun afterTextChanged(s: Editable) {
                 var searchText = s.toString()
                 searchJob.cancel()
-                searchJob = coroutineScope.launch {
+                searchJob = lifecycleScope.launch {
                     if (getUserSettings().easterEggsEnabled) {
                         if (searchText.replace(" ", "").equals("easteregg", ignoreCase = true)) {
                             discoverEasterEgg(konfettiView, R.string.easterEggEntrySearch)
@@ -195,7 +190,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
             override fun onKeyboardSearchClick(s: CharSequence) {
                 searchJob.cancel()
-                searchJob = coroutineScope.launch {
+                searchJob = lifecycleScope.launch {
                     updateUserSettings { it.copy(search = s.toString()) }
                     setFragment(3)
                 }
@@ -208,19 +203,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         optionGroup.setOnOptionButtonClickListener { _: OptionButton, checkedId: Int, _: Int ->
             when (checkedId) {
                 R.id.ob_gesangbuch -> {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         buchMode = updateUserSettings { it.copy(buchMode = BuchMode.Gesangbuch) }.buchMode
                         setCurrentItem()
                     }
                 }
                 R.id.ob_chorbuch -> {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         buchMode = updateUserSettings { it.copy(buchMode = BuchMode.Chorbuch) }.buchMode
                         setCurrentItem()
                     }
                 }
                 R.id.ob_jugendliederbuch -> {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         buchMode = updateUserSettings { it.copy(buchMode = BuchMode.Jugendliederbuch) }.buchMode
                         setCurrentItem()
                     }
@@ -245,13 +240,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .setMessage(R.string.searchHelp)
                 .setNeutralButton(R.string.ok, null)
                 .setNegativeButton(R.string.standardSearchMode) { _: DialogInterface, _: Int ->
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         AlertDialog.Builder(this@MainActivity)
                             .setTitle(getString(R.string.setStandardSearchMode))
                             .setNeutralButton(R.string.ok, null)
                             .setSingleChoiceItems(searchModes, if (getUserSettings().alternativeSearchModeEnabled) 1 else 0)
                             { _: DialogInterface, i: Int ->
-                                coroutineScope.launch { updateUserSettings { it.copy(alternativeSearchModeEnabled = (i == 1)) } }
+                                lifecycleScope.launch { updateUserSettings { it.copy(alternativeSearchModeEnabled = (i == 1)) } }
                             }
                             .show()
                     }
@@ -261,7 +256,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     if (currentTab != 0) {
                         currentTab = 0
                         setCurrentItem()
@@ -274,7 +269,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                             }
                         } else finishAffinity()
                     }
-
                 }
             }
         }
@@ -306,16 +300,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             colorSettingChanged = false
             recreate()
         }
-        coroutineScope.launch {
-            /* TODO does mode change somewhere else?
-            val newBuchMode = getUserSettings().buchMode
-            if (!::buchMode.isInitialized) {
-                buchMode = newBuchMode
-                setCurrentItem()
-            } else if (newBuchMode != buchMode) {
-                buchMode = newBuchMode
-                setCurrentItem()
-            }*/
+        lifecycleScope.launch {
             val hints = getHints().toMutableSet()
             if (hints.remove("appIntroduction")) {
                 setHints(hints)
@@ -327,10 +312,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     .setMessage(getString(R.string.appHintText))
                     .setNegativeButton(getString(R.string.dontShowAgain)) { _: DialogInterface?, _: Int ->
                         hints.remove("appHint")
-                        coroutineScope.launch { setHints(hints) }
+                        lifecycleScope.launch { setHints(hints) }
                     }
                     .setPositiveButton(getString(R.string.ok), null)
-                    .setOnDismissListener { coroutineScope.launch { easterEggDialog() } }
+                    .setOnDismissListener { lifecycleScope.launch { easterEggDialog() } }
                     .create()
                     .show()
 
@@ -376,7 +361,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 fragmentManager.beginTransaction().attach(fragment).commitAllowingStateLoss()
             }
         } else {
-            //Toast.makeText(applicationContext, "New instance for " + mTabsClassName[tabPosition], Toast.LENGTH_SHORT).show()
+            Log.d("MainActivity setFragment","New instance for " + mTabsClassName[tabPosition])
             try {
                 currentFragment = Class.forName(mTabsClassName[tabPosition]).newInstance() as Fragment
             } catch (e: Exception) {
@@ -393,13 +378,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .setTitle(getString(R.string.easterEggs))
                 .setMessage(getString(R.string.easterEggsText))
                 .setNegativeButton(getString(R.string.deactivate)) { dialogInterface: DialogInterface, _: Int ->
-                    coroutineScope.launch { updateUserSettings { it.copy(easterEggsEnabled = false) } }
-                    Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
+                    lifecycleScope.launch {
+                        updateUserSettings { it.copy(easterEggsEnabled = false) }
+                        delay(700)
+                        dialogInterface.dismiss()
+                    }
                 }
                 .setPositiveButton(getString(R.string.ok), null)
                 .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
                 .setNegativeButtonProgress(true)
-                .setOnDismissListener { coroutineScope.launch { showTipPopup() } }
+                .setOnDismissListener { lifecycleScope.launch { showTipPopup() } }
                 .create()
                 .show()
             updateUserSettings { it.copy(showEasterEggHint = false) }
@@ -439,28 +427,29 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private suspend fun showTipPopup() {
         if (getUserSettings().showMainTips) {
             updateUserSettings { it.copy(showMainTips = false) }
-            Handler(Looper.getMainLooper()).postDelayed({
-                try {
-                    initTipPopup()
-                    val drawerButtonView =
-                        drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
-                    val outLocation = IntArray(2)
-                    drawerButtonView.getLocationOnScreen(outLocation)
-                    tipPopupDrawer.setTargetPosition(
-                        outLocation[0] + drawerButtonView.width / 2,
-                        outLocation[1] + drawerButtonView.height / 2 + resources.getDimensionPixelSize(de.dlyt.yanndroid.oneui.R.dimen.sesl_action_button_icon_size)
-                    )
-                    tipPopupDrawer.show(TipPopup.DIRECTION_BOTTOM_RIGHT)
-                } catch (e: Exception) { // still crashing? : android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
-                    e.printStackTrace()
-                }
-            }, 50)
+            try {
+                initTipPopup()
+                val drawerButtonView =
+                    drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
+                val outLocation = IntArray(2)
+                drawerButtonView.getLocationOnScreen(outLocation)
+                tipPopupDrawer.setTargetPosition(
+                    outLocation[0] + drawerButtonView.width / 2,
+                    outLocation[1] + drawerButtonView.height / 2 + resources.getDimensionPixelSize(de.dlyt.yanndroid.oneui.R.dimen.sesl_action_button_icon_size)
+                )
+                tipPopupDrawer.show(TipPopup.DIRECTION_BOTTOM_RIGHT)
+            } catch (e: Exception) {
+                // android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
+                e.printStackTrace()
+            }
         }
     }
 
 
-    //Dialog samples:
-    @Suppress("UNUSED_PARAMETER", "unused")
+    /* *********************
+     * Dialog samples:
+     * ********************/
+    @Suppress("unused_parameter", "unused")
     fun classicColorPickerDialog(view: View?) {
         val mClassicColorPickerDialog: ClassicColorPickerDialog
         val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
@@ -478,7 +467,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    @Suppress("UNUSED_PARAMETER", "unused")
+    @Suppress("unused_parameter", "unused")
     fun detailedColorPickerDialog(view: View?) {
         val mDetailedColorPickerDialog: DetailedColorPickerDialog
         val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
@@ -496,18 +485,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    @Suppress("UNUSED_PARAMETER", "unused")
+    @Suppress("unused_parameter", "unused")
     fun standardDialog(view: View?) {
         val dialog = AlertDialog.Builder(this)
             .setTitle("Title")
             .setMessage("Message")
             .setNeutralButton("Maybe", null)
-            .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
-                Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
-            }
-            .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
-                Handler(Looper.getMainLooper()).postDelayed({ dialogInterface.dismiss() }, 700)
-            }
+            .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
+            .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
             .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
             .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, this@MainActivity.theme))
             .setPositiveButtonProgress(true)
@@ -516,7 +501,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         dialog.show()
     }
 
-    @Suppress("UNUSED_PARAMETER", "unused")
+    @Suppress("unused_parameter", "unused")
     fun singleChoiceDialog(view: View?) {
         val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
         AlertDialog.Builder(this)
@@ -528,7 +513,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .show()
     }
 
-    @Suppress("UNUSED_PARAMETER", "unused")
+    @Suppress("unused_parameter", "unused")
     fun multiChoiceDialog(view: View?) {
         val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
         val booleans = booleanArrayOf(true, false, true)
@@ -541,7 +526,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .show()
     }
 
-    @Suppress("UNUSED_PARAMETER", "unused")
+    @Suppress("unused_parameter", "unused")
     fun progressDialog(view: View) {
         val dialog = ProgressDialog(this)
         dialog.isIndeterminate = true
@@ -554,7 +539,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         dialog.show()
     }
 
-    @Suppress("UNUSED_PARAMETER", "unused")
+    @Suppress("unused_parameter", "unused")
     private fun progressDialogCircleOnly(view: View) {
         val dialog = ProgressDialog(this)
         dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)

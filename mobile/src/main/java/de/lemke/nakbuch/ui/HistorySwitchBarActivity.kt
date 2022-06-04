@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.allViews
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.SwitchBarLayout
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
@@ -29,30 +30,28 @@ import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
 import de.lemke.nakbuch.domain.hymndataUseCases.GetHistoryListUseCase
 import de.lemke.nakbuch.domain.hymndataUseCases.ResetHistoryUseCase
 import de.lemke.nakbuch.domain.model.Hymn
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
-    private lateinit var history: MutableList<Pair<Hymn, LocalDate>>
+    private lateinit var history: MutableList<Pair<Hymn, LocalDateTime>>
     private lateinit var listView: RecyclerView
     private lateinit var switchBarLayout: SwitchBarLayout
     private var enabled: Boolean = true
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
+
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
+
     @Inject
     lateinit var resetHistory: ResetHistoryUseCase
+
     @Inject
     lateinit var getHistoryList: GetHistoryListUseCase
 
@@ -67,7 +66,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
         switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
         switchBarLayout.setOnToolbarMenuItemClickListener {
-            coroutineScope.launch {
+            lifecycleScope.launch {
                 resetHistory()
                 initList()
             }
@@ -76,15 +75,15 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     }
 
     override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
-        coroutineScope.launch {
-            enabled = updateUserSettings{ it.copy(historyEnabled = z) }.historyEnabled
+        lifecycleScope.launch {
+            enabled = updateUserSettings { it.copy(historyEnabled = z) }.historyEnabled
             initList()
         }
     }
 
     public override fun onResume() {
         super.onResume()
-        coroutineScope.launch {
+        lifecycleScope.launch {
             enabled = getUserSettings().historyEnabled
             switchBarLayout.switchBar.isChecked = enabled
             initList()
@@ -93,7 +92,7 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
 
     private suspend fun initList() {
         history = getHistoryList().toMutableList()
-        history.add(Pair(Hymn.hymnPlaceholder, LocalDate.MIN))
+        history.add(Pair(Hymn.hymnPlaceholder, LocalDateTime.MIN))
         listView.adapter = ImageAdapter()
         val divider = TypedValue()
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
@@ -130,30 +129,17 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
             }
         }
 
-        override fun getSections(): Array<Any> {
-            return sections.toTypedArray()
-        }
+        override fun getSections(): Array<Any> = sections.toTypedArray()
 
-        override fun getPositionForSection(i: Int): Int {
-            return if (positionForSection.size > 0) positionForSection[i] else 0
-        }
+        override fun getPositionForSection(i: Int): Int = if (positionForSection.size > 0) positionForSection[i] else 0
 
-        override fun getSectionForPosition(i: Int): Int {
-            return if (sectionForPosition.size > 0) sectionForPosition[i] else 0
-        }
+        override fun getSectionForPosition(i: Int): Int = if (sectionForPosition.size > 0) sectionForPosition[i] else 0
 
-        override fun getItemCount(): Int {
-            return history.size
-        }
+        override fun getItemCount(): Int = history.size
 
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
+        override fun getItemId(position: Int): Long = position.toLong()
 
-        override fun getItemViewType(position: Int): Int {
-            return if (history[position].first != Hymn.hymnPlaceholder) 0
-            else 1
-        }
+        override fun getItemViewType(position: Int): Int = if (history[position].first != Hymn.hymnPlaceholder) 0 else 1
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
@@ -169,13 +155,16 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val hymnPair = history[position]
             if (holder.isItem) {
-                //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                holder.textView.text = hymnPair.second.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)) +
+                holder.textView.text = hymnPair.second.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)) +
                         ": (" + hymnPair.first.hymnId.buchMode.toCompactString() + ") " + hymnPair.first.numberAndTitle
                 holder.parentView.setOnClickListener {
-                    coroutineScope.launch {
-                        //updateUserSettings{ it.copy(buchMode = hymnPair.first.hymnId.buchMode) } //change Mode here? no
-                        startActivity(Intent(this@HistorySwitchBarActivity, TextviewActivity::class.java).putExtra("hymnId", hymnPair.first.hymnId.toInt()))
+                    lifecycleScope.launch {
+                        startActivity(
+                            Intent(this@HistorySwitchBarActivity, TextviewActivity::class.java).putExtra(
+                                "hymnId",
+                                hymnPair.first.hymnId.toInt()
+                            )
+                        )
                     }
                 }
                 holder.parentView.allViews.forEach { view -> view.isEnabled = enabled }
@@ -185,14 +174,11 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
-
-            //ImageView imageView;
             lateinit var textView: TextView
 
             init {
                 if (isItem) {
                     parentView = itemView as RelativeLayout
-                    //imageView = parentView.findViewById(R.id.icon_tab_item_image);
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
                 }
             }

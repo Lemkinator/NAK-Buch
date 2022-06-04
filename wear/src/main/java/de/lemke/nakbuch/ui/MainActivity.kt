@@ -10,6 +10,7 @@ import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.activity.ConfirmationActivity
 import com.google.android.material.button.MaterialButton
@@ -18,15 +19,11 @@ import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.model.BuchMode
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val coroutineContext = Dispatchers.Main
-    private val coroutineScope = CoroutineScope(coroutineContext)
     private lateinit var buchMode: BuchMode
     private lateinit var hymnNrInput: String
     private lateinit var tvHymnNrTitle: TextView
@@ -60,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         tvHymnNrTitle = findViewById(R.id.hymnTitlePreview)
         buttonSwitchMode = findViewById(R.id.buttonSwitchMode)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
             hymnNrInput = getUserSettings().number
             previewHymn(hymnNrInput)
@@ -87,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             }
             updateButtonSwitchMode()
             buttonSwitchMode.setOnClickListener {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     buchMode = if (buchMode == BuchMode.Gesangbuch) BuchMode.Chorbuch else BuchMode.Gesangbuch
                     updateUserSettings {it.copy(buchMode = buchMode)}
                     updateButtonSwitchMode()
@@ -130,11 +127,12 @@ class MainActivity : AppCompatActivity() {
     private fun previewInput() {
         refreshHandler.removeCallbacks(refreshRunnable)
         tvHymnNrTitle.text = hymnNrInput
+        //TODO replace handler with coroutine + delay
         refreshHandler.postDelayed(refreshRunnable, 1500)
     }
 
     private fun previewHymn(nr: String) {
-        coroutineScope.launch {
+        lifecycleScope.launch {
             val hymnNr = nr.toIntOrNull()
             if (hymnNr != null && hymnNr > 0 && hymnNr < getHymnCount(buchMode)) {
                     val hymn = getHymn(buchMode, hymnNr)
@@ -151,7 +149,7 @@ class MainActivity : AppCompatActivity() {
     private fun showHymn(nr: String) {
             val hymnNr = nr.toIntOrNull()
             if (hymnNr != null && hymnNr > 0 && hymnNr < getHymnCount(buchMode)) {
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     val hymn = getHymn(buchMode, hymnNr)
                     startActivity(
                         Intent(this@MainActivity, TextviewActivity::class.java)
@@ -165,7 +163,7 @@ class MainActivity : AppCompatActivity() {
 
     inner class Receiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            coroutineScope.launch {
+            lifecycleScope.launch {
                 if (setPrivateTexts(intent)) recreate()
             }
         }

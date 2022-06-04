@@ -1,5 +1,6 @@
 package de.lemke.nakbuch.domain.hymnUseCases
 
+import android.util.Log
 import de.lemke.nakbuch.data.HymnsRepository
 import de.lemke.nakbuch.domain.GetUserSettingsUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
@@ -19,17 +20,17 @@ class GetSearchListUseCase @Inject constructor(
         return@withContext if (search.isNullOrBlank()) emptyList()
         else if (search.startsWith("\"") && search.endsWith("\"") && search.length > 2) {
             val newSearch = search.substring(1, search.length - 1)
-            hymnsRepository.search(buchMode, sanitizeSearchQuery(newSearch))
-            /*if (getUserSettings().alternativeSearchModeEnabled)
+            //fts with leading wildcard not working :( //hymnsRepository.search(buchMode, sanitizeSearchQuery(newSearch))
+            if (getUserSettings().alternativeSearchModeEnabled)
                 hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, setOf(newSearch)) }
             else
-                hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, newSearch.trim().split(" ").toSet()) }*/
+                hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, newSearch.trim().split(" ").toSet()) }
         } else {
-            hymnsRepository.search(buchMode, sanitizeSearchQuery(search))
-            /*if (getUserSettings().alternativeSearchModeEnabled)
+            //hymnsRepository.search(buchMode, sanitizeSearchQuery(search))
+            if (getUserSettings().alternativeSearchModeEnabled)
                 hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, search.trim().split(" ").toSet()) }
             else
-                hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, setOf(search)) }*/
+                hymnsRepository.getAllHymns(buchMode).filter { hymnContainsKeywords(it, setOf(search)) }
         }
     }
 
@@ -38,13 +39,14 @@ class GetSearchListUseCase @Inject constructor(
             if (hymn.text.contains(search, ignoreCase = true) ||
                 hymn.title.contains(search, ignoreCase = true) ||
                 hymn.copyright.contains(search, ignoreCase = true)
-            )
-                return true
+            ) return true
         }
         return false
     }
 
     private fun sanitizeSearchQuery(query: String): String {
-        return "*${query.replace(Regex.fromLiteral("\""), "\"\"")}*"
+        val newQuery = ":*${query.replace(Regex.fromLiteral("\""), "\"\"")}:*"
+        Log.d("test", newQuery)
+        return newQuery
     }
 }

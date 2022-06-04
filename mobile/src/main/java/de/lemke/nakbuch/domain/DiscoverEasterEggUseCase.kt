@@ -1,13 +1,12 @@
 package de.lemke.nakbuch.domain
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.data.UserSettingsRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import nl.dionsegijn.konfetti.core.*
 import nl.dionsegijn.konfetti.core.emitter.Emitter
@@ -25,37 +24,31 @@ class DiscoverEasterEggUseCase @Inject constructor(
         invoke(konfettiView, context.getString(easterEggEntryNameResourceId))
 
     suspend operator fun invoke(konfettiView: KonfettiView, easterEggEntryName: String) {
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.Main) {
             if (getUserSettings().easterEggsEnabled) {
                 if (userSettingsRepository.discoverEasterEgg(easterEggEntryName)) {
-                    withContext(Dispatchers.Main) {
-                        showKonfetti(konfettiView)
                         Toast.makeText(context, context.getString(R.string.easterEggDiscovered) + easterEggEntryName, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                        showKonfetti(konfettiView)
+                } else Toast.makeText(context, context.getString(R.string.easterEggAlreadyDiscovered), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun showKonfetti(konfettiView: KonfettiView) {
+    private suspend fun showKonfetti(konfettiView: KonfettiView) {
         konfettiView.start(party1())
-        Handler(Looper.getMainLooper()).postDelayed(
-            { konfettiView.start(party2()) },
-            400L
-        )
-        Handler(Looper.getMainLooper()).postDelayed(
-            { konfettiView.start(party3()) },
-            800L
-        )
+        delay(300)
+        konfettiView.start(party2())
+        delay(300)
+        konfettiView.start(party3())
     }
 
     @Suppress("unused")
     private fun party(): List<Party> = listOf(party1(), party2(), party3())
 
-    private fun party1(): Party { //TODO WE NEED MORE KONFETTIIIII!!!!
+    private fun party1(): Party {
         return Party(
             speed = 0f,
-            maxSpeed = 50f,
+            maxSpeed = 70f,
             damping = 0.9f,
             angle = Angle.TOP,
             spread = 360,
@@ -63,7 +56,7 @@ class DiscoverEasterEggUseCase @Inject constructor(
             timeToLive = 3000L,
             rotation = Rotation(),
             colors = listOf(0xffcd2e, 0xff261f, 0x0fff2b, 0xaa00ff, 0x0400ff), //listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
-            emitter = Emitter(duration = 200, TimeUnit.MILLISECONDS).max(100),
+            emitter = Emitter(duration = 200, TimeUnit.MILLISECONDS).max(180),
             position = Position.Relative(0.2, 0.2)
             //.shapes(Arrays.asList(Shape.Square.INSTANCE, Shape.Circle.INSTANCE, new Shape.DrawableShape(), true))
         )

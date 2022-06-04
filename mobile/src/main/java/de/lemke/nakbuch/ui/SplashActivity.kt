@@ -3,11 +3,10 @@ package de.lemke.nakbuch.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
@@ -15,18 +14,14 @@ import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.InitDatabaseUseCase
 import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var initDatabaseJob: Job
     private lateinit var splashView: SplashView
     //private var launchCanceled = false
@@ -42,7 +37,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         splashView = findViewById(R.id.splash)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             val buchMode = BuchMode.fromInt(intent.getIntExtra("buchMode", -1))
             if (buchMode != null) {
                 updateUserSettings { it.copy(buchMode = buchMode) }
@@ -57,7 +52,10 @@ class SplashActivity : AppCompatActivity() {
             override fun onAnimationStart(animation: Animation) {}
             override fun onAnimationEnd(animation: Animation) {
                 if (!initDatabaseJob.isCompleted)
-                    Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
+                    lifecycleScope.launch {
+                        delay(300)
+                        splashView.startSplashAnimation()
+                    }
                 else
                 //if (!launchCanceled)
                     launchApp()
@@ -81,7 +79,10 @@ class SplashActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         //if (launchCanceled) launchApp()
-        Handler(Looper.getMainLooper()).postDelayed({ splashView.startSplashAnimation() }, 300)
+        lifecycleScope.launch {
+            delay(300)
+            splashView.startSplashAnimation()
+        }
     }
 
     private fun launchApp() {

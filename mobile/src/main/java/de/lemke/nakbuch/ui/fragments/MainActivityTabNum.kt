@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.nakbuch.R
@@ -21,12 +22,9 @@ import de.lemke.nakbuch.ui.TextviewActivity
 import kotlinx.coroutines.*
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class MainActivityTabNum : Fragment() {
-    private val coroutineContext: CoroutineContext = Dispatchers.Main
-    private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
     private lateinit var rootView: View
     private lateinit var konfettiView: KonfettiView
     private lateinit var buchMode: BuchMode
@@ -61,7 +59,7 @@ class MainActivityTabNum : Fragment() {
         tvHymnText = rootView.findViewById(R.id.hymnTextPreview)
         val switchSideButton1 = rootView.findViewById<MaterialButton>(R.id.switchSideButton1)
         val switchSideButton2 = rootView.findViewById<MaterialButton>(R.id.switchSideButton2)
-        coroutineScope.launch {
+        lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
             if (getUserSettings().numberFieldRightSide) {
                 switchSideButton2.visibility = View.GONE
@@ -73,14 +71,14 @@ class MainActivityTabNum : Fragment() {
             hymnNrInput = getUserSettings().number
             tvHymnNrTitle.text = hymnNrInput
             inputOngoingJob = CoroutineScope(Dispatchers.Default).launch { inputOngoing = false }
-            inputOngoingJob.invokeOnCompletion { coroutineScope.launch { previewHymn() } }
+            inputOngoingJob.invokeOnCompletion { lifecycleScope.launch { previewHymn() } }
             switchSideButton1.setOnClickListener {
-                coroutineScope.launch { updateUserSettings { it.copy(numberFieldRightSide = false) } }
+                lifecycleScope.launch { updateUserSettings { it.copy(numberFieldRightSide = false) } }
                 switchSideButton1.visibility = View.GONE
                 switchSideButton2.visibility = View.VISIBLE
             }
             switchSideButton2.setOnClickListener {
-                coroutineScope.launch { updateUserSettings { it.copy(numberFieldRightSide = true) } }
+                lifecycleScope.launch { updateUserSettings { it.copy(numberFieldRightSide = true) } }
                 switchSideButton2.visibility = View.GONE
                 switchSideButton1.visibility = View.VISIBLE
             }
@@ -109,8 +107,8 @@ class MainActivityTabNum : Fragment() {
                 inputOngoing = true
                 previewHymn()
             }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_ok).setOnClickListener { coroutineScope.launch { openHymn() } }
-            tvHymnText.setOnClickListener { coroutineScope.launch { openHymn() } }
+            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_ok).setOnClickListener { lifecycleScope.launch { openHymn() } }
+            tvHymnText.setOnClickListener { lifecycleScope.launch { openHymn() } }
         }
     }
 
@@ -134,11 +132,11 @@ class MainActivityTabNum : Fragment() {
     private fun previewHymn() {
         inputOngoingJob.cancel()
         inputOngoingJob = CoroutineScope(Dispatchers.Default).launch {
-            delay(3000L) //TODO timing
+            delay(3000) //TODO timing
             inputOngoing = false
         }
         tvHymnNrTitle.text = hymnNrInput
-        coroutineScope.launch {
+        lifecycleScope.launch {
             if (hymnNrInput == "666") discoverEasterEgg(konfettiView, R.string.easterEggEntry666)
             if (hymnNrInput == "999") discoverEasterEgg(konfettiView, R.string.easterEggEntry999)
             if (hymnNrInput == "0" || hymnNrInput == "00" || hymnNrInput == "000") discoverEasterEgg(konfettiView, R.string.easterEggEntry0)

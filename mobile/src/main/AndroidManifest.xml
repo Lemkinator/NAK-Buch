@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-    <!--package="de.lemke.nakbuch"
-    Early 2022 (Gradle 7.2): Should be moved to build.gradle but "Extract String ressource" from context actions not working if missing here!?? :/ -->
+    xmlns:tools="http://schemas.android.com/tools"
+    package="de.lemke.nakbuch">
+    <!--Gradle 7.2: package should be moved to build.gradle but "Extract String ressource" from context actions not working if missing here-->
 
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- uses-permission android:name="com.android.vending.BILLING" / -->
 
     <!--
     TODO
-        database fts???
-        recycler: duplicate code?
-        coroutines optimization (order, nested coroutines?)
+        android app search leading wildcard?
 
-        xml konfetti on top?
-
-        (save to Google Drive?)
         (new Android 12 Splashscreen)
         (theme color) currently not supported
 
@@ -32,7 +27,7 @@
 
     <application
         android:name=".App"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_launcher"

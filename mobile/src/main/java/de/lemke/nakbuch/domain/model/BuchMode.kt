@@ -128,7 +128,7 @@ enum class BuchMode {
     val minId: Int get() = this.toInt()
 
     companion object {
-        const val intStep = 1000
+        const val intStep = 10000
         fun fromInt(mode: Int?): BuchMode? = when (mode) {
             0 * intStep -> Gesangbuch
             1 * intStep -> Chorbuch

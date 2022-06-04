@@ -22,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTre
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.util.SeslMisc
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
@@ -35,12 +36,9 @@ import de.lemke.nakbuch.data.Quality
 import de.lemke.nakbuch.data.Resolution
 import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.hymnUseCases.SetPrivateTextsUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
@@ -59,8 +57,6 @@ class SettingsActivity : AppCompatActivity() {
 
     @AndroidEntryPoint
     class SettingsFragment : PreferenceFragment(), Preference.OnPreferenceChangeListener {
-        private val coroutineContext: CoroutineContext = Dispatchers.Main
-        private val coroutineScope: CoroutineScope = CoroutineScope(coroutineContext)
         private lateinit var settingsActivity: SettingsActivity
         private var lastTimeVersionClicked: Long = 0
         private var clickCounter = 0
@@ -123,7 +119,7 @@ class SettingsActivity : AppCompatActivity() {
             super.onCreate(bundle)
             lastTimeVersionClicked = System.currentTimeMillis()
             pickTextsActivityResultLauncher = registerForActivityResult(GetMultipleContents()) { result: List<Uri>? ->
-                coroutineScope.launch {
+                lifecycleScope.launch {
                     val dialog = ProgressDialog(settingsActivity)
                     dialog.isIndeterminate = false
                     dialog.setTitle("Eigene LiedTexte werden hinzugefügt...")
@@ -168,13 +164,13 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.value = if (SeslMisc.isLightTheme(settingsActivity)) "0" else "1"
             autoDarkModePref.onPreferenceChangeListener = this
             autoDarkModePref.isChecked = darkMode == ThemeUtil.DARK_MODE_AUTO
-            coroutineScope.launch {
+            lifecycleScope.launch {
                 val recentColors = getRecentColors().toMutableList()
                 for (recent_color in recentColors) colorPickerPref.onColorSet(recent_color)
                 colorPickerPref.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _: Preference?, colorInt: Any ->
                         recentColors.add(colorInt as Int)
-                        coroutineScope.launch { setRecentColors(recentColors) }
+                        lifecycleScope.launch { setRecentColors(recentColors) }
                         val color = Color.valueOf(colorInt)
                         ThemeUtil.setColor(settingsActivity, color.red(), color.green(), color.blue())
                         MainActivity.colorSettingChanged = true
@@ -197,7 +193,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
             confirmExitPref.onPreferenceChangeListener = this
             hintsPref.onPreferenceChangeListener = this
-            coroutineScope.launch { hintsPref.values = getHints() }
+            lifecycleScope.launch { hintsPref.values = getHints() }
             resolutionPref.onPreferenceChangeListener = this
             qualityPref.onPreferenceChangeListener = this
             findPreference<Preference>("shortcut_gesangbuch")!!.onPreferenceClickListener =
@@ -217,9 +213,7 @@ class SettingsActivity : AppCompatActivity() {
                         settingsActivity.packageName,
                         0
                     ).versionName
-            } catch (nnfe: NameNotFoundException) {
-                nnfe.printStackTrace()
-            }
+            } catch (nnfe: NameNotFoundException) { nnfe.printStackTrace() }
             versionHiddenMenuPref.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
                     if (System.currentTimeMillis() - lastTimeVersionClicked < 400) {
@@ -243,7 +237,7 @@ class SettingsActivity : AppCompatActivity() {
                                             pickTextsActivityResultLauncher.launch("text/plain")
                                             dialogInterface.dismiss()
                                         }
-                                        1 -> coroutineScope.launch {
+                                        1 -> lifecycleScope.launch {
                                             initDataBase(forceInit = true).invokeOnCompletion { dialogInterface.dismiss() }
                                         }
                                         2 -> {
@@ -284,7 +278,7 @@ class SettingsActivity : AppCompatActivity() {
                 override fun onCancelClicked(view: View) {
                     tipCard!!.isVisible = false
                     tipCardSpacing?.isVisible = false
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         val hints: MutableSet<String> = getHints().toMutableSet()
                         hints.remove("tipcard")
                         hintsPref.values = hints
@@ -292,9 +286,7 @@ class SettingsActivity : AppCompatActivity() {
                     }
                 }
 
-                override fun onViewClicked(view: View) {
-                    startActivity(Intent(settingsActivity, HelpActivity::class.java))
-                }
+                override fun onViewClicked(view: View) { startActivity(Intent(settingsActivity, HelpActivity::class.java)) }
             })
         }
 
@@ -304,11 +296,10 @@ class SettingsActivity : AppCompatActivity() {
                 val pinShortcutInfo = ShortcutInfo.Builder(settingsActivity, id).build()
                 val pinnedShortcutCallbackIntent = shortcutManager.createShortcutResultIntent(pinShortcutInfo)
                 val successCallback: PendingIntent =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                         PendingIntent.getBroadcast(settingsActivity, 0, pinnedShortcutCallbackIntent, PendingIntent.FLAG_MUTABLE)
-                    } else {
+                    else
                         PendingIntent.getBroadcast(settingsActivity, 0, pinnedShortcutCallbackIntent, 0)
-                    }
                 shortcutManager.requestPinShortcut(pinShortcutInfo, successCallback.intentSender)
             }
             return true
@@ -317,16 +308,13 @@ class SettingsActivity : AppCompatActivity() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             requireView().setBackgroundColor(
-                resources.getColor(
-                    de.dlyt.yanndroid.oneui.R.color.item_background_color,
-                    settingsActivity.theme
-                )
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.item_background_color, settingsActivity.theme)
             )
         }
 
         override fun onStart() {
             super.onStart()
-            coroutineScope.launch {
+            lifecycleScope.launch {
                 confirmExitPref.isChecked = getUserSettings().confirmExit
                 easterEggsPref.isChecked = getUserSettings().easterEggsEnabled
                 historyPref.isChecked = getUserSettings().historyEnabled
@@ -354,25 +342,23 @@ class SettingsActivity : AppCompatActivity() {
                     if (newValue as Boolean) {
                         darkModePref.isEnabled = false
                         ThemeUtil.setDarkMode(settingsActivity, ThemeUtil.DARK_MODE_AUTO)
-                    } else {
-                        darkModePref.isEnabled = true
-                    }
+                    } else darkModePref.isEnabled = true
                     return true
                 }
                 "confirmExit" -> {
-                    coroutineScope.launch { updateUserSettings { it.copy(confirmExit = newValue as Boolean) } }
+                    lifecycleScope.launch { updateUserSettings { it.copy(confirmExit = newValue as Boolean) } }
                     return true
                 }
                 "historyEnabled" -> {
-                    coroutineScope.launch { updateUserSettings { it.copy(historyEnabled = newValue as Boolean) } }
+                    lifecycleScope.launch { updateUserSettings { it.copy(historyEnabled = newValue as Boolean) } }
                     return true
                 }
                 "easterEggsEnabled" -> {
-                    coroutineScope.launch { updateUserSettings { it.copy(easterEggsEnabled = newValue as Boolean) } }
+                    lifecycleScope.launch { updateUserSettings { it.copy(easterEggsEnabled = newValue as Boolean) } }
                     return true
                 }
                 "hints" -> {
-                    coroutineScope.launch {
+                    lifecycleScope.launch {
                         val hintSet = newValue as MutableSet<String>
                         setHints(hintSet)
                         hintsPref.values = hintSet
@@ -390,7 +376,7 @@ class SettingsActivity : AppCompatActivity() {
                         getString(R.string.veryHigh) -> Resolution.VERY_HIGH
                         else -> Resolution.MEDIUM
                     }
-                    coroutineScope.launch { updateUserSettings { it.copy(photoResolution = resolution) } }
+                    lifecycleScope.launch { updateUserSettings { it.copy(photoResolution = resolution) } }
                     return true
                 }
                 "imgQuality" -> {
@@ -402,7 +388,7 @@ class SettingsActivity : AppCompatActivity() {
                         getString(R.string.veryHigh) -> Quality.VERY_HIGH
                         else -> Quality.MEDIUM
                     }
-                    coroutineScope.launch { updateUserSettings { it.copy(photoQuality = quality) } }
+                    lifecycleScope.launch { updateUserSettings { it.copy(photoQuality = quality) } }
                     return true
                 }
             }
