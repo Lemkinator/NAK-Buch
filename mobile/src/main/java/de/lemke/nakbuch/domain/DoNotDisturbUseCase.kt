@@ -27,9 +27,7 @@ class DoNotDisturbUseCase @Inject constructor(
                 notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
                 Toast.makeText(context, context.getString(R.string.dndActivated), Toast.LENGTH_LONG).show()
             }
-        } else {
-            showNotificationAccessMissing()
-        }
+        } else showNotificationAccessMissing()
     }
 
     private fun showNotificationAccessMissing() {
@@ -50,18 +48,8 @@ class DoNotDisturbUseCase @Inject constructor(
                     e.printStackTrace()
                 }
             }
-            .setNegativeButtonColor(
-                context.resources.getColor(
-                    de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
-                    null
-                )
-            )
-            .setPositiveButtonColor(
-                context.resources.getColor(
-                    de.dlyt.yanndroid.oneui.R.color.sesl_functional_green,
-                    null
-                )
-            )
+            .setNegativeButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, null))
+            .setPositiveButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, null))
             .create()
         dialog.show()
     }

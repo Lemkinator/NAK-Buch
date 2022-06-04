@@ -173,7 +173,7 @@ class SettingsActivity : AppCompatActivity() {
                         lifecycleScope.launch { setRecentColors(recentColors) }
                         val color = Color.valueOf(colorInt)
                         ThemeUtil.setColor(settingsActivity, color.red(), color.green(), color.blue())
-                        MainActivity.colorSettingChanged = true
+                        MainActivity.refreshView = true
                         true
                     }
             }
@@ -236,9 +236,11 @@ class SettingsActivity : AppCompatActivity() {
                                         0 -> {
                                             pickTextsActivityResultLauncher.launch("text/plain")
                                             dialogInterface.dismiss()
+                                            MainActivity.refreshView = true
                                         }
                                         1 -> lifecycleScope.launch {
                                             initDataBase(forceInit = true).invokeOnCompletion { dialogInterface.dismiss() }
+                                            MainActivity.refreshView = true
                                         }
                                         2 -> {
                                             pickFolderActivityResultLauncher.launch(

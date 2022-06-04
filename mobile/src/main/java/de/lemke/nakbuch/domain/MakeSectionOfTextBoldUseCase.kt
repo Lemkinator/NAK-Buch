@@ -7,9 +7,8 @@ import android.text.style.StyleSpan
 import javax.inject.Inject
 
 class MakeSectionOfTextBoldUseCase @Inject constructor() {
-    operator fun invoke(text: String, textToBold: String?, color: Int, alternativeSearchModeEnabled: Boolean): SpannableStringBuilder {
-        return invoke(text, textToBold?.trim(), color, -1, alternativeSearchModeEnabled)
-    }
+    operator fun invoke(text: String, textToBold: String?, color: Int, alternativeSearchModeEnabled: Boolean): SpannableStringBuilder =
+        invoke(text, textToBold?.trim(), color, -1, alternativeSearchModeEnabled)
 
     operator fun invoke(
         text: String,
@@ -72,9 +71,8 @@ class MakeSectionOfTextBoldUseCase @Inject constructor() {
                 builder = makeSectionOfTextBold(builder, textItem, color)
             }
         }
-        return if (firstSearchIndex != text.length && lengthBefore >= 0) builder.delete(
-            0,
-            0.coerceAtLeast(firstSearchIndex - lengthBefore)
-        ) else builder
+        return if (firstSearchIndex != text.length && lengthBefore >= 0)
+            builder.delete(0, 0.coerceAtLeast(firstSearchIndex - lengthBefore))
+        else builder
     }
 }

@@ -82,32 +82,22 @@ class MainActivityTabNum : Fragment() {
                 switchSideButton2.visibility = View.GONE
                 switchSideButton1.visibility = View.VISIBLE
             }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_0)
-                .setOnClickListener { addToHymnNrInput("0") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_1)
-                .setOnClickListener { addToHymnNrInput("1") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_2)
-                .setOnClickListener { addToHymnNrInput("2") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_3)
-                .setOnClickListener { addToHymnNrInput("3") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_4)
-                .setOnClickListener { addToHymnNrInput("4") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_5)
-                .setOnClickListener { addToHymnNrInput("5") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_6)
-                .setOnClickListener { addToHymnNrInput("6") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_7)
-                .setOnClickListener { addToHymnNrInput("7") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_8)
-                .setOnClickListener { addToHymnNrInput("8") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_9)
-                .setOnClickListener { addToHymnNrInput("9") }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_z).setOnClickListener {
+            rootView.findViewById<View>(R.id.b_0).setOnClickListener { addToHymnNrInput("0") }
+            rootView.findViewById<View>(R.id.b_1).setOnClickListener { addToHymnNrInput("1") }
+            rootView.findViewById<View>(R.id.b_2).setOnClickListener { addToHymnNrInput("2") }
+            rootView.findViewById<View>(R.id.b_3).setOnClickListener { addToHymnNrInput("3") }
+            rootView.findViewById<View>(R.id.b_4).setOnClickListener { addToHymnNrInput("4") }
+            rootView.findViewById<View>(R.id.b_5).setOnClickListener { addToHymnNrInput("5") }
+            rootView.findViewById<View>(R.id.b_6).setOnClickListener { addToHymnNrInput("6") }
+            rootView.findViewById<View>(R.id.b_7).setOnClickListener { addToHymnNrInput("7") }
+            rootView.findViewById<View>(R.id.b_8).setOnClickListener { addToHymnNrInput("8") }
+            rootView.findViewById<View>(R.id.b_9).setOnClickListener { addToHymnNrInput("9") }
+            rootView.findViewById<View>(R.id.b_z).setOnClickListener {
                 hymnNrInput = if (hymnNrInput.isNotEmpty()) hymnNrInput.substring(0, hymnNrInput.length - 1) else ""
                 inputOngoing = true
                 previewHymn()
             }
-            this@MainActivityTabNum.rootView.findViewById<View>(R.id.b_ok).setOnClickListener { lifecycleScope.launch { openHymn() } }
+            rootView.findViewById<View>(R.id.b_ok).setOnClickListener { lifecycleScope.launch { openHymn() } }
             tvHymnText.setOnClickListener { lifecycleScope.launch { openHymn() } }
         }
     }
@@ -150,7 +140,7 @@ class MainActivityTabNum : Fragment() {
                 updateUserSettings { it.copy(number = "") }
                 tvHymnNrTitle.text = ""
                 tvHymnText.text = ""
-                this@MainActivityTabNum.hymnNrInput = ""
+                hymnNrInput = ""
             }
         }
     }

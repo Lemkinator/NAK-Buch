@@ -7,12 +7,12 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import javax.inject.Inject
 
 class OpenBischoffAppUseCase @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val openApp: OpenAppUseCase,
 ) {
-    operator fun invoke(buchMode: BuchMode) {
-        OpenAppUseCase(context)(
-            context.getString(if (buchMode == BuchMode.Gesangbuch) R.string.bischoffGesangbuchPackageName else R.string.bischoffChorbuchPackageName),
-            true
-        )
+    operator fun invoke(buchMode: BuchMode) = when (buchMode) {
+        BuchMode.Gesangbuch -> openApp(context.getString(R.string.bischoffGesangbuchPackageName), true)
+        BuchMode.Chorbuch -> openApp(context.getString(R.string.bischoffChorbuchPackageName), true)
+        else -> {} //No official app, do nothing
     }
 }

@@ -10,9 +10,7 @@ import javax.inject.Inject
 class GetHymnUseCase @Inject constructor(
     private val hymnsRepository: HymnsRepository,
 ) {
-    suspend operator fun invoke(hymnId: HymnId): Hymn =
-        withContext(Dispatchers.Default) {
-            hymnsRepository.getHymnByNumber(hymnId)
-        }
-
+    suspend operator fun invoke(hymnId: HymnId): Hymn = withContext(Dispatchers.Default) {
+        hymnsRepository.getHymnByNumber(hymnId)
+    }
 }

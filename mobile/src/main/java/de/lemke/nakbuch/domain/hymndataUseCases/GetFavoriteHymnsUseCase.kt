@@ -11,7 +11,6 @@ class GetFavoriteHymnsUseCase @Inject constructor(
     private val hymnDataRepository: HymnDataRepository,
 ) {
     suspend operator fun invoke(buchMode: BuchMode): List<PersonalHymn> = withContext(Dispatchers.Default) {
-        return@withContext hymnDataRepository.getAllPersonalHymns(buchMode).filter { it.favorite}
+        hymnDataRepository.getAllPersonalHymns(buchMode).filter { it.favorite }
     }
-
 }

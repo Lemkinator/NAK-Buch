@@ -69,7 +69,8 @@
         <TipsCardViewPreference
             android:key="tip_card_preference"
             android:summary="@string/appHintText"
-            android:title="@string/appHint" />
+            android:title="@string/appHint"
+            android:visibility="gone"/>
         <PreferenceCategory android:key="spacing_tip_card" />
 
         <MultiSelectListPreference

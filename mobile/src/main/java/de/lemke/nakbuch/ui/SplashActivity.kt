@@ -22,9 +22,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
-    private lateinit var initDatabaseJob: Job
+    private var initDatabaseJob: Job? = null
     private lateinit var splashView: SplashView
-    //private var launchCanceled = false
+    private var launchCanceled = false
 
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
@@ -50,37 +50,30 @@ class SplashActivity : AppCompatActivity() {
         }
         splashView.setSplashAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation) {}
+            override fun onAnimationRepeat(animation: Animation) {}
             override fun onAnimationEnd(animation: Animation) {
-                if (!initDatabaseJob.isCompleted)
+                if (!initDatabaseJob!!.isCompleted)
                     lifecycleScope.launch {
                         delay(300)
                         splashView.startSplashAnimation()
                     }
-                else
-                //if (!launchCanceled)
-                    launchApp()
+                else if (!launchCanceled) launchApp()
             }
-
-            override fun onAnimationRepeat(animation: Animation) {}
         })
-
-        initDatabaseJob = initDatabase()
-        /*initDatabaseJob.invokeOnCompletion {
-            splashView.startSplashAnimation()
-        }*/
-
     }
 
     override fun onPause() {
         super.onPause()
-        //launchCanceled = true
+        launchCanceled = true
     }
 
     override fun onResume() {
         super.onResume()
-        //if (launchCanceled) launchApp()
+        launchCanceled = false
+        initDatabaseJob?.cancel()
+        initDatabaseJob = initDatabase()
         lifecycleScope.launch {
-            delay(300)
+            delay(400)
             splashView.startSplashAnimation()
         }
     }

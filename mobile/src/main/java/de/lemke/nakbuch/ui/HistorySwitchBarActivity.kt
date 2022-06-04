@@ -27,8 +27,8 @@ import de.dlyt.yanndroid.oneui.widget.SwitchBar
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.GetUserSettingsUseCase
 import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
-import de.lemke.nakbuch.domain.hymndataUseCases.GetHistoryListUseCase
-import de.lemke.nakbuch.domain.hymndataUseCases.ResetHistoryUseCase
+import de.lemke.nakbuch.domain.GetHistoryListUseCase
+import de.lemke.nakbuch.domain.ResetHistoryUseCase
 import de.lemke.nakbuch.domain.model.Hymn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime

@@ -23,16 +23,15 @@ class DiscoverEasterEggUseCase @Inject constructor(
     suspend operator fun invoke(konfettiView: KonfettiView, easterEggEntryNameResourceId: Int) =
         invoke(konfettiView, context.getString(easterEggEntryNameResourceId))
 
-    suspend operator fun invoke(konfettiView: KonfettiView, easterEggEntryName: String) {
-        withContext(Dispatchers.Main) {
-            if (getUserSettings().easterEggsEnabled) {
-                if (userSettingsRepository.discoverEasterEgg(easterEggEntryName)) {
-                        Toast.makeText(context, context.getString(R.string.easterEggDiscovered) + easterEggEntryName, Toast.LENGTH_SHORT).show()
-                        showKonfetti(konfettiView)
-                } else Toast.makeText(context, context.getString(R.string.easterEggAlreadyDiscovered), Toast.LENGTH_SHORT).show()
-            }
+    suspend operator fun invoke(konfettiView: KonfettiView, easterEggEntryName: String) = withContext(Dispatchers.Main) {
+        if (getUserSettings().easterEggsEnabled) {
+            if (userSettingsRepository.discoverEasterEgg(easterEggEntryName)) {
+                Toast.makeText(context, context.getString(R.string.easterEggDiscovered) + easterEggEntryName, Toast.LENGTH_SHORT).show()
+                showKonfetti(konfettiView)
+            } else Toast.makeText(context, context.getString(R.string.easterEggAlreadyDiscovered), Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private suspend fun showKonfetti(konfettiView: KonfettiView) {
         konfettiView.start(party1())

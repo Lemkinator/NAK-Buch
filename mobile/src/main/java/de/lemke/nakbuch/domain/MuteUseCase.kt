@@ -11,36 +11,16 @@ class MuteUseCase @Inject constructor(
 ) {
     operator fun invoke(): Boolean {
         val audioManager = context.getSystemService(AppCompatActivity.AUDIO_SERVICE) as AudioManager
-        try {
+        return try {
             val audioManagerFlag = AudioManager.FLAG_SHOW_UI
-            audioManager.adjustStreamVolume(
-                AudioManager.STREAM_NOTIFICATION,
-                AudioManager.ADJUST_MUTE,
-                audioManagerFlag
-            )
-            audioManager.adjustStreamVolume(
-                AudioManager.STREAM_ALARM,
-                AudioManager.ADJUST_MUTE,
-                audioManagerFlag
-            )
-            audioManager.adjustStreamVolume(
-                AudioManager.STREAM_RING,
-                AudioManager.ADJUST_MUTE,
-                audioManagerFlag
-            )
-            audioManager.adjustStreamVolume(
-                AudioManager.STREAM_SYSTEM,
-                AudioManager.ADJUST_MUTE,
-                audioManagerFlag
-            )
-            audioManager.adjustStreamVolume(
-                AudioManager.STREAM_MUSIC,
-                AudioManager.ADJUST_MUTE,
-                audioManagerFlag
-            )
-            return true
+            audioManager.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, audioManagerFlag)
+            audioManager.adjustStreamVolume(AudioManager.STREAM_ALARM, AudioManager.ADJUST_MUTE, audioManagerFlag)
+            audioManager.adjustStreamVolume(AudioManager.STREAM_RING, AudioManager.ADJUST_MUTE, audioManagerFlag)
+            audioManager.adjustStreamVolume(AudioManager.STREAM_SYSTEM, AudioManager.ADJUST_MUTE, audioManagerFlag)
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, audioManagerFlag)
+            true
         } catch (se: SecurityException) {
-            return false
+            false
         }
     }
 }

@@ -5,9 +5,7 @@ import androidx.room.*
 @Dao
 interface HymnDao {
     @Transaction
-    suspend fun insert(hymns: List<HymnDb>) {
-        hymns.forEach { insert(it) }
-    }
+    suspend fun insert(hymns: List<HymnDb>) { hymns.forEach { insert(it) } }
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)

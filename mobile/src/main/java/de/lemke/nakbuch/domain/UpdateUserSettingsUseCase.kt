@@ -10,6 +10,6 @@ class UpdateUserSettingsUseCase @Inject constructor(
     private val userSettingsRepository: UserSettingsRepository,
 ) {
     suspend operator fun invoke(f: (UserSettings) -> UserSettings) = withContext(Dispatchers.Default) {
-        return@withContext userSettingsRepository.updateSettings(f)
+        userSettingsRepository.updateSettings(f)
     }
 }

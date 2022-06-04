@@ -17,18 +17,16 @@ class CompressJPGUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
     private val getUserSettings: GetUserSettingsUseCase,
 ) {
-    suspend operator fun invoke(origin: Uri , destination: Uri) {
+    suspend operator fun invoke(origin: Uri, destination: Uri) = withContext(Dispatchers.Default) {
         Log.d("Compressor", "Compressing file: " + origin.toFile().absolutePath)
-        withContext(Dispatchers.Default) {
-            val resolution = getUserSettings().photoResolution.value
-            val quality = getUserSettings().photoQuality.value
-            Compressor.compress(context, origin.toFile()) {
-                resolution(resolution, resolution)
-                quality(quality)
-                size(2_097_152) // 2 MB
-                format(Bitmap.CompressFormat.JPEG)
-                destination(destination.toFile()) //File(currentFolder.absolutePath, file.name))
-            }
+        val resolution = getUserSettings().photoResolution.value
+        val quality = getUserSettings().photoQuality.value
+        Compressor.compress(context, origin.toFile()) {
+            resolution(resolution, resolution)
+            quality(quality)
+            size(2_097_152) // 2 MB
+            format(Bitmap.CompressFormat.JPEG)
+            destination(destination.toFile())
         }
     }
 }

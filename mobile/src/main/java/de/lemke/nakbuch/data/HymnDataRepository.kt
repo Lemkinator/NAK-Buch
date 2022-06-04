@@ -21,9 +21,7 @@ class HymnDataRepository @Inject constructor(
 
     suspend fun addToHistoryList(hymn: Hymn, date: LocalDateTime) = historyDao.fixedInsert(historyToDb(hymn, date))
 
-    suspend fun getPersonalHymn(hymnId: HymnId): PersonalHymn = personalHymnFromDb(
-        hymnDataDao.getPersonalHymnByHymnId(hymnId.toInt())
-    )
+    suspend fun getPersonalHymn(hymnId: HymnId): PersonalHymn = personalHymnFromDb(hymnDataDao.getPersonalHymnByHymnId(hymnId.toInt()))
 
     suspend fun getAllPersonalHymns(buchMode: BuchMode): List<PersonalHymn> =
         hymnDataDao.getAllPersonalHymns(buchMode.minId, buchMode.maxId).map { personalHymnFromDb(it) }

@@ -1,10 +1,12 @@
 package de.lemke.nakbuch.data.database
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 @Dao
 interface HistoryDao {
-
     suspend fun fixedInsert(history: HistoryDb) {
         insert(history)
         if (countEntries() > 4000) deleteLastEntry()
@@ -13,7 +15,6 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(history: HistoryDb)
 
-    @Transaction
     @Query("SELECT * FROM history ORDER BY dateTime DESC;")
     suspend fun getAll(): List<HymnAndHistory>
 

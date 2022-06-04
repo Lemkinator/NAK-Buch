@@ -17,8 +17,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object
- PersistenceModule : Application() {
-
+PersistenceModule : Application() {
     private val Context.userSettingsStore: DataStore<Preferences> by preferencesDataStore(name = "userSettings")
 
     @Provides
@@ -32,52 +31,30 @@ object
     fun provideAppDatabase(
         @ApplicationContext context: Context,
     ): AppDatabase = Room.databaseBuilder(context, AppDatabase::class.java, "app")
-        //.createFromAsset("databases/app.db")
-        /*.addCallback(object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                db.execSQL("INSERT INTO hymn_fts(hymn_fts) VALUES ('rebuild')")
-            }
-        })*/
-        .apply {
-            if (BuildConfig.DEBUG) fallbackToDestructiveMigration()
-        }
+        .createFromAsset("databases/app-v1.db")
+        .apply { if (BuildConfig.DEBUG) fallbackToDestructiveMigration() }
         .build()
 
     @Provides
-    fun provideRubricDao(
-        database: AppDatabase,
-    ): RubricDao = database.rubricDao()
+    fun provideRubricDao(database: AppDatabase): RubricDao = database.rubricDao()
 
     @Provides
-    fun provideHymnDao(
-        database: AppDatabase,
-    ): HymnDao = database.hymnDao()
+    fun provideHymnDao(database: AppDatabase): HymnDao = database.hymnDao()
 
     @Provides
-    fun provideHymnDataDao(
-        database: AppDatabase,
-    ): HymnDataDao = database.hymnDataDao()
+    fun provideHymnDataDao(database: AppDatabase): HymnDataDao = database.hymnDataDao()
 
     @Provides
-    fun provideHistoryDao(
-        database: AppDatabase,
-    ): HistoryDao = database.historyDao()
+    fun provideHistoryDao(database: AppDatabase): HistoryDao = database.historyDao()
 
     @Provides
-    fun provideSungOnDao(
-        database: AppDatabase,
-    ):  SungOnDao = database.sungOnDao()
+    fun provideSungOnDao(database: AppDatabase): SungOnDao = database.sungOnDao()
 
     @Provides
-    fun providePhotoDao(
-        database: AppDatabase,
-    ):  PhotoDao = database.photoDao()
+    fun providePhotoDao(database: AppDatabase): PhotoDao = database.photoDao()
 
     @Provides
-    fun provideSettingsDao(
-        database: AppDatabase,
-    ):  SettingsDao = database.settingsDao()
+    fun provideSettingsDao(database: AppDatabase): SettingsDao = database.settingsDao()
 }
 
 

@@ -19,9 +19,7 @@ data class PersonalHymn(
         return true
     }
 
-    override fun hashCode(): Int {
-        return hymn.hashCode()
-    }
+    override fun hashCode(): Int = hymn.hashCode()
 
     companion object {
         val personalHymnPlaceholder = PersonalHymn(Hymn.hymnPlaceholder)

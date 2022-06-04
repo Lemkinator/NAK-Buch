@@ -9,6 +9,6 @@ class GetUserSettingsUseCase @Inject constructor(
     private val userSettingsRepository: UserSettingsRepository,
 ) {
     suspend operator fun invoke() = withContext(Dispatchers.Default) {
-        return@withContext userSettingsRepository.getSettings()
+        userSettingsRepository.getSettings()
     }
 }

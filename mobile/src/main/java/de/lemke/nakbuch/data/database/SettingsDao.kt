@@ -22,7 +22,6 @@ interface SettingsDao {
 
 
 
-
     @Insert(onConflict = OnConflictStrategy.IGNORE,)
     suspend fun insertHint(hint: HintDb)
 
@@ -38,7 +37,6 @@ interface SettingsDao {
 
     @Query("DELETE FROM hints WHERE hint = :hint")
     suspend fun deleteHint(hint: String)
-
 
 
 

@@ -6,8 +6,6 @@ import de.lemke.nakbuch.domain.model.Rubric
 import java.time.LocalDateTime
 
 fun rubricFromDb(rubricDb: RubricDb): Rubric =
-    //if (rubricDb == null) null // rubricPlaceholder?
-    //else
         Rubric(
         rubricId = rubricDb.rubricId,
         name = rubricDb.name,
@@ -60,17 +58,6 @@ fun historyFromDb(hymnAndHistory: HymnAndHistory): Pair<Hymn, LocalDateTime> =
 
 fun historyToDb(hymn: Hymn, dateTime: LocalDateTime): HistoryDb =
     HistoryDb(hymnId = hymn.hymnId, date = dateTime.toLocalDate(), dateTime = dateTime)
-
-fun personalHymnFromDb(hymnAndRubric: HymnAndRubric?, hymnDataDb: HymnDataDb?, sungOnList: List<SungOnDb>, photoList: List<PhotoDb>): PersonalHymn =
-    if (hymnAndRubric == null) PersonalHymn.personalHymnPlaceholder
-    else if (hymnDataDb == null) PersonalHymn(hymnFromDb(hymnAndRubric))
-    else PersonalHymn(
-        hymn = hymnFromDb(hymnAndRubric),
-        favorite = hymnDataDb.favorite == 1,
-        notes = hymnDataDb.notes,
-        sungOnList = sungOnList.map { it.date },
-        photoList = photoList.map { it.uri },
-    )
 
 fun personalHymnFromDb(personalHymnDb: PersonalHymnDb?): PersonalHymn =
     if (personalHymnDb == null) PersonalHymn.personalHymnPlaceholder

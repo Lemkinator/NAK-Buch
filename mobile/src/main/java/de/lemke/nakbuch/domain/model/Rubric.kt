@@ -4,9 +4,9 @@ class RubricId private constructor(
     val index: Int,
     val buchMode: BuchMode,
 ) {
-    fun toInt(): Int {
-        return index + buchMode.toInt()
-    }
+    fun toInt(): Int = index + buchMode.toInt()
+
+    override fun hashCode(): Int = toInt()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -16,24 +16,15 @@ class RubricId private constructor(
         return true
     }
 
-    override fun hashCode(): Int {
-        return toInt()
-    }
-
     companion object {
         val rubricIdPlaceholder = RubricId(-1, BuchMode.Gesangbuch)
-        fun create(index: Int, buchMode: BuchMode): RubricId? {
-            if (index < 0 || index >= buchMode.rubricListItemList.size) return null
-            if (index < 0 || index >= buchMode.rubricTitlesList.size) return null
-            return RubricId(index, buchMode)
-        }
+        fun create(index: Int, buchMode: BuchMode?): RubricId? =
+            if (buchMode == null || index < 0 || index >= buchMode.rubricListItemList.size || index >= buchMode.rubricTitlesList.size) null
+            else RubricId(index, buchMode)
 
-        fun create(rubricIdInt: Int): RubricId? {
-            if (rubricIdInt < 0) return null
-            val index = rubricIdInt.mod(BuchMode.intStep)
-            val buchMode = BuchMode.fromHymnId(rubricIdInt) ?: return null
-            return create(index, buchMode)
-        }
+        fun create(rubricIdInt: Int): RubricId? =
+            if (rubricIdInt < 0) null
+            else create(rubricIdInt.mod(BuchMode.intStep), BuchMode.fromHymnId(rubricIdInt))
     }
 }
 
@@ -57,18 +48,13 @@ data class Rubric(
         return true
     }
 
-    override fun hashCode(): Int {
-        return rubricId.hashCode()
-    }
+    override fun hashCode(): Int = rubricId.hashCode()
+
     companion object {
         val rubricPlaceholder = Rubric(RubricId.rubricIdPlaceholder, "Placeholder", true)
     }
 }
 
-private fun isMainRubric(rubricId: RubricId): Boolean {
-    return rubricId.buchMode.rubricListItemList[rubricId.index] == 0
-}
+private fun isMainRubric(rubricId: RubricId): Boolean = rubricId.buchMode.rubricListItemList[rubricId.index] == 0
 
-private fun getRubricName(rubricId: RubricId): String {
-    return rubricId.buchMode.rubricTitlesList[rubricId.index]
-}
+private fun getRubricName(rubricId: RubricId): String = rubricId.buchMode.rubricTitlesList[rubricId.index]

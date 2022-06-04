@@ -17,7 +17,6 @@ class UserSettingsRepository @Inject constructor(
     private val settingsDao: SettingsDao,
 ) {
 
-
     /** Returns the current user settings. */
     suspend fun getSettings(): UserSettings = dataStore.data.map(::settingsFromPreferences).first()
 

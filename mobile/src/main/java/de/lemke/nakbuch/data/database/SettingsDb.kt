@@ -11,13 +11,7 @@ data class RecentColorsDb(
 )
 
 @Entity(tableName = "hints")
-data class HintDb(
-    @PrimaryKey
-    val hint: String,
-)
+data class HintDb(@PrimaryKey val hint: String)
 
 @Entity(tableName = "discovered_eastereggs")
-data class EasterEggsDb(
-    @PrimaryKey
-    val easterEgg: String,
-)
+data class EasterEggsDb(@PrimaryKey val easterEgg: String)

@@ -106,6 +106,7 @@ class MainActivity : AppCompatActivity() {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(Receiver(), IntentFilter(Intent.ACTION_SEND))
 
+        //TODO better handling of square/round
         //if (resources.configuration.isScreenRound) { }
     }
 
@@ -163,9 +164,7 @@ class MainActivity : AppCompatActivity() {
 
     inner class Receiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            lifecycleScope.launch {
-                if (setPrivateTexts(intent)) recreate()
-            }
+            lifecycleScope.launch { if (setPrivateTexts(intent)) recreate() }
         }
     }
 }

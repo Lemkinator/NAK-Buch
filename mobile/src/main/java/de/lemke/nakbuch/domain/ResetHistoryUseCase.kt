@@ -1,4 +1,4 @@
-package de.lemke.nakbuch.domain.hymndataUseCases
+package de.lemke.nakbuch.domain
 
 import de.lemke.nakbuch.data.HymnDataRepository
 import kotlinx.coroutines.Dispatchers

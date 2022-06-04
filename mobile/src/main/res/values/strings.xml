@@ -7,7 +7,7 @@
     <string name="preferenceFileHymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>
     <string name="email" translatable="false">apps@lemkinator.com</string>
     <string name="myWebsite" translatable="false">https://www.lemkinator.com</string>
-    <string name="privacyWebsite" translatable="false">https://www.lemkinator.com/nakbuch-datenschutz</string>
+    <string name="privacyWebsite" translatable="false">https://www.lemkinator.com/nakbuch-privacy-policy</string>
     <string name="playStoreAppLink" translatable="false">market://details?id=</string>
     <string name="playStoreLink" translatable="false">https://play.google.com/store/apps/details?id=</string>
     <string name="oneUiLibaryGithub" translatable="false">OneUI-Project Github</string>
@@ -213,7 +213,7 @@
     <string name="deletePhoto">Foto löschen</string>
     <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
     <string name="contact">Kontakt</string>
-    <string name="easterEggAlreadyDiscovered">Denkst wohl das funktioniert nochmal? :D</string>
+    <string name="easterEggAlreadyDiscovered">Denkst wohl das funktioniert nochmal? &#128514;</string>
 
 
 </resources>

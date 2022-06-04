@@ -9,9 +9,7 @@ import javax.inject.Inject
 class SetFavoritesFromPersonalHymnListUseCase @Inject constructor(
     private val hymnDataRepository: HymnDataRepository,
 ) {
-    suspend operator fun invoke(personalHymnList: List<PersonalHymn>) {
-        withContext(Dispatchers.Default) {
-            hymnDataRepository.setPersonalHymnsWithoutLists(personalHymnList)
-        }
+    suspend operator fun invoke(personalHymnList: List<PersonalHymn>) = withContext(Dispatchers.Default) {
+        hymnDataRepository.setPersonalHymnsWithoutLists(personalHymnList)
     }
 }

@@ -22,54 +22,51 @@ class SetPrivateTextsUseCase @Inject constructor(
     private val hymnsRepository: HymnsRepository,
     @ApplicationContext private val context: Context,
 ) {
-    suspend operator fun invoke(result: List<Uri>?): String {
-        return withContext(Dispatchers.Default) {
-            when {
-                result == null -> return@withContext "Fehler: Keine passende Datei erkannt"
-                result.isEmpty() -> return@withContext "Kein Inhalt ausgewählt"
-                else -> {
-                    val ok = StringBuilder()
-                    for (uri in result) {
-                        var fileName: String? = null
-                        if (uri.scheme == "content") {
-                            context.contentResolver.query(uri, null, null, null, null)
-                                .use { cursor ->
-                                    if (cursor != null && cursor.moveToFirst()) {
-                                        fileName = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
-                                    }
+    suspend operator fun invoke(result: List<Uri>?): String = withContext(Dispatchers.Default) {
+        when {
+            result == null -> return@withContext "Fehler: Keine passende Datei erkannt"
+            result.isEmpty() -> return@withContext "Kein Inhalt ausgewählt"
+            else -> {
+                val ok = StringBuilder()
+                for (uri in result) {
+                    var fileName: String? = null
+                    if (uri.scheme == "content") {
+                        context.contentResolver.query(uri, null, null, null, null)
+                            .use { cursor ->
+                                if (cursor != null && cursor.moveToFirst()) {
+                                    fileName = cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
                                 }
+                            }
+                    }
+                    if (fileName == null) {
+                        fileName = uri.path
+                        val cut = fileName!!.lastIndexOf('/')
+                        if (cut != -1) fileName = fileName?.substring(cut + 1)
+                    }
+                    if (fileName?.matches("""hymnsGesangbuch.*\.txt""".toRegex()) == true) {
+                        if (setPrivateTexts(uri, BuchMode.Gesangbuch)) {
+                            if (ok.isNotEmpty()) ok.append(", ")
+                            ok.append(" ${BuchMode.Gesangbuch}")
+                            sendToWear(uri, "/privateTextGesangbuch")
                         }
-                        if (fileName == null) {
-                            fileName = uri.path
-                            val cut = fileName!!.lastIndexOf('/')
-                            if (cut != -1) fileName = fileName?.substring(cut + 1)
+                    } else if (fileName?.matches("""hymnsChorbuch.*\.txt""".toRegex()) == true) {
+                        if (setPrivateTexts(uri, BuchMode.Chorbuch)) {
+                            if (ok.isNotEmpty()) ok.append(", ")
+                            ok.append(" ${BuchMode.Chorbuch}")
+                            sendToWear(uri, "/privateTextChorbuch")
                         }
-                        if (fileName?.matches("""hymnsGesangbuch.*\.txt""".toRegex()) == true) {
-                            if (setPrivateTexts(uri, BuchMode.Gesangbuch)) {
-                                if (ok.isNotEmpty()) ok.append(", ")
-                                ok.append(" ${BuchMode.Gesangbuch}")
-                                sendToWear(uri, "/privateTextGesangbuch")
-                            }
-                        } else if (fileName?.matches("""hymnsChorbuch.*\.txt""".toRegex()) == true) {
-                            if (setPrivateTexts(uri, BuchMode.Chorbuch)) {
-                                if (ok.isNotEmpty()) ok.append(", ")
-                                ok.append(" ${BuchMode.Chorbuch}")
-                                sendToWear(uri, "/privateTextChorbuch")
-                            }
-                        }else if (fileName?.matches("""hymnsJugendliederbuch.*\.txt""".toRegex()) == true) {
-                            if (setPrivateTexts(uri, BuchMode.Jugendliederbuch)) {
-                                if (ok.isNotEmpty()) ok.append(", ")
-                                ok.append(" ${BuchMode.Jugendliederbuch}")
-                                sendToWear(uri, "/privateTextJugendliederbuch")
-                            }
+                    } else if (fileName?.matches("""hymnsJugendliederbuch.*\.txt""".toRegex()) == true) {
+                        if (setPrivateTexts(uri, BuchMode.Jugendliederbuch)) {
+                            if (ok.isNotEmpty()) ok.append(", ")
+                            ok.append(" ${BuchMode.Jugendliederbuch}")
+                            sendToWear(uri, "/privateTextJugendliederbuch")
                         }
                     }
-                    return@withContext if (ok.toString().isEmpty())
-                        "Fehler: Keine passende Datei erkannt"
-                    else {
-                        MainActivity.colorSettingChanged = true
-                        "$ok aktualisiert"
-                    }
+                }
+                return@withContext if (ok.toString().isEmpty()) "Fehler: Keine passende Datei erkannt"
+                else {
+                    MainActivity.refreshView = true
+                    "$ok aktualisiert"
                 }
             }
         }
@@ -92,7 +89,7 @@ class SetPrivateTextsUseCase @Inject constructor(
         }
         hymnsRepository.addHymns(result.map {
             Hymn(
-                HymnId.create(it["hymnNr"]!!.toInt(),buchMode)!!,
+                HymnId.create(it["hymnNr"]!!.toInt(), buchMode)!!,
                 Rubric(RubricId.create(it["hymnRubricIndex"]!!.toInt(), buchMode)!!),
                 it["hymnNrAndTitle"]!!,
                 it["hymnTitle"]!!,
@@ -132,7 +129,7 @@ class SetPrivateTextsUseCase @Inject constructor(
             val wearableList = Wearable.getNodeClient(context).connectedNodes
             try {
                 val nodes = Tasks.await(wearableList)
-                for (node in nodes) {
+                for (node in nodes) { //send to all nodes
                     val sendMessageTask = Wearable.getMessageClient(context).sendMessage(node.id, path, message)
                     Tasks.await(sendMessageTask)
                 }

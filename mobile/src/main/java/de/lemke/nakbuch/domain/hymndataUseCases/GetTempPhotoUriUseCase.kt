@@ -12,8 +12,7 @@ class GetTempPhotoUriUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
     operator fun invoke(useFileProvider: Boolean): Uri =
-        if (useFileProvider) FileProvider.getUriForFile(
-            context, "de.lemke.nakbuch.fileprovider", File(context.cacheDir, "currentPhotoUncompressed.jpg")
-        )
+        if (useFileProvider)
+            FileProvider.getUriForFile(context, "de.lemke.nakbuch.fileprovider", File(context.cacheDir, "currentPhotoUncompressed.jpg"))
         else File(context.cacheDir, "currentPhotoUncompressed.jpg").toUri()
 }

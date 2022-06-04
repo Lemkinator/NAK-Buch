@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -29,9 +28,6 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
-import de.dlyt.yanndroid.oneui.dialog.ClassicColorPickerDialog
-import de.dlyt.yanndroid.oneui.dialog.DetailedColorPickerDialog
-import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.layout.ToolbarLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
@@ -39,7 +35,6 @@ import de.dlyt.yanndroid.oneui.sesl.support.ViewSupport
 import de.dlyt.yanndroid.oneui.sesl.tabs.SamsungTabLayout
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.dlyt.yanndroid.oneui.view.OptionGroup
-import de.dlyt.yanndroid.oneui.view.Snackbar
 import de.dlyt.yanndroid.oneui.view.TipPopup
 import de.dlyt.yanndroid.oneui.view.Tooltip
 import de.dlyt.yanndroid.oneui.widget.OptionButton
@@ -56,7 +51,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     companion object {
-        var colorSettingChanged = false
+        var refreshView = false
     }
 
     private var currentTab = 0
@@ -296,8 +291,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onResume() {
         super.onResume()
-        if (colorSettingChanged) {
-            colorSettingChanged = false
+        if (refreshView) {
+            refreshView = false
             recreate()
         }
         lifecycleScope.launch {
@@ -443,111 +438,5 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 e.printStackTrace()
             }
         }
-    }
-
-
-    /* *********************
-     * Dialog samples:
-     * ********************/
-    @Suppress("unused_parameter", "unused")
-    fun classicColorPickerDialog(view: View?) {
-        val mClassicColorPickerDialog: ClassicColorPickerDialog
-        val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
-        val stringColor = sharedPreferences.getString("color", "0381fe")
-        val currentColor = Color.parseColor("#$stringColor")
-        try {
-            mClassicColorPickerDialog = ClassicColorPickerDialog(
-                this,
-                { i -> if (currentColor != i) ThemeUtil.setColor(this@MainActivity, Color.red(i), Color.green(i), Color.blue(i)) },
-                currentColor
-            )
-            mClassicColorPickerDialog.show()
-        } catch (throwable: Throwable) {
-            throwable.printStackTrace()
-        }
-    }
-
-    @Suppress("unused_parameter", "unused")
-    fun detailedColorPickerDialog(view: View?) {
-        val mDetailedColorPickerDialog: DetailedColorPickerDialog
-        val sharedPreferences = getSharedPreferences("ThemeColor", MODE_PRIVATE)
-        val stringColor = sharedPreferences.getString("color", "0381fe")
-        val currentColor = Color.parseColor("#$stringColor")
-        try {
-            mDetailedColorPickerDialog = DetailedColorPickerDialog(
-                this,
-                { i -> if (currentColor != i) ThemeUtil.setColor(this@MainActivity, Color.red(i), Color.green(i), Color.blue(i)) },
-                currentColor
-            )
-            mDetailedColorPickerDialog.show()
-        } catch (throwable: Throwable) {
-            throwable.printStackTrace()
-        }
-    }
-
-    @Suppress("unused_parameter", "unused")
-    fun standardDialog(view: View?) {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Title")
-            .setMessage("Message")
-            .setNeutralButton("Maybe", null)
-            .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
-            .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int -> dialogInterface.dismiss() }
-            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
-            .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, this@MainActivity.theme))
-            .setPositiveButtonProgress(true)
-            .setNegativeButtonProgress(true)
-            .create()
-        dialog.show()
-    }
-
-    @Suppress("unused_parameter", "unused")
-    fun singleChoiceDialog(view: View?) {
-        val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
-        AlertDialog.Builder(this)
-            .setTitle("Title")
-            .setNeutralButton("Maybe", null)
-            .setNegativeButton("No", null)
-            .setPositiveButton("Yes", null)
-            .setSingleChoiceItems(charSequences, 0, null)
-            .show()
-    }
-
-    @Suppress("unused_parameter", "unused")
-    fun multiChoiceDialog(view: View?) {
-        val charSequences = arrayOf<CharSequence>("Choice1", "Choice2", "Choice3")
-        val booleans = booleanArrayOf(true, false, true)
-        AlertDialog.Builder(this)
-            .setTitle("Title")
-            .setNeutralButton("Maybe", null)
-            .setNegativeButton("No", null)
-            .setPositiveButton("Yes", null)
-            .setMultiChoiceItems(charSequences, booleans, null)
-            .show()
-    }
-
-    @Suppress("unused_parameter", "unused")
-    fun progressDialog(view: View) {
-        val dialog = ProgressDialog(this)
-        dialog.isIndeterminate = true
-        dialog.setCancelable(true)
-        dialog.setCanceledOnTouchOutside(true)
-        dialog.setTitle("Title")
-        dialog.setMessage("ProgressDialog")
-        dialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "Cancel", null as DialogInterface.OnClickListener?)
-        dialog.setOnCancelListener { progressDialogCircleOnly(view) }
-        dialog.show()
-    }
-
-    @Suppress("unused_parameter", "unused")
-    private fun progressDialogCircleOnly(view: View) {
-        val dialog = ProgressDialog(this)
-        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
-        dialog.setCancelable(true)
-        dialog.setCanceledOnTouchOutside(true)
-        dialog.setOnCancelListener {
-            Snackbar.make(view, "Text label", Snackbar.LENGTH_SHORT).setAction("Action") { }.show()
-        }
-        dialog.show()
     }
 }

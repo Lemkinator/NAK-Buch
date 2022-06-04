@@ -121,7 +121,6 @@ enum class BuchMode {
                 )
             }
             Jugendliederbuch -> listOf("Jugendliederbuch Rubrik", "Rubrik 1", "Rubrik 2") //TODO
-
         }
 
     val maxId: Int get() = this.toInt() + intStep - 1

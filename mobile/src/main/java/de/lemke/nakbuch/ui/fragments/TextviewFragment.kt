@@ -35,7 +35,6 @@ import de.dlyt.yanndroid.oneui.widget.NestedScrollView
 import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.*
-import de.lemke.nakbuch.domain.hymndataUseCases.AddHymnToHistoryListUseCase
 import de.lemke.nakbuch.domain.hymndataUseCases.GetPersonalHymnUseCase
 import de.lemke.nakbuch.domain.hymndataUseCases.SetPersonalHymnUseCase
 import de.lemke.nakbuch.domain.model.BuchMode

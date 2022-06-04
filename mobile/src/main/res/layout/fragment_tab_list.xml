@@ -22,36 +22,4 @@
             android:layout_height="match_parent" />
 
     </de.dlyt.yanndroid.oneui.widget.RoundFrameLayout>
-
-    <!--RadioGroup
-        android:id="@+id/rg_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal"
-        android:checkedButton="@id/rb_numerisch"
-        android:visibility="visible">
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/rb_numerisch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/numerical" />
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/rb_alphabetisch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/alphabetical" />
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/rb_rubrik"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/rubric" />
-
-    </RadioGroup-->
 </LinearLayout>

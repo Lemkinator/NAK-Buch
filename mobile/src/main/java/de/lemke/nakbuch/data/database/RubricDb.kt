@@ -4,9 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.lemke.nakbuch.domain.model.RubricId
 
-@Entity(
-    tableName = "rubric",
-)
+@Entity(tableName = "rubric",)
 data class RubricDb(
     @PrimaryKey
     val rubricId: RubricId,

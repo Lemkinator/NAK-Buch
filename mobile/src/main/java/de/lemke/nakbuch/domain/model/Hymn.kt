@@ -18,25 +18,20 @@ class HymnId private constructor(
         return true
     }
 
-    override fun hashCode(): Int {
-        return toInt()
-    }
+    override fun hashCode(): Int = toInt()
 
     companion object {
         val hymnIdPlaceholder = HymnId(-1, BuchMode.Gesangbuch)
-        fun create(number: Int, buchMode: BuchMode): HymnId? {
-            if (number < 1 || number > buchMode.hymnCount) return null
-            return HymnId(number, buchMode)
-        }
+        fun create(number: Int, buchMode: BuchMode?): HymnId? =
+            if (buchMode == null || number < 1 || number > buchMode.hymnCount) null
+            else HymnId(number, buchMode)
 
-        fun create(hymnIdInt: Int): HymnId? {
-            if (hymnIdInt < 1) return null
-            val number = hymnIdInt.mod(BuchMode.intStep)
-            val buchMode = BuchMode.fromHymnId(hymnIdInt) ?: return null
-            return create(number, buchMode)
-        }
+        fun create(hymnIdInt: Int): HymnId? =
+            if (hymnIdInt < 1) null
+            else create(hymnIdInt.mod(BuchMode.intStep), BuchMode.fromHymnId(hymnIdInt))
     }
 }
+
 
 data class Hymn(
     val hymnId: HymnId,
@@ -56,9 +51,7 @@ data class Hymn(
         return true
     }
 
-    override fun hashCode(): Int {
-        return hymnId.hashCode()
-    }
+    override fun hashCode(): Int = hymnId.hashCode()
 
     companion object {
         val hymnPlaceholder = Hymn(

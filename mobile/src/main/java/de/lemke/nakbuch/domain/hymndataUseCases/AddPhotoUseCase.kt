@@ -17,14 +17,12 @@ class AddPhotoUseCase @Inject constructor(
     private val getTempPhotoUri: GetTempPhotoUriUseCase,
     private val setHymnData: SetPersonalHymnUseCase,
 ) {
-    suspend operator fun invoke(personalHymn: PersonalHymn, index: Int) =
-        CoroutineScope(Dispatchers.Default).launch {
-            val destinationUri =
-                File("${context.filesDir}/hymnPhotos/${personalHymn.hymn.hymnId.toInt()}/${UUID.randomUUID()}.jpg").toUri()
-            compressJPG(getTempPhotoUri(false), destinationUri)
-            val newPhotoList = personalHymn.photoList.toMutableList()
-            newPhotoList.add(index, destinationUri)
-            personalHymn.photoList = newPhotoList
-            setHymnData(personalHymn)
-        }
+    suspend operator fun invoke(personalHymn: PersonalHymn, index: Int) = CoroutineScope(Dispatchers.Default).launch {
+        val destinationUri = File("${context.filesDir}/hymnPhotos/${personalHymn.hymn.hymnId.toInt()}/${UUID.randomUUID()}.jpg").toUri()
+        compressJPG(getTempPhotoUri(false), destinationUri)
+        val newPhotoList = personalHymn.photoList.toMutableList()
+        newPhotoList.add(index, destinationUri)
+        personalHymn.photoList = newPhotoList
+        setHymnData(personalHymn)
+    }
 }
