@@ -434,13 +434,7 @@ class TextviewFragment : Fragment() {
         tipPopupFoto.setExpanded(true)
         tipPopupPlus.setExpanded(true)
         tipPopupMinus.setExpanded(true)
-        tipPopupMenu.setOnDismissListener {
-            //View noteButton = Objects.requireNonNull(tabLayout.getTabAt(0)).seslGetTextView();
-            //int[] outLocation = new int[2];
-            //noteButton.getLocationOnScreen(outLocation);
-            //tipPopupNote.setTargetPosition(noteButton.getLeft(), outLocation[1] + (noteButton.getHeight() / 2) + getResources().getDimensionPixelSize(R.dimen.sesl_action_button_icon_size));
-            tipPopupNote.show(TipPopup.DIRECTION_TOP_LEFT)
-        }
+        tipPopupMenu.setOnDismissListener { tipPopupNote.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupNote.setOnDismissListener { tipPopupCalendar.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupCalendar.setOnDismissListener { tipPopupFav.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupFav.setOnDismissListener { tipPopupFoto.show(TipPopup.DIRECTION_TOP_LEFT) }
@@ -555,11 +549,6 @@ class TextviewFragment : Fragment() {
             if (holder.isItem) {
                 holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
-
-                //holder.imageView.setImageResource(R.drawable.ic_samsung_audio);
-                /*val date =
-                    Instant.ofEpochMilli(hymnHistoryList[position]).atZone(ZoneId.systemDefault())
-                        .toLocalDate()*/
                 holder.textView.text = hymnSungOnList[position]!!.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
                 holder.parentView.setOnClickListener {
                     if (!selecting) setSelecting(true)
@@ -586,15 +575,12 @@ class TextviewFragment : Fragment() {
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
             lateinit var parentView: RelativeLayout
-
-            //lateinit var imageView: ImageView
             lateinit var textView: TextView
             lateinit var checkBox: CheckBox
 
             init {
                 if (isItem) {
                     parentView = itemView as RelativeLayout
-                    //imageView = parentView.findViewById(R.id.icon_tab_item_image)
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
                     checkBox = parentView.findViewById(R.id.checkbox)
                 }
@@ -632,7 +618,6 @@ class TextviewFragment : Fragment() {
                     )
                 }
             }
-            //mSeslRoundedCornerTop.drawRoundedCorner(canvas)
         }
 
         fun setDivider(d: Drawable) {

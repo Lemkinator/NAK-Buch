@@ -111,29 +111,7 @@ class TabListSubtabRubric : Fragment() {
 
     //Adapter for the Icon RecyclerView
     inner class ImageAdapter :
-        RecyclerView.Adapter<ImageAdapter.ViewHolder>() {/* !!!Sections in inner rubrics not working!!!       , SectionIndexer {
-        private var sections: MutableList<String> = mutableListOf()
-        private var positionForSection: MutableList<Int> = mutableListOf()
-        private var sectionForPosition: MutableList<Int> = mutableListOf()
-
-        init {
-            if (rubrikIndex == 0) {
-                for (i in rubList.indices) {
-                    val rubName: String =
-                        if (i != rubList.size - 1 && rubList[i].containsKey("mainRub")) { rubList[i]["hymnNrAndTitle"]!! }
-                        else { sections[sections.size - 1] }
-                    if (i == 0 || sections[sections.size - 1] != rubName) {
-                        sections.add(rubName)
-                        positionForSection.add(i)
-                    }
-                    sectionForPosition.add(sections.size - 1)
-                }
-            }
-        }
-        override fun getSections(): Array<Any> = sections.toTypedArray()
-        override fun getPositionForSection(i: Int): Int = positionForSection[i]
-        override fun getSectionForPosition(i: Int): Int = sectionForPosition[i]
-        */
+        RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
 
         override fun getItemCount(): Int = if (currentRubric == null) rubrics.size else hymns.size
 

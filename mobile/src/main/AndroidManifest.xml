@@ -5,7 +5,6 @@
     <!--Gradle 7.2: package should be moved to build.gradle but "Extract String ressource" from context actions not working if missing here-->
 
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
-    <!-- uses-permission android:name="com.android.vending.BILLING" / -->
 
     <!--
     TODO
