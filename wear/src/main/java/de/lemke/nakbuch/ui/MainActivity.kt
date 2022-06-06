@@ -5,8 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -17,32 +16,28 @@ import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.*
+import de.lemke.nakbuch.domain.GetHymnUseCase
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
+import de.lemke.nakbuch.domain.SetPrivateTextsUseCase
+import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var buchMode: BuchMode
-    private lateinit var hymnNrInput: String
     private lateinit var tvHymnNrTitle: TextView
     private lateinit var buttonSwitchMode: MaterialButton
+    private lateinit var inputOngoingJob: Job
     private var inputOngoing = false
-    private var refreshHandler: Handler = Handler(Looper.getMainLooper())
-    private var refreshRunnable: Runnable = Runnable {
-        inputOngoing = false
-        previewHymn(hymnNrInput)
-    }
+    private var hymnNrInput: String = ""
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
 
     @Inject
     lateinit var updateUserSettings: UpdateUserSettingsUseCase
-
-    @Inject
-    lateinit var getHymnCount: GetHymnCountUseCase
 
     @Inject
     lateinit var getHymn: GetHymnUseCase
@@ -58,9 +53,11 @@ class MainActivity : AppCompatActivity() {
         tvHymnNrTitle = findViewById(R.id.hymnTitlePreview)
         buttonSwitchMode = findViewById(R.id.buttonSwitchMode)
         lifecycleScope.launch {
-            buchMode = getUserSettings().buchMode
-            hymnNrInput = getUserSettings().number
-            previewHymn(hymnNrInput)
+            val userSettings = getUserSettings()
+            buchMode = userSettings.buchMode
+            hymnNrInput = userSettings.number
+            inputOngoingJob = CoroutineScope(Dispatchers.Default).launch { inputOngoing = false }
+            previewHymn()
             findViewById<View>(R.id.b_0).setOnClickListener { addToHymnNrInput("0") }
             findViewById<View>(R.id.b_1).setOnClickListener { addToHymnNrInput("1") }
             findViewById<View>(R.id.b_2).setOnClickListener { addToHymnNrInput("2") }
@@ -74,44 +71,52 @@ class MainActivity : AppCompatActivity() {
             findViewById<View>(R.id.b_z).setOnClickListener {
                 hymnNrInput = if (hymnNrInput.isNotEmpty()) hymnNrInput.substring(0, hymnNrInput.length - 1) else ""
                 inputOngoing = true
-                previewInput()
+                previewHymn()
             }
-            findViewById<View>(R.id.b_ok).setOnClickListener {
-                showHymn(hymnNrInput)
-                refreshHandler.removeCallbacks(refreshRunnable)
-                inputOngoing = false
-                previewHymn(hymnNrInput)
-            }
+            findViewById<View>(R.id.b_ok).setOnClickListener { openHymn() }
             updateButtonSwitchMode()
             buttonSwitchMode.setOnClickListener {
                 lifecycleScope.launch {
-                    buchMode = if (buchMode == BuchMode.Gesangbuch) BuchMode.Chorbuch else BuchMode.Gesangbuch
-                    updateUserSettings {it.copy(buchMode = buchMode)}
+                    buchMode = when (buchMode) {
+                        BuchMode.Gesangbuch -> BuchMode.Chorbuch
+                        BuchMode.Chorbuch -> BuchMode.Jugendliederbuch
+                        BuchMode.Jugendliederbuch -> BuchMode.JBErgaenzungsheft
+                        BuchMode.JBErgaenzungsheft -> BuchMode.Gesangbuch
+                    }
                     updateButtonSwitchMode()
                     startActivity(
                         Intent(this@MainActivity, ConfirmationActivity::class.java)
                             .putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION)
                             .putExtra(
-                                ConfirmationActivity.EXTRA_MESSAGE,
-                                getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleGesangbuch else R.string.titleChorbuch)
+                                ConfirmationActivity.EXTRA_MESSAGE, when (buchMode) {
+                                    BuchMode.Gesangbuch -> getString(R.string.titleGesangbuch)
+                                    BuchMode.Chorbuch -> getString(R.string.titleChorbuch)
+                                    BuchMode.Jugendliederbuch -> getString(R.string.titleJugendliederbuch)
+                                    BuchMode.JBErgaenzungsheft -> getString(R.string.titleJBErgaenzungsheft)
+                                }
                             )
                     )
-                    previewHymn(hymnNrInput)
+                    updateUserSettings { it.copy(buchMode = buchMode) }
+                    previewHymn()
                 }
             }
             findViewById<MaterialButton>(R.id.buttonInfo).setOnClickListener {
                 startActivity(Intent(this@MainActivity, InfoActivity::class.java))
             }
         }
-
         LocalBroadcastManager.getInstance(this).registerReceiver(Receiver(), IntentFilter(Intent.ACTION_SEND))
 
-        //TODO better handling of square/round
+        //TODO better handling of square/round screens
         //if (resources.configuration.isScreenRound) { }
     }
 
     private fun updateButtonSwitchMode() {
-        buttonSwitchMode.text = getString(if (buchMode == BuchMode.Gesangbuch) R.string.titleChorbuch else R.string.titleGesangbuch)
+        buttonSwitchMode.text = when (buchMode) {
+            BuchMode.Gesangbuch -> getString(R.string.titleGesangbuch)
+            BuchMode.Chorbuch -> getString(R.string.titleChorbuch)
+            BuchMode.Jugendliederbuch -> getString(R.string.titleJugendliederbuch)
+            BuchMode.JBErgaenzungsheft -> getString(R.string.titleJBErgaenzungsheft)
+        }
     }
 
     private fun addToHymnNrInput(s: String) {
@@ -122,49 +127,54 @@ class MainActivity : AppCompatActivity() {
             if (hymnNrInput.length < 3) hymnNrInput += s
             else hymnNrInput = s
         }
-        previewInput()
+        previewHymn()
     }
 
-    private fun previewInput() {
-        refreshHandler.removeCallbacks(refreshRunnable)
+    private fun previewHymn() {
+        inputOngoingJob.cancel()
+        inputOngoingJob = CoroutineScope(Dispatchers.Default).launch {
+            delay(3000)
+            inputOngoing = false
+        }
         tvHymnNrTitle.text = hymnNrInput
-        //TODO replace handler with coroutine + delay
-        refreshHandler.postDelayed(refreshRunnable, 1500)
-    }
-
-    private fun previewHymn(nr: String) {
         lifecycleScope.launch {
-            val hymnNr = nr.toIntOrNull()
-            if (hymnNr != null && hymnNr > 0 && hymnNr < getHymnCount(buchMode)) {
-                    val hymn = getHymn(buchMode, hymnNr)
-                    tvHymnNrTitle.text = hymn.numberAndTitle
-                    updateUserSettings {it.copy(number = nr)}
+            val hymnNr = hymnNrInput.toIntOrNull()
+            if (hymnNr != null && hymnNr > 0 && hymnNr <= buchMode.hymnCount) {
+                val hymn = getHymn(buchMode, hymnNr)
+                tvHymnNrTitle.text = hymn.numberAndTitle
+                updateUserSettings { it.copy(number = hymnNrInput) }
             } else {
                 tvHymnNrTitle.text = ""
-                updateUserSettings {it.copy(number = "")}
+                hymnNrInput = ""
+                updateUserSettings { it.copy(number = "") }
             }
         }
     }
 
-
-    private fun showHymn(nr: String) {
-            val hymnNr = nr.toIntOrNull()
-            if (hymnNr != null && hymnNr > 0 && hymnNr < getHymnCount(buchMode)) {
-                lifecycleScope.launch {
-                    val hymn = getHymn(buchMode, hymnNr)
-                    startActivity(
-                        Intent(this@MainActivity, TextviewActivity::class.java)
-                            .putExtra("nrAndTitle", hymn.numberAndTitle)
-                            .putExtra("text", hymn.text)
-                            .putExtra("copyright", hymn.copyright)
-                    )
-                }
+    private fun openHymn() {
+        val hymnNr = hymnNrInput.toIntOrNull()
+        if (hymnNr != null && hymnNr > 0 && hymnNr <= buchMode.hymnCount) {
+            lifecycleScope.launch {
+                val hymn = getHymn(buchMode, hymnNr)
+                startActivity(
+                    Intent(this@MainActivity, TextviewActivity::class.java)
+                        .putExtra("nrAndTitle", hymn.numberAndTitle)
+                        .putExtra("text", hymn.text)
+                        .putExtra("copyright", hymn.copyright)
+                )
             }
+        }
+        inputOngoing = false
     }
 
     inner class Receiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            lifecycleScope.launch { if (setPrivateTexts(intent)) recreate() }
+            lifecycleScope.launch {
+                if (setPrivateTexts(intent)) {
+                    Log.d("Private Text on wear", "succesful")
+                    //recreate()
+                }
+            }
         }
     }
 }

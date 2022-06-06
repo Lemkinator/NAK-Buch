@@ -1,45 +1,46 @@
 package de.lemke.nakbuch.domain.model
 
 enum class BuchMode {
-    Gesangbuch, Chorbuch, Jugendliederbuch;
+    Gesangbuch, Chorbuch, Jugendliederbuch, JBErgaenzungsheft;
 
-    override fun toString(): String {
-        return when (this) {
-            Gesangbuch -> "Gesangbuch"
-            Chorbuch -> "Chorbuch"
-            Jugendliederbuch -> "Jugendliederbuch"
-        }
+    override fun toString(): String = when (this) {
+        Gesangbuch -> "Gesangbuch"
+        Chorbuch -> "Chorbuch"
+        Jugendliederbuch -> "Jugendliederbuch"
+        JBErgaenzungsheft -> "JB-Ergänzungsheft"
     }
 
-    fun toCompactString(): String {
-        return when (this) {
-            Gesangbuch -> "GB"
-            Chorbuch -> "CB"
-            Jugendliederbuch -> "JB"
-        }
+    fun toInt(): Int = when (this) {
+        Gesangbuch -> 0 * intStep
+        Chorbuch -> 1 * intStep
+        Jugendliederbuch -> 2 * intStep
+        JBErgaenzungsheft -> 3 * intStep
     }
 
-    fun toInt(): Int {
-        return when (this) {
-            Gesangbuch -> 0 * intStep
-            Chorbuch -> 1 * intStep
-            Jugendliederbuch -> 2 * intStep
+    val hymnCount: Int
+        get() = when (this) {
+            Gesangbuch -> 438
+            Chorbuch -> 462
+            Jugendliederbuch -> 102
+            JBErgaenzungsheft -> 20
         }
-    }
 
+    val assetFileName: String
+        get() = when (this) {
+            Gesangbuch -> "hymnsGesangbuchNoCopyright.txt"
+            Chorbuch -> "hymnsChorbuchNoCopyright.txt"
+            Jugendliederbuch -> "hymnsJugendliederbuchNoCopyright.txt"
+            JBErgaenzungsheft -> "hymnsJBErgaenzungsheftNoCopyright.txt"
+        }
 
     companion object {
-        const val gesangbuchHymnsCount = 438
-        const val chorbuchHymnsCount = 462
-        const val jugendliederbuchHymnsCount = 3 //TODO
-        const val intStep = 1000
-        fun maxId(buchMode: BuchMode) = buchMode.toInt() + intStep - 1
-        fun minId(buchMode: BuchMode) = buchMode.toInt()
-        fun fromInt(mode: Int): BuchMode = when (mode) {
+        const val intStep = 10000
+        fun fromInt(mode: Int?): BuchMode? = when (mode) {
             0 * intStep -> Gesangbuch
             1 * intStep -> Chorbuch
             2 * intStep -> Jugendliederbuch
-            else -> Gesangbuch
+            3 * intStep -> JBErgaenzungsheft
+            else -> null
         }
     }
 }

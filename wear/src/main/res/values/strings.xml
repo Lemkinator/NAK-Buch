@@ -3,6 +3,8 @@
     <string name="aboutApp">Über NAK Buch</string>
     <string name="titleGesangbuch">Gesangbuch</string>
     <string name="titleChorbuch">Chorbuch</string>
+    <string name="titleJugendliederbuch">Jugendliederbuch</string>
+    <string name="titleJBErgaenzungsheft">Jb-Ergänzungsheft</string>
     <string name="switchMode">Buch wechseln</string>
     <string name="preferenceFileDefault" translatable="false">de.lemke.nakbuch_preferences</string>
     <string name="preferenceFileHymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>

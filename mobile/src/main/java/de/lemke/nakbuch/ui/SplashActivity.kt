@@ -123,3 +123,16 @@ class SplashActivityJugendliederbuch : AppCompatActivity() {
         finish()
     }
 }
+
+@SuppressLint("CustomSplashScreen")
+class SplashActivityJBErgaenzungsheft : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        ThemeUtil(this)
+        startActivity(
+            Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchMode", BuchMode.JBErgaenzungsheft.toInt())
+        )
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        finish()
+    }
+}

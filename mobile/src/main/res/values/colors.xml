@@ -4,4 +4,5 @@
     <color name="gesangbuch_color">#CD6F9DD1</color>
     <color name="chorbuch_color">#9A6F9DD1</color>
     <color name="jugendliederbuch_color">#5D8743</color>
+    <color name="jb_ergaenzungsheft_color">#9F5D8743</color>
 </resources>

@@ -1,12 +1,10 @@
 package de.lemke.nakbuch.data
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.nakbuch.domain.model.BuchMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -14,11 +12,8 @@ import javax.inject.Inject
 
 /** Provides CRUD operations for user settings. */
 class UserSettingsRepository@Inject constructor(
-    @ApplicationContext private val context: Context,
     private val dataStore: DataStore<Preferences>,
 ) {
-
-
     /** Returns the current user settings. */
     suspend fun getSettings(): UserSettings = dataStore.data.map(::settingsFromPreferences).first()
 
@@ -40,7 +35,7 @@ class UserSettingsRepository@Inject constructor(
 
     private fun settingsFromPreferences(prefs: Preferences) = UserSettings(
         number = prefs[KEY_NUMBER] ?: "",
-        buchMode = BuchMode.fromInt(prefs[KEY_BUCH_MODE] ?: BuchMode.Gesangbuch.toInt()),
+        buchMode = BuchMode.fromInt(prefs[KEY_BUCH_MODE]) ?: BuchMode.Gesangbuch,
         lastVersionCode = prefs[KEY_LAST_VERSION_CODE] ?: -1,
         lastVersionName = prefs[KEY_LAST_VERSION_NAME] ?: "0.0",
         textSize = prefs[KEY_TEXTSIZE] ?: DEFAULT_TEXTSIZE,

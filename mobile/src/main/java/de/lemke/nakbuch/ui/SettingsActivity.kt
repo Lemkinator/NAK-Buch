@@ -202,6 +202,8 @@ class SettingsActivity : AppCompatActivity() {
                 Preference.OnPreferenceClickListener { createShortcut("chorbuch") }
             findPreference<Preference>("shortcut_jugendliederbuch")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener { createShortcut("jugendliederbuch") }
+            findPreference<Preference>("shortcut_jb_ergaenzungsheft")!!.onPreferenceClickListener =
+                Preference.OnPreferenceClickListener { createShortcut("jb_ergaenzungsheft") }
             findPreference<PreferenceScreen>("privacy")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacyWebsite))))

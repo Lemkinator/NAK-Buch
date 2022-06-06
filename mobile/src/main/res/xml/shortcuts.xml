@@ -45,4 +45,19 @@
         <categories android:name="android.shortcut.conversation" />
         <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
     </shortcut>
+
+    <shortcut
+        android:shortcutId="jb_ergaenzungsheft"
+        android:enabled="true"
+        android:shortcutShortLabel="@string/titleJBErgaenzungsheft"
+        android:shortcutDisabledMessage="@string/shortcut_disabled_msg"
+        android:icon="@drawable/ic_launcher_shortcut_jb_ergaenzungsheft">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="de.lemke.nakbuch"
+            android:targetClass="de.lemke.nakbuch.ui.SplashActivityJBErgaenzungsheft">
+        </intent>
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
 </shortcuts>

@@ -3,8 +3,7 @@
     <string name="titleGesangbuch" translatable="false">Gesangbuch</string>
     <string name="titleChorbuch" translatable="false">Chorbuch</string>
     <string name="titleJugendliederbuch" translatable="false">Jugendliederbuch</string>
-    <string name="preferenceFileDefault" translatable="false">de.lemke.nakbuch_preferences</string>
-    <string name="preferenceFileHymns" translatable="false">de.lemke.nakbuch_hymns_pref</string>
+    <string name="titleJBErgaenzungsheft" translatable="false">JB-Ergänzungsheft</string>
     <string name="email" translatable="false">apps@lemkinator.com</string>
     <string name="myWebsite" translatable="false">https://www.lemkinator.com</string>
     <string name="privacyWebsite" translatable="false">https://www.lemkinator.com/nakbuch-privacy-policy</string>
@@ -18,10 +17,7 @@
     <string name="bischoffChorbuchPackageName" translatable="false">de.bischoff.chorbuch</string>
     <string name="openOfficialApp">Offizielle App öffnen</string>
 
-    <string name="detectedOldArchitecture">Alte Architektur entdeckt</string>
-    <string name="detectedOldArchitectureText">Leider wurden an der App einige Änderungen an der Architektur vorgenommen, welche das Löschen der App-Daten erfordert. Dadurch wird die App geschlossen und alle persönlichen Daten gelöscht…</string>
-
-    <string name="aboutPageOptionalText">Die inoffizielle Gesang und Chorbuch-App der NAK.</string>
+    <string name="aboutPageOptionalText">Die inoffizielle Liederbuch-App der NAK.</string>
     <string name="aboutApp">Über NAK Buch</string>
     <string name="help">Hilfe</string>
 
@@ -33,8 +29,6 @@
     <string name="rubric">Rubrik</string>
     <string name="removeFromFav">Aus Favoriten löschen</string>
     <string name="addToFav">Zu Favoriten hinzufügen</string>
-    <!--string name="switchMode">Buch wechseln</string-->
-    <!--string name="switchModeDescription">Schnell zwischen Gesangbuch und Chorbuch wechseln</string-->
     <string name="themeColor">Design Farbe</string>
     <string name="themeColorSummary">Ändern der Design Farbe</string>
     <string name="confirmExit">Verlassen bestätigen</string>
@@ -83,14 +77,10 @@
     <string name="design">Design</string>
     <string name="hint">Hinweis</string>
     <string name="hints">Hinweise</string>
-    <!--plurals in xml not working? -->
-    <plurals name="hint">
-        <item quantity="one">Hinweis</item>
-        <item quantity="other">Hinweise</item>
-    </plurals>
     <string name="appHint">Urheberrechtlich geschützte Inhalte</string>
     <string name="appHintLong">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
-    <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem Gesang- und Chorbuch der NAK.\n\nBei 118 (von 438) Gesangbuch-Liedern und 256 (von 462) Chorbuch-Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht (vollständig) angezeigt werden können. Die Informationen zum Urheberrecht der einzelnen Lieder wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) Gesangbuch-App und eine (kostenpflichtige) Chorbuch-App herausgegeben hat.\n    "</string>
+    <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern.\n\n- Gesangbuch (320 von 438 Liedern)\n- Chorbuch (206 von 462 Liedern)\n- Jugendliederbuch (41 von 102 Liedern)\n- Ergänzungsheft zum Jugendliederbuch (3 von 20 Liedern)\n\nBei den restlichen Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht oder nur teilweise angezeigt werden können. Die Informationen zum Urheberrecht wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.\n    "</string>
+
     <string name="appHintTextBischoff">"Zu den offiziellen Apps vom Bischoff Verlag: "</string>
     <string name="whyNoFullText">Warum wird nicht der vollständige Text angezeigt?</string>
     <string name="jokeButtonText">Jetzt Premium-Abo abschließen, um urheberrechtlich geschützte Inhalte freizuschalten!</string>
@@ -120,6 +110,7 @@
     <string name="confirmTips">Komm schon… Möchtest du wirklich die Tipps für die Easter Eggs ansehen? Wenn du den Titel "Master of Easter Eggs" mit stolz tragen möchtest, dann klick auf Abbrechen!</string>
     <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 3 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über mich\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n- 1 Easter Egg kann über den "Offizielle App Öffnen"-Button entdeckt werden\n</string>
     <string name="easterEggTipsShame">Ich schäme mich</string>
+    <string name="easterEggAlreadyDiscovered">Denkst wohl das funktioniert nochmal? &#128514;</string>
 
     <string-array name="easterEggComments">
         <item>Noch keins gefunden? Dann los! &#128118;</item>
@@ -145,13 +136,12 @@
     <string name="reviewComment">Um ein optimales Nutzererlebnis zu gewährleisten, verwaltet Google Play wann und wie oft einem Nutzer der Bewertungsdialog angezeigt werden kann. Deshalb kann es vorkommen, dass diese Schaltfläche in manchen Fällen keine Aktion durchführt.\nAlternativ kann die Bewertung dann im Play Store geschrieben werden.</string>
     <string name="share">Teilen</string>
     <string name="shareApp">App Teilen</string>
-    <string name="shareAppText">Schau mal hier, die neue nicht-offizielle, kostenlose Gesang- und Chorbuch-App der NAK in modernem Design: https://play.google.com/store/apps/details?id=</string>
+    <string name="shareAppText">Schau mal hier, die neue nicht-offizielle, kostenlose Liederbuch-App (Gesangbuch, Chorbuch, Jugendliederbuch mit Ergänzungsheft) der NAK in modernem Design: https://play.google.com/store/apps/details?id=</string>
     <string name="shareAppTitle">NAK Buch teilen</string>
 
-    <string name="menuGeneralTip">Hier tippen, um die Menu-Navigation zu öffnen. \nDiese App wurde nach Samsungs OneUI-Richtlinien entwickelt. Die Titelleiste kann auf jedem Bildschirm "nach unten gezogen werden", um eine angenehme (einhändige) Bedienung der oberen Knöpfe auch auf Geräten mit größerem Bildschirm zu gewährleisten.</string>
+    <string name="menuGeneralTip">Hier tippen, um die Menu-Navigation zu öffnen. \nDiese App wurde nach Samsungs OneUI-Richtlinien entwickelt. \n\nTipp: Die Titelleiste kann bei großen Geräten auf jedem Bildschirm "nach unten gezogen werden", um eine angenehme (einhändige) Bedienung der oberen Knöpfe zu gewährleisten.</string>
     <string name="searchTip">Suche öffnen</string>
     <string name="standardSearchMode">Standard Suchmodus</string>
-    <!--string name="searchTip">Suche öffnen: \nUm die Spracheingabe zu verwenden, kann nach dem Öffnen der Suche oben rechts auf das Mikrofon-Symbol geklickt werden. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten</string-->
     <string name="searchHelp">Um die Spracheingabe zu verwenden, oben rechts auf das Mikrofon-Symbol klicken. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten. Dieses verhalten kann über die Schaltfläche unten verändert werden.</string>
     <string name="noteTip">Notizen anzeigen/ausblenden</string>
     <string name="calendarTip">Kalender anzeigen/ausblenden</string>
@@ -176,6 +166,8 @@
     <string name="shortcutChorbuchSummary">Shortcut zum Chorbuch auf dem Homebildschirm erstellen</string>
     <string name="shortcutJugendliederbuch">Jugendliederbuch shortcut</string>
     <string name="shortcutJugendliederbuchSummary">Shortcut zum Jugendliederbuch auf dem Homebildschirm erstellen</string>
+    <string name="shortcutJBErgaenzungsheft">JB-Ergänzungsheft shortcut</string>
+    <string name="shortcutJBErgaenzungsheftSummary">Shortcut zum JB-ERgänzungsheft auf dem Homebildschirm erstellen</string>
     <string name="imageSettings">Foto-Einstellungen</string>
     <string name="imgResolution">Foto Auflösung</string>
     <string name="imgResolutionSummary">Je größer die Auflösung, desto mehr Speicher wird benötigt</string>
@@ -213,7 +205,5 @@
     <string name="deletePhoto">Foto löschen</string>
     <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
     <string name="contact">Kontakt</string>
-    <string name="easterEggAlreadyDiscovered">Denkst wohl das funktioniert nochmal? &#128514;</string>
-
 
 </resources>

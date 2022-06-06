@@ -13,5 +13,4 @@ class GetHymnUseCase @Inject constructor(
     suspend operator fun invoke(buchMode: BuchMode, hymnNr: Int): Hymn = withContext(Dispatchers.Default) {
         hymnsRepository.getHymnByNumber(buchMode, hymnNr)
     }
-
 }

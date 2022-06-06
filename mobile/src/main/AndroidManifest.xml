@@ -92,6 +92,10 @@
             android:name=".ui.SplashActivityJugendliederbuch"
             android:exported="true"
             android:theme="@style/OneUISplashTheme" />
+        <activity
+            android:name=".ui.SplashActivityJBErgaenzungsheft"
+            android:exported="true"
+            android:theme="@style/OneUISplashTheme" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="de.lemke.nakbuch.fileprovider"

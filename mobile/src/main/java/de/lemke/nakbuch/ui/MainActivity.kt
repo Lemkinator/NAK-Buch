@@ -215,6 +215,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         setCurrentItem()
                     }
                 }
+                R.id.ob_jb_ergaenzungsheft -> {
+                    lifecycleScope.launch {
+                        buchMode = updateUserSettings { it.copy(buchMode = BuchMode.JBErgaenzungsheft) }.buchMode
+                        setCurrentItem()
+                    }
+                }
                 R.id.ob_settings -> startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
                 R.id.ob_about -> startActivity(Intent(this@MainActivity, AboutActivity::class.java))
                 R.id.ob_help -> startActivity(Intent(this@MainActivity, HelpActivity::class.java))
@@ -337,6 +343,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             BuchMode.Gesangbuch -> findViewById(R.id.ob_gesangbuch)
             BuchMode.Chorbuch -> findViewById(R.id.ob_chorbuch)
             BuchMode.Jugendliederbuch -> findViewById(R.id.ob_jugendliederbuch)
+            BuchMode.JBErgaenzungsheft -> findViewById(R.id.ob_jb_ergaenzungsheft)
         }
     }
 
@@ -356,7 +363,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 fragmentManager.beginTransaction().attach(fragment).commitAllowingStateLoss()
             }
         } else {
-            Log.d("MainActivity setFragment","New instance for " + mTabsClassName[tabPosition])
+            Log.d("MainActivity setFragment", "New instance for " + mTabsClassName[tabPosition])
             try {
                 currentFragment = Class.forName(mTabsClassName[tabPosition]).newInstance() as Fragment
             } catch (e: Exception) {
@@ -424,8 +431,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             updateUserSettings { it.copy(showMainTips = false) }
             try {
                 initTipPopup()
-                val drawerButtonView =
-                    drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
+                val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
                 val outLocation = IntArray(2)
                 drawerButtonView.getLocationOnScreen(outLocation)
                 tipPopupDrawer.setTargetPosition(

@@ -65,7 +65,7 @@ class MainActivitySearchFragment : Fragment() {
     }
 
     private suspend fun initList() {
-        searchList = getSearchList(buchMode, search).toMutableList() //TODO show favs?
+        searchList = getSearchList(buchMode, search).toMutableList()
         searchList.add(Hymn.hymnPlaceholder)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter

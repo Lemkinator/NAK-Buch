@@ -28,11 +28,11 @@ class MainActivityTabNum : Fragment() {
     private lateinit var rootView: View
     private lateinit var konfettiView: KonfettiView
     private lateinit var buchMode: BuchMode
-    private var inputOngoing = false
-    private var hymnNrInput: String = ""
     private lateinit var tvHymnNrTitle: TextView
     private lateinit var tvHymnText: TextView
     private lateinit var inputOngoingJob: Job
+    private var inputOngoing = false
+    private var hymnNrInput: String = ""
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -60,18 +60,19 @@ class MainActivityTabNum : Fragment() {
         val switchSideButton1 = rootView.findViewById<MaterialButton>(R.id.switchSideButton1)
         val switchSideButton2 = rootView.findViewById<MaterialButton>(R.id.switchSideButton2)
         lifecycleScope.launch {
-            buchMode = getUserSettings().buchMode
-            if (getUserSettings().numberFieldRightSide) {
+            val userSettings = getUserSettings()
+            if (userSettings.numberFieldRightSide) {
                 switchSideButton2.visibility = View.GONE
                 switchSideButton1.visibility = View.VISIBLE
             } else {
                 switchSideButton1.visibility = View.GONE
                 switchSideButton2.visibility = View.VISIBLE
             }
-            hymnNrInput = getUserSettings().number
+            buchMode = userSettings.buchMode
+            hymnNrInput = userSettings.number
             tvHymnNrTitle.text = hymnNrInput
             inputOngoingJob = CoroutineScope(Dispatchers.Default).launch { inputOngoing = false }
-            inputOngoingJob.invokeOnCompletion { lifecycleScope.launch { previewHymn() } }
+            previewHymn()
             switchSideButton1.setOnClickListener {
                 lifecycleScope.launch { updateUserSettings { it.copy(numberFieldRightSide = false) } }
                 switchSideButton1.visibility = View.GONE
@@ -97,8 +98,8 @@ class MainActivityTabNum : Fragment() {
                 inputOngoing = true
                 previewHymn()
             }
-            rootView.findViewById<View>(R.id.b_ok).setOnClickListener { lifecycleScope.launch { openHymn() } }
-            tvHymnText.setOnClickListener { lifecycleScope.launch { openHymn() } }
+            rootView.findViewById<View>(R.id.b_ok).setOnClickListener { openHymn() }
+            tvHymnText.setOnClickListener { openHymn() }
         }
     }
 
@@ -122,7 +123,7 @@ class MainActivityTabNum : Fragment() {
     private fun previewHymn() {
         inputOngoingJob.cancel()
         inputOngoingJob = CoroutineScope(Dispatchers.Default).launch {
-            delay(3000) //TODO timing
+            delay(3000)
             inputOngoing = false
         }
         tvHymnNrTitle.text = hymnNrInput
@@ -133,14 +134,14 @@ class MainActivityTabNum : Fragment() {
             val hymnId = HymnId.create(hymnNrInput.toIntOrNull() ?: -1, buchMode)
             if (hymnId != null) {
                 val hymn = getHymn(hymnId)
-                updateUserSettings { it.copy(number = hymnNrInput) }
                 tvHymnNrTitle.text = hymn.numberAndTitle
                 tvHymnText.text = hymn.text
+                updateUserSettings { it.copy(number = hymnNrInput) }
             } else {
-                updateUserSettings { it.copy(number = "") }
                 tvHymnNrTitle.text = ""
                 tvHymnText.text = ""
                 hymnNrInput = ""
+                updateUserSettings { it.copy(number = "") }
             }
         }
     }

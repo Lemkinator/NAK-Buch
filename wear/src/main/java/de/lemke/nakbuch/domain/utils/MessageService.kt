@@ -10,21 +10,14 @@ class MessageService : WearableListenerService() {
     override fun onMessageReceived(messageEvent: MessageEvent) {
         val messageIntent = Intent()
         messageIntent.action = Intent.ACTION_SEND
-        when (messageEvent.path) {
-            "/privateTextGesangbuch" -> {
+        for (buchMode in BuchMode.values()) {
+            if (messageEvent.path == "/$buchMode") {
                 //Broadcast the received Data Layer messages locally//
-                messageIntent.putExtra(BuchMode.Gesangbuch.toString(), messageEvent.data)
+                messageIntent.putExtra(buchMode.toString(), messageEvent.data)
                 LocalBroadcastManager.getInstance(this).sendBroadcast(messageIntent)
+                return
             }
-            "/privateTextChorbuch" -> {
-                messageIntent.putExtra(BuchMode.Chorbuch.toString(), messageEvent.data)
-                LocalBroadcastManager.getInstance(this).sendBroadcast(messageIntent)
-            }
-            "/privateTextJugendliederbuch" -> {
-                messageIntent.putExtra(BuchMode.Jugendliederbuch.toString(), messageEvent.data)
-                LocalBroadcastManager.getInstance(this).sendBroadcast(messageIntent)
-            }
-            else -> super.onMessageReceived(messageEvent)
         }
+        super.onMessageReceived(messageEvent)
     }
 }

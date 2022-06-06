@@ -37,6 +37,13 @@
                 app:icon="@drawable/ic_oui3_audio"
                 app:text="@string/titleJugendliederbuch" />
 
+            <de.dlyt.yanndroid.oneui.widget.OptionButton
+                android:id="@+id/ob_jb_ergaenzungsheft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_oui3_audio"
+                app:text="@string/titleJBErgaenzungsheft" />
+
             <View style="@style/DrawerDividerStyle" />
 
             <de.dlyt.yanndroid.oneui.widget.OptionButton

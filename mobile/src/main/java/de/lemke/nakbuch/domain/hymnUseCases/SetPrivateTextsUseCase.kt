@@ -43,24 +43,15 @@ class SetPrivateTextsUseCase @Inject constructor(
                         val cut = fileName!!.lastIndexOf('/')
                         if (cut != -1) fileName = fileName?.substring(cut + 1)
                     }
-                    if (fileName?.matches("""hymnsGesangbuch.*\.txt""".toRegex()) == true) {
-                        if (setPrivateTexts(uri, BuchMode.Gesangbuch)) {
-                            if (ok.isNotEmpty()) ok.append(", ")
-                            ok.append(" ${BuchMode.Gesangbuch}")
-                            sendToWear(uri, "/privateTextGesangbuch")
-                        }
-                    } else if (fileName?.matches("""hymnsChorbuch.*\.txt""".toRegex()) == true) {
-                        if (setPrivateTexts(uri, BuchMode.Chorbuch)) {
-                            if (ok.isNotEmpty()) ok.append(", ")
-                            ok.append(" ${BuchMode.Chorbuch}")
-                            sendToWear(uri, "/privateTextChorbuch")
-                        }
-                    } else if (fileName?.matches("""hymnsJugendliederbuch.*\.txt""".toRegex()) == true) {
-                        if (setPrivateTexts(uri, BuchMode.Jugendliederbuch)) {
-                            if (ok.isNotEmpty()) ok.append(", ")
-                            ok.append(" ${BuchMode.Jugendliederbuch}")
-                            sendToWear(uri, "/privateTextJugendliederbuch")
-                        }
+                    var buchMode: BuchMode? = null
+                    if (fileName?.matches("""hymnsGesangbuch.*\.txt""".toRegex()) == true) buchMode = BuchMode.Gesangbuch
+                    else if (fileName?.matches("""hymnsChorbuch.*\.txt""".toRegex()) == true) buchMode = BuchMode.Chorbuch
+                    else if (fileName?.matches("""hymnsJugendliederbuch.*\.txt""".toRegex()) == true) buchMode = BuchMode.Jugendliederbuch
+                    else if (fileName?.matches("""hymnsJBErgaenzungsheft.*\.txt""".toRegex()) == true) buchMode = BuchMode.JBErgaenzungsheft
+                    if (buchMode != null && setPrivateTexts(uri, buchMode)) {
+                        if (ok.isNotEmpty()) ok.append(", ")
+                        ok.append(buchMode.toString())
+                        sendToWear(uri, "/$buchMode")
                     }
                 }
                 return@withContext if (ok.toString().isEmpty()) "Fehler: Keine passende Datei erkannt"
