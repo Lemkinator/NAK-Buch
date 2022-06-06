@@ -101,8 +101,6 @@ For the remaining songs, the rights are still held by the authors, which is why 
 
 The administration of the rights is, among others, the responsibility of the Friedrich Bischoff Verlag, which itself has published an app (for a fee) for the Gesangbuch and an app (for a fee) for the Chorbuch.
 
-Translated with www.DeepL.com/Translator (free version)
-
 <br>
 
 ## ❓Why use this app then?
