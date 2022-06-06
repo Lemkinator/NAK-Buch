@@ -21,27 +21,35 @@
   <img loading="lazy" src="img/wear4.png" height="200"/>
 </p>
 
-# NAK Buch (Gesang und Chorbuch)
-Die neue nicht-offizielle Gesang- und Chorbuch-App der Neuapostolischen Kirche.
+# NAK Buch (Gesang, Chorbuch, Jugendliederbuch + Erweiterungsheft, ...)
 
+Die neue nicht-offizielle Liederbuch-App der Neuapostolischen Kirche.
 
-Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem Gesang- und Chorbuch der NAK.
+Diese App steht in keiner Verbindung zur Neuapostolischen Kirche oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern:
+- Gesangbuch (320 von 438 Liedern)
+- Chorbuch (206 von 462 Liedern)
+- Jugendliederbuch (41 von 102 Liedern)
+- Ergänzungsheft zum Jugendliederbuch (3 von 20 Liedern)
 
-Bei 118 (von 438) Gesangbuch-Liedern und 256 (von 462) Chorbuch-Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht angezeigt werden können. Die Informationen zum Urheberrecht der einzelnen Lieder wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.
+Bei den restlichen Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht oder nur teilweise angezeigt werden können. Die Informationen zum Urheberrecht wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.
 
-Die Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) Gesangbuch-App und eine (kostenpflichtige) Chorbuch-App herausgegeben hat.
+Die Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.
 
 <br>
 
 ## ❓Warum dann diese App benutzen?
  
-💸 Kostenlos: 
-Es gibt bereits eine kostenlose Alternative, diese ist aber etwas in die Jahre gekommen, einige Funktionen fehlen, unterstützt nicht alle Bildschirmformate und zeigt mittlerweile eine Warnung an, dass sie für ältere Versionen geschrieben wurde...
+### 💸 Kostenlos:
+Es gibt bereits eine kostenlose Alternative, diese ist aber etwas in die Jahre gekommen, einige Funktionen fehlen, unterstützt nicht alle Bildschirmformate und zeigt mittlerweile eine Warnung an, dass sie für ältere Versionen entwickelt wurde...
 
-🌙 Dark Mode: 
-Schon den "Dark-Mode" der offiziellen App gesehen? Keine Ahnung was dort schief gelaufen ist, aber diese App hat einen "richtigen" Dark-Mode (der sich automatisch den Systemeinstellungen anpasst) und invertiert nicht einfach nur das Textfeld... 😂😅🤦🤦‍♂️ ... 
+### 🎶Inhalte:
+Die App vereint nicht nur Gesangbuch und Chorbuch, sondern enthält außerdem noch das Jungedliederbuch und dessen Ergänzungsheft (Weitere in Planung).
 
-⌚ Wear OS Unterstützung: 
+### 💎 Design:
+Die App wurde nach Samsungs OneUI-Richtlinien entwickelt. Zum Beispiel kann die Titelleiste bei großen Geräten auf jedem Bildschirm "nach unten gezogen werden", um eine angenehme (einhändige) Bedienung der oberen Knöpfe zu gewährleisten. Außerdem hat die App einen "richtigen" Dark-Mode (der sich automatisch den Systemeinstellungen anpasst) und invertiert nicht einfach nur das Textfeld... 😂😅
+Android Material Design: Auch hier ist die App einen Schritt vorraus und unterstützt ab kommendem Android 13 die Smartphone/App-übergreifende Thema-Farbe. (auf Samsung-Geräten ab Android 12, passt sich die Farbe des App-Icons bereits automatisch dem Hintergrund auf dem Startbildschirm an. Kann aktiviert werden über: Einstellungen -> Hintergrundbild und Stil -> Farbpalette)
+
+### ⌚ Wear OS Unterstützung: 
 Smartphone vergessen? Kein Problem, die Textinhalte der App lassen sich Problemlos (in angenehmem Design) auf der Smartwatch anzeigen.
 
 <br>
@@ -54,8 +62,6 @@ Smartphone vergessen? Kein Problem, die Textinhalte der App lassen sich Probleml
 + Datumsfunktion (Gesungen am...)
 + Integrierte Bildergallerie für Noten (Die App enthält aus urheberrechtlichen Gründen keine Noten und hat außerdem keinen Zugriff auf die Kamera. Die App kann jedoch eine vorinstallierte Kamera-App öffnen und das dort gemachte Foto (komprimiert) in der integrierten Bildergallerie anzeigen.)
 + Verlauf
-+ Die App unterstützt Material You Design und Themed Icons: Die App Farbe des Icons passt sich automatisch dem Hintergrund auf dem Startbildschirm an. (Ab kommenden Android 13, bei Samsung-Geräten bereits ab Android 12: Einstellungen -> Hintergrundbild und Stil -> Farbpalette)
-
 
 🥚 (Easter Eggs - Schaffst du es "Master of Easter Eggs" zu werden? 😂)
 
@@ -82,25 +88,40 @@ Projekt in Mobile-App-Development an der HFU
 
 
 # NAK Book (Hymn and Choir Book)
-The new non-official song and choir book app of the New Apostolic Church.
 
-This app has no affiliation with the NAC or the Friedrich Bischoff Publishing House and contains only the copyright-free texts from the NAC Hymnal and Choir Book.
+The new non-official songbook app of the New Apostolic Church.
 
-For 118 (out of 438) hymnal songs and 256 (out of 462) choirbook songs, the rights are still held by the authors, which is why they cannot be displayed. The information on the copyright of the individual songs has been checked with great care. If I have unwittingly made mistakes, please let me know and I will follow up immediately.
+This app is in no way affiliated with the New Apostolic Church or Friedrich Bischoff Publishing House and contains only the copyright-free texts from the following books:
+- Gesangbuch (320 of 438 songs)
+- Chorbuch (206 of 462 songs)
+- Jugendliederbuch (41 of 102 songs)
+- Ergänzungsheft zum Jugendliederbuch (3 of 20 songs)
 
-The administration of the rights is the responsibility of, among others, the Friedrich Bischoff Verlag, which itself has published a (paid) hymnal app and a (paid) choir book app.
+For the remaining songs, the rights are still held by the authors, which is why they cannot be displayed or can only be displayed in part. The information on copyright has been checked with great care. If I have unwittingly made mistakes, please let me know and I will follow up immediately.
+
+The administration of the rights is, among others, the responsibility of the Friedrich Bischoff Verlag, which itself has published an app (for a fee) for the Gesangbuch and an app (for a fee) for the Chorbuch.
+
+Translated with www.DeepL.com/Translator (free version)
 
 <br>
 
 ## ❓Why use this app then?
  
-💸 Free: 
-There is already a free alternative, but it is a bit outdated, lacks some features, doesn't support all screen formats, and now displays a warning that it was written for older versions....
+### 💸 Free of charge:
 
-🌙 Dark Mode: 
-Already seen the "dark mode" of the official app? No idea what went wrong there, but this app has a "real" dark mode (which automatically adjusts to the system settings) and doesn't just invert the text field... 😂😅🤦🤦‍♂️ ... 
+There is already a free alternative, but it is a bit outdated, lacks some features, doesn't support all screen formats, and now displays a warning that it was developed for older...
 
-⌚ Wear OS support: 
+### 🎶Content:
+
+The app not only combines the Gesangbuch and Chorbuch, but also includes the Jugendliederbuch and its Erweiterungsheft (more to come).
+
+### 💎 Design:
+
+The app is designed according to Samsung's OneUI guidelines. For example, the title bar can be "dragged down" on large devices on any screen to ensure comfortable (one-handed) operation of the top buttons. Also, the app has a "proper" dark mode (which automatically adjusts to system settings) and doesn't just invert the text box.... 😂😅
+Android Material Design: again, the app is one step ahead and supports smartphone/app-wide theme color as of upcoming Android 13. (On Samsung devices from Android 12, the app icon color already automatically matches the background on the home screen. Can be activated via: Settings -> Wallpaper and Style -> Color Palette).
+
+### ⌚ Wear OS support: 
+
 Forgotten smartphone? No problem, the text contents of the app can be displayed on your smartwatch (in a pleasant design).
 
 <br>
@@ -113,8 +134,6 @@ Forgotten smartphone? No problem, the text contents of the app can be displayed 
 + Date function (Sung on...)
 + Integrated picture gallery for sheet music (The app does not contain sheet music for copyright reasons and also does not have access to the camera. However, the app can open a pre-installed camera app and display the photo taken there (compressed) in the integrated picture gallery).
 + History
-+ The app supports Material-You Design and Themed icons: The app color of the icon automatically matches the background on the home screen. (From upcoming Android 13, on Samsung devices already with Android 12: Settings -> Wallpaper and style -> Color palette).
-
 
 🥚 (Easter Eggs - Can you become "Master of Easter Eggs"? 😂)
 
