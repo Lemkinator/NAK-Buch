@@ -1,7 +1,6 @@
 package de.lemke.nakbuch.domain
 
 import android.content.Context
-import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.lemke.nakbuch.data.HymnsRepository
 import de.lemke.nakbuch.domain.model.*
@@ -20,19 +19,14 @@ class InitDatabaseUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
     operator fun invoke(forceInit: Boolean = false): Job = CoroutineScope(Dispatchers.Default).launch {
-        Log.d("test", "in")
         for (buchMode in BuchMode.values()) {
-            Log.d("test", "$buchMode")
-            if (hymnsRepository.getAllRubrics(buchMode).size < buchMode.rubricCount) {
-                Log.d("test", "rub: $buchMode")
+            if (hymnsRepository.getAllRubrics(buchMode).size < buchMode.rubricCount || forceInit) {
                 hymnsRepository.addRubrics(List(buchMode.rubricCount) { index -> Rubric(RubricId.create(index, buchMode)!!) })
             }
             if (hymnsRepository.getAllHymns(buchMode).size < buchMode.hymnCount || forceInit) {
-                Log.d("test", "hymn: $buchMode")
                 hymnsRepository.addHymns(getAllHymnsFromAssets(buchMode))
             }
         }
-        Log.d("test", "out")
         //create new db prepop
         //setRecentColors(listOf(context.resources.getColor(R.color.primary_color, context.theme)))
         //setHints(context.resources.getStringArray(R.array.hint_values).toSet())

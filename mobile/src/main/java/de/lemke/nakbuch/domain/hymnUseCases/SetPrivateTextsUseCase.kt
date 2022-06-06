@@ -57,7 +57,7 @@ class SetPrivateTextsUseCase @Inject constructor(
                 return@withContext if (ok.toString().isEmpty()) "Fehler: Keine passende Datei erkannt"
                 else {
                     MainActivity.refreshView = true
-                    "$ok aktualisiert"
+                    "$ok wurde(n) aktualisiert"
                 }
             }
         }

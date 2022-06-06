@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "487324a498c24632af325ac13fb8d9ff",
+    "identityHash": "e0ce79d6a7862a76b1fef47c75eee7a3",
     "entities": [
       {
         "tableName": "hymn",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hymnId` INTEGER NOT NULL, `rubricId` INTEGER NOT NULL, `numberAndTitle` TEXT NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `copyright` TEXT NOT NULL, `containsCopyright` INTEGER NOT NULL, PRIMARY KEY(`hymnId`), FOREIGN KEY(`rubricId`) REFERENCES `rubric`(`rubricId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hymnId` INTEGER NOT NULL, `rubricId` INTEGER NOT NULL, `numberAndTitle` TEXT NOT NULL, `title` TEXT NOT NULL, `text` TEXT NOT NULL, `copyright` TEXT NOT NULL, `containsCopyright` INTEGER NOT NULL, PRIMARY KEY(`hymnId`), FOREIGN KEY(`rubricId`) REFERENCES `rubric`(`rubricId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "hymnId",
@@ -61,7 +61,7 @@
         "foreignKeys": [
           {
             "table": "rubric",
-            "onDelete": "CASCADE",
+            "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
               "rubricId"
@@ -373,7 +373,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '487324a498c24632af325ac13fb8d9ff')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e0ce79d6a7862a76b1fef47c75eee7a3')"
     ]
   }
 }

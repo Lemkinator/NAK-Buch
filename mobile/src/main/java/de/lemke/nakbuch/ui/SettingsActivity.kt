@@ -128,9 +128,9 @@ class SettingsActivity : AppCompatActivity() {
                         getString(R.string.ok)
                     ) { _: DialogInterface, _: Int -> dialog.dismiss() }
                     dialog.show()
-                    val setPrivateTextsResult = setPrivateTexts(result)
+                    updateUserSettings {it.copy(usingPrivateTexts = true)}
+                    dialog.setMessage(setPrivateTexts(result))
                     dialog.setTitle("Eigene LiedTexte wurden hinzugefügt")
-                    dialog.setMessage(setPrivateTextsResult)
                 }
             }
             pickFolderActivityResultLauncher =
@@ -241,6 +241,7 @@ class SettingsActivity : AppCompatActivity() {
                                             MainActivity.refreshView = true
                                         }
                                         1 -> lifecycleScope.launch {
+                                            updateUserSettings {it.copy(usingPrivateTexts = false)}
                                             initDataBase(forceInit = true).invokeOnCompletion { dialogInterface.dismiss() }
                                             MainActivity.refreshView = true
                                         }

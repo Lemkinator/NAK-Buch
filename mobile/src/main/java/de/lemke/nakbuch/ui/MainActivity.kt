@@ -28,6 +28,7 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.dialog.AlertDialog
+import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
 import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.layout.ToolbarLayout
 import de.dlyt.yanndroid.oneui.menu.MenuItem
@@ -96,6 +97,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     @Inject
     lateinit var doNotDisturb: DoNotDisturbUseCase
 
+    @Inject
+    lateinit var initDatabase: InitDatabaseUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -110,14 +114,48 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ViewSupport.semSetRoundedCorners(window.decorView, 0)
 
         lifecycleScope.launch {
+            val userSettings = getUserSettings()
+            buchMode = userSettings.buchMode
             when (checkAppStart()) {
-                AppStart.FIRST_TIME -> {}
-                AppStart.FIRST_TIME_VERSION -> {}
-                AppStart.NORMAL -> {}
-                AppStart.OLD_ARCHITECTURE -> {}
+                AppStart.FIRST_TIME -> setCurrentItem()
+                AppStart.NORMAL -> setCurrentItem()
+                AppStart.OLD_HYMNTEXTS -> {
+                    if (!userSettings.usingPrivateTexts) {
+                        val dialog = ProgressDialog(this@MainActivity)
+                        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+                        dialog.setCancelable(false)
+                        dialog.show()
+                        initDatabase(forceInit = true).invokeOnCompletion {
+                            lifecycleScope.launch { setCurrentItem() }
+                            dialog.dismiss()
+                        }
+                    } else {
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle(getString(R.string.newTextsTitle))
+                            .setMessage(getString(R.string.newTexts))
+                            .setNegativeButton("Downgrade") { dialogInterface: DialogInterface, _: Int ->
+                                initDatabase(forceInit = true).invokeOnCompletion {
+                                    lifecycleScope.launch {
+                                        setCurrentItem()
+                                        updateUserSettings{ it.copy(usingPrivateTexts = false)}
+                                        dialogInterface.dismiss()
+                                    }
+                                }
+                            }
+                            .setNegativeButtonColor(
+                                resources.getColor(
+                                    de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
+                                    this@MainActivity.theme
+                                )
+                            )
+                            .setNegativeButtonProgress(true)
+                            .setPositiveButton(getString(R.string.ok)){ _: DialogInterface, _: Int -> setCurrentItem()}
+                            .create()
+                            .show()
+                    }
+                }
+                AppStart.FIRST_TIME_VERSION -> setCurrentItem()
             }
-            buchMode = getUserSettings().buchMode
-            setCurrentItem()
         }
 
         // TabLayout

@@ -11,7 +11,7 @@ import de.lemke.nakbuch.domain.model.RubricId
             entity = RubricDb::class,
             parentColumns = arrayOf("rubricId"),
             childColumns = arrayOf("rubricId"),
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.NO_ACTION,
         )
     ],
 )

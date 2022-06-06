@@ -79,7 +79,7 @@
     <string name="hints">Hinweise</string>
     <string name="appHint">Urheberrechtlich geschützte Inhalte</string>
     <string name="appHintLong">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
-    <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern.\n\n- Gesangbuch (320 von 438 Liedern)\n- Chorbuch (206 von 462 Liedern)\n- Jugendliederbuch (41 von 102 Liedern)\n- Ergänzungsheft zum Jugendliederbuch (3 von 20 Liedern)\n\nBei den restlichen Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht oder nur teilweise angezeigt werden können. Die Informationen zum Urheberrecht wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.\n    "</string>
+    <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern:\n\n- Gesangbuch (320 von 438 Liedern)\n- Chorbuch (206 von 462 Liedern)\n- Jugendliederbuch (41 von 102 Liedern)\n- Ergänzungsheft zum Jugendliederbuch (3 von 20 Liedern)\n\nBei den restlichen Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht oder nur teilweise angezeigt werden können. Die Informationen zum Urheberrecht wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.\n    "</string>
 
     <string name="appHintTextBischoff">"Zu den offiziellen Apps vom Bischoff Verlag: "</string>
     <string name="whyNoFullText">Warum wird nicht der vollständige Text angezeigt?</string>
@@ -144,7 +144,7 @@
     <string name="standardSearchMode">Standard Suchmodus</string>
     <string name="searchHelp">Um die Spracheingabe zu verwenden, oben rechts auf das Mikrofon-Symbol klicken. \nStandardmäßig wird einzeln, unabhängig von der Reihenfolge nach allen Wörtern der Eingabe gesucht. \nWird die Eingabe in Anführungszeichen gesetzt, so werden nur Lieder angezeigt, die den exakten Suchtext enthalten. Dieses verhalten kann über die Schaltfläche unten verändert werden.</string>
     <string name="noteTip">Notizen anzeigen/ausblenden</string>
-    <string name="calendarTip">Kalender anzeigen/ausblenden</string>
+    <string name="calendarTip">\"Gesungen am\" anzeigen/ausblenden</string>
     <string name="galleryTip">Foto-Gallerie öffnen</string>
     <string name="increaseTextsize">Text vergrößern</string>
     <string name="decreaseTextsize">Text verkleinern</string>
@@ -205,5 +205,8 @@
     <string name="deletePhoto">Foto löschen</string>
     <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
     <string name="contact">Kontakt</string>
+
+    <string name="newTextsTitle">Neue Lied-Texte sind verfügbar</string>
+    <string name="newTexts">Neue Lied-Texte sind verfügbar, du benutzt jedoch private Lied-Texte, weshalb diese nicht automatisch aktualisiert werden können.\nDu kannst in den Einstellungen deine privaten Lied-Texte mithilfe von neuen txt-Dateien ersetzen oder ein downgrade auf die aktualisierten urheberrechtlich freien Lieder machen.</string>
 
 </resources>

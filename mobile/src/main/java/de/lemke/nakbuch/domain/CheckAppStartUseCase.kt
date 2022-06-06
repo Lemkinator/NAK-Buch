@@ -12,21 +12,20 @@ class CheckAppStartUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): AppStart =
         withContext(Dispatchers.Default) {
-            val lastVersionName: String = getUserSettings().lastVersionName
-            val lastVersionCode: Int = getUserSettings().lastVersionCode
+            val userSettings = getUserSettings()
             val versionCode: Int = BuildConfig.VERSION_CODE
             val versionName: String = BuildConfig.VERSION_NAME
             updateUserSettings { it.copy(lastVersionCode = versionCode, lastVersionName = versionName) }
-            Log.d("CheckAppStart", "Current version code: $versionCode , last version code: $lastVersionCode")
-            Log.d("CheckAppStart", "Current version name: $versionName , last version name: $lastVersionName")
+            Log.d("CheckAppStart", "Current version code: $versionCode , last version code: ${userSettings.lastVersionCode}")
+            Log.d("CheckAppStart", "Current version name: $versionName , last version name: ${userSettings.lastVersionName}")
             return@withContext when {
-                lastVersionCode == -1 -> AppStart.FIRST_TIME
-                lastVersionCode <= 60 -> AppStart.OLD_ARCHITECTURE
-                lastVersionCode < versionCode -> AppStart.FIRST_TIME_VERSION
-                lastVersionCode > versionCode -> {
+                userSettings.lastVersionCode == -1 -> AppStart.FIRST_TIME
+                userSettings.lastVersionCode < 62 -> AppStart.OLD_HYMNTEXTS
+                userSettings.lastVersionCode < versionCode -> AppStart.FIRST_TIME_VERSION
+                userSettings.lastVersionCode > versionCode -> {
                     Log.w(
                         "checkAppStart",
-                        "Current version code ($versionCode) is less then the one recognized on last startup ($lastVersionCode). Defensively assuming normal app start."
+                        "Current version code ($versionCode) is less then the one recognized on last startup (${userSettings.lastVersionCode}). Defensively assuming normal app start."
                     )
                     AppStart.NORMAL
                 }
@@ -37,5 +36,5 @@ class CheckAppStartUseCase @Inject constructor(
 }
 
 enum class AppStart {
-    FIRST_TIME, FIRST_TIME_VERSION, NORMAL, OLD_ARCHITECTURE
+    FIRST_TIME, FIRST_TIME_VERSION, NORMAL, OLD_HYMNTEXTS
 }

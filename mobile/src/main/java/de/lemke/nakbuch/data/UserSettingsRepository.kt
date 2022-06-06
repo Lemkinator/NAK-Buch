@@ -33,6 +33,7 @@ class UserSettingsRepository @Inject constructor(
             it[KEY_LAST_VERSION_CODE] = newSettings.lastVersionCode
             it[KEY_LAST_VERSION_NAME] = newSettings.lastVersionName
             it[KEY_TEXTSIZE] = newSettings.textSize
+            it[KEY_USING_PRIVATE_TEXTS] = newSettings.usingPrivateTexts
             it[KEY_EASTER_EGGS_ENABLED] = newSettings.easterEggsEnabled
             it[KEY_EASTEREGG_TIPS_USED] = newSettings.easterEggTipsUsed
             it[KEY_HISTORY_ENABLED] = newSettings.historyEnabled
@@ -61,6 +62,7 @@ class UserSettingsRepository @Inject constructor(
         lastVersionCode = prefs[KEY_LAST_VERSION_CODE] ?: -1,
         lastVersionName = prefs[KEY_LAST_VERSION_NAME] ?: "0.0",
         textSize = prefs[KEY_TEXTSIZE] ?: DEFAULT_TEXTSIZE,
+        usingPrivateTexts = prefs[KEY_USING_PRIVATE_TEXTS] ?: false,
         easterEggsEnabled = prefs[KEY_EASTER_EGGS_ENABLED] ?: true,
         easterEggTipsUsed = prefs[KEY_EASTEREGG_TIPS_USED] ?: false,
         historyEnabled = prefs[KEY_HISTORY_ENABLED] ?: true,
@@ -104,6 +106,7 @@ class UserSettingsRepository @Inject constructor(
         private val KEY_LAST_VERSION_CODE = intPreferencesKey("lastVersionCode")
         private val KEY_LAST_VERSION_NAME = stringPreferencesKey("lastVersionName")
         private val KEY_TEXTSIZE = intPreferencesKey("textsize")
+        private val KEY_USING_PRIVATE_TEXTS = booleanPreferencesKey("usingPrivateTexts")
         private const val DEFAULT_TEXTSIZE = 20
         private val KEY_EASTER_EGGS_ENABLED = booleanPreferencesKey("easterEggsEnabled")
         private val KEY_EASTEREGG_TIPS_USED = booleanPreferencesKey("easterEggTipsUsed")
@@ -134,6 +137,8 @@ data class UserSettings(
     val search: String,
     /** Text Size */
     val textSize: Int,
+    /** True if using private Texts */
+    val usingPrivateTexts: Boolean,
     /** Easter Eggs enabled */
     val easterEggsEnabled: Boolean,
     /** Is alternative Search-Mode enabled */
