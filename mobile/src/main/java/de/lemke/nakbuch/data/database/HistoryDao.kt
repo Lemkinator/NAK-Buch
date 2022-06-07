@@ -1,9 +1,6 @@
 package de.lemke.nakbuch.data.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface HistoryDao {
@@ -15,6 +12,7 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(history: HistoryDb)
 
+    @Transaction
     @Query("SELECT * FROM history ORDER BY dateTime DESC;")
     suspend fun getAll(): List<HymnAndHistory>
 

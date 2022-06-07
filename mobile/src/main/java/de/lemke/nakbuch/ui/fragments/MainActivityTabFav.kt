@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivityTabFav : Fragment() {
-    
+
     private lateinit var buchMode: BuchMode
     private lateinit var favHymns: MutableList<PersonalHymn>
     private lateinit var rootView: View
@@ -73,7 +73,7 @@ class MainActivityTabFav : Fragment() {
         listView = rootView.findViewById(R.id.favHymnList)
         lifecycleScope.launch {
             swipeRefreshLayout.isRefreshing = true
-            swipeRefreshLayout.setOnRefreshListener { initList() }
+            swipeRefreshLayout.setOnRefreshListener { lifecycleScope.launch { initList() } }
             onBackPressedCallback = object : OnBackPressedCallback(false) {
                 override fun handleOnBackPressed() {
                     setSelecting(false)
@@ -85,16 +85,14 @@ class MainActivityTabFav : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch {
-            swipeRefreshLayout.isRefreshing = true
-            buchMode = getUserSettings().buchMode
-            favHymns = getFavoriteHymns(buchMode).toMutableList()
-            favHymns.add(PersonalHymn.personalHymnPlaceholder)
-            initList()
-        }
+        lifecycleScope.launch { initList() }
     }
 
-    private fun initList() {
+    private suspend fun initList() {
+        swipeRefreshLayout.isRefreshing = true
+        buchMode = getUserSettings().buchMode
+        favHymns = getFavoriteHymns(buchMode).toMutableList()
+        favHymns.add(PersonalHymn.personalHymnPlaceholder)
         swipeRefreshLayout.isRefreshing = true
         selected = HashMap()
         for (i in favHymns.indices) selected[i] = false
@@ -140,12 +138,8 @@ class MainActivityTabFav : Fragment() {
                     lifecycleScope.launch {
                         swipeRefreshLayout.isRefreshing = true
                         setFavoritesFromList(favHymns.filterIndexed { index, personalHymn ->
-                            !selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
-                        }.map { it.copy(favorite = false) })
-                        favHymns = favHymns.filterIndexed { index, personalHymn ->
                             selected[index]!! && personalHymn != PersonalHymn.personalHymnPlaceholder
-                        }.toMutableList()
-                        favHymns.add(PersonalHymn.personalHymnPlaceholder)
+                        }.map { it.copy(favorite = false) })
                         initList()
                     }
                     setSelecting(false)
