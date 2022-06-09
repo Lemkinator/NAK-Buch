@@ -40,7 +40,7 @@ Die Verwaltung der Rechte obliegt u.a. der Verlag Friedrich Bischoff GmbH, welch
 ## ❓Warum dann diese App benutzen?
  
 ### 💸 Kostenlos:
-Es gibt bereits eine kostenlose Alternative, diese ist aber etwas in die Jahre gekommen, einige Funktionen fehlen, unterstützt nicht alle Bildschirmformate und zeigt mittlerweile eine Warnung an, dass sie für ältere Versionen entwickelt wurde...
+Es gibt bereits eine kostenlose Alternative, diese ist aber etwas in die Jahre gekommen und bietet nur grundlegende Funktionen.
 
 ### 🎶Inhalte:
 Die App vereint nicht nur Gesangbuch und Chorbuch, sondern enthält außerdem noch das Jungedliederbuch und dessen Ergänzungsheft (Weitere in Planung).
@@ -63,7 +63,6 @@ Smartphone vergessen? Kein Problem, die Textinhalte der App lassen sich Probleml
 + Integrierte Bildergallerie für Noten (Die App enthält aus urheberrechtlichen Gründen keine Noten und hat außerdem keinen Zugriff auf die Kamera. Die App kann jedoch eine vorinstallierte Kamera-App öffnen und das dort gemachte Foto (komprimiert) in der integrierten Bildergallerie anzeigen.)
 + Verlauf
 
-🥚 (Easter Eggs - Schaffst du es "Master of Easter Eggs" zu werden? 😂)
 
 <br>
 
@@ -107,7 +106,7 @@ The administration of the rights is, among others, the responsibility of Verlag 
  
 ### 💸 Free of charge:
 
-There is already a free alternative, but it is a bit outdated, lacks some features, doesn't support all screen formats, and now displays a warning that it was developed for older versions...
+There is already a free alternative, but it is a bit outdated and only offers basic features. 
 
 ### 🎶Content:
 
@@ -115,8 +114,10 @@ The app not only combines the Gesangbuch and Chorbuch, but also includes the Jug
 
 ### 💎 Design:
 
-The app is designed according to Samsung's OneUI guidelines. For example, the title bar can be "dragged down" on large devices on any screen to ensure comfortable (one-handed) operation of the top buttons. Also, the app has a "proper" dark mode (which automatically adjusts to system settings) and doesn't just invert the text box.... 😂😅
-Android Material Design: again, the app is one step ahead and supports smartphone/app-wide theme color as of upcoming Android 13. (On Samsung devices from Android 12, the app icon color already automatically matches the background on the home screen. Can be activated via: Settings -> Wallpaper and Style -> Color Palette).
+The app was developed according to Samsung's OneUI guidelines. For example, the title bar can be "dragged down" on large devices on any screen to ensure comfortable (one-handed) operation of the top buttons. Also, the app has a "proper" dark mode (which automatically adjusts to system settings) and doesn't just invert the text box.... 😂😅
+Android Material Design: again, the app is one step ahead and supports smartphone/app-wide theme color as of upcoming Android 13. (On Samsung devices from Android 12, the app icon color already automatically matches the background on the home screen. Can be activated via: Settings -> Wallpaper and style -> Color palette).
+
+Translated with www.DeepL.com/Translator (free version)
 
 ### ⌚ Wear OS support: 
 
@@ -133,7 +134,6 @@ Forgotten smartphone? No problem, the text contents of the app can be displayed 
 + Integrated picture gallery for sheet music (The app does not contain sheet music for copyright reasons and also does not have access to the camera. However, the app can open a pre-installed camera app and display the photo taken there (compressed) in the integrated picture gallery).
 + History
 
-🥚 (Easter Eggs - Can you become "Master of Easter Eggs"? 😂)
 
 <br>
 
