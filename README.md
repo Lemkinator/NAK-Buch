@@ -117,7 +117,6 @@ The app not only combines the Gesangbuch and Chorbuch, but also includes the Jug
 The app was developed according to Samsung's OneUI guidelines. For example, the title bar can be "dragged down" on large devices on any screen to ensure comfortable (one-handed) operation of the top buttons. Also, the app has a "proper" dark mode (which automatically adjusts to system settings) and doesn't just invert the text box.... 😂😅
 Android Material Design: again, the app is one step ahead and supports smartphone/app-wide theme color as of upcoming Android 13. (On Samsung devices from Android 12, the app icon color already automatically matches the background on the home screen. Can be activated via: Settings -> Wallpaper and style -> Color palette).
 
-Translated with www.DeepL.com/Translator (free version)
 
 ### ⌚ Wear OS support: 
 
