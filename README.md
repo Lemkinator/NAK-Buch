@@ -25,7 +25,7 @@
 
 Die neue nicht-offizielle Liederbuch-App der Neuapostolischen Kirche.
 
-Diese App steht in keiner Verbindung zur Neuapostolischen Kirche oder dem Friedrich Bischoff Verlag und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern:
+Diese App steht in keiner Verbindung zur Neuapostolischen Kirche oder der Verlag Friedrich Bischoff GmbH und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern:
 - Gesangbuch (320 von 438 Liedern)
 - Chorbuch (206 von 462 Liedern)
 - Jugendliederbuch (41 von 102 Liedern)
@@ -33,7 +33,7 @@ Diese App steht in keiner Verbindung zur Neuapostolischen Kirche oder dem Friedr
 
 Bei den restlichen Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht oder nur teilweise angezeigt werden können. Die Informationen zum Urheberrecht wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.
 
-Die Verwaltung der Rechte obliegt u.a. dem Friedrich Bischoff Verlag, welcher selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.
+Die Verwaltung der Rechte obliegt u.a. der Verlag Friedrich Bischoff GmbH, welche selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.
 
 <br>
 
@@ -91,7 +91,7 @@ Projekt in Mobile-App-Development an der HFU
 
 The new non-official songbook app of the New Apostolic Church.
 
-This app is in no way affiliated with the New Apostolic Church or Friedrich Bischoff Publishing House and contains only the copyright-free texts from the following books:
+This app is in no way affiliated with the New Apostolic Church or Verlag Friedrich Bischoff GmbH and contains only the copyright-free texts from the following books:
 - Gesangbuch (320 of 438 songs)
 - Chorbuch (206 of 462 songs)
 - Jugendliederbuch (41 of 102 songs)
@@ -99,7 +99,7 @@ This app is in no way affiliated with the New Apostolic Church or Friedrich Bisc
 
 For the remaining songs, the rights are still held by the authors, which is why they cannot be displayed or can only be displayed in part. The information on copyright has been checked with great care. If I have unwittingly made mistakes, please let me know and I will follow up immediately.
 
-The administration of the rights is, among others, the responsibility of the Friedrich Bischoff Verlag, which itself has published an app (for a fee) for the Gesangbuch and an app (for a fee) for the Chorbuch.
+The administration of the rights is, among others, the responsibility of Verlag Friedrich Bischoff GmbH, which itself has published an app (for a fee) for the Gesangbuch and an app (for a fee) for the Chorbuch.
 
 <br>
 
@@ -107,7 +107,7 @@ The administration of the rights is, among others, the responsibility of the Fri
  
 ### 💸 Free of charge:
 
-There is already a free alternative, but it is a bit outdated, lacks some features, doesn't support all screen formats, and now displays a warning that it was developed for older...
+There is already a free alternative, but it is a bit outdated, lacks some features, doesn't support all screen formats, and now displays a warning that it was developed for older versions...
 
 ### 🎶Content:
 
