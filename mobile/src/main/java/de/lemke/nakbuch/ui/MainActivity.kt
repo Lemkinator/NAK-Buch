@@ -296,7 +296,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 lifecycleScope.launch {
-                    if (currentTab != 0) {
+                    if (drawerLayout.isSearchMode) drawerLayout.dismissSearchMode()
+                    else if (currentTab != 0) {
                         currentTab = 0
                         setCurrentItem()
                     } else {

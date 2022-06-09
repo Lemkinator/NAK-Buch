@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
 import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
 import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
 import de.dlyt.yanndroid.oneui.view.RecyclerView
@@ -33,7 +32,6 @@ import javax.inject.Inject
 class MainActivitySearchFragment : Fragment() {
     private lateinit var searchList: MutableList<Hymn>
     private lateinit var rootView: View
-    private lateinit var drawerLayout: DrawerLayout
     private lateinit var listView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var buchMode: BuchMode
@@ -56,7 +54,6 @@ class MainActivitySearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         listView = rootView.findViewById(R.id.searchList)
-        drawerLayout = requireActivity().findViewById(R.id.drawer_view)
         lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
             search = getUserSettings().search
