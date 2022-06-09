@@ -98,7 +98,8 @@ This app is in no way affiliated with the New Apostolic Church or Verlag Friedri
 
 For the remaining songs, the rights are still held by the authors, which is why they cannot be displayed or can only be displayed in part. The information on copyright has been checked with great care. If I have unwittingly made mistakes, please let me know and I will follow up immediately.
 
-The administration of the rights is, among others, the responsibility of Verlag Friedrich Bischoff GmbH, which itself has published an app (for a fee) for the Gesangbuch and an app (for a fee) for the Chorbuch.
+The administration of the rights is, among others, the responsibility of Verlag Friedrich Bischoff GmbH,
+which has itself published a (paid) app for the Gesangbuch and a (paid) app for the Chorbuch.
 
 <br>
 
