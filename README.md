@@ -86,7 +86,7 @@ Projekt in Mobile-App-Development an der HFU
 <br><br><br>
 
 
-# NAK Book (Hymn and Choir Book)
+# NAK Book (Gesang, Chorbuch, Jugendliederbuch + Erweiterungsheft, ...)
 
 The new non-official songbook app of the New Apostolic Church.
 
