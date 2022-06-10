@@ -82,7 +82,35 @@ apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 */
 
+/*
+configurations.all {
+    exclude group: 'androidx.appcompat', module: 'appcompat'
+    exclude group: 'androidx.core', module: 'core'
+    //exclude group: 'com.google.android.material', module: 'material'
+}
+*/
+
 dependencies {
+    /*
+    implementation 'io.github.oneuiproject:design:1.0.0'
+
+    implementation 'io.github.oneuiproject.sesl:appcompat:1.2.1'
+    implementation 'io.github.oneuiproject.sesl:coordinatorlayout:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:drawerlayout:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:preference:1.1.0'
+    implementation 'io.github.oneuiproject.sesl:recyclerview:1.1.0'
+    implementation 'io.github.oneuiproject.sesl:swiperefreshlayout:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:viewpager:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:viewpager2:1.1.0'
+    //Material Components:
+    implementation 'io.github.oneuiproject.sesl:material:1.2.0'
+    //Samsung:
+    implementation 'io.github.oneuiproject.sesl:apppickerview:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:indexscroll:1.0.2'
+    implementation 'io.github.oneuiproject.sesl:picker-basic:1.0.0'
+    implementation 'io.github.oneuiproject.sesl:picker-color:1.0.1'
+    */
+
     implementation 'io.github.yanndroid:oneui:2.4.0'
     //implementation fileTree(include: ['*.aar'], dir: 'libs')
     implementation 'id.zelory:compressor:3.0.1'
