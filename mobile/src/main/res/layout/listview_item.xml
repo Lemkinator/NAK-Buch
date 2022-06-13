@@ -23,15 +23,6 @@
             android:focusable="false"
             android:visibility="gone" />
 
-        <!--ImageView
-            android:id="@+id/icon_tab_item_image"
-            android:layout_width="28.0dip"
-            android:layout_height="28.0dip"
-            android:layout_marginVertical="12.0dip"
-            android:layout_marginEnd="16.0dip"
-            android:gravity="center"
-            android:scaleType="fitXY" /-->
-
         <RelativeLayout
             android:layout_width="0.0dip"
             android:layout_height="wrap_content"

@@ -2,13 +2,6 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <!--item
-        android:id="@+id/switchBuchMode"
-        android:title="@string/switchMode"
-        app:showAsAction="ifRoom"
-        /-->
-
     <item
         android:id="@+id/mute"
         android:title="@string/mute"
@@ -23,11 +16,4 @@
         android:id="@+id/openOfficialApp"
         android:title="@string/openOfficialApp"
         app:showAsAction="ifRoom" />
-
-    <!--
-        android:icon="@drawable/ic_samsung_convert"
-        android:icon="@drawable/ic_samsung_volume_mute"
-        android:icon="@drawable/ic_samsung_remove_2"
-     -->
-
 </menu>

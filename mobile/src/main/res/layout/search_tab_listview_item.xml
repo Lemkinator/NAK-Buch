@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical">
@@ -23,15 +24,6 @@
             android:focusable="false"
             android:visibility="gone" />
 
-        <!--ImageView
-            android:id="@+id/icon_tab_item_image"
-            android:layout_width="28.0dip"
-            android:layout_height="28.0dip"
-            android:layout_marginVertical="12.0dip"
-            android:layout_marginEnd="16.0dip"
-            android:gravity="center"
-            android:scaleType="fitXY" /-->
-
         <LinearLayout
             android:layout_width="0.0dip"
             android:layout_height="wrap_content"
@@ -54,7 +46,8 @@
                 android:paddingStart="6dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?textAppearanceListItemSmall" />
+                android:textAppearance="?textAppearanceListItemSmall"
+                tools:ignore="RtlSymmetry" />
 
             <TextView
                 android:id="@+id/search_tab_item_copyright"
@@ -63,7 +56,8 @@
                 android:paddingStart="20dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?textAppearanceListItemSecondary" />
+                android:textAppearance="?textAppearanceListItemSecondary"
+                tools:ignore="RtlSymmetry" />
 
         </LinearLayout>
 

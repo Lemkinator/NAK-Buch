@@ -15,44 +15,4 @@
         android:icon="@drawable/ic_oui4_delete"
         android:title="@string/removeFromFav"
         app:showAsAction="always" />
-
-    <!--item
-        android:id="@+id/move"
-        android:icon="@drawable/ic_samsung_move"
-        android:title="Move"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/delete"
-        android:icon="@drawable/ic_samsung_delete"
-        android:title="Delete"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/add"
-        android:icon="@drawable/ic_samsung_list_add"
-        android:title="Add"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/edit"
-        android:icon="@drawable/ic_samsung_edit"
-        android:title="Edit"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/item1"
-        android:title="Menu Item 1"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/item2"
-        android:title="Menu Item 2"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/item3"
-        android:title="Menu Item 3"
-        app:showAsAction="never" /-->
-
 </menu>

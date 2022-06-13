@@ -19,7 +19,7 @@
         <item name="buttonBarNeutralButtonStyle">@style/OneUI4.DialogButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/OneUI4.DialogButtonStyle</item>
         <item name="dialogTheme">@style/OneUI4.DialogTheme</item>
-        <item name="android:windowLightStatusBar" ns1:targetApi="m">false</item>
+        <item name="android:windowLightStatusBar" >false</item>
         <item name="android:windowLightNavigationBar" ns1:targetApi="27">false</item>
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryDark">@color/primary_dark_color</item>

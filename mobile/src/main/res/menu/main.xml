@@ -2,20 +2,11 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <item
         android:id="@+id/search"
         android:icon="@drawable/ic_oui_search"
         android:title="@string/action_search"
-        app:showAsAction="always"
-       />
-
-    <!--item
-        android:id="@+id/switchBuchMode"
-        android:icon="@drawable/ic_oui_convert"
-        android:title="@string/switchMode"
-        app:showAsAction="always"
-        /-->
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/mute"
@@ -26,27 +17,4 @@
         android:id="@+id/dnd"
         android:title="@string/dnd"
         app:showAsAction="ifRoom" />
-
-    <!--
-        android:icon="@drawable/ic_samsung_volume_mute"
-        android:icon="@drawable/ic_samsung_remove_2"
-    -->
-
-    <!--item
-        android:id="@+id/settings"
-        android:icon="@drawable/ic_samsung_settings_3"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/info"
-        android:icon="@drawable/ic_samsung_info_2"
-        android:title="@string/about_app"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/item3"
-        android:title="Menu Item 3"
-        app:showAsAction="never" /-->
-
 </menu>
