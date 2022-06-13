@@ -4,9 +4,9 @@
     <string name="titleChorbuch" translatable="false">Chorbuch</string>
     <string name="titleJugendliederbuch" translatable="false">Jugendliederbuch</string>
     <string name="titleJBErgaenzungsheft" translatable="false">JB-Ergänzungsheft</string>
-    <string name="email" translatable="false">apps@lemkinator.com</string>
-    <string name="myWebsite" translatable="false">https://www.lemkinator.com</string>
-    <string name="privacyWebsite" translatable="false">https://www.lemkinator.com/nakbuch-privacy-policy</string>
+    <string name="email" translatable="false">apps@leonard-lemke.com</string>
+    <string name="myWebsite" translatable="false">https://www.leonard-lemke.com</string>
+    <string name="privacyWebsite" translatable="false">https://www.leonard-lemke.com/nakbuch-privacy-policy</string>
     <string name="playStoreAppLink" translatable="false">market://details?id=</string>
     <string name="playStoreLink" translatable="false">https://play.google.com/store/apps/details?id=</string>
     <string name="oneUiLibaryGithub" translatable="false">OneUI-Project Github</string>
