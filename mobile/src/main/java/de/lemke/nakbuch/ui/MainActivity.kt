@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private var currentFragment: Fragment? = null
     private var time: Long = 0
     private lateinit var fragmentManager: FragmentManager
-    private lateinit var searchJob: Job
+    private var searchJob: Job? = null
     private lateinit var buchMode: BuchMode
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var konfettiView: KonfettiView
@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
             override fun afterTextChanged(s: Editable) {
                 var searchText = s.toString()
-                searchJob.cancel()
+                searchJob?.cancel()
                 searchJob = lifecycleScope.launch {
                     if (getUserSettings().easterEggsEnabled) {
                         if (searchText.replace(" ", "").equals("easteregg", ignoreCase = true)) {
@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
 
             override fun onKeyboardSearchClick(s: CharSequence) {
-                searchJob.cancel()
+                searchJob?.cancel()
                 searchJob = lifecycleScope.launch {
                     updateUserSettings { it.copy(search = s.toString()) }
                     setFragment(3)
