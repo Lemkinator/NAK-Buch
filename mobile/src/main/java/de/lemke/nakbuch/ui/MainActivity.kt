@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                                 initDatabase(forceInit = true).invokeOnCompletion {
                                     lifecycleScope.launch {
                                         setCurrentItem()
-                                        updateUserSettings{ it.copy(usingPrivateTexts = false)}
+                                        updateUserSettings { it.copy(usingPrivateTexts = false) }
                                         dialogInterface.dismiss()
                                     }
                                 }
@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                                 )
                             )
                             .setNegativeButtonProgress(true)
-                            .setPositiveButton(getString(R.string.ok)){ _: DialogInterface, _: Int -> setCurrentItem()}
+                            .setPositiveButton(getString(R.string.ok)) { _: DialogInterface, _: Int -> setCurrentItem() }
                             .create()
                             .show()
                     }
@@ -349,13 +349,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             if (hints.contains("appHint")) {
                 AlertDialog.Builder(this@MainActivity)
                     .setTitle(getString(R.string.hint) + ":")
-                    .setMessage(getString(R.string.appHintText))
-                    .setNegativeButton(getString(R.string.dontShowAgain)) { _: DialogInterface?, _: Int ->
+                    .setMessage(getString(R.string.appHintTextShort))
+                    .setNeutralButton(getString(R.string.moreInformation)) { _: DialogInterface?, _: Int ->
+                        startActivity(Intent(this@MainActivity, HelpActivity::class.java))
+                    }
+                    .setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
                         hints.remove("appHint")
                         lifecycleScope.launch { setHints(hints) }
+                        lifecycleScope.launch { easterEggDialog() }
                     }
-                    .setPositiveButton(getString(R.string.ok), null)
-                    .setOnDismissListener { lifecycleScope.launch { easterEggDialog() } }
+                    .setCancelable(false)
                     .create()
                     .show()
 
@@ -420,18 +423,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .setMessage(getString(R.string.easterEggsText))
                 .setNegativeButton(getString(R.string.deactivate)) { dialogInterface: DialogInterface, _: Int ->
                     lifecycleScope.launch {
-                        updateUserSettings { it.copy(easterEggsEnabled = false) }
+                        updateUserSettings { it.copy(easterEggsEnabled = false, showEasterEggHint = false) }
                         delay(700)
                         dialogInterface.dismiss()
                     }
                 }
-                .setPositiveButton(getString(R.string.ok), null)
+                .setPositiveButton(getString(R.string.ok)) { _: DialogInterface, _: Int ->
+                    lifecycleScope.launch {
+                        updateUserSettings { it.copy(showEasterEggHint = false) }
+                    }
+                }
                 .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
                 .setNegativeButtonProgress(true)
                 .setOnDismissListener { lifecycleScope.launch { showTipPopup() } }
                 .create()
                 .show()
-            updateUserSettings { it.copy(showEasterEggHint = false) }
         } else {
             showTipPopup()
         }

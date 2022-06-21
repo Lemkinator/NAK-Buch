@@ -68,8 +68,8 @@
     <PreferenceCategory android:title="@string/hints">
         <TipsCardViewPreference
             android:key="tip_card_preference"
-            android:summary="@string/appHintText"
-            android:title="@string/appHint"
+            android:summary="@string/appHintTextShort"
+            android:title="@string/appHintShort"
             android:visibility="gone"/>
         <PreferenceCategory android:key="spacing_tip_card" />
 

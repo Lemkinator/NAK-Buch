@@ -34,6 +34,7 @@
     <string name="confirmExit">Verlassen bestätigen</string>
     <string name="pressAgainToExit">Zurück-Taste erneut drücken um zu Beenden.</string>
     <string name="dontShowAgain">Nicht erneut zeigen</string>
+    <string name="moreInformation">Mehr Informationen</string>
     <string name="savedNote">Notiz Gespeichert</string>
     <string name="openInPlaystore">In Play Store öffnen</string>
     <string name="toPlaystore">Zum Play Store</string>
@@ -76,9 +77,9 @@
     <string name="color">Farbe</string>
     <string name="design">Design</string>
     <string name="hint">Hinweis</string>
-    <string name="hints">Hinweise</string>
-    <string name="appHint">Urheberrechtlich geschützte Inhalte</string>
-    <string name="appHintLong">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
+    <string name="appHintShort">Urheberrechtlich geschützte Inhalte</string>
+    <string name="appHint">Hinweis zu urheberrechtlich geschützten Inhalten:</string>
+    <string name="appHintTextShort">"Diese App steht in keiner Verbindung zur NAK oder der Verlag Friedrich Bischoff GmbH und beinhaltet deshalb nur die vom Urheberrecht freien Texte. Mehr Informationen dazu findest du unter dem Menu-Punkt \"Hilfe\"."</string>
     <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder der Verlag Friedrich Bischoff GmbH und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern:\n\n- Gesangbuch (320 von 438 Liedern)\n- Chorbuch (206 von 462 Liedern)\n- Jugendliederbuch (41 von 102 Liedern)\n- Ergänzungsheft zum Jugendliederbuch (3 von 20 Liedern)\n\nBei den restlichen Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht oder nur teilweise angezeigt werden können. Die Informationen zum Urheberrecht wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. der Verlag Friedrich Bischoff GmbH, welchee selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.\n    "</string>
 
     <string name="appHintTextBischoff">"Zu den offiziellen Apps der Verlag Friedrich Bischoff GmbH: "</string>
@@ -196,6 +197,7 @@
     <string name="setStandardSearchMode">Standard-Suchmodus auswählen</string>
     <string name="deactivate">Deaktivieren</string>
     <string name="shareNote">Notiz teilen</string>
+    <string name="hints">Hinweise</string>
     <string name="onlyThisTime">Nur diesmal</string>
     <string name="ForeverICantTakeAJoke">Für immer, ich versteh kein Spaß</string>
     <string name="failedToMuteStreams">Hoppla, ich habs nicht geschafft alles Stummzuschalten…</string>
