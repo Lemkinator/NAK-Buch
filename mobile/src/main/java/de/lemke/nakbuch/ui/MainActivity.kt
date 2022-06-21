@@ -114,46 +114,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         ViewSupport.semSetRoundedCorners(window.decorView, 0)
 
         lifecycleScope.launch {
-            val userSettings = getUserSettings()
-            buchMode = userSettings.buchMode
+            buchMode = getUserSettings().buchMode
             when (checkAppStart()) {
                 AppStart.FIRST_TIME -> setCurrentItem()
                 AppStart.NORMAL -> setCurrentItem()
-                AppStart.OLD_HYMNTEXTS -> {
-                    if (!userSettings.usingPrivateTexts) {
-                        val dialog = ProgressDialog(this@MainActivity)
-                        dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
-                        dialog.setCancelable(false)
-                        dialog.show()
-                        initDatabase(forceInit = true).invokeOnCompletion {
-                            lifecycleScope.launch { setCurrentItem() }
-                            dialog.dismiss()
-                        }
-                    } else {
-                        AlertDialog.Builder(this@MainActivity)
-                            .setTitle(getString(R.string.newTextsTitle))
-                            .setMessage(getString(R.string.newTexts))
-                            .setNegativeButton("Downgrade") { dialogInterface: DialogInterface, _: Int ->
-                                initDatabase(forceInit = true).invokeOnCompletion {
-                                    lifecycleScope.launch {
-                                        setCurrentItem()
-                                        updateUserSettings { it.copy(usingPrivateTexts = false) }
-                                        dialogInterface.dismiss()
-                                    }
-                                }
-                            }
-                            .setNegativeButtonColor(
-                                resources.getColor(
-                                    de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
-                                    this@MainActivity.theme
-                                )
-                            )
-                            .setNegativeButtonProgress(true)
-                            .setPositiveButton(getString(R.string.ok)) { _: DialogInterface, _: Int -> setCurrentItem() }
-                            .create()
-                            .show()
-                    }
-                }
+                AppStart.OLD_HYMNTEXTS -> oldHymnTextsDialog()
                 AppStart.FIRST_TIME_VERSION -> setCurrentItem()
             }
         }
@@ -235,27 +200,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
         optionGroup.setOnOptionButtonClickListener { _: OptionButton, checkedId: Int, _: Int ->
             when (checkedId) {
-                R.id.ob_gesangbuch -> {
+                R.id.ob_gesangbuch, R.id.ob_chorbuch, R.id.ob_jugendliederbuch, R.id.ob_jb_ergaenzungsheft -> {
                     lifecycleScope.launch {
-                        buchMode = updateUserSettings { it.copy(buchMode = BuchMode.Gesangbuch) }.buchMode
-                        setCurrentItem()
-                    }
-                }
-                R.id.ob_chorbuch -> {
-                    lifecycleScope.launch {
-                        buchMode = updateUserSettings { it.copy(buchMode = BuchMode.Chorbuch) }.buchMode
-                        setCurrentItem()
-                    }
-                }
-                R.id.ob_jugendliederbuch -> {
-                    lifecycleScope.launch {
-                        buchMode = updateUserSettings { it.copy(buchMode = BuchMode.Jugendliederbuch) }.buchMode
-                        setCurrentItem()
-                    }
-                }
-                R.id.ob_jb_ergaenzungsheft -> {
-                    lifecycleScope.launch {
-                        buchMode = updateUserSettings { it.copy(buchMode = BuchMode.JBErgaenzungsheft) }.buchMode
+                        buchMode = updateUserSettings {
+                            it.copy(
+                                buchMode = when (checkedId) {
+                                    R.id.ob_gesangbuch -> BuchMode.Gesangbuch
+                                    R.id.ob_chorbuch -> BuchMode.Chorbuch
+                                    R.id.ob_jugendliederbuch -> BuchMode.Jugendliederbuch
+                                    R.id.ob_jb_ergaenzungsheft -> BuchMode.JBErgaenzungsheft
+                                    else -> BuchMode.Gesangbuch
+                                }
+                            )
+                        }.buchMode
                         setCurrentItem()
                     }
                 }
@@ -272,28 +229,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         searchHelpFAB.supportImageTintList =
             ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_tablayout_selected_indicator_color, theme)
         Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
-        searchHelpFAB.setOnClickListener {
-            val searchModes = arrayOf<CharSequence>(getString(R.string.onlyExactSearchText), getString(R.string.searchForAllPartialWords))
-            AlertDialog.Builder(this@MainActivity)
-                .setTitle(R.string.help)
-                .setMessage(R.string.searchHelp)
-                .setNeutralButton(R.string.ok, null)
-                .setNegativeButton(R.string.standardSearchMode) { _: DialogInterface, _: Int ->
-                    lifecycleScope.launch {
-                        AlertDialog.Builder(this@MainActivity)
-                            .setTitle(getString(R.string.setStandardSearchMode))
-                            .setNeutralButton(R.string.ok, null)
-                            .setSingleChoiceItems(searchModes, if (getUserSettings().alternativeSearchModeEnabled) 1 else 0)
-                            { _: DialogInterface, i: Int ->
-                                lifecycleScope.launch { updateUserSettings { it.copy(alternativeSearchModeEnabled = (i == 1)) } }
-                            }
-                            .show()
-                    }
-                }
-                .create()
-                .show()
-        }
-        val onBackPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        searchHelpFAB.setOnClickListener { searchDialog() }
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 lifecycleScope.launch {
                     if (drawerLayout.isSearchMode) drawerLayout.dismissSearchMode()
@@ -311,8 +248,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 }
             }
-        }
-        onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        })
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
             drawerLayout.onSearchModeVoiceInputResult(result)
         }
@@ -320,6 +256,30 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE)
                 drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
         }
+    }
+
+    private fun searchDialog() {
+        AlertDialog.Builder(this@MainActivity)
+            .setTitle(R.string.help)
+            .setMessage(R.string.searchHelp)
+            .setNeutralButton(R.string.ok, null)
+            .setNegativeButton(R.string.standardSearchMode) { _: DialogInterface, _: Int ->
+                lifecycleScope.launch {
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle(getString(R.string.setStandardSearchMode))
+                        .setNeutralButton(R.string.ok, null)
+                        .setSingleChoiceItems(
+                            arrayOf<CharSequence>(getString(R.string.onlyExactSearchText), getString(R.string.searchForAllPartialWords)),
+                            if (getUserSettings().alternativeSearchModeEnabled) 1 else 0
+                        )
+                        { _: DialogInterface, i: Int ->
+                            lifecycleScope.launch { updateUserSettings { it.copy(alternativeSearchModeEnabled = (i == 1)) } }
+                        }
+                        .show()
+                }
+            }
+            .create()
+            .show()
     }
 
     public override fun attachBaseContext(context: Context) {
@@ -413,6 +373,42 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 e.printStackTrace()
             }
             fragmentManager.beginTransaction().add(R.id.fragment_container, currentFragment!!, tabName).commit()
+        }
+    }
+
+    private suspend fun oldHymnTextsDialog() {
+        if (!getUserSettings().usingPrivateTexts) {
+            val dialog = ProgressDialog(this@MainActivity)
+            dialog.setProgressStyle(ProgressDialog.STYLE_CIRCLE)
+            dialog.setCancelable(false)
+            dialog.show()
+            initDatabase(forceInit = true).invokeOnCompletion {
+                lifecycleScope.launch { setCurrentItem() }
+                dialog.dismiss()
+            }
+        } else {
+            AlertDialog.Builder(this@MainActivity)
+                .setTitle(getString(R.string.newTextsTitle))
+                .setMessage(getString(R.string.newTexts))
+                .setNegativeButton("Downgrade") { dialogInterface: DialogInterface, _: Int ->
+                    initDatabase(forceInit = true).invokeOnCompletion {
+                        lifecycleScope.launch {
+                            setCurrentItem()
+                            updateUserSettings { it.copy(usingPrivateTexts = false) }
+                            dialogInterface.dismiss()
+                        }
+                    }
+                }
+                .setNegativeButtonColor(
+                    resources.getColor(
+                        de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
+                        this@MainActivity.theme
+                    )
+                )
+                .setNegativeButtonProgress(true)
+                .setPositiveButton(getString(R.string.ok)) { _: DialogInterface, _: Int -> setCurrentItem() }
+                .create()
+                .show()
         }
     }
 

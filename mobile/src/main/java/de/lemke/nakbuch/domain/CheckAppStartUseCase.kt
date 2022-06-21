@@ -25,7 +25,8 @@ class CheckAppStartUseCase @Inject constructor(
                 userSettings.lastVersionCode > versionCode -> {
                     Log.w(
                         "checkAppStart",
-                        "Current version code ($versionCode) is less then the one recognized on last startup (${userSettings.lastVersionCode}). Defensively assuming normal app start."
+                        "Current version code ($versionCode) is less then the one recognized on " +
+                                "last startup (${userSettings.lastVersionCode}). Defensively assuming normal app start."
                     )
                     AppStart.NORMAL
                 }

@@ -102,7 +102,7 @@ class MainActivitySearchFragment : Fragment() {
                 val hymn = searchList[position]
                 val color = MaterialColors.getColor(
                     context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                    context!!.resources.getColor(R.color.primary_color, context!!.theme)
+                    context!!.resources.getColor(R.color.primary_color, context?.theme)
                 )
                 lifecycleScope.launch {
                     val alternativeSearchModeEnabled = getUserSettings().alternativeSearchModeEnabled

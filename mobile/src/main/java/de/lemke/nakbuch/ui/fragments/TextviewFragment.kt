@@ -156,7 +156,7 @@ class TextviewFragment : Fragment() {
             personalHymn = getPersonalHymn(hymnId)
             val color = MaterialColors.getColor(
                 context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                context!!.resources.getColor(R.color.primary_color, context!!.theme)
+                context!!.resources.getColor(R.color.primary_color, context?.theme)
             )
             val userSettings = getUserSettings()
             updateTextSize(userSettings.textSize)
@@ -191,13 +191,12 @@ class TextviewFragment : Fragment() {
                         }
                         .setPositiveButton(getString(R.string.onlyThisTime), null)
                         .setNegativeButtonColor(
-                            resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context!!.theme)
+                            resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context?.theme)
                         ).show()
                 }
                 jokeButton.visibility = View.GONE
             }
-            editTextNotiz.addTextChangedListener(object :
-                TextChangedListener<EditText>(editTextNotiz) {
+            editTextNotiz.addTextChangedListener(object : TextChangedListener<EditText>(editTextNotiz) {
                 override fun onTextChanged(target: EditText, s: Editable) {
                     lifecycleScope.launch {
                         if (::personalHymn.isInitialized) {
@@ -304,7 +303,7 @@ class TextviewFragment : Fragment() {
                 noteIcon!!.colorFilter = PorterDuffColorFilter(
                     MaterialColors.getColor(
                         context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context!!.theme)
+                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context?.theme)
                     ), PorterDuff.Mode.SRC_IN
                 )
             }
@@ -312,7 +311,7 @@ class TextviewFragment : Fragment() {
                 dateIcon!!.colorFilter = PorterDuffColorFilter(
                     MaterialColors.getColor(
                         context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context!!.theme)
+                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context?.theme)
                     ), PorterDuff.Mode.SRC_IN
                 )
             }
@@ -356,7 +355,7 @@ class TextviewFragment : Fragment() {
         if (personalHymn.favorite) {
             favIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
             favIcon.colorFilter = PorterDuffColorFilter(
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, context!!.theme), PorterDuff.Mode.SRC_IN
+                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, context?.theme), PorterDuff.Mode.SRC_IN
             )
         } else {
             favIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
@@ -413,20 +412,15 @@ class TextviewFragment : Fragment() {
         tipPopupFoto = TipPopup(fotoButton)
         tipPopupPlus = TipPopup(plusButton)
         tipPopupMinus = TipPopup(minusButton)
-        tipPopupMenu.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
-        tipPopupNote.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
+        tipPopupMenu.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context?.theme))
+        tipPopupNote.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context?.theme))
         tipPopupCalendar.setBackgroundColor(
-            resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme)
+            resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context?.theme)
         )
-        tipPopupFav.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
-        tipPopupFoto.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
-        tipPopupPlus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context!!.theme))
-        tipPopupMinus.setBackgroundColor(
-            resources.getColor(
-                de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color,
-                context!!.theme
-            )
-        )
+        tipPopupFav.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context?.theme))
+        tipPopupFoto.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context?.theme))
+        tipPopupPlus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context?.theme))
+        tipPopupMinus.setBackgroundColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.oui_tip_popup_background_color, context?.theme))
         tipPopupMenu.setExpanded(true)
         tipPopupNote.setExpanded(true)
         tipPopupCalendar.setExpanded(true)
