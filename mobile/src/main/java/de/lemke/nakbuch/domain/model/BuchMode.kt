@@ -65,7 +65,8 @@ enum class BuchMode {
                 "Einladung - Heilsverlangen - Heiligung", "Glaube - Vertrauen - Trost", "Gottes Liebe - Nächstenliebe",
                 "Vergebung - Gnade", "Lob - Dank - Anbetung", "Sakramente", "Heilige Taufe", "Heiliges Abendmahl",
                 "Heilige Versiegelung", "Segenshandlungen", "Konfirmation", "Trauung", "Den Glauben leben", "Morgen und Abend",
-                "Gemeinde - Gemeinschaft", "Sendung - Nachfolge - Bekenntnis", "Verheißung - Erwartung - Erfüllung", "Sterben - Ewiges Leben"
+                "Gemeinde - Gemeinschaft", "Sendung - Nachfolge - Bekenntnis",
+                "Verheißung - Erwartung - Erfüllung", "Sterben - Ewiges Leben"
             )
             Chorbuch -> listOf(
                 "Das geistliche Jahr", "Advent", "Weihnachten", "Jahreswechsel", "Palmsonntag", "Passion", "Ostern", "Himmelfahrt",
