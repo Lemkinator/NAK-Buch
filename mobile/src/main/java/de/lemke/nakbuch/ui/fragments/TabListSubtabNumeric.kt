@@ -110,7 +110,7 @@ class TabListSubtabNumeric : Fragment() {
             }
 
             override fun onLongPressMultiSelectionEnded(x: Int, y: Int) {
-                 showBottomBarJob = lifecycleScope.launch {
+                showBottomBarJob = lifecycleScope.launch {
                     delay(300)
                     drawerLayout.showSelectModeBottomBar(true)
                 }
@@ -137,9 +137,7 @@ class TabListSubtabNumeric : Fragment() {
                         dialog.show()
                         lifecycleScope.launch {
                             setFavoritesFromHymnList(hymns, onlySelected, true)
-                        }.invokeOnCompletion {
-                            dialog.dismiss()
-                        }
+                        }.invokeOnCompletion { dialog.dismiss() }
                     }
                     R.id.removeFromFav -> {
                         val dialog = ProgressDialog(context)
@@ -148,9 +146,7 @@ class TabListSubtabNumeric : Fragment() {
                         dialog.show()
                         lifecycleScope.launch {
                             setFavoritesFromHymnList(hymns, onlySelected, false)
-                        }.invokeOnCompletion {
-                            dialog.dismiss()
-                        }
+                        }.invokeOnCompletion { dialog.dismiss() }
                     }
                     else -> {
                         item.badge = item.badge + 1

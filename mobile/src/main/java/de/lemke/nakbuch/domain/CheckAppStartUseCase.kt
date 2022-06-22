@@ -20,7 +20,7 @@ class CheckAppStartUseCase @Inject constructor(
             Log.d("CheckAppStart", "Current version name: $versionName , last version name: ${userSettings.lastVersionName}")
             return@withContext when {
                 userSettings.lastVersionCode == -1 -> AppStart.FIRST_TIME
-                userSettings.lastVersionCode < 66 -> AppStart.OLD_HYMNTEXTS
+                userSettings.lastVersionCode < 76 -> AppStart.OLD_HYMNTEXTS
                 userSettings.lastVersionCode < versionCode -> AppStart.FIRST_TIME_VERSION
                 userSettings.lastVersionCode > versionCode -> {
                     Log.w(

@@ -50,19 +50,14 @@ class SettingsActivity : AppCompatActivity() {
         drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
         drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
-        }
+        if (savedInstanceState == null) supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
     }
 
     @AndroidEntryPoint
     class SettingsFragment : PreferenceFragment(), Preference.OnPreferenceChangeListener {
         private lateinit var settingsActivity: SettingsActivity
-        private var lastTimeVersionClicked: Long = 0
-        private var clickCounter = 0
         private lateinit var pickTextsActivityResultLauncher: ActivityResultLauncher<String>
         private lateinit var pickFolderActivityResultLauncher: ActivityResultLauncher<Uri>
-
         private lateinit var darkModePref: HorizontalRadioPreference
         private lateinit var autoDarkModePref: SwitchPreference
         private lateinit var colorPickerPref: ColorPickerPreference
@@ -76,6 +71,8 @@ class SettingsActivity : AppCompatActivity() {
         private var tipCard: TipsCardViewPreference? = null
         private var tipCardSpacing: PreferenceCategory? = null
         private var relatedCard: PreferencesRelatedCard? = null
+        private var lastTimeVersionClicked: Long = 0
+        private var clickCounter = 0
 
         @Inject
         lateinit var setPrivateTexts: SetPrivateTextsUseCase
@@ -101,7 +98,8 @@ class SettingsActivity : AppCompatActivity() {
         @Inject
         lateinit var mute: MuteUseCase
 
-        @Inject lateinit var doNotDisturb: DoNotDisturbUseCase
+        @Inject
+        lateinit var doNotDisturb: DoNotDisturbUseCase
 
         @Inject
         lateinit var initDataBase: InitDatabaseUseCase
@@ -121,14 +119,13 @@ class SettingsActivity : AppCompatActivity() {
             pickTextsActivityResultLauncher = registerForActivityResult(GetMultipleContents()) { result: List<Uri>? ->
                 lifecycleScope.launch {
                     val dialog = ProgressDialog(settingsActivity)
-                    dialog.isIndeterminate = false
                     dialog.setTitle("Eigene LiedTexte werden hinzugefügt...")
                     dialog.setButton(
                         ProgressDialog.BUTTON_NEUTRAL,
                         getString(R.string.ok)
                     ) { _: DialogInterface, _: Int -> dialog.dismiss() }
                     dialog.show()
-                    updateUserSettings {it.copy(usingPrivateTexts = true)}
+                    updateUserSettings { it.copy(usingPrivateTexts = true) }
                     dialog.setMessage(setPrivateTexts(result))
                     dialog.setTitle("Eigene LiedTexte wurden hinzugefügt")
                 }
@@ -186,11 +183,10 @@ class SettingsActivity : AppCompatActivity() {
                     ).show()
                     true
                 }
-            findPreference<Preference>("dnd")!!.onPreferenceClickListener =
-                Preference.OnPreferenceClickListener {
-                    doNotDisturb()
-                    true
-                }
+            findPreference<Preference>("dnd")!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                doNotDisturb()
+                true
+            }
             confirmExitPref.onPreferenceChangeListener = this
             hintsPref.onPreferenceChangeListener = this
             lifecycleScope.launch { hintsPref.values = getHints() }
@@ -215,7 +211,9 @@ class SettingsActivity : AppCompatActivity() {
                         settingsActivity.packageName,
                         0
                     ).versionName
-            } catch (nnfe: NameNotFoundException) { nnfe.printStackTrace() }
+            } catch (nnfe: NameNotFoundException) {
+                nnfe.printStackTrace()
+            }
             versionHiddenMenuPref.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
                     if (System.currentTimeMillis() - lastTimeVersionClicked < 400) {
@@ -241,7 +239,6 @@ class SettingsActivity : AppCompatActivity() {
                                             MainActivity.refreshView = true
                                         }
                                         1 -> lifecycleScope.launch {
-                                            updateUserSettings {it.copy(usingPrivateTexts = false)}
                                             initDataBase(forceInit = true).invokeOnCompletion { dialogInterface.dismiss() }
                                             MainActivity.refreshView = true
                                         }
@@ -291,7 +288,9 @@ class SettingsActivity : AppCompatActivity() {
                     }
                 }
 
-                override fun onViewClicked(view: View) { startActivity(Intent(settingsActivity, HelpActivity::class.java)) }
+                override fun onViewClicked(view: View) {
+                    startActivity(Intent(settingsActivity, HelpActivity::class.java))
+                }
             })
         }
 

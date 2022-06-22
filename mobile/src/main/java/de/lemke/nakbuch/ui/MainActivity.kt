@@ -391,22 +391,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .setTitle(getString(R.string.newTextsTitle))
                 .setMessage(getString(R.string.newTexts))
                 .setNegativeButton("Downgrade") { dialogInterface: DialogInterface, _: Int ->
-                    initDatabase(forceInit = true).invokeOnCompletion {
-                        lifecycleScope.launch {
-                            setCurrentItem()
-                            updateUserSettings { it.copy(usingPrivateTexts = false) }
-                            dialogInterface.dismiss()
-                        }
-                    }
+                    initDatabase(forceInit = true).invokeOnCompletion { dialogInterface.dismiss() }
                 }
                 .setNegativeButtonColor(
-                    resources.getColor(
-                        de.dlyt.yanndroid.oneui.R.color.sesl_functional_red,
-                        this@MainActivity.theme
-                    )
+                    resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme)
                 )
                 .setNegativeButtonProgress(true)
-                .setPositiveButton(getString(R.string.ok)) { _: DialogInterface, _: Int -> setCurrentItem() }
+                .setPositiveButton(getString(R.string.ok), null)
+                .setOnDismissListener{ setCurrentItem() }
                 .create()
                 .show()
         }

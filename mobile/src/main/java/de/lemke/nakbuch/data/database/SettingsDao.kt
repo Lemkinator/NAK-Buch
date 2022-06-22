@@ -8,7 +8,7 @@ import androidx.room.Query
 @Dao
 interface SettingsDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE,)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertColor(colorInt: RecentColorsDb)
     suspend fun insertColors(items: List<RecentColorsDb>) {
         items.forEach { insertColor(it) }
@@ -22,7 +22,7 @@ interface SettingsDao {
 
 
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE,)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertHint(hint: HintDb)
 
     suspend fun insertHints(items: Set<HintDb>) {
@@ -42,7 +42,7 @@ interface SettingsDao {
 
     suspend fun discoverEasterEgg(easterEgg: EasterEggsDb):Boolean = (insertEasterEgg(easterEgg) != -1L)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE,)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertEasterEgg(easterEgg: EasterEggsDb): Long
 
     @Query("SELECT * FROM discovered_eastereggs")

@@ -8,7 +8,6 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -178,7 +177,6 @@ class TabListSubtabRubric : Fragment() {
             var isHeader: Boolean = viewType == 2
             var isBackHeader: Boolean = viewType == 3
             lateinit var parentView: RelativeLayout
-            lateinit var imageView: ImageView
             lateinit var textView: TextView
 
             init {
@@ -188,7 +186,6 @@ class TabListSubtabRubric : Fragment() {
                 }
                 if (isHeader || isBackHeader) {
                     parentView = itemView as RelativeLayout
-                    imageView = parentView.findViewById(R.id.icon_tab_item_image)
                     textView = parentView.findViewById(R.id.icon_tab_item_text)
                 }
             }

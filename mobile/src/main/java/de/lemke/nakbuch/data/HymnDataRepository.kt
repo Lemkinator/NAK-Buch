@@ -34,7 +34,7 @@ class HymnDataRepository @Inject constructor(
         photoDao.insert(personalHymnToPhotoDbList(personalHymn))
     }
 
-    suspend fun setPersonalHymnWithoutLists(personalHymn: PersonalHymn) = hymnDataDao.upsert(personalHymnToHymnDataDb(personalHymn))
+    private suspend fun setPersonalHymnWithoutLists(personalHymn: PersonalHymn) = hymnDataDao.upsert(personalHymnToHymnDataDb(personalHymn))
 
     suspend fun setPersonalHymns(personalHymns: List<PersonalHymn>) {
         setPersonalHymnsWithoutLists(personalHymns)

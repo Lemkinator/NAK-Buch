@@ -52,9 +52,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TextviewFragment : Fragment() {
-    private var boldText: String? = null
-    private var textSize: Int = 0
-    private var tabLayout: TabLayout? = null
     private lateinit var rootView: View
     private lateinit var hymnId: HymnId
     private lateinit var personalHymn: PersonalHymn
@@ -77,11 +74,14 @@ class TextviewFragment : Fragment() {
     private lateinit var tipPopupFoto: TipPopup
     private lateinit var tipPopupPlus: TipPopup
     private lateinit var tipPopupMinus: TipPopup
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private lateinit var hymnSungOnList: MutableList<LocalDate?>
     private lateinit var selected: HashMap<Int, Boolean>
     private var selecting = false
     private var checkAllListening = true
-    private lateinit var hymnSungOnList: MutableList<LocalDate?>
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private var boldText: String? = null
+    private var textSize: Int = 0
+    private var tabLayout: TabLayout? = null
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -112,7 +112,6 @@ class TextviewFragment : Fragment() {
 
     @Inject
     lateinit var setPersonalHymn: SetPersonalHymnUseCase
-
 
     companion object {
         fun newInstance(hymnId: Int, boldText: String?): TextviewFragment {

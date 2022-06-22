@@ -145,9 +145,7 @@ class TabListSubtabAlphabetic : Fragment() {
                         dialog.show()
                         lifecycleScope.launch {
                             setFavoritesFromHymnList(hymnsAlphsort, onlySelected, true)
-                        }.invokeOnCompletion {
-                            dialog.dismiss()
-                        }
+                        }.invokeOnCompletion { dialog.dismiss() }
                     }
                     R.id.removeFromFav -> {
                         val dialog = ProgressDialog(context)
@@ -156,9 +154,7 @@ class TabListSubtabAlphabetic : Fragment() {
                         dialog.show()
                         lifecycleScope.launch {
                             setFavoritesFromHymnList(hymnsAlphsort, onlySelected, false)
-                        }.invokeOnCompletion {
-                            dialog.dismiss()
-                        }
+                        }.invokeOnCompletion { dialog.dismiss() }
                     }
                     else -> {
                         item.badge = item.badge + 1

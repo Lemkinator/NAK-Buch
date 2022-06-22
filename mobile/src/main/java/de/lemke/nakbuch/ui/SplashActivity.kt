@@ -22,8 +22,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
-    private var initDatabaseJob: Job? = null
     private lateinit var splashView: SplashView
+    private var initDatabaseJob: Job? = null
     private var launchCanceled = false
 
     @Inject
@@ -33,8 +33,8 @@ class SplashActivity : AppCompatActivity() {
     lateinit var initDatabase: InitDatabaseUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
+        ThemeUtil(this, resources.getString(R.color.primary_color))
         setContentView(R.layout.activity_splash)
         splashView = findViewById(R.id.splash)
         lifecycleScope.launch {

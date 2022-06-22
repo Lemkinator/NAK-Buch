@@ -35,7 +35,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivityTabFav : Fragment() {
-
     private lateinit var buchMode: BuchMode
     private lateinit var favHymns: MutableList<PersonalHymn>
     private lateinit var rootView: View

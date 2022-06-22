@@ -77,11 +77,8 @@ class AboutMeActivity : AppCompatActivity() {
                     val reviewInfo = task.result
                     val flow = manager.launchReviewFlow(this, reviewInfo)
                     flow.addOnCompleteListener { task2 ->
-                        if (task2.isSuccessful) {
-                            Log.d("AboutActivity", "Reviewtask was successful")
-                        } else {
-                            Toast.makeText(this@AboutMeActivity, getString(R.string.error) + ": " + task2.exception, Toast.LENGTH_SHORT).show()
-                        }
+                        if (task2.isSuccessful) Log.d("AboutActivity", "Reviewtask was successful")
+                        else Toast.makeText(this@AboutMeActivity, getString(R.string.error) + ": " + task2.exception, Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     // There was some problem, log or handle the error code.

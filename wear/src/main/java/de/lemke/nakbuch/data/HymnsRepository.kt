@@ -29,7 +29,7 @@ class HymnsRepository @Inject constructor(
 
     suspend fun getHymnByNumber(buchMode: BuchMode, number: Int): Hymn = getAllHymns(buchMode)[number.coerceIn(1, buchMode.hymnCount) - 1]
 
-    suspend fun getAllHymns(buchMode: BuchMode): List<Hymn> = when (buchMode) {
+    private suspend fun getAllHymns(buchMode: BuchMode): List<Hymn> = when (buchMode) {
         BuchMode.Gesangbuch -> {
             if (allHymnsGesangbuch == null) allHymnsGesangbuch = getAllHymnsFromAssets(BuchMode.Gesangbuch)
             allHymnsGesangbuch!!

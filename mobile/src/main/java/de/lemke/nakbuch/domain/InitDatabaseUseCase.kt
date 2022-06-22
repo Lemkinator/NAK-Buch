@@ -14,6 +14,7 @@ import javax.inject.Inject
 
 class InitDatabaseUseCase @Inject constructor(
     private val hymnsRepository: HymnsRepository,
+    private val updateUserSettings: UpdateUserSettingsUseCase,
     private val setRecentColors: SetRecentColorsUseCase,
     private val setHints: SetHintsUseCase,
     @ApplicationContext private val context: Context,
@@ -27,6 +28,7 @@ class InitDatabaseUseCase @Inject constructor(
                 hymnsRepository.addHymns(getAllHymnsFromAssets(buchMode))
             }
         }
+        if (forceInit) updateUserSettings { it.copy(usingPrivateTexts = false) }
         //create new db prepop
         //setRecentColors(listOf(context.resources.getColor(R.color.primary_color, context.theme)))
         //setHints(context.resources.getStringArray(R.array.hint_values).toSet())
