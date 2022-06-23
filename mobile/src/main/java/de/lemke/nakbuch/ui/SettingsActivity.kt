@@ -116,18 +116,22 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreate(bundle: Bundle?) {
             super.onCreate(bundle)
             lastTimeVersionClicked = System.currentTimeMillis()
-            pickTextsActivityResultLauncher = registerForActivityResult(GetMultipleContents()) { result: List<Uri>? ->
+            pickTextsActivityResultLauncher = registerForActivityResult(GetMultipleContents()) { uris: List<Uri>? ->
                 lifecycleScope.launch {
                     val dialog = ProgressDialog(settingsActivity)
+                    dialog.setCancelable(false)
                     dialog.setTitle("Eigene LiedTexte werden hinzugefügt...")
-                    dialog.setButton(
-                        ProgressDialog.BUTTON_NEUTRAL,
-                        getString(R.string.ok)
-                    ) { _: DialogInterface, _: Int -> dialog.dismiss() }
+                    //dialog.setButton(ProgressDialog.BUTTON_NEUTRAL, getString(R.string.ok)) { _: DialogInterface, _: Int -> dialog.dismiss() }
                     dialog.show()
                     updateUserSettings { it.copy(usingPrivateTexts = true) }
-                    dialog.setMessage(setPrivateTexts(result))
-                    dialog.setTitle("Eigene LiedTexte wurden hinzugefügt")
+                    val result = setPrivateTexts(uris)
+                    dialog.dismiss()
+                    AlertDialog.Builder(settingsActivity)
+                        .setTitle(R.string.result)
+                        .setMessage(result)
+                        .setPositiveButton(R.string.ok, null)
+                        .create()
+                        .show()
                 }
             }
             pickFolderActivityResultLauncher =

@@ -198,6 +198,7 @@
     <string name="deactivate">Deaktivieren</string>
     <string name="shareNote">Notiz teilen</string>
     <string name="hints">Hinweise</string>
+    <string name="result">Ergebnis</string>
     <string name="onlyThisTime">Nur diesmal</string>
     <string name="ForeverICantTakeAJoke">Für immer, ich versteh kein Spaß</string>
     <string name="failedToMuteStreams">Hoppla, ich habs nicht geschafft alles Stummzuschalten…</string>
@@ -209,6 +210,6 @@
     <string name="contact">Kontakt</string>
 
     <string name="newTextsTitle">Neue Lied-Texte sind verfügbar</string>
-    <string name="newTexts">Neue Lied-Texte sind verfügbar, du benutzt jedoch private Lied-Texte, weshalb diese nicht automatisch aktualisiert werden können.\nDu kannst in den Einstellungen deine privaten Lied-Texte mithilfe von neuen txt-Dateien ersetzen oder ein downgrade auf die aktualisierten urheberrechtlich freien Lieder machen.</string>
+    <string name="newTexts">Neue Lied-Texte sind verfügbar, du benutzt jedoch private Lied-Texte, weshalb diese nicht automatisch aktualisiert werden können.\nWenn du möchtest, kannst du in den Einstellungen deine privaten Lied-Texte mithilfe von neuen txt-Dateien ersetzen oder ein downgrade auf die aktualisierten urheberrechtlich freien Lieder machen.</string>
 
 </resources>

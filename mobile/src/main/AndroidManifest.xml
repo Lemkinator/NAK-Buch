@@ -8,23 +8,23 @@
 
     <!--
     TODO
-        Daten-Activity (fav tab -> data: fav list, sungOnList from date)
-        search list: fav / notes?
+        Daten-Tab (fav list, sungOnList from date)
+        search list: show fav / notes?
         db import export? (db file? csv?)
 
         android app search leading wildcard?
         (new Android 12 Splashscreen)
-        (theme color) currently not supported
-
-        Identify sources of slow UI rendering by using the Janky Frames track in the CPU Profiler tool.
-        The Janky Frames track by default shows only janky frames as candidates for investigation,
-        so you can quickly hone in where the problem is.
+        theme color (currently not supported)
     -->
 
     <queries>
         <intent>
             <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
         </intent>
+
+        <!-- Explicit apps you know in advance about: (https://developer.android.com/training/package-visibility) -->
+        <package android:name="de.bischoff.nakgesangbuch" />
+        <package android:name="de.bischoff.chorbuch" />
     </queries>
 
     <application
@@ -99,6 +99,7 @@
             android:name=".ui.SplashActivityJBErgaenzungsheft"
             android:exported="true"
             android:theme="@style/OneUISplashTheme" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="de.lemke.nakbuch.fileprovider"

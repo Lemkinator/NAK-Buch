@@ -258,30 +258,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    private fun searchDialog() {
-        AlertDialog.Builder(this@MainActivity)
-            .setTitle(R.string.help)
-            .setMessage(R.string.searchHelp)
-            .setNeutralButton(R.string.ok, null)
-            .setNegativeButton(R.string.standardSearchMode) { _: DialogInterface, _: Int ->
-                lifecycleScope.launch {
-                    AlertDialog.Builder(this@MainActivity)
-                        .setTitle(getString(R.string.setStandardSearchMode))
-                        .setNeutralButton(R.string.ok, null)
-                        .setSingleChoiceItems(
-                            arrayOf<CharSequence>(getString(R.string.onlyExactSearchText), getString(R.string.searchForAllPartialWords)),
-                            if (getUserSettings().alternativeSearchModeEnabled) 1 else 0
-                        )
-                        { _: DialogInterface, i: Int ->
-                            lifecycleScope.launch { updateUserSettings { it.copy(alternativeSearchModeEnabled = (i == 1)) } }
-                        }
-                        .show()
-                }
-            }
-            .create()
-            .show()
-    }
-
     public override fun attachBaseContext(context: Context) {
         // pre-OneUI
         if (Build.VERSION.SDK_INT <= 28) super.attachBaseContext(ThemeUtil.createDarkModeContextWrapper(context))
@@ -376,6 +352,30 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    private fun searchDialog() {
+        AlertDialog.Builder(this@MainActivity)
+            .setTitle(R.string.help)
+            .setMessage(R.string.searchHelp)
+            .setNeutralButton(R.string.ok, null)
+            .setNegativeButton(R.string.standardSearchMode) { _: DialogInterface, _: Int ->
+                lifecycleScope.launch {
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle(getString(R.string.setStandardSearchMode))
+                        .setNeutralButton(R.string.ok, null)
+                        .setSingleChoiceItems(
+                            arrayOf<CharSequence>(getString(R.string.onlyExactSearchText), getString(R.string.searchForAllPartialWords)),
+                            if (getUserSettings().alternativeSearchModeEnabled) 1 else 0
+                        )
+                        { _: DialogInterface, i: Int ->
+                            lifecycleScope.launch { updateUserSettings { it.copy(alternativeSearchModeEnabled = (i == 1)) } }
+                        }
+                        .show()
+                }
+            }
+            .create()
+            .show()
+    }
+
     private suspend fun oldHymnTextsDialog() {
         if (!getUserSettings().usingPrivateTexts) {
             val dialog = ProgressDialog(this@MainActivity)
@@ -391,14 +391,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 .setTitle(getString(R.string.newTextsTitle))
                 .setMessage(getString(R.string.newTexts))
                 .setNegativeButton("Downgrade") { dialogInterface: DialogInterface, _: Int ->
-                    initDatabase(forceInit = true).invokeOnCompletion { dialogInterface.dismiss() }
+                    initDatabase(forceInit = true).invokeOnCompletion {
+                        dialogInterface.dismiss()
+                        lifecycleScope.launch { recreate() }
+                    }
                 }
-                .setNegativeButtonColor(
-                    resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme)
-                )
+                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
                 .setNegativeButtonProgress(true)
                 .setPositiveButton(getString(R.string.ok), null)
-                .setOnDismissListener{ setCurrentItem() }
+                .setOnDismissListener { setCurrentItem() }
                 .create()
                 .show()
         }
