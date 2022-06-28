@@ -17,4 +17,9 @@
         android:id="@+id/dnd"
         android:title="@string/dnd"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/openOfficialApp"
+        android:title="@string/openOfficialApp"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -83,6 +83,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     lateinit var discoverEasterEgg: DiscoverEasterEggUseCase
 
     @Inject
+    lateinit var openBischoffApp: OpenBischoffAppUseCase
+
+    @Inject
     lateinit var getHints: GetHintsUseCase
 
     @Inject
@@ -147,6 +150,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 R.id.mute -> if (!mute())
                     Toast.makeText(this@MainActivity, this@MainActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
                 R.id.dnd -> doNotDisturb()
+                R.id.openOfficialApp -> lifecycleScope.launch {
+                    if (buchMode == BuchMode.Gesangbuch || buchMode == BuchMode.Chorbuch) openBischoffApp(buchMode)
+                    else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
+                }
             }
             true
         }
@@ -456,7 +463,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         tipPopupMenuButton.setOnDismissListener { tipPopupOkButton.show(TipPopup.DIRECTION_TOP_LEFT) }
         tipPopupDrawer.setMessage(getString(R.string.menuGeneralTip))
         tipPopupSearch.setMessage(getString(R.string.searchTip))
-        tipPopupMenuButton.setMessage(getString(R.string.mute) + " " + getString(R.string.or) + " " + getString(R.string.dndDescription))
+        tipPopupMenuButton.setMessage(getString(R.string.mute) + ", " + getString(R.string.dndDescription) + " " + getString(R.string.or) + " " + getString(R.string.openOfficialApp))
         tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
     }
 

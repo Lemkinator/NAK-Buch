@@ -111,7 +111,7 @@
     <string name="confirmTips">Komm schon… Möchtest du wirklich die Tipps für die Easter Eggs ansehen? Wenn du den Titel "Master of Easter Eggs" mit stolz tragen möchtest, dann klick auf Abbrechen!</string>
     <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 3 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über mich\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n- 1 Easter Egg kann in der Textansicht über den "Offizielle App Öffnen"-Button entdeckt werden\n</string>
     <string name="easterEggTipsShame">Ich schäme mich</string>
-    <string name="easterEggAlreadyDiscovered">Denkst wohl das funktioniert nochmal? &#128514;</string>
+    <string name="easterEggAlreadyDiscovered">Easter Egg bereits entdeckt… &#128514;</string>
 
     <string-array name="easterEggComments">
         <item>Noch keins gefunden? Dann los! &#128118;</item>

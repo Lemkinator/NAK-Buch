@@ -7,8 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <!--
-    TODO
-        Daten-Tab (fav list, sungOnList from date)
+    TODO / Ideas
         search list: show fav / notes?
         db import export? (db file? csv?)
 
