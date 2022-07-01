@@ -6,16 +6,6 @@
 
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
-    <!--
-    TODO / Ideas
-        search list: show fav / notes?
-        db import export? (db file? csv?)
-
-        android app search leading wildcard?
-        (new Android 12 Splashscreen)
-        theme color (currently not supported)
-    -->
-
     <queries>
         <intent>
             <action android:name="android.speech.action.RECOGNIZE_SPEECH" />

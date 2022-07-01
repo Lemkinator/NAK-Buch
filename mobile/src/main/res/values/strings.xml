@@ -11,7 +11,7 @@
     <string name="playStoreLink" translatable="false">https://play.google.com/store/apps/details?id=</string>
     <string name="oneUiLibaryGithub" translatable="false">OneUI-Project Github</string>
     <string name="oneUIGithubLink" translatable="false">https://github.com/OneUIProject</string>
-    <string name="rickRollTrollLink" translatable="false">https://www.youtube.com/watch?v=o-YBDTqX_ZU</string>
+    <string name="rickRollTrollLink" translatable="false">https://www.leonard-lemke.com/rr</string>
 
     <string name="bischoffGesangbuchPackageName" translatable="false">de.bischoff.nakgesangbuch</string>
     <string name="bischoffChorbuchPackageName" translatable="false">de.bischoff.chorbuch</string>
@@ -134,7 +134,7 @@
     <string name="supportMeText">Falls du mich in irgendeiner Weise unterstützen möchtest, dann sende mir gerne eine Email</string>
     <string name="rateApp">App im Play-Store Bewerten</string>
     <string name="writeReview">Bewertung schreiben</string>
-    <string name="reviewComment">Um ein optimales Nutzererlebnis zu gewährleisten, verwaltet Google Play wann und wie oft einem Nutzer der Bewertungsdialog angezeigt werden kann. Deshalb kann es vorkommen, dass diese Schaltfläche in manchen Fällen keine Aktion durchführt.\nAlternativ kann die Bewertung dann im Play Store geschrieben werden.</string>
+    <string name="reviewComment">Um ein optimales Nutzererlebnis zu gewährleisten, verwaltet Google Play wann und wie oft einem Nutzer der integrierte Bewertungsdialog angezeigt werden kann. Deshalb kann es vorkommen, dass diese Schaltfläche in manchen Fällen keine Aktion durchführt.\nAlternativ kann die Bewertung dann im Play Store geschrieben werden.</string>
     <string name="share">Teilen</string>
     <string name="shareApp">App Teilen</string>
     <string name="shareAppText">Schau mal hier, die neue nicht-offizielle, kostenlose Liederbuch-App (Gesangbuch, Chorbuch, Jugendliederbuch mit Ergänzungsheft) der NAK in modernem Design: https://play.google.com/store/apps/details?id=</string>

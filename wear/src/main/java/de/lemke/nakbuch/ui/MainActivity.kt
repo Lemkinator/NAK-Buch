@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(Receiver(), IntentFilter(Intent.ACTION_SEND))
 
-        //TODO better handling of square/round screens
+        //better handling of square/round screens
         //if (resources.configuration.isScreenRound) { }
     }
 
