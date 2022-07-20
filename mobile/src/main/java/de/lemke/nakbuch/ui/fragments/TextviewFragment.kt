@@ -148,14 +148,14 @@ class TextviewFragment : Fragment() {
         jokeButton = rootView.findViewById(R.id.jokeButton)
         whyNoFullTextButton = rootView.findViewById(R.id.whyNoFullTextButton)
         drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
         drawerLayout.setSubtitle(hymnId.buchMode.toString())
 
         lifecycleScope.launch {
             personalHymn = getPersonalHymn(hymnId)
             val color = MaterialColors.getColor(
-                context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                context!!.resources.getColor(R.color.primary_color, context?.theme)
+                requireContext(), de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                requireContext().resources.getColor(R.color.primary_color, context?.theme)
             )
             val userSettings = getUserSettings()
             updateTextSize(userSettings.textSize)
@@ -182,7 +182,7 @@ class TextviewFragment : Fragment() {
             jokeButton.setOnClickListener {
                 lifecycleScope.launch {
                     discoverEasterEgg(konfettiView, R.string.easterEggEntryPremium)
-                    AlertDialog.Builder(context!!)
+                    AlertDialog.Builder(requireContext())
                         .setTitle(getString(R.string.jokeTitle))
                         .setMessage(getString(R.string.jokeMessage))
                         .setNegativeButton(getString(R.string.ForeverICantTakeAJoke)) { _: DialogInterface?, _: Int ->
@@ -245,9 +245,9 @@ class TextviewFragment : Fragment() {
                     R.id.decreaseTextSize -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
                     R.id.dnd -> doNotDisturb()
                     R.id.mute ->
-                        if (!mute()) Toast.makeText(context, context!!.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+                        if (!mute()) Toast.makeText(context, requireContext().getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
                     R.id.openOfficialApp -> lifecycleScope.launch {
-                        if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode)
+                        if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode, true)
                         else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
                     }
                 }
@@ -294,14 +294,14 @@ class TextviewFragment : Fragment() {
             drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
             tabLayout!!.isVisible = true
         }
-        val noteIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
-        val dateIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
+        val noteIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
+        val dateIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
         lifecycleScope.launch {
             val userSettings = getUserSettings()
             if (userSettings.notesVisible) {
                 noteIcon!!.colorFilter = PorterDuffColorFilter(
                     MaterialColors.getColor(
-                        context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                        requireContext(), de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
                         resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context?.theme)
                     ), PorterDuff.Mode.SRC_IN
                 )
@@ -309,7 +309,7 @@ class TextviewFragment : Fragment() {
             if (userSettings.sungOnVisible) {
                 dateIcon!!.colorFilter = PorterDuffColorFilter(
                     MaterialColors.getColor(
-                        context!!, de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                        requireContext(), de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
                         resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context?.theme)
                     ), PorterDuff.Mode.SRC_IN
                 )
@@ -352,12 +352,12 @@ class TextviewFragment : Fragment() {
         })
         val favIcon: Drawable
         if (personalHymn.favorite) {
-            favIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
+            favIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
             favIcon.colorFilter = PorterDuffColorFilter(
                 resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, context?.theme), PorterDuff.Mode.SRC_IN
             )
         } else {
-            favIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
+            favIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
         }
         tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
@@ -368,7 +368,7 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val camIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan)
+        val camIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan)
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val myIntent = Intent(context, ImgviewActivity::class.java)
@@ -376,7 +376,7 @@ class TextviewFragment : Fragment() {
                 startActivity(myIntent)
             }
         })
-        val plusIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
+        val plusIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
         tabLayout!!.addTabCustomButton(plusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 lifecycleScope.launch {
@@ -384,7 +384,7 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val minusIcon = AppCompatResources.getDrawable(context!!, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus)
+        val minusIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus)
         tabLayout!!.addTabCustomButton(minusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 lifecycleScope.launch {
@@ -456,13 +456,13 @@ class TextviewFragment : Fragment() {
         selected = HashMap()
         for (i in hymnSungOnList.indices) selected[i] = false
         val divider = TypedValue()
-        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(context)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(requireContext(), divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)

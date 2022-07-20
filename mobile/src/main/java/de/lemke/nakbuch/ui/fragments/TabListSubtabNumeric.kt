@@ -118,9 +118,9 @@ class TabListSubtabNumeric : Fragment() {
         })
         val divider = TypedValue()
         val decoration = ItemDecoration()
-        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(requireContext(), divider.resourceId)!!)
     }
 
     fun setSelecting(enabled: Boolean) {

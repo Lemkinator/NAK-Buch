@@ -3,6 +3,9 @@ package de.lemke.nakbuch.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.animation.Animation
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -11,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.layout.SplashView
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
 import de.lemke.nakbuch.domain.InitDatabaseUseCase
 import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
@@ -18,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 @SuppressLint("CustomSplashScreen")
@@ -32,9 +37,12 @@ class SplashActivity : AppCompatActivity() {
     @Inject
     lateinit var initDatabase: InitDatabaseUseCase
 
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this, resources.getString(R.color.primary_color))
+        ThemeUtil(this)
         setContentView(R.layout.activity_splash)
         splashView = findViewById(R.id.splash)
         lifecycleScope.launch {
@@ -46,6 +54,17 @@ class SplashActivity : AppCompatActivity() {
                     AppCompatResources.getDrawable(this@SplashActivity, R.drawable.ic_launcher_background)
                 )
                 splashView.text = buchMode.toString()
+            }
+            if (getUserSettings().devModeEnabled) {
+                val devText: Spannable = SpannableString(" Dev")
+                devText.setSpan(
+                    ForegroundColorSpan(getColor(de.dlyt.yanndroid.oneui.R.color.orange)),
+                    0,
+                    devText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                splashView.text = splashView.text + devText
+                //TODO: ((TextView) splashView.findViewById(R.id.oui_splash_text)).append(dev_text);
             }
         }
         splashView.setSplashAnimationListener(object : Animation.AnimationListener {
@@ -89,7 +108,7 @@ class SplashActivity : AppCompatActivity() {
 class SplashActivityGesangbuch : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this, resources.getString(R.color.primary_color))
+        ThemeUtil(this)
         startActivity(
             Intent().setClass(applicationContext, SplashActivity::class.java).putExtra("buchMode", BuchMode.Gesangbuch.toInt())
         )

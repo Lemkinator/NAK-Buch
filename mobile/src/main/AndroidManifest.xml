@@ -6,6 +6,16 @@
 
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
+    <!--
+    TODO / Ideas
+        search list: show fav / notes?
+        db import export? (db file? csv?) json schema
+
+        android app search leading wildcard?
+        (new Android 12 Splashscreen)
+        theme color (currently not supported)
+    -->
+
     <queries>
         <intent>
             <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
@@ -49,18 +59,9 @@
         <activity android:name=".ui.ImgviewActivity" />
         <activity android:name=".ui.HelpActivity" />
         <activity android:name=".ui.AboutMeActivity" />
-        <activity
-            android:name=".ui.AboutActivity"
-            android:theme="@style/OneUIAboutTheme" />
-        <activity
-            android:name=".ui.MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
-
-        </activity>
-        <activity
-            android:name=".ui.SplashActivity"
-            android:exported="true"
-            android:theme="@style/OneUISplashTheme">
+        <activity android:name=".ui.AboutActivity" android:theme="@style/OneUIAboutTheme" />
+        <activity android:name=".ui.MainActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
+        <activity android:name=".ui.SplashActivity" android:exported="true" android:theme="@style/OneUISplashTheme">
             <meta-data
                 android:name="com.sec.android.app.launcher.icon_theme"
                 android:value="themeColor" /> <!-- new (only Samsung, >Android 12) Themed Icon -->
@@ -72,23 +73,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.SplashActivityGesangbuch"
-            android:exported="true"
-            android:theme="@style/OneUISplashTheme" />
-        <activity
-            android:name=".ui.SplashActivityChorbuch"
-            android:exported="true"
-            android:theme="@style/OneUISplashTheme" />
-        <activity
-            android:name=".ui.SplashActivityJugendliederbuch"
-            android:exported="true"
-            android:theme="@style/OneUISplashTheme" />
-        <activity
-            android:name=".ui.SplashActivityJBErgaenzungsheft"
-            android:exported="true"
-            android:theme="@style/OneUISplashTheme" />
-
+        <activity android:name=".ui.SplashActivityGesangbuch" android:exported="true" android:theme="@style/OneUISplashTheme" />
+        <activity android:name=".ui.SplashActivityChorbuch" android:exported="true" android:theme="@style/OneUISplashTheme" />
+        <activity android:name=".ui.SplashActivityJugendliederbuch" android:exported="true" android:theme="@style/OneUISplashTheme" />
+        <activity android:name=".ui.SplashActivityJBErgaenzungsheft" android:exported="true" android:theme="@style/OneUISplashTheme" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="de.lemke.nakbuch.fileprovider"
@@ -99,5 +87,4 @@
                 android:resource="@xml/file_paths" />
         </provider>
     </application>
-
 </manifest>

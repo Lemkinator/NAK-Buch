@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ThemeUtil(this, resources.getString(R.color.primary_color))
+        ThemeUtil(this)
         time = System.currentTimeMillis()
         drawerLayout = findViewById(R.id.drawer_view)
         tabLayout = findViewById(R.id.main_tabs)
@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     Toast.makeText(this@MainActivity, this@MainActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
                 R.id.dnd -> doNotDisturb()
                 R.id.openOfficialApp -> lifecycleScope.launch {
-                    if (buchMode == BuchMode.Gesangbuch || buchMode == BuchMode.Chorbuch) openBischoffApp(buchMode)
+                    if (buchMode == BuchMode.Gesangbuch || buchMode == BuchMode.Chorbuch) openBischoffApp(buchMode, true)
                     else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
                 }
             }

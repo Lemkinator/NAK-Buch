@@ -95,11 +95,11 @@ class TabListSubtabRubric : Fragment() {
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
         val divider = TypedValue()
-        context!!.theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(context)
         val decoration = ItemDecoration()
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(context!!, divider.resourceId)!!)
+        decoration.setDivider(AppCompatResources.getDrawable(requireContext(), divider.resourceId)!!)
         listView.itemAnimator = null
         //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
         listView.seslSetFastScrollerEnabled(true)

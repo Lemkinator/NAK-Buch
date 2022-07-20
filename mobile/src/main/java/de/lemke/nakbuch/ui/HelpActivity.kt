@@ -40,7 +40,7 @@ class HelpActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.noEmailAppInstalled), Toast.LENGTH_SHORT).show()
             }
         }
-        findViewById<View>(R.id.openPlaystoreBischoffGesangbuch).setOnClickListener { openBischoffApp(BuchMode.Gesangbuch) }
-        findViewById<View>(R.id.openPlaystoreBischoffChorbuch).setOnClickListener { openBischoffApp(BuchMode.Chorbuch) }
+        findViewById<View>(R.id.openPlaystoreBischoffGesangbuch).setOnClickListener { openBischoffApp(BuchMode.Gesangbuch, false) }
+        findViewById<View>(R.id.openPlaystoreBischoffChorbuch).setOnClickListener { openBischoffApp(BuchMode.Chorbuch, false) }
     }
 }
