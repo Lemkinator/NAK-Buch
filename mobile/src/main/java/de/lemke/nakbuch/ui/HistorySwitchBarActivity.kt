@@ -1,35 +1,34 @@
 package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.SeslSwitchBar
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.allViews
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.layout.SwitchBarLayout
-import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
-import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
-import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.dlyt.yanndroid.oneui.view.RecyclerView
-import de.dlyt.yanndroid.oneui.widget.Switch
-import de.dlyt.yanndroid.oneui.widget.SwitchBar
 import de.lemke.nakbuch.R
-import de.lemke.nakbuch.domain.GetUserSettingsUseCase
-import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
 import de.lemke.nakbuch.domain.GetHistoryListUseCase
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
 import de.lemke.nakbuch.domain.ResetHistoryUseCase
+import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
 import de.lemke.nakbuch.domain.model.Hymn
+import dev.oneuiproject.oneui.layout.SwitchBarLayout
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -37,7 +36,7 @@ import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
+class HistorySwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchChangeListener {
     private lateinit var history: MutableList<Pair<Hymn, LocalDateTime>>
     private lateinit var listView: RecyclerView
     private lateinit var switchBarLayout: SwitchBarLayout
@@ -56,25 +55,25 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
     lateinit var getHistoryList: GetHistoryListUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
         listView = findViewById(R.id.historyList)
         switchBarLayout = findViewById(R.id.switchbarlayout_history)
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
-        switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
+        switchBarLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
-        switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
-        switchBarLayout.setOnToolbarMenuItemClickListener {
-            lifecycleScope.launch {
-                resetHistory()
-                initList()
-            }
-            true
-        }
+        switchBarLayout.toolbar.inflateMenu(R.menu.switchpreferencescreen_menu)
     }
 
-    override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        lifecycleScope.launch {
+            resetHistory()
+            initList()
+        }
+        return true
+    }
+
+    override fun onSwitchChanged(switchCompat: SwitchCompat, z: Boolean) {
         lifecycleScope.launch {
             enabled = updateUserSettings { it.copy(historyEnabled = z) }.historyEnabled
             initList()
@@ -97,9 +96,8 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         val divider = TypedValue()
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(this)
-        val decoration = ItemDecoration()
+        val decoration = ItemDecoration(this)
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(this, divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetIndexTipEnabled(true)
         listView.seslSetFastScrollerEnabled(true)
@@ -185,52 +183,26 @@ class HistorySwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeLi
         }
     }
 
-    inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(this@HistorySwitchBarActivity, true)
-        private val seslRoundedCornerBottom: SeslRoundedCorner
-        private var divider: Drawable? = null
-        private var dividerHeight = 0
-        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
-            super.seslOnDispatchDraw(canvas, recyclerView, state)
-            val childCount = recyclerView.childCount
-            val width = recyclerView.width
-
-            for (i in 0 until childCount) {
-                val childAt = recyclerView.getChildAt(i)
-                val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
-                val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean =
-                    if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                        recyclerView.getChildAt(i + 1)
-                    ) as ImageAdapter.ViewHolder).isItem else false
-                if (divider != null && viewHolder.isItem && shallDrawDivider) {
-                    divider!!.setBounds(0, y, width, dividerHeight + y)
-                    divider!!.draw(canvas)
-                }
-                if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) seslRoundedCornerTop.drawRoundedCorner(
-                        recyclerView.getChildAt(i + 1),
-                        canvas
-                    )
-                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
-                        recyclerView.getChildAt(i - 1),
-                        canvas
-                    )
-                }
+    private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+        private val mDivider: Drawable
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            super.onDraw(c, parent, state)
+            for (i in 0 until parent.childCount) {
+                val child = parent.getChildAt(i)
+                val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
+                val bottom = mDivider.intrinsicHeight + top
+                mDivider.setBounds(parent.left, top, parent.right, bottom)
+                mDivider.draw(c)
             }
-            seslRoundedCornerTop.drawRoundedCorner(canvas)
-        }
-
-        fun setDivider(d: Drawable) {
-            divider = d
-            dividerHeight = d.intrinsicHeight
-            listView.invalidateItemDecorations()
         }
 
         init {
-            seslRoundedCornerTop.roundedCorners = 3
-            seslRoundedCornerBottom = SeslRoundedCorner(this@HistorySwitchBarActivity, true)
-            seslRoundedCornerBottom.roundedCorners = 12
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
+            mDivider = context.getDrawable(
+                if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
+                else androidx.appcompat.R.drawable.sesl_list_divider_light
+            )!!
         }
     }
 }

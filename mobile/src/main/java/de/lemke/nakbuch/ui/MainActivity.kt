@@ -1,48 +1,37 @@
 package de.lemke.nakbuch.ui
 
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.res.ResourcesCompat
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.dialog.AlertDialog
-import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
-import de.dlyt.yanndroid.oneui.layout.ToolbarLayout
-import de.dlyt.yanndroid.oneui.menu.MenuItem
-import de.dlyt.yanndroid.oneui.sesl.support.ViewSupport
-import de.dlyt.yanndroid.oneui.sesl.tabs.SamsungTabLayout
-import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.dlyt.yanndroid.oneui.view.OptionGroup
-import de.dlyt.yanndroid.oneui.view.TipPopup
-import de.dlyt.yanndroid.oneui.view.Tooltip
-import de.dlyt.yanndroid.oneui.widget.OptionButton
-import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.model.BuchMode
+import dev.oneuiproject.oneui.dialog.ProgressDialog
+import dev.oneuiproject.oneui.layout.DrawerLayout
+import dev.oneuiproject.oneui.layout.ToolbarLayout
+import dev.oneuiproject.oneui.widget.MarginsTabLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -64,13 +53,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var buchMode: BuchMode
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var konfettiView: KonfettiView
-    private lateinit var tabLayout: TabLayout
-    private lateinit var optionGroup: OptionGroup
+    private lateinit var tabLayout: MarginsTabLayout
     private lateinit var searchHelpFAB: FloatingActionButton
+    /*
     private lateinit var tipPopupDrawer: TipPopup
     private lateinit var tipPopupSearch: TipPopup
     private lateinit var tipPopupMenuButton: TipPopup
     private lateinit var tipPopupOkButton: TipPopup
+    */
+    private lateinit var gesangbuchOption: LinearLayout
+    private lateinit var chorbuchOption: LinearLayout
+    private lateinit var jugendliederbuchOption : LinearLayout
+    private lateinit var jbErgaenzungsheftOption: LinearLayout
+    private lateinit var helpOption: LinearLayout
+    private lateinit var aboutAppOption: LinearLayout
+    private lateinit var aboutMeOption: LinearLayout
+    private lateinit var settingsOption: LinearLayout
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
     @Inject
@@ -106,18 +104,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ThemeUtil(this)
         time = System.currentTimeMillis()
         drawerLayout = findViewById(R.id.drawer_view)
         tabLayout = findViewById(R.id.main_tabs)
-        optionGroup = findViewById(R.id.optiongroup)
         searchHelpFAB = findViewById(R.id.searchHelpFAB)
         konfettiView = findViewById(R.id.konfettiViewMain)
+        gesangbuchOption = findViewById(R.id.draweritem_gesangbuch)
+        chorbuchOption = findViewById(R.id.draweritem_chorbuch)
+        jugendliederbuchOption = findViewById(R.id.draweritem_jugendliederbuch)
+        jbErgaenzungsheftOption = findViewById(R.id.draweritem_jbergaenzungsheft)
+        helpOption = findViewById(R.id.draweritem_help)
+        aboutAppOption = findViewById(R.id.draweritem_about_app)
+        aboutMeOption = findViewById(R.id.draweritem_about_me)
+        settingsOption = findViewById(R.id.draweritem_settings)
         fragmentManager = supportFragmentManager
-        ViewSupport.semSetRoundedCorners(window.decorView, 0)
 
         lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
+            setBuchMode(buchMode)
             when (checkAppStart()) {
                 AppStart.FIRST_TIME -> setCurrentItem()
                 AppStart.NORMAL -> setCurrentItem()
@@ -130,59 +134,41 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.number)))
         tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.list)))
         tabLayout.addTab(tabLayout.newTab().setText(getString(R.string.favourites)))
-        tabLayout.addOnTabSelectedListener(object : SamsungTabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: SamsungTabLayout.Tab) {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
                 previousTab = currentTab
                 currentTab = tab.position
                 setCurrentItem()
             }
 
-            override fun onTabUnselected(tab: SamsungTabLayout.Tab) {}
-            override fun onTabReselected(tab: SamsungTabLayout.Tab) {}
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
         })
         //DrawerLayout
-        drawerLayout.inflateToolbarMenu(R.menu.main)
+        drawerLayout.setDrawerButtonIcon(getDrawable(R.drawable.ic_baseline_oui_info_outline_24))
+        drawerLayout.toolbar.inflateMenu(R.menu.main)
         drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java)) }
         drawerLayout.setDrawerButtonTooltip(getText(R.string.aboutApp))
-        drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.search -> drawerLayout.showSearchMode()
-                R.id.mute -> if (!mute())
-                    Toast.makeText(this@MainActivity, this@MainActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
-                R.id.dnd -> doNotDisturb()
-                R.id.openOfficialApp -> lifecycleScope.launch {
-                    if (buchMode == BuchMode.Gesangbuch || buchMode == BuchMode.Chorbuch) openBischoffApp(buchMode, true)
-                    else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
-                }
-            }
-            true
-        }
-        drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener() {
-            override fun onSearchOpened(search_edittext: EditText) {
+        drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener {
+            //TODO override fun onVoiceInputClick(intent: Intent) { activityResultLauncher.launch(intent) }
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                searchJob?.cancel()
                 searchJob = lifecycleScope.launch {
-                    search_edittext.setText(getUserSettings().search)
-                    search_edittext.setSelection(0, search_edittext.text.length)
+                    updateUserSettings { it.copy(search = query ?: "") }
+                    setFragment(3)
                 }
-                searchHelpFAB.visibility = View.VISIBLE
+                return true
             }
 
-            override fun onSearchDismissed(search_edittext: EditText) {
-                setCurrentItem()
-                searchHelpFAB.visibility = View.GONE
-            }
-
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable) {
-                var searchText = s.toString()
+            override fun onQueryTextChange(newText: String?): Boolean {
+                var searchText = newText ?: ""
                 searchJob?.cancel()
                 searchJob = lifecycleScope.launch {
                     if (getUserSettings().easterEggsEnabled) {
                         if (searchText.replace(" ", "").equals("easteregg", ignoreCase = true)) {
                             discoverEasterEgg(konfettiView, R.string.easterEggEntrySearch)
-                            s.clear()
+                            drawerLayout.searchView.setQuery("", true) //TODO s.clear()??
                             searchText = ""
                             val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                             inputManager.hideSoftInputFromWindow(currentFocus!!.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
@@ -191,51 +177,54 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     updateUserSettings { it.copy(search = searchText) }
                     setFragment(3)
                 }
+                return true
             }
 
-            override fun onKeyboardSearchClick(s: CharSequence) {
-                searchJob?.cancel()
-                searchJob = lifecycleScope.launch {
-                    updateUserSettings { it.copy(search = s.toString()) }
-                    setFragment(3)
+            override fun onSearchModeToggle(searchView: SearchView?, visible: Boolean) {
+                if (visible) {
+                    searchJob = lifecycleScope.launch {
+                        searchView?.setQuery(getUserSettings().search, true)
+                        //TODO search_edittext.setSelection(0, search_edittext.text.length)
+                    }
+                    searchHelpFAB.visibility = View.VISIBLE
+                } else {
+                    setCurrentItem()
+                    searchHelpFAB.visibility = View.GONE
                 }
-            }
-
-            override fun onVoiceInputClick(intent: Intent) {
-                activityResultLauncher.launch(intent)
             }
         })
-        optionGroup.setOnOptionButtonClickListener { _: OptionButton, checkedId: Int, _: Int ->
-            when (checkedId) {
-                R.id.ob_gesangbuch, R.id.ob_chorbuch, R.id.ob_jugendliederbuch, R.id.ob_jb_ergaenzungsheft -> {
-                    lifecycleScope.launch {
-                        buchMode = updateUserSettings {
-                            it.copy(
-                                buchMode = when (checkedId) {
-                                    R.id.ob_gesangbuch -> BuchMode.Gesangbuch
-                                    R.id.ob_chorbuch -> BuchMode.Chorbuch
-                                    R.id.ob_jugendliederbuch -> BuchMode.Jugendliederbuch
-                                    R.id.ob_jb_ergaenzungsheft -> BuchMode.JBErgaenzungsheft
-                                    else -> BuchMode.Gesangbuch
-                                }
-                            )
-                        }.buchMode
-                        setCurrentItem()
-                    }
-                }
-                R.id.ob_settings -> startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-                R.id.ob_about -> startActivity(Intent(this@MainActivity, AboutActivity::class.java))
-                R.id.ob_help -> startActivity(Intent(this@MainActivity, HelpActivity::class.java))
-                R.id.ob_about_me -> startActivity(Intent(this@MainActivity, AboutMeActivity::class.java))
-            }
-            drawerLayout.setDrawerOpen(false, true)
-            updateOptionbuttons()
+        gesangbuchOption.setOnClickListener {
+            setBuchMode(BuchMode.Gesangbuch)
         }
+        chorbuchOption.setOnClickListener {
+            setBuchMode(BuchMode.Chorbuch)
+        }
+        jugendliederbuchOption.setOnClickListener {
+            setBuchMode(BuchMode.Jugendliederbuch)
+        }
+        jbErgaenzungsheftOption.setOnClickListener {
+            setBuchMode(BuchMode.JBErgaenzungsheft)
+        }
+        helpOption.setOnClickListener {
+            startActivity(Intent(this@MainActivity, HelpActivity::class.java))
+        }
+        aboutAppOption.setOnClickListener {
+            startActivity(Intent(this@MainActivity, AboutActivity::class.java))
+        }
+        aboutMeOption.setOnClickListener {
+            startActivity(Intent(this@MainActivity, AboutMeActivity::class.java))
+        }
+        settingsOption.setOnClickListener {
+            startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+        }
+        /* TODO
         searchHelpFAB.backgroundTintList =
             ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_swipe_refresh_background, theme)
         searchHelpFAB.supportImageTintList =
             ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_tablayout_selected_indicator_color, theme)
-        Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
+
+         */
+        //Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
         searchHelpFAB.setOnClickListener { searchDialog() }
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -257,24 +246,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         })
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
-            drawerLayout.onSearchModeVoiceInputResult(result)
+            //TODO drawerLayout.onSearchModeVoiceInputResult(result)
         }
         AppUpdateManagerFactory.create(this).appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE)
                 drawerLayout.setButtonBadges(ToolbarLayout.N_BADGE, DrawerLayout.N_BADGE)
         }
-    }
-
-    public override fun attachBaseContext(context: Context) {
-        // pre-OneUI
-        if (Build.VERSION.SDK_INT <= 28) super.attachBaseContext(ThemeUtil.createDarkModeContextWrapper(context))
-        else super.attachBaseContext(context)
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // pre-OneUI
-        if (Build.VERSION.SDK_INT <= 28) resources.configuration.setTo(ThemeUtil.createDarkModeConfig(this, newConfig))
     }
 
     override fun onResume() {
@@ -311,6 +288,25 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    private fun setBuchMode(newBuchMode: BuchMode) {
+        gesangbuchOption.isSelected = false
+        chorbuchOption.isSelected = false
+        jugendliederbuchOption.isSelected = false
+        jbErgaenzungsheftOption.isSelected = false
+        when (newBuchMode) {
+            BuchMode.Gesangbuch -> gesangbuchOption.isSelected = true
+            BuchMode.Chorbuch -> chorbuchOption.isSelected = true
+            BuchMode.Jugendliederbuch -> jugendliederbuchOption.isSelected = true
+            BuchMode.JBErgaenzungsheft -> jbErgaenzungsheftOption.isSelected = true
+        }
+        lifecycleScope.launch {
+            buchMode = updateUserSettings { it.copy(buchMode = newBuchMode) }.buchMode
+            setCurrentItem()
+        }
+        drawerLayout.setTitle(newBuchMode.toString())
+        drawerLayout.setDrawerOpen(false, true)
+    }
+
     fun setCurrentItem() {
         if (tabLayout.isEnabled) {
             val tab = tabLayout.getTabAt(currentTab)
@@ -319,17 +315,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 setFragment(currentTab)
             }
         }
-        updateOptionbuttons()
     }
 
-    private fun updateOptionbuttons() {
-        drawerLayout.setTitle(buchMode.toString())
-        optionGroup.selectedOptionButton = when (buchMode) {
-            BuchMode.Gesangbuch -> findViewById(R.id.ob_gesangbuch)
-            BuchMode.Chorbuch -> findViewById(R.id.ob_chorbuch)
-            BuchMode.Jugendliederbuch -> findViewById(R.id.ob_jugendliederbuch)
-            BuchMode.JBErgaenzungsheft -> findViewById(R.id.ob_jb_ergaenzungsheft)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.search -> drawerLayout.showSearchMode()
+            R.id.mute -> if (!mute())
+                Toast.makeText(this@MainActivity, this@MainActivity.getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+            R.id.dnd -> doNotDisturb()
+            R.id.openOfficialApp -> lifecycleScope.launch {
+                if (buchMode == BuchMode.Gesangbuch || buchMode == BuchMode.Chorbuch) openBischoffApp(buchMode, true)
+                else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
+            }
         }
+        return true
     }
 
     private fun setFragment(tabPosition: Int) {
@@ -403,8 +402,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         lifecycleScope.launch { recreate() }
                     }
                 }
-                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
-                .setNegativeButtonProgress(true)
+                //.setNegativeButtonColor(resources.getColor(R.color.red, this@MainActivity.theme))
+                //.setNegativeButtonProgress(true)
                 .setPositiveButton(getString(R.string.ok), null)
                 .setOnDismissListener { setCurrentItem() }
                 .create()
@@ -429,8 +428,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         updateUserSettings { it.copy(showEasterEggHint = false) }
                     }
                 }
-                .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, this@MainActivity.theme))
-                .setNegativeButtonProgress(true)
+                //.setNegativeButtonColor(resources.getColor(R.color.red, this@MainActivity.theme))
+                //.setNegativeButtonProgress(true)
                 .setOnDismissListener { lifecycleScope.launch { showTipPopup() } }
                 .create()
                 .show()
@@ -440,6 +439,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initTipPopup() {
+        /*
         val toolbarMenuItemContainer =
             drawerLayout.findViewById<ViewGroup>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_action_menu_item_container)
         val drawerButtonView = drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_navigationButton)
@@ -465,10 +465,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         tipPopupSearch.setMessage(getString(R.string.searchTip))
         tipPopupMenuButton.setMessage(getString(R.string.mute) + ", " + getString(R.string.dndDescription) + " " + getString(R.string.or) + " " + getString(R.string.openOfficialApp))
         tipPopupOkButton.setMessage(getString(R.string.okButtonTip))
+         */
     }
 
     private suspend fun showTipPopup() {
         if (getUserSettings().showMainTips) {
+            /*
             updateUserSettings { it.copy(showMainTips = false) }
             try {
                 initTipPopup()
@@ -484,6 +486,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 // android.view.WindowManager$BadTokenException: Unable to add window -- token null is not valid; is your activity running?
                 e.printStackTrace()
             }
+             */
         }
     }
 }

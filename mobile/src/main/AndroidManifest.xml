@@ -14,7 +14,6 @@
         android app search leading wildcard?
         (new Android 12 Splashscreen)
         theme color (currently not supported)
-        old lib
     -->
 
     <queries>
@@ -36,7 +35,7 @@
         android:label="@string/app_name"
         android:resizeableActivity="true"
         android:supportsRtl="true"
-        android:theme="@style/OneUITheme"
+        android:theme="@style/NAKBuchTheme"
         tools:targetApi="32">
 
         <meta-data
@@ -60,9 +59,9 @@
         <activity android:name=".ui.ImgviewActivity" />
         <activity android:name=".ui.HelpActivity" />
         <activity android:name=".ui.AboutMeActivity" />
-        <activity android:name=".ui.AboutActivity" android:theme="@style/OneUIAboutTheme" />
+        <activity android:name=".ui.AboutActivity" />
         <activity android:name=".ui.MainActivity" android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
-        <activity android:name=".ui.SplashActivity" android:exported="true" android:theme="@style/OneUISplashTheme">
+        <activity android:name=".ui.SplashActivity" android:exported="true">
             <meta-data
                 android:name="com.sec.android.app.launcher.icon_theme"
                 android:value="themeColor" /> <!-- new (only Samsung, >Android 12) Themed Icon -->
@@ -74,10 +73,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.SplashActivityGesangbuch" android:exported="true" android:theme="@style/OneUISplashTheme" />
-        <activity android:name=".ui.SplashActivityChorbuch" android:exported="true" android:theme="@style/OneUISplashTheme" />
-        <activity android:name=".ui.SplashActivityJugendliederbuch" android:exported="true" android:theme="@style/OneUISplashTheme" />
-        <activity android:name=".ui.SplashActivityJBErgaenzungsheft" android:exported="true" android:theme="@style/OneUISplashTheme" />
+        <activity android:name=".ui.SplashActivityGesangbuch" android:exported="true" />
+        <activity android:name=".ui.SplashActivityChorbuch" android:exported="true" />
+        <activity android:name=".ui.SplashActivityJugendliederbuch" android:exported="true" />
+        <activity android:name=".ui.SplashActivityJBErgaenzungsheft" android:exported="true" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="de.lemke.nakbuch.fileprovider"

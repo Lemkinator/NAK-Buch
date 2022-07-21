@@ -7,17 +7,16 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
 import com.google.android.play.core.review.ReviewManagerFactory
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.dialog.AlertDialog
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
-import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.DiscoverEasterEggUseCase
 import de.lemke.nakbuch.domain.OpenAppUseCase
+import dev.oneuiproject.oneui.layout.DrawerLayout
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
@@ -33,11 +32,10 @@ class AboutMeActivity : AppCompatActivity() {
     lateinit var openApp: OpenAppUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about_me)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_support_me)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, R.drawable.ic_baseline_oui_back_24))
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
         konfettiView = findViewById(R.id.konfettiViewAboutMePage)
 

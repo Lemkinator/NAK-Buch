@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -15,42 +16,67 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.layout.AboutPage
-import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
+import de.lemke.nakbuch.domain.GetUserSettingsUseCase
 import de.lemke.nakbuch.domain.OpenAppUseCase
+import de.lemke.nakbuch.domain.UpdateUserSettingsUseCase
+import dev.oneuiproject.oneui.layout.AppInfoLayout
+import dev.oneuiproject.oneui.layout.AppInfoLayout.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AboutActivity : AppCompatActivity() {
-    private lateinit var aboutPage: AboutPage
+class AboutActivity : AppCompatActivity(), OnClickListener {
+    private lateinit var appInfoLayout: AppInfoLayout
     private lateinit var appUpdateManager: AppUpdateManager
     private lateinit var appUpdateInfo: AppUpdateInfo
     private lateinit var appUpdateInfoTask: Task<AppUpdateInfo>
+    private var clicks = 0
 
     @Inject
     lateinit var openApp: OpenAppUseCase
 
+    @Inject
+    lateinit var getUserSettings: GetUserSettingsUseCase
+
+    @Inject
+    lateinit var updateUserSettings: UpdateUserSettingsUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeUtil(this, resources.getString(R.color.primary_color))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
-        aboutPage = findViewById(R.id.about_page)
-        aboutPage.setToolbarExpandable(true)
-        aboutPage.setUpdateState(AboutPage.LOADING)
-        //status: LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
         appUpdateManager = AppUpdateManagerFactory.create(this)
-        aboutPage.setUpdateButtonOnClickListener { startUpdateFlow() }
-        aboutPage.setRetryButtonOnClickListener {
-            aboutPage.setUpdateState(AboutPage.LOADING)
-            checkUpdate()
+        appInfoLayout = findViewById(R.id.app_info_layout)
+        appInfoLayout.addOptionalText(getString(R.string.aboutPageOptionalText))
+        appInfoLayout.isExpandable = true
+        appInfoLayout.status = LOADING
+        //status: LOADING NO_UPDATE UPDATE_AVAILABLE NOT_UPDATEABLE NO_CONNECTION
+        appInfoLayout.setMainButtonClickListener(this)
+        val version: View = appInfoLayout.findViewById(dev.oneuiproject.oneui.R.id.app_info_version)
+        version.setOnClickListener {
+            clicks++
+            if (clicks > 5) {
+                clicks = 0
+                lifecycleScope.launch {
+                    val newDevModeEnabled = !getUserSettings().devModeEnabled
+                    updateUserSettings { it.copy(devModeEnabled = newDevModeEnabled) }
+                }
+                startActivity(Intent().setClass(applicationContext, SplashActivity::class.java))
+            }
         }
         findViewById<View>(R.id.about_btn_open_in_store).setOnClickListener { openApp(packageName, false) }
         findViewById<View>(R.id.about_btn_open_oneui_github).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.oneUIGithubLink))))
         }
         findViewById<View>(R.id.about_btn_help).setOnClickListener { startActivity(Intent(this@AboutActivity, HelpActivity::class.java)) }
-        findViewById<View>(R.id.about_btn_about_me).setOnClickListener { startActivity(Intent(this@AboutActivity, AboutMeActivity::class.java)) }
+        findViewById<View>(R.id.about_btn_about_me).setOnClickListener {
+            startActivity(
+                Intent(
+                    this@AboutActivity,
+                    AboutMeActivity::class.java
+                )
+            )
+        }
         checkUpdate()
     }
 
@@ -68,13 +94,22 @@ class AboutActivity : AppCompatActivity() {
             }
     }
 
+    override fun onUpdateClicked(v: View?) {
+        startUpdateFlow()
+    }
+
+    override fun onRetryClicked(v: View?) {
+        appInfoLayout.status = LOADING
+        checkUpdate()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == UPDATEREQUESTCODE) {
             if (resultCode != RESULT_OK) {
                 Log.e("Update: ", "Update flow failed! Result code: $resultCode")
                 Toast.makeText(this@AboutActivity, "Fehler beim Update-Prozess: $resultCode", Toast.LENGTH_LONG).show()
-                aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
+                appInfoLayout.status = NO_CONNECTION
             }
         }
     }
@@ -87,16 +122,16 @@ class AboutActivity : AppCompatActivity() {
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
                 //&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
                 this.appUpdateInfo = appUpdateInfo
-                aboutPage.setUpdateState(AboutPage.UPDATE_AVAILABLE)
+                appInfoLayout.status = UPDATE_AVAILABLE
             }
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_NOT_AVAILABLE) {
                 this.appUpdateInfo = appUpdateInfo
-                aboutPage.setUpdateState(AboutPage.NO_UPDATE)
+                appInfoLayout.status = NO_UPDATE
             }
         }
         appUpdateInfoTask.addOnFailureListener { appUpdateInfo: Exception ->
             Toast.makeText(this@AboutActivity, appUpdateInfo.message, Toast.LENGTH_LONG).show()
-            aboutPage.setUpdateState(AboutPage.NO_CONNECTION)
+            appInfoLayout.status = NO_CONNECTION
         }
     }
 

@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <de.dlyt.yanndroid.oneui.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/numpadScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:fillViewport="true"
-        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -29,8 +29,9 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:maxLines="1"
-                android:textColor="@color/sesl_tooltip_foreground"
                 android:textSize="20sp" />
+            <!-- TODO android:textColor="@color/sesl_tooltip_foreground"-->
+
 
             <LinearLayout
                 android:id="@+id/linearLayoutButtons"
@@ -41,9 +42,9 @@
                 android:gravity="right"
                 tools:ignore="RtlHardcoded">
 
-                <com.google.android.material.button.MaterialButton
+                <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/switchSideButton1"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    style="@style/ButtonStyle.Transparent"
                     android:layout_width="0dp"
                     android:layout_height="@dimen/number_field_height"
                     android:layout_marginStart="10dp"
@@ -51,7 +52,7 @@
                     android:animateLayoutChanges="true"
                     android:visibility="gone"
                     app:cornerRadius="30dp"
-                    app:icon="@drawable/ic_oui_arrow_left"
+                    android:src="@drawable/ic_baseline_oui_keyboard_arrow_left_40"
                     app:iconGravity="textTop"
                     app:iconSize="45dp"
                     app:strokeWidth="1dp" />
@@ -65,88 +66,89 @@
                     android:orientation="horizontal"
                     tools:ignore="RtlHardcoded">
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_1"
                         style="@style/NumberButton"
                         android:text="1"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_2"
                         style="@style/NumberButton"
                         android:text="2"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_3"
                         style="@style/NumberButton"
                         android:text="3"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_4"
                         style="@style/NumberButton"
                         android:text="4"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_5"
                         style="@style/NumberButton"
                         android:text="5"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_6"
                         style="@style/NumberButton"
                         android:text="6"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_7"
                         style="@style/NumberButton"
                         android:text="7"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_8"
                         style="@style/NumberButton"
                         android:text="8"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_9"
                         style="@style/NumberButton"
                         android:text="9"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/b_z"
                         style="@style/NumberButton"
-                        app:icon="@drawable/ic_oui_back_2" />
+                        android:src="@drawable/ic_baseline_oui_keyboard_btn_delete_38" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/b_0"
                         style="@style/NumberButton"
                         android:text="0"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/b_ok"
                         style="@style/NumberButton"
-                        app:icon="@drawable/ic_oui3_selected" />
+                        android:src="@drawable/ic_baseline_oui_enable_outline_34" />
                 </GridLayout>
 
-                <com.google.android.material.button.MaterialButton
+                <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/switchSideButton2"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    style="@style/ButtonStyle.Transparent"
                     android:layout_width="0dp"
                     android:layout_height="@dimen/number_field_height"
                     android:layout_marginEnd="5dp"
                     android:layout_weight="1"
-                    android:animateLayoutChanges="true"
                     android:visibility="gone"
                     app:cornerRadius="30dp"
-                    app:icon="@drawable/ic_oui_arrow_right"
+                    android:src="@drawable/ic_baseline_oui_keyboard_arrow_right_40"
+                    android:drawableBottom="@drawable/ic_baseline_oui_keyboard_arrow_right_40"
+                    android:drawableTint="@color/blue"
                     app:iconGravity="textTop"
                     app:iconSize="45dp"
                     app:strokeWidth="1dp" />
@@ -155,15 +157,15 @@
 
         </RelativeLayout>
 
-    </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <de.dlyt.yanndroid.oneui.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/numpadScrollView"
         android:animateLayoutChanges="true"
         android:fillViewport="true"
-        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <TextView
             android:id="@+id/hymnTextPreview"
@@ -172,7 +174,7 @@
             android:layout_marginHorizontal="10dp"
             android:ellipsize="end"
             android:textSize="20sp" />
-    </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <nl.dionsegijn.konfetti.xml.KonfettiView
         android:id="@+id/konfettiViewTab0"

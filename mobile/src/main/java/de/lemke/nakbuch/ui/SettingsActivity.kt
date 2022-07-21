@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,23 +18,22 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.util.SeslMisc
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.*
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.dialog.AlertDialog
-import de.dlyt.yanndroid.oneui.dialog.ProgressDialog
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
-import de.dlyt.yanndroid.oneui.layout.PreferenceFragment
-import de.dlyt.yanndroid.oneui.preference.*
-import de.dlyt.yanndroid.oneui.preference.internal.PreferencesRelatedCard
-import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.data.Quality
 import de.lemke.nakbuch.data.Resolution
 import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.hymnUseCases.SetPrivateTextsUseCase
+import dev.oneuiproject.oneui.dialog.ProgressDialog
+import dev.oneuiproject.oneui.layout.DrawerLayout
+import dev.oneuiproject.oneui.preference.internal.PreferenceRelatedCard
+import dev.oneuiproject.oneui.utils.PreferenceUtils.createRelatedCard
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -44,33 +42,32 @@ import javax.inject.Inject
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this)
         setContentView(R.layout.activity_settings)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-        drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, R.drawable.ic_baseline_oui_back_24))
         drawerLayout.setNavigationButtonOnClickListener { onBackPressed() }
         if (savedInstanceState == null) supportFragmentManager.beginTransaction().replace(R.id.settings, SettingsFragment()).commit()
     }
 
     @AndroidEntryPoint
-    class SettingsFragment : PreferenceFragment(), Preference.OnPreferenceChangeListener {
+    class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
         private lateinit var settingsActivity: SettingsActivity
         private lateinit var pickTextsActivityResultLauncher: ActivityResultLauncher<String>
         private lateinit var pickFolderActivityResultLauncher: ActivityResultLauncher<Uri>
-        private lateinit var darkModePref: HorizontalRadioPreference
-        private lateinit var autoDarkModePref: SwitchPreference
-        private lateinit var colorPickerPref: ColorPickerPreference
+        //private lateinit var darkModePref: HorizontalRadioPreference
+        private lateinit var autoDarkModePref: SwitchPreferenceCompat
+        //private lateinit var colorPickerPref: ColorPickerPreference
         private lateinit var confirmExitPref: CheckBoxPreference
-        private lateinit var easterEggsPref: SwitchPreferenceScreen
-        private lateinit var historyPref: SwitchPreferenceScreen
+        private lateinit var easterEggsPref: SeslSwitchPreferenceScreen
+        private lateinit var historyPref: SeslSwitchPreferenceScreen
         private lateinit var hintsPref: MultiSelectListPreference
         private lateinit var qualityPref: DropDownPreference
         private lateinit var resolutionPref: DropDownPreference
         private lateinit var versionHiddenMenuPref: PreferenceScreen
-        private var tipCard: TipsCardViewPreference? = null
+        //private var tipCard: TipsCardViewPreference? = null
         private var tipCardSpacing: PreferenceCategory? = null
-        private var relatedCard: PreferencesRelatedCard? = null
+        private var relatedCard: PreferenceRelatedCard? = null
         private var lastTimeVersionClicked: Long = 0
         private var clickCounter = 0
 
@@ -144,8 +141,8 @@ class SettingsActivity : AppCompatActivity() {
 
         @SuppressLint("RestrictedApi", "UnspecifiedImmutableFlag")
         private fun initPreferences() {
-            val darkMode = ThemeUtil.getDarkMode(settingsActivity)
-            darkModePref = findPreference("dark_mode")!!
+            val darkMode = AppCompatDelegate.getDefaultNightMode()
+            //darkModePref = findPreference("dark_mode")!!
             autoDarkModePref = findPreference("dark_mode_auto")!!
             confirmExitPref = findPreference("confirmExit")!!
             historyPref = findPreference("historyEnabled")!!
@@ -154,19 +151,22 @@ class SettingsActivity : AppCompatActivity() {
             resolutionPref = findPreference("imgResolution")!!
             qualityPref = findPreference("imgQuality")!!
             versionHiddenMenuPref = findPreference("version_hidden_menu")!!
-            colorPickerPref = findPreference("color")!!
+            //colorPickerPref = findPreference("color")!!
 
             historyPref.onPreferenceChangeListener = this
             easterEggsPref.onPreferenceChangeListener = this
+            /*
             darkModePref.onPreferenceChangeListener = this
             darkModePref.setDividerEnabled(false)
             darkModePref.setTouchEffectEnabled(false)
-            darkModePref.isEnabled = darkMode != ThemeUtil.DARK_MODE_AUTO
+            darkModePref.isEnabled = darkMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             darkModePref.value = if (SeslMisc.isLightTheme(settingsActivity)) "0" else "1"
+             */
             autoDarkModePref.onPreferenceChangeListener = this
-            autoDarkModePref.isChecked = darkMode == ThemeUtil.DARK_MODE_AUTO
+            autoDarkModePref.isChecked = darkMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             lifecycleScope.launch {
                 val recentColors = getRecentColors().toMutableList()
+                /*
                 for (recent_color in recentColors) colorPickerPref.onColorSet(recent_color)
                 colorPickerPref.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _: Preference?, colorInt: Any ->
@@ -177,6 +177,7 @@ class SettingsActivity : AppCompatActivity() {
                         MainActivity.refreshView = true
                         true
                     }
+                 */
             }
             findPreference<Preference>("audio_streams")!!.onPreferenceClickListener =
                 Preference.OnPreferenceClickListener {
@@ -211,10 +212,10 @@ class SettingsActivity : AppCompatActivity() {
                 }
             try {
                 versionHiddenMenuPref.title =
-                    settingsActivity.getString(de.dlyt.yanndroid.oneui.R.string.sesl_version) + " " + settingsActivity.packageManager.getPackageInfo(
+                    settingsActivity.getString(dev.oneuiproject.oneui.R.string.version_info, settingsActivity.packageManager.getPackageInfo(
                         settingsActivity.packageName,
                         0
-                    ).versionName
+                    ).versionName)
             } catch (nnfe: NameNotFoundException) {
                 nnfe.printStackTrace()
             }
@@ -234,7 +235,7 @@ class SettingsActivity : AppCompatActivity() {
                             AlertDialog.Builder(settingsActivity)
                                 .setCancelable(false)
                                 .setTitle(R.string.hiddenMenu)
-                                .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
+                                .setNegativeButton(R.string.sesl_cancel, null)
                                 .setPositiveButton(R.string.ok) { dialogInterface: DialogInterface, _: Int ->
                                     when (option) {
                                         0 -> {
@@ -257,7 +258,7 @@ class SettingsActivity : AppCompatActivity() {
                                                 .setCancelable(false)
                                                 .setTitle(R.string.deleteAppDataAndExit)
                                                 .setMessage(R.string.deleteAppDataAndExitWarning)
-                                                .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
+                                                .setNegativeButton(R.string.sesl_cancel, null)
                                                 .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
                                                     (settingsActivity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
                                                 }
@@ -268,7 +269,7 @@ class SettingsActivity : AppCompatActivity() {
                                     }
                                 }
                                 .setSingleChoiceItems(hiddenMenu, 1) { _: DialogInterface, i: Int -> option = i }
-                                .setPositiveButtonProgress(true)
+                                //.setPositiveButtonProgress(true)
                                 .create()
                                 .show()
 
@@ -278,6 +279,7 @@ class SettingsActivity : AppCompatActivity() {
                     lastTimeVersionClicked = System.currentTimeMillis()
                     true
                 }
+            /*
             tipCard = findPreference("tip_card_preference")
             tipCardSpacing = findPreference("spacing_tip_card")
             tipCard?.setTipsCardListener(object : TipsCardViewPreference.TipsCardListener {
@@ -296,6 +298,7 @@ class SettingsActivity : AppCompatActivity() {
                     startActivity(Intent(settingsActivity, HelpActivity::class.java))
                 }
             })
+            */
         }
 
         private fun createShortcut(id: String): Boolean {
@@ -316,7 +319,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             requireView().setBackgroundColor(
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.item_background_color, settingsActivity.theme)
+                resources.getColor(dev.oneuiproject.oneui.R.color.oui_background_color, settingsActivity.theme)
             )
         }
 
@@ -327,17 +330,18 @@ class SettingsActivity : AppCompatActivity() {
                 easterEggsPref.isChecked = getUserSettings().easterEggsEnabled
                 historyPref.isChecked = getUserSettings().historyEnabled
                 val showTipCard = getHints().contains("tipcard")
-                tipCard?.isVisible = showTipCard
-                tipCardSpacing?.isVisible = showTipCard
+                //tipCard?.isVisible = showTipCard
+                //tipCardSpacing?.isVisible = showTipCard
             }
             setRelatedCardView()
         }
 
         @Suppress("UNCHECKED_CAST")
         override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-            val currentDarkMode = ThemeUtil.getDarkMode(settingsActivity).toString()
+            //val currentDarkMode = ThemeUtil.getDarkMode(settingsActivity).toString()
             when (preference.key) {
                 "dark_mode" -> {
+                    /*
                     if (currentDarkMode !== newValue) {
                         ThemeUtil.setDarkMode(
                             settingsActivity,
@@ -345,13 +349,16 @@ class SettingsActivity : AppCompatActivity() {
                         )
                     }
                     return true
+                     */
                 }
                 "dark_mode_auto" -> {
+                    /*
                     if (newValue as Boolean) {
                         darkModePref.isEnabled = false
                         ThemeUtil.setDarkMode(settingsActivity, ThemeUtil.DARK_MODE_AUTO)
                     } else darkModePref.isEnabled = true
                     return true
+                     */
                 }
                 "confirmExit" -> {
                     lifecycleScope.launch { updateUserSettings { it.copy(confirmExit = newValue as Boolean) } }
@@ -370,8 +377,8 @@ class SettingsActivity : AppCompatActivity() {
                         val hintSet = newValue as MutableSet<String>
                         setHints(hintSet)
                         hintsPref.values = hintSet
-                        tipCard?.isVisible = hintSet.contains("tipcard")
-                        tipCardSpacing?.isVisible = hintSet.contains("tipcard")
+                        //tipCard?.isVisible = hintSet.contains("tipcard")
+                        //tipCardSpacing?.isVisible = hintSet.contains("tipcard")
                     }
                     return true
                 }
@@ -406,7 +413,7 @@ class SettingsActivity : AppCompatActivity() {
         private fun setRelatedCardView() {
             if (relatedCard == null) {
                 relatedCard = createRelatedCard(settingsActivity)
-                relatedCard?.setTitleText(getString(de.dlyt.yanndroid.oneui.R.string.sec_relative_description))
+                relatedCard?.setTitleText(getString(dev.oneuiproject.oneui.R.string.oui_relative_description))
                 relatedCard?.addButton(getString(R.string.help)) { startActivity(Intent(settingsActivity, HelpActivity::class.java)) }
                     ?.addButton(getString(R.string.aboutMe)) { startActivity(Intent(settingsActivity, AboutMeActivity::class.java)) }
                     ?.show(this)

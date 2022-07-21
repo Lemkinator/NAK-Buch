@@ -4,30 +4,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/increaseTextSize"
-        app:showAsAction="always"
         android:title="@string/increaseTextsize"
-        android:icon="@drawable/ic_oui_plus"
-        />
+        android:icon="@drawable/ic_baseline_oui_add_24"
+        android:showAsAction="always" />
 
     <item
         android:id="@+id/decreaseTextSize"
-        app:showAsAction="always"
         android:title="@string/decreaseTextsize"
-        android:icon="@drawable/ic_oui_minus"
-        />
+        android:icon="@drawable/ic_baseline_oui_minus_24"
+        android:showAsAction="always" />
 
     <item
         android:id="@+id/mute"
         android:title="@string/mute"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/dnd"
         android:title="@string/dnd"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/openOfficialApp"
         android:title="@string/openOfficialApp"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 </menu>

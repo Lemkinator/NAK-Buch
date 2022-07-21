@@ -1,6 +1,7 @@
 package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.graphics.Canvas
@@ -8,38 +9,36 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.SeslSwitchBar
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.allViews
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.button.MaterialButton
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.dialog.AlertDialog
-import de.dlyt.yanndroid.oneui.layout.SwitchBarLayout
-import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
-import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
-import de.dlyt.yanndroid.oneui.utils.ThemeUtil
-import de.dlyt.yanndroid.oneui.view.RecyclerView
-import de.dlyt.yanndroid.oneui.widget.Switch
-import de.dlyt.yanndroid.oneui.widget.SwitchBar
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.*
+import dev.oneuiproject.oneui.layout.SwitchBarLayout
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChangeListener {
+class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchChangeListener {
     private lateinit var discoveredEasterEggs: MutableList<String>
-    private lateinit var easterEggCommentButton: MaterialButton
+    private lateinit var easterEggCommentButton: AppCompatButton
     private lateinit var easterEggsHeader: TextView
     private lateinit var floatingActionButton: FloatingActionButton
     private lateinit var listView: RecyclerView
@@ -66,7 +65,6 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this, resources.getString(R.color.primary_color))
         setContentView(R.layout.activity_easteregg)
         easterEggComments = resources.getStringArray(R.array.easterEggComments)
         konfettiView = findViewById(R.id.konfettiViewEasterEgg)
@@ -89,23 +87,16 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         }
         val switchBarLayout = findViewById<SwitchBarLayout>(R.id.switchbarlayout_easteregg)
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
-        switchBarLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
+        switchBarLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
-        switchBarLayout.inflateToolbarMenu(R.menu.switchpreferencescreen_menu)
-        switchBarLayout.setOnToolbarMenuItemClickListener { //reset button
-            lifecycleScope.launch {
-                resetEasterEggs()
-                initList()
-            }
-            true
-        }
+        switchBarLayout.toolbar.inflateMenu(R.menu.switchpreferencescreen_menu)
         floatingActionButton = findViewById(R.id.easterEgg_fab)
-        floatingActionButton.rippleColor = resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl4_ripple_color, theme)
+        floatingActionButton.rippleColor = resources.getColor(dev.oneuiproject.oneui.R.color.sesl_snackbar_action_ripple_color, theme) //TODO color
         floatingActionButton.backgroundTintList = ColorStateList.valueOf(
-            resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_swipe_refresh_background, theme)
+            resources.getColor(dev.oneuiproject.oneui.R.color.design_default_color_background, theme) //TODO color
         )
         floatingActionButton.supportImageTintList = ResourcesCompat.getColorStateList(
-            resources, de.dlyt.yanndroid.oneui.R.color.sesl_tablayout_selected_indicator_color, theme
+            resources, dev.oneuiproject.oneui.R.color.design_default_color_on_background, theme //TODO color
         )
         val easterEggTippDialog2 = AlertDialog.Builder(this)
             .setTitle(getString(R.string.tips))
@@ -117,18 +108,18 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
                 }
                 Toast.makeText(this@EasterEggSwitchBarActivity, "Zu Recht...", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, theme))
+            //.setNegativeButtonColor(resources.getColor(R.color.red, theme))
             .setCancelable(false)
             .create()
         val easterEggTippDialog1 = AlertDialog.Builder(this)
             .setTitle(getString(R.string.tips))
             .setMessage(getString(R.string.confirmTips))
             .setNegativeButton(R.string.showTips) { _: DialogInterface?, _: Int -> easterEggTippDialog2.show() }
-            .setPositiveButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel) { _: DialogInterface?, _: Int ->
+            .setPositiveButton(R.string.sesl_cancel) { _: DialogInterface?, _: Int ->
                 Toast.makeText(this@EasterEggSwitchBarActivity, "Besser isses auch...", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, theme))
-            .setPositiveButtonColor(resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, theme))
+            //.setNegativeButtonColor(resources.getColor(R.color.red, theme))
+            //.setPositiveButtonColor(resources.getColor(R.color.green, theme))
             .create()
         val easterEggTippDialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.easterEggs))
@@ -151,7 +142,15 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         }
     }
 
-    override fun onSwitchChanged(switchCompat: Switch, z: Boolean) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        lifecycleScope.launch {
+            resetEasterEggs()
+            initList()
+        }
+        return true
+    }
+
+    override fun onSwitchChanged(switchCompat: SwitchCompat, z: Boolean) {
         lifecycleScope.launch {
             enabled = updateUserSettings { it.copy(easterEggsEnabled = z) }.easterEggsEnabled
             initList()
@@ -175,9 +174,8 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         listView.seslSetLastRoundedCorner(false)
         val divider = TypedValue()
         theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        val decoration = ItemDecoration()
+        val decoration = ItemDecoration(this)
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(this, divider.resourceId)!!)
 
         refreshEnableDisableEasterEggView()
     }
@@ -186,8 +184,8 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         easterEggsHeader.isEnabled = enabled
         easterEggsHeader.setTextColor(
             resources.getColor(
-                if (enabled) de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color
-                else de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark,
+                if (enabled) dev.oneuiproject.oneui.R.color.design_default_color_on_background //TODO color
+                else dev.oneuiproject.oneui.R.color.sesl_switch_thumb_on_disabled_color,
                 this.theme
             )
         )
@@ -195,9 +193,9 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         easterEggCommentButton.setTextColor(
             if (enabled) MaterialColors.getColor(
                 this,
-                de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_dialog_body_text_color, this.theme)
-            ) else resources.getColor(de.dlyt.yanndroid.oneui.R.color.abc_secondary_text_material_dark, this.theme)
+                androidx.appcompat.R.attr.colorPrimary, //TODO color
+                resources.getColor(dev.oneuiproject.oneui.R.color.design_default_color_on_background, this.theme)
+            ) else resources.getColor(dev.oneuiproject.oneui.R.color.sesl_switch_thumb_on_disabled_color, this.theme)
         )
         floatingActionButton.isEnabled = enabled
     }
@@ -241,51 +239,26 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SwitchBar.OnSwitchChange
         }
     }
 
-    inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(this@EasterEggSwitchBarActivity, true)
-        private val seslRoundedCornerBottom: SeslRoundedCorner
-        private var divider: Drawable? = null
-        private var dividerHeight = 0
-        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
-            super.seslOnDispatchDraw(canvas, recyclerView, state)
-            val childCount = recyclerView.childCount
-            val width = recyclerView.width
-
-            for (i in 0 until childCount) {
-                val childAt = recyclerView.getChildAt(i)
-                val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
-                val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean = if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                    recyclerView.getChildAt(i + 1)
-                ) as ImageAdapter.ViewHolder).isItem else false
-                if (divider != null && viewHolder.isItem && shallDrawDivider) {
-                    divider!!.setBounds(0, y, width, dividerHeight + y)
-                    divider!!.draw(canvas)
-                }
-                if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) seslRoundedCornerTop.drawRoundedCorner(
-                        recyclerView.getChildAt(i + 1),
-                        canvas
-                    )
-                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
-                        recyclerView.getChildAt(i - 1),
-                        canvas
-                    )
-                }
+    private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+        private val mDivider: Drawable
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            super.onDraw(c, parent, state)
+            for (i in 0 until parent.childCount) {
+                val child = parent.getChildAt(i)
+                val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
+                val bottom = mDivider.intrinsicHeight + top
+                mDivider.setBounds(parent.left, top, parent.right, bottom)
+                mDivider.draw(c)
             }
-            seslRoundedCornerTop.drawRoundedCorner(canvas)
-        }
-
-        fun setDivider(d: Drawable) {
-            divider = d
-            dividerHeight = d.intrinsicHeight
-            listView.invalidateItemDecorations()
         }
 
         init {
-            seslRoundedCornerTop.roundedCorners = 3
-            seslRoundedCornerBottom = SeslRoundedCorner(this@EasterEggSwitchBarActivity, true)
-            seslRoundedCornerBottom.roundedCorners = 12
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
+            mDivider = context.getDrawable(
+                if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
+                else androidx.appcompat.R.drawable.sesl_list_divider_light
+            )!!
         }
     }
 }

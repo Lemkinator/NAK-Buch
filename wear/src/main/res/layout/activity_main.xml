@@ -35,70 +35,70 @@
             android:columnCount="3"
             android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_1"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="1"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_2"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="2"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_3"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="3"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_4"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="4"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_5"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="5"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_6"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="6"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_7"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="7"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_8"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="8"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_9"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="9"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_z"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
@@ -106,14 +106,14 @@
                 app:iconSize="20dp"
                 app:iconTint="@color/white" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_0"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
                 android:text="0"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/b_ok"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="@dimen/number_button_width"
@@ -123,7 +123,7 @@
 
         </GridLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonSwitchMode"
             style="@style/ButtonStyle.Filled"
             android:layout_width="match_parent"
@@ -133,7 +133,7 @@
             android:layout_marginHorizontal="15dp"
             app:icon="@drawable/ic_oui_convert" />
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonInfo"
             style="@style/ButtonStyle.Filled"
             android:layout_width="match_parent"

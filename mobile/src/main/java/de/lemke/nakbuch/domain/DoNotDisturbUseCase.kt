@@ -7,9 +7,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.qualifiers.ActivityContext
-import de.dlyt.yanndroid.oneui.dialog.AlertDialog
 import de.lemke.nakbuch.R
 import javax.inject.Inject
 
@@ -34,7 +34,7 @@ class DoNotDisturbUseCase @Inject constructor(
         val dialog = AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.needAccess))
             .setMessage(context.getString(R.string.needAccessMessage))
-            .setNegativeButton(de.dlyt.yanndroid.oneui.R.string.sesl_cancel, null)
+            .setNegativeButton(R.string.sesl_cancel, null)
             .setPositiveButton(context.getString(R.string.grantAccess)) { _: DialogInterface?, _: Int ->
                 val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
                 val showArgs = context.packageName
@@ -48,8 +48,8 @@ class DoNotDisturbUseCase @Inject constructor(
                     e.printStackTrace()
                 }
             }
-            .setNegativeButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, null))
-            .setPositiveButtonColor(context.resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_green, null))
+            //TODO .setNegativeButtonColor(context.resources.getColor(R.color.red, null))
+            //TODO .setPositiveButtonColor(context.resources.getColor(R.color.green, null))
             .create()
         dialog.show()
     }

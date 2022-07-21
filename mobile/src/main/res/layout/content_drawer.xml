@@ -11,72 +11,265 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <de.dlyt.yanndroid.oneui.view.OptionGroup
-            android:id="@+id/optiongroup"
+        <LinearLayout
+            android:id="@+id/draweritem_gesangbuch"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
 
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_gesangbuch"
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui4_audio"
-                app:text="@string/titleGesangbuch" />
+                android:src="@drawable/ic_baseline_oui_audio_outline_24" />
 
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_chorbuch"
-                android:layout_width="match_parent"
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui4_audio"
-                app:text="@string/titleChorbuch" />
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/titleGesangbuch"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
 
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_jugendliederbuch"
-                android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/draweritem_chorbuch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui3_audio"
-                app:text="@string/titleJugendliederbuch" />
+                android:src="@drawable/ic_baseline_oui_audio_outline_24" />
 
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_jb_ergaenzungsheft"
-                android:layout_width="match_parent"
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui3_audio"
-                app:text="@string/titleJBErgaenzungsheft" />
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/titleChorbuch"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
 
-            <View style="@style/DrawerDividerStyle" />
+        <LinearLayout
+            android:id="@+id/draweritem_jugendliederbuch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
 
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_help"
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui4_help"
-                app:text="@string/help" />
+                android:src="@drawable/ic_baseline_oui_audio_24" />
 
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_about"
-                android:layout_width="match_parent"
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui4_info"
-                app:text="@string/aboutApp" />
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/titleJugendliederbuch"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
 
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_about_me"
-                android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/draweritem_jbergaenzungsheft"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui4_contact"
-                app:text="@string/aboutMe" />
+                android:src="@drawable/ic_baseline_oui_audio_24" />
 
-            <View style="@style/DrawerDividerStyle" />
-
-            <de.dlyt.yanndroid.oneui.widget.OptionButton
-                android:id="@+id/ob_settings"
-                android:layout_width="match_parent"
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_oui4_settings_2"
-                app:text="@string/action_settings" />
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/titleJBErgaenzungsheft"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
 
-        </de.dlyt.yanndroid.oneui.view.OptionGroup>
+        <View style="@style/DrawerDividerStyle" />
+
+        <LinearLayout
+            android:id="@+id/draweritem_help"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_oui_help_outline_24" />
+
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/help"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/draweritem_about_app"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_oui_info_outline_24" />
+
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/aboutApp"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/draweritem_about_me"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_oui_contact_outline_24" />
+
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/aboutMe"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <View style="@style/DrawerDividerStyle" />
+
+        <LinearLayout
+            android:id="@+id/draweritem_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/drawer_item_selector"
+            android:foreground="@drawable/drawer_item_list_ripple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_oui_settings_outline_24" />
+
+            <TextView
+                style="?android:attr/textAppearanceLarge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="marquee"
+                android:paddingStart="15dp"
+                android:singleLine="true"
+                android:text="@string/settings"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

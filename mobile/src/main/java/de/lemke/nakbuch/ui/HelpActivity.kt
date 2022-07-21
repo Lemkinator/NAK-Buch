@@ -9,11 +9,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
-import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.OpenBischoffAppUseCase
 import de.lemke.nakbuch.domain.model.BuchMode
+import dev.oneuiproject.oneui.layout.DrawerLayout
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -24,9 +23,8 @@ class HelpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
-        ThemeUtil(this)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_help)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(this, R.drawable.ic_baseline_oui_back_24))
         drawerLayout.setNavigationButtonOnClickListener { finish() }
         findViewById<View>(R.id.contactMeButton).setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO)

@@ -5,14 +5,14 @@
 
     <item
         android:id="@+id/addToFav"
-        android:icon="@drawable/ic_oui_like_on"
+        android:icon="@drawable/ic_baseline_oui_favorite_24"
         android:title="@string/addToFav"
-        app:showAsAction="always"
-        tools:ignore="AlwaysShowAction" />
+        tools:ignore="AlwaysShowAction"
+        android:showAsAction="always" />
 
     <item
         android:id="@+id/removeFromFav"
-        android:icon="@drawable/ic_oui4_delete"
+        android:icon="@drawable/ic_baseline_oui_delete_outline_24"
         android:title="@string/removeFromFav"
-        app:showAsAction="always" />
+        android:showAsAction="always" />
 </menu>

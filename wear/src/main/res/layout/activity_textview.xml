@@ -23,7 +23,7 @@
             android:layout_gravity="center"
             android:paddingTop="10dp">
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonPlus"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="45dp"
@@ -32,7 +32,7 @@
                 app:iconGravity="textTop"
                 app:iconTint="@color/white" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonMinus"
                 style="@style/ButtonStyle.Filled"
                 android:layout_width="45dp"

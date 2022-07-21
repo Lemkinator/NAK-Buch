@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.wear.activity.ConfirmationActivity
-import com.google.android.material.button.MaterialButton
+import androidx.appcompat.widget.AppCompatButton
 import dagger.hilt.android.AndroidEntryPoint
 import de.dlyt.yanndroid.oneui.utils.ThemeUtil
 import de.lemke.nakbuch.R
@@ -28,7 +28,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     private lateinit var buchMode: BuchMode
     private lateinit var tvHymnNrTitle: TextView
-    private lateinit var buttonSwitchMode: MaterialButton
+    private lateinit var buttonSwitchMode: AppCompatButton
     private lateinit var inputOngoingJob: Job
     private var inputOngoing = false
     private var hymnNrInput: String = ""
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil(this, resources.getString(R.color.primary_color))
+        ThemeUtil(this)
         ThemeUtil.setDarkMode(this, ThemeUtil.DARK_MODE_ENABLED)
         setContentView(R.layout.activity_main)
         tvHymnNrTitle = findViewById(R.id.hymnTitlePreview)
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                     previewHymn()
                 }
             }
-            findViewById<MaterialButton>(R.id.buttonInfo).setOnClickListener {
+            findViewById<AppCompatButton>(R.id.buttonInfo).setOnClickListener {
                 startActivity(Intent(this@MainActivity, InfoActivity::class.java))
             }
         }

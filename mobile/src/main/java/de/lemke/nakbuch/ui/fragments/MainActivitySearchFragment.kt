@@ -1,5 +1,6 @@
 package de.lemke.nakbuch.ui.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -10,14 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
-import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
-import de.dlyt.yanndroid.oneui.view.RecyclerView
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.GetUserSettingsUseCase
 import de.lemke.nakbuch.domain.MakeSectionOfTextBoldUseCase
@@ -69,9 +68,8 @@ class MainActivitySearchFragment : Fragment() {
         val divider = TypedValue()
         requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(context)
-        val decoration = ItemDecoration()
+        val decoration = ItemDecoration(requireContext())
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(requireContext(), divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
@@ -101,7 +99,7 @@ class MainActivitySearchFragment : Fragment() {
             if (holder.isItem) {
                 val hymn = searchList[position]
                 val color = MaterialColors.getColor(
-                    requireContext(), de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                    requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO
                     requireContext().resources.getColor(R.color.primary_color, context?.theme)
                 )
                 lifecycleScope.launch {
@@ -140,52 +138,26 @@ class MainActivitySearchFragment : Fragment() {
         }
     }
 
-    inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val mSeslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(context, true)
-        private val mSeslRoundedCornerBottom: SeslRoundedCorner
-        private var mDivider: Drawable? = null
-        private var mDividerHeight = 0
-        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
-            super.seslOnDispatchDraw(canvas, recyclerView, state)
-            val childCount = recyclerView.childCount
-            val width = recyclerView.width
-
-            for (i in 0 until childCount) {
-                val childAt = recyclerView.getChildAt(i)
-                val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
-                val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean =
-                    if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                        recyclerView.getChildAt(i + 1)
-                    ) as ImageAdapter.ViewHolder).isItem else false
-                if (mDivider != null && viewHolder.isItem && shallDrawDivider) {
-                    mDivider!!.setBounds(0, y, width, mDividerHeight + y)
-                    mDivider!!.draw(canvas)
-                }
-                if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) mSeslRoundedCornerTop.drawRoundedCorner(
-                        recyclerView.getChildAt(i + 1),
-                        canvas
-                    )
-                    if (recyclerView.getChildAt(i - 1) != null) mSeslRoundedCornerBottom.drawRoundedCorner(
-                        recyclerView.getChildAt(i - 1),
-                        canvas
-                    )
-                }
+    private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+        private val mDivider: Drawable
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            super.onDraw(c, parent, state)
+            for (i in 0 until parent.childCount) {
+                val child = parent.getChildAt(i)
+                val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
+                val bottom = mDivider.intrinsicHeight + top
+                mDivider.setBounds(parent.left, top, parent.right, bottom)
+                mDivider.draw(c)
             }
-            mSeslRoundedCornerTop.drawRoundedCorner(canvas)
-        }
-
-        fun setDivider(d: Drawable) {
-            mDivider = d
-            mDividerHeight = d.intrinsicHeight
-            listView.invalidateItemDecorations()
         }
 
         init {
-            mSeslRoundedCornerTop.roundedCorners = 3
-            mSeslRoundedCornerBottom = SeslRoundedCorner(context, true)
-            mSeslRoundedCornerBottom.roundedCorners = 12
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
+            mDivider = context.getDrawable(
+                if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
+                else androidx.appcompat.R.drawable.sesl_list_divider_light
+            )!!
         }
     }
 }

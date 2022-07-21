@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         // Set the splash screen background, animated icon, and animation duration.
-        <item name="windowSplashScreenBackground">@color/sesl4_round_and_bgcolor</item>
+        <item name="windowSplashScreenBackground">@color/sesl_fragment_bgcolor</item>
 
         // Use windowSplashScreenAnimatedIcon to add either a drawable or an
         // animated drawable. One of these is required.
@@ -16,35 +16,59 @@
         # Required.
     </style>
 
-    <style name="Button.Colored" parent="Widget.MaterialComponents.Button">
-        <item name="cornerRadius">@dimen/rounded_corner_size</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="iconSize">40dp</item>
-        <item name="iconPadding">@dimen/mtrl_btn_icon_padding</item>
-
-        <item name="enforceMaterialTheme">true</item>
-        <item name="enforceTextAppearance">false</item>
-        <item name="android:textAppearance">?attr/textAppearanceButton</item>
-        <item name="android:textColor">@color/mtrl_btn_text_color_selector</item>
-        <item name="android:paddingLeft">@dimen/mtrl_btn_padding_left</item>
-        <item name="android:paddingRight">@dimen/mtrl_btn_padding_right</item>
-        <item name="android:paddingTop">@dimen/mtrl_btn_padding_top</item>
-        <item name="android:paddingBottom">@dimen/mtrl_btn_padding_bottom</item>
-        <item name="android:insetLeft">0dp</item>
-        <item name="android:insetRight">0dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:maxWidth">@dimen/mtrl_btn_max_width</item>
-        <item name="elevation">@dimen/mtrl_btn_elevation</item>
-        <item name="shapeAppearance">@null</item>
-    </style>
-    <style name="NumberButton" parent="Button.Colored">
+    <style name="NumberButton" parent="ButtonStyle.Colored">
         <item name="android:textSize">@dimen/number_button_textSize</item>
         <item name="android:layout_width">@dimen/number_button_width</item>
         <item name="android:layout_height">@dimen/number_button_height</item>
         <item name="android:layout_margin">@dimen/number_button_margin</item>
+
+        <!-- TODO item name="cornerRadius">@dimen/rounded_corner_size</item>
         <item name="android:layout_gravity">center</item>
-        <item name="iconSize">40dp</item>
-        <item name="iconPadding">@dimen/mtrl_btn_icon_padding</item>
+        <item name="iconSize">40dp</item-->
+
     </style>
+
+    <style name="NAKBuchTheme" parent="OneUITheme">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorPrimaryDark">@color/primary_dark_color</item>
+        <item name="colorSecondary">@color/secondary_color</item>
+        <item name="colorAccent">@color/secondary_color</item>
+    </style>
+
+    <style name="ButtonStyle.Colored" parent="Widget.AppCompat.Button">
+        <item name="android:backgroundTint">?colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+    </style>
+
+    <style name="ButtonStyle.Transparent" parent="Widget.AppCompat.Button">
+        <item name="android:backgroundTint">@android:color/transparent</item>
+        <item name="android:textColor">?colorAccent</item>
+        <item name="iconTint">?colorAccent</item>
+        <item name="drawableTint">?colorAccent</item>
+        <item name="strokeColor">?colorAccent</item>
+        <item name="strokeWidth">5dp</item>
+    </style>
+
+    <style name="ButtonStyle.Filled" parent="Widget.AppCompat.Button">
+        <item name="android:backgroundTint">?colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+    </style>
+
+    <style name="DrawerDividerStyle">
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">3dp</item>
+        <item name="android:layout_marginStart">24dp</item>
+        <item name="android:layout_marginEnd">24dp</item>
+        <item name="android:foreground">@drawable/drawer_item_separator_bg</item>
+    </style>
+
+    <style name="MenuPopupAnimStyle" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/sesl_menu_popup_enter</item>
+        <item name="android:windowExitAnimation">@anim/sesl_menu_popup_exit</item>
+    </style>
+
 </resources>

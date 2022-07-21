@@ -1,4 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!--General-->
     <string name="app_name" translatable="false">NAK Buch</string>
     <string name="titleGesangbuch" translatable="false">Gesangbuch</string>
     <string name="titleChorbuch" translatable="false">Chorbuch</string>
@@ -12,15 +13,16 @@
     <string name="oneUiLibaryGithub" translatable="false">OneUI-Project Github</string>
     <string name="oneUIGithubLink" translatable="false">https://github.com/OneUIProject</string>
     <string name="rickRollTrollLink" translatable="false">https://www.leonard-lemke.com/rr</string>
-
     <string name="bischoffGesangbuchPackageName" translatable="false">de.bischoff.nakgesangbuch</string>
     <string name="bischoffChorbuchPackageName" translatable="false">de.bischoff.chorbuch</string>
     <string name="openOfficialApp">Offizielle App öffnen</string>
 
+    <!--About-->
     <string name="aboutPageOptionalText">Die inoffizielle Liederbuch-App der NAK.</string>
     <string name="aboutApp">Über NAK Buch</string>
     <string name="help">Hilfe</string>
 
+    <!--Settings-->
     <string name="number">Nummer</string>
     <string name="list">Liste</string>
     <string name="favourites">Favoriten</string>
@@ -74,6 +76,7 @@
     <string name="notFound">Nicht gefunden</string>
     <string name="hiddenMenu">Verstecktes Menu</string>
 
+    <!--Hints-->
     <string name="color">Farbe</string>
     <string name="design">Design</string>
     <string name="hint">Hinweis</string>
@@ -82,16 +85,27 @@
     <string name="appHintTextShort">"Diese App steht in keiner Verbindung zur NAK oder der Verlag Friedrich Bischoff GmbH und beinhaltet deshalb nur die vom Urheberrecht freien Texte. Mehr Informationen dazu findest du unter dem Menu-Punkt \"Hilfe\"."</string>
     <string name="appHintText">"Diese App steht in keiner Verbindung zur NAK oder der Verlag Friedrich Bischoff GmbH und beinhaltet lediglich die urheberrechtsfreien Texte aus dem folgenden Büchern:\n\n- Gesangbuch (320 von 438 Liedern)\n- Chorbuch (206 von 462 Liedern)\n- Jugendliederbuch (41 von 102 Liedern)\n- Ergänzungsheft zum Jugendliederbuch (3 von 20 Liedern)\n\nBei den restlichen Liedern liegen die Rechte noch bei den Urhebern, weshalb diese nicht oder nur teilweise angezeigt werden können. Die Informationen zum Urheberrecht wurden mit großer Sorgfalt geprüft, wenn mir hierbei unwissend Fehler unterlaufen sind, bitte ich freundlichst um einen Hinweis, dem ich unverzüglich nachgehen werde.\n\nDie Verwaltung der Rechte obliegt u.a. der Verlag Friedrich Bischoff GmbH, welchee selbst eine (kostenpflichtige) App für das Gesangbuch und eine (kostenpflichtige) App für das Chorbuch herausgegeben hat.\n    "</string>
 
+    <!--Copyright-->
     <string name="appHintTextBischoff">"Zu den offiziellen Apps der Verlag Friedrich Bischoff GmbH: "</string>
     <string name="whyNoFullText">Warum wird nicht der vollständige Text angezeigt?</string>
     <string name="jokeButtonText">Jetzt Premium-Abo abschließen, um urheberrechtlich geschützte Inhalte freizuschalten!</string>
     <string name="jokeTitle">Kleiner Witz am Rande…</string>
     <string name="jokeMessage">Es gibt kein Premium Abo in dieser App… Bei diesem Lied liegen die Rechte noch bei dem Urheber/den Urhebern.\nDie Verwaltung der Rechte obliegt u.a. der Verlag Friedrich Bischoff GmbH.\nDeshalb können urheberrechtlich geschützte Inhalte in dieser App nicht angezeigt werden… \n\nKnopf ausblenden:</string>
 
+    <!--EasterEggs-->
     <string name="easterEggs">Easter Eggs</string>
     <string name="easterEggsText" tools:ignore="Typos">"In dieser App gibt es ein paar Easter Eggs (versteckte Besonderheiten).\nKeine Sorge, die Easter Eggs behindern in keiner Weise die Nutzung der App, sondern sind nur dazu da, dir ein Lächeln ins Gesicht zu zaubern.\nFalls du keinen Spaß verstehst oder nicht weißt was du tust, dann klicke bitte auf Deaktivieren.\nDu kannst die Easter Eggs auch später in den Einstellungen aktivieren oder deaktivieren. Dort findest du außerdem ein Scoreboard, welches deinen Entdeckungsfortschritt anzeigt.\n    "</string>
     <string name="easterEggsHelp">"In dieser App gibt es ein paar Easter Eggs (versteckte Besonderheiten).\nKeine Sorge, die Easter Eggs behindern in keiner Weise die Nutzung der App, sondern sind nur dazu da, dir ein Lächeln ins Gesicht zu zaubern.\n    "</string>
-
+    <string name="alreadyDiscoveredEasterEggs">Bereits entdeckte Easter Eggs</string>
+    <string name="easterEggDiscovered">Yeah! Easter Egg entdeckt:&#160;</string>
+    <string name="discoveredEasterEggs">Bereits entdeckte Easter Eggs:</string>
+    <string name="tips">Tipps</string>
+    <string name="showTips">Tipps anzeigen</string>
+    <string name="confirmTips">Komm schon… Möchtest du wirklich die Tipps für die Easter Eggs ansehen? Wenn du den Titel "Master of Easter Eggs" mit stolz tragen möchtest, dann klick auf Abbrechen!</string>
+    <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 3 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über mich\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n- 1 Easter Egg kann in der Textansicht über den "Offizielle App Öffnen"-Button entdeckt werden\n</string>
+    <string name="easterEggTipsShame">Ich schäme mich</string>
+    <string name="easterEggAlreadyDiscovered">Easter Egg bereits entdeckt… &#128514;</string>
+    <!--EasterEggEntries-->
     <string name="easterEggEntry666">Lied Nummer 666 eingeben</string>
     <string name="easterEggEntry999">Lied Nummer 999 eingeben</string>
     <string name="easterEggEntry0">Lied Nummer 0 eingeben</string>
@@ -102,17 +116,6 @@
     <string name="easterEggEntryComment">Easter-Egg-Kommentar mehrfach angeklickt</string>
     <string name="easterEggEntryHelp">Lang auf den Hilfe-Button klicken</string>
     <string name="easterEggWhichOfficialApp">Welche offizielle App?</string>
-
-    <string name="alreadyDiscoveredEasterEggs">Bereits entdeckte Easter Eggs</string>
-    <string name="easterEggDiscovered">Yeah! Easter Egg entdeckt:&#160;</string>
-    <string name="discoveredEasterEggs">Bereits entdeckte Easter Eggs:</string>
-    <string name="tips">Tipps</string>
-    <string name="showTips">Tipps anzeigen</string>
-    <string name="confirmTips">Komm schon… Möchtest du wirklich die Tipps für die Easter Eggs ansehen? Wenn du den Titel "Master of Easter Eggs" mit stolz tragen möchtest, dann klick auf Abbrechen!</string>
-    <string name="easterEggTips">Shame, Shame, Shame… \nNa gut: \n- 2 Easter Eggs befinden sich direkt auf dieser Seite… viel Möglichkeiten gibts ja nicht…\n- 3 Easter Eggs können bei der Eingabe von Nummern entdeckt werden\n- 1 Easter Egg wird durch einen bestimmten Notiz-Eintrag entdeckt\n- 1 Easter Egg wird durch eine bestimmte Eingabe bei der Suche entdeckt\n- 1 Easter Egg findest du auf der \"Über mich\"-Seite\n- 1 Easter Egg kann bei einem urheberrechtlich geschütztem Lied entdeckt werden\n- 1 Easter Egg kann in der Textansicht über den "Offizielle App Öffnen"-Button entdeckt werden\n</string>
-    <string name="easterEggTipsShame">Ich schäme mich</string>
-    <string name="easterEggAlreadyDiscovered">Easter Egg bereits entdeckt… &#128514;</string>
-
     <string-array name="easterEggComments">
         <item>Noch keins gefunden? Dann los! &#128118;</item>
         <item>Sei ehrlich, das war durch Zufall gefunden… &#129300;</item>
@@ -127,6 +130,7 @@
         <item>&#127942; Master of Easter Eggs! &#127942;</item>
     </string-array>
 
+    <!--Others-->
     <string name="notYetImplemented">Noch nicht implementiert &#129394;</string>
     <string name="buyMeACoffee">Spendier mir einen Kaffee</string>
     <string name="watchAdHeader">Broke? Kein problem</string>
@@ -185,7 +189,7 @@
     <string name="toggleHints">Hinweise aktivieren/deaktivieren</string>
     <string name="showScoreboard">Scoreboard ansehen</string>
     <string name="phoneSettings">Telefon-Einstellungen</string>
-
+    <!--Options-->
     <string name="veryLow">Sehr Niedrig</string>
     <string name="low">Niedrig</string>
     <string name="medium">Mittel</string>
@@ -208,8 +212,13 @@
     <string name="deletePhoto">Foto löschen</string>
     <string name="deleteCurrentPhoto">Aktuell angezeigtes Foto löschen</string>
     <string name="contact">Kontakt</string>
-
+    <!--Neue LiedTexte-->
     <string name="newTextsTitle">Neue Lied-Texte sind verfügbar</string>
     <string name="newTexts">Neue Lied-Texte sind verfügbar, du benutzt jedoch private Lied-Texte, weshalb diese nicht automatisch aktualisiert werden können.\nWenn du möchtest, kannst du in den Einstellungen deine privaten Lied-Texte mithilfe von neuen txt-Dateien ersetzen oder ein downgrade auf die aktualisierten urheberrechtlich freien Lieder machen.</string>
+    <!--sesl???-->
+    <string name="search">Suche</string>
+    <string name="settings">Einstellungen</string>
+    <string name="sesl_cancel">Abbrechen</string>
+    <string name="sesl_navigate_up">Zurück</string>
 
 </resources>

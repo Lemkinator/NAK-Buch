@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.DiscoverEasterEggUseCase
@@ -57,8 +57,8 @@ class MainActivityTabNum : Fragment() {
         konfettiView = rootView.findViewById(R.id.konfettiViewTab0)
         tvHymnNrTitle = rootView.findViewById(R.id.hymnTitlePreview)
         tvHymnText = rootView.findViewById(R.id.hymnTextPreview)
-        val switchSideButton1 = rootView.findViewById<MaterialButton>(R.id.switchSideButton1)
-        val switchSideButton2 = rootView.findViewById<MaterialButton>(R.id.switchSideButton2)
+        val switchSideButton1 = rootView.findViewById<AppCompatImageButton>(R.id.switchSideButton1)
+        val switchSideButton2 = rootView.findViewById<AppCompatImageButton>(R.id.switchSideButton2)
         lifecycleScope.launch {
             val userSettings = getUserSettings()
             if (userSettings.numberFieldRightSide) {

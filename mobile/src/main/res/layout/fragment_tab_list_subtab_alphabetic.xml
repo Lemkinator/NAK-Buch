@@ -3,14 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <de.dlyt.yanndroid.oneui.view.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/hymnListAlphabetical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/item_background_color"
+        android:background="@color/oui_background_color"
         />
 
-    <de.dlyt.yanndroid.oneui.view.IndexScrollView
+    <androidx.indexscroll.widget.SeslIndexScrollView
         android:id="@+id/indexScrollViewAlphabetical"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

@@ -5,12 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.sesl.tabs.TabLayoutMediator
-import de.dlyt.yanndroid.oneui.sesl.viewpager2.adapter.FragmentStateAdapter
-import de.dlyt.yanndroid.oneui.sesl.viewpager2.widget.SeslViewPager2
-import de.dlyt.yanndroid.oneui.view.ViewPager2
-import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
 
 @AndroidEntryPoint
@@ -28,7 +27,7 @@ class MainActivityTabList : Fragment() {
         subTabs.tabMode = TabLayout.SESL_MODE_WEIGHT_AUTO
         val viewPager2: ViewPager2 = rootView.findViewById(R.id.viewPager2Lists)
         viewPager2.adapter = ViewPager2AdapterTabListSubtabs(this)
-        viewPager2.registerOnPageChangeCallback(object : SeslViewPager2.OnPageChangeCallback() {
+        viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
             override fun onPageSelected(position: Int) {}
             override fun onPageScrollStateChanged(state: Int) {}

@@ -10,29 +10,25 @@ import android.os.Bundle
 import android.text.Editable
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.button.MaterialButton
+import androidx.picker.app.SeslDatePickerDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.dialog.AlertDialog
-import de.dlyt.yanndroid.oneui.dialog.DatePickerDialog
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
-import de.dlyt.yanndroid.oneui.menu.MenuItem
-import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
-import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
-import de.dlyt.yanndroid.oneui.utils.CustomButtonClickListener
-import de.dlyt.yanndroid.oneui.view.RecyclerView
-import de.dlyt.yanndroid.oneui.view.TipPopup
-import de.dlyt.yanndroid.oneui.widget.NestedScrollView
-import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.*
 import de.lemke.nakbuch.domain.hymndataUseCases.GetPersonalHymnUseCase
@@ -43,6 +39,8 @@ import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.domain.utils.TextChangedListener
 import de.lemke.nakbuch.ui.HelpActivity
 import de.lemke.nakbuch.ui.ImgviewActivity
+import dev.oneuiproject.oneui.layout.DrawerLayout
+import dev.oneuiproject.oneui.widget.MarginsTabLayout
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.time.LocalDate
@@ -58,8 +56,8 @@ class TextviewFragment : Fragment() {
     private lateinit var tvText: TextView
     private lateinit var tvCopyright: TextView
     private lateinit var editTextNotiz: EditText
-    private lateinit var jokeButton: MaterialButton
-    private lateinit var whyNoFullTextButton: MaterialButton
+    private lateinit var jokeButton: AppCompatButton
+    private lateinit var whyNoFullTextButton: AppCompatButton
     private lateinit var notesGroup: LinearLayout
     private lateinit var calendarGroup: LinearLayout
     private lateinit var nestedScrollView: NestedScrollView
@@ -67,6 +65,8 @@ class TextviewFragment : Fragment() {
     private lateinit var konfettiView: KonfettiView
     private lateinit var listView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
+
+    /*
     private lateinit var tipPopupMenu: TipPopup
     private lateinit var tipPopupNote: TipPopup
     private lateinit var tipPopupCalendar: TipPopup
@@ -74,6 +74,7 @@ class TextviewFragment : Fragment() {
     private lateinit var tipPopupFoto: TipPopup
     private lateinit var tipPopupPlus: TipPopup
     private lateinit var tipPopupMinus: TipPopup
+    */
     private lateinit var onBackPressedCallback: OnBackPressedCallback
     private lateinit var hymnSungOnList: MutableList<LocalDate?>
     private lateinit var selected: HashMap<Int, Boolean>
@@ -81,7 +82,7 @@ class TextviewFragment : Fragment() {
     private var checkAllListening = true
     private var boldText: String? = null
     private var textSize: Int = 0
-    private var tabLayout: TabLayout? = null
+    private var tabLayout: MarginsTabLayout? = null
 
     @Inject
     lateinit var getUserSettings: GetUserSettingsUseCase
@@ -148,13 +149,13 @@ class TextviewFragment : Fragment() {
         jokeButton = rootView.findViewById(R.id.jokeButton)
         whyNoFullTextButton = rootView.findViewById(R.id.whyNoFullTextButton)
         drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
-        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_back))
-        drawerLayout.setSubtitle(hymnId.buchMode.toString())
+        drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_back_24))
+        drawerLayout.setExpandedSubtitle(hymnId.buchMode.toString())
 
         lifecycleScope.launch {
             personalHymn = getPersonalHymn(hymnId)
             val color = MaterialColors.getColor(
-                requireContext(), de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
+                requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO
                 requireContext().resources.getColor(R.color.primary_color, context?.theme)
             )
             val userSettings = getUserSettings()
@@ -175,7 +176,7 @@ class TextviewFragment : Fragment() {
                 }
             }
             editTextNotiz.setText(personalHymn.notes)
-            drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
+            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
             initBNV()
             initList()
             whyNoFullTextButton.setOnClickListener { startActivity(Intent(context, HelpActivity::class.java)) }
@@ -189,9 +190,8 @@ class TextviewFragment : Fragment() {
                             lifecycleScope.launch { updateUserSettings { it.copy(jokeButtonVisible = false) } }
                         }
                         .setPositiveButton(getString(R.string.onlyThisTime), null)
-                        .setNegativeButtonColor(
-                            resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_red, context?.theme)
-                        ).show()
+                        //.setNegativeButtonColor(resources.getColor(R.color.red, context?.theme))
+                        .show()
                 }
                 jokeButton.visibility = View.GONE
             }
@@ -224,8 +224,8 @@ class TextviewFragment : Fragment() {
                 sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 startActivity(Intent.createChooser(sendIntent, "Share Via"))
             }
-            val datePickerDialog = DatePickerDialog(
-                context, { _, year, month, day ->
+            val datePickerDialog = SeslDatePickerDialog(
+                requireContext(), { _, year, month, day ->
                     val date = LocalDate.of(year, month + 1, day)
                     if (!hymnSungOnList.contains(date)) {
                         hymnSungOnList.add(date)
@@ -236,23 +236,9 @@ class TextviewFragment : Fragment() {
                     }
                 }, LocalDate.now().year, LocalDate.now().monthValue - 1, LocalDate.now().dayOfMonth
             )
-            rootView.findViewById<MaterialButton>(R.id.addDateButton).setOnClickListener { datePickerDialog.show() }
+            rootView.findViewById<AppCompatButton>(R.id.addDateButton).setOnClickListener { datePickerDialog.show() }
             drawerLayout.setNavigationButtonOnClickListener { requireActivity().onBackPressed() }
-            drawerLayout.setNavigationButtonTooltip(getString(de.dlyt.yanndroid.oneui.R.string.sesl_navigate_up))
-            drawerLayout.setOnToolbarMenuItemClickListener { item: MenuItem ->
-                when (item.itemId) {
-                    R.id.increaseTextSize -> lifecycleScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
-                    R.id.decreaseTextSize -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
-                    R.id.dnd -> doNotDisturb()
-                    R.id.mute ->
-                        if (!mute()) Toast.makeText(context, requireContext().getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
-                    R.id.openOfficialApp -> lifecycleScope.launch {
-                        if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode, true)
-                        else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
-                    }
-                }
-                true
-            }
+            drawerLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
             onBackPressedCallback = object : OnBackPressedCallback(false) {
                 override fun handleOnBackPressed() {
                     setSelecting(false)
@@ -275,46 +261,129 @@ class TextviewFragment : Fragment() {
             initBNV()
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 if (userSettings.showTextViewTips) {
-                    updateUserSettings { it.copy(showTextViewTips = false) }
+                    /*updateUserSettings { it.copy(showTextViewTips = false) }
                     initTipPopup()
-                    tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)
+                    tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)*/
                 }
             }
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.increaseTextSize -> lifecycleScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
+            R.id.decreaseTextSize -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
+            R.id.dnd -> doNotDisturb()
+            R.id.mute ->
+                if (!mute()) Toast.makeText(context, requireContext().getString(R.string.failedToMuteStreams), Toast.LENGTH_SHORT).show()
+            R.id.openOfficialApp -> lifecycleScope.launch {
+                if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(hymnId.buchMode, true)
+                else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
+            }
+        }
+        return true
+    }
+
     private fun initBNV() {
-        if (tabLayout == null) tabLayout = rootView.findViewById(R.id.textView_bnv)
+        if (tabLayout == null) tabLayout = rootView.findViewById(R.id.textView_tabLayout)
         else tabLayout!!.removeAllTabs()
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            drawerLayout.inflateToolbarMenu(R.menu.textview_menu_landscape)
+            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu_landscape)
             tabLayout!!.isVisible = false
             return
         } else {
-            drawerLayout.inflateToolbarMenu(R.menu.textview_menu)
+            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
             tabLayout!!.isVisible = true
         }
-        val noteIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_edit)
-        val dateIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui3_calendar_task)
+        val noteIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_notes_new_24)
+        val noteIconColored = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_notes_new_24)
+        noteIconColored?.colorFilter = PorterDuffColorFilter(
+            MaterialColors.getColor(
+                requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO color
+                resources.getColor(R.color.orange, context?.theme)
+            ), PorterDuff.Mode.SRC_IN
+        )
+        val dateIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_calendar_24)
+        val dateIconColored = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_calendar_24)
+        dateIconColored!!.colorFilter = PorterDuffColorFilter(
+            MaterialColors.getColor(
+                requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO color
+                resources.getColor(R.color.orange, context?.theme)
+            ), PorterDuff.Mode.SRC_IN
+        )
+        val favIconFilled = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_favorite_24)!!
+        favIconFilled.colorFilter = PorterDuffColorFilter(resources.getColor(R.color.red, context?.theme), PorterDuff.Mode.SRC_IN)
+        val favIconOutline = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_favorite_outline_24)!!
+        val camIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_image_visual_24)
+        val plusIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_add_24)
+        val minusIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_minus_24)
+
         lifecycleScope.launch {
             val userSettings = getUserSettings()
-            if (userSettings.notesVisible) {
-                noteIcon!!.colorFilter = PorterDuffColorFilter(
-                    MaterialColors.getColor(
-                        requireContext(), de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context?.theme)
-                    ), PorterDuff.Mode.SRC_IN
-                )
-            }
-            if (userSettings.sungOnVisible) {
-                dateIcon!!.colorFilter = PorterDuffColorFilter(
-                    MaterialColors.getColor(
-                        requireContext(), de.dlyt.yanndroid.oneui.R.attr.colorPrimary,
-                        resources.getColor(de.dlyt.yanndroid.oneui.R.color.sesl_functional_orange, context?.theme)
-                    ), PorterDuff.Mode.SRC_IN
-                )
-            }
+            if (userSettings.notesVisible) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(noteIconColored))
+            else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(noteIcon))
+            if (userSettings.sungOnVisible) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(dateIconColored))
+            else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(dateIcon))
+            if (personalHymn.favorite) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(favIconFilled))
+            else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(favIconOutline))
+            tabLayout!!.addTab(tabLayout!!.newTab().setIcon(camIcon))
+            tabLayout!!.addTab(tabLayout!!.newTab().setIcon(plusIcon))
+            tabLayout!!.addTab(tabLayout!!.newTab().setIcon(minusIcon))
+
+            tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    when (tab.position) {
+                        0 -> lifecycleScope.launch {
+                            if ((updateUserSettings { it.copy(notesVisible = !it.notesVisible) }).notesVisible) {
+                                notesGroup.visibility = View.VISIBLE
+                                drawerLayout.setExpanded(false, true)
+                                nestedScrollView.post {
+                                    nestedScrollView.smoothScrollTo(0, (notesGroup.top + notesGroup.bottom - nestedScrollView.height) / 2)
+                                }
+                                tabLayout?.getTabAt(tab.position)?.icon = noteIconColored
+                            } else {
+                                notesGroup.visibility = View.GONE
+                                val inputManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                                inputManager.hideSoftInputFromWindow(requireView().windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                                tabLayout?.getTabAt(tab.position)?.icon = noteIcon
+                            }
+
+                        }
+                        1 -> lifecycleScope.launch {
+                            if ((updateUserSettings { it.copy(sungOnVisible = !it.sungOnVisible) }).sungOnVisible) {
+                                calendarGroup.visibility = View.VISIBLE
+                                drawerLayout.setExpanded(false, true)
+                                nestedScrollView.post {
+                                    nestedScrollView.smoothScrollTo(
+                                        0,
+                                        (calendarGroup.top + calendarGroup.bottom - nestedScrollView.height) / 2
+                                    )
+                                }
+                                tabLayout?.getTabAt(tab.position)?.icon = dateIconColored
+                            } else {
+                                calendarGroup.visibility = View.GONE
+                                tabLayout?.getTabAt(tab.position)?.icon = dateIcon
+                            }
+                        }
+                        2 -> lifecycleScope.launch {
+                            personalHymn.favorite = !personalHymn.favorite
+                            tabLayout?.getTabAt(tab.position)?.icon = if (personalHymn.favorite) favIconFilled else favIconOutline
+                            setPersonalHymn(personalHymn.copy())
+                        }
+                        3 -> startActivity(Intent(context, ImgviewActivity::class.java).putExtra("hymnId", hymnId.toInt()))
+                        4 -> lifecycleScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
+                        5 -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
+                        else -> {}
+                    }
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {}
+            })
         }
+
+        /*
+        old
         tabLayout!!.addTabCustomButton(noteIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 lifecycleScope.launch {
@@ -350,16 +419,7 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val favIcon: Drawable
-        if (personalHymn.favorite) {
-            favIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_on)!!
-            favIcon.colorFilter = PorterDuffColorFilter(
-                resources.getColor(de.dlyt.yanndroid.oneui.R.color.red, context?.theme), PorterDuff.Mode.SRC_IN
-            )
-        } else {
-            favIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_like_off)!!
-        }
-        tabLayout!!.addTabCustomButton(favIcon, object : CustomButtonClickListener(tabLayout) {
+        tabLayout!!.addTabCustomButton(if (personalHymn.favorite) favIconFilled else favIconOutline, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 lifecycleScope.launch {
                     personalHymn.favorite = !personalHymn.favorite
@@ -368,7 +428,6 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val camIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui4_scan)
         tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 val myIntent = Intent(context, ImgviewActivity::class.java)
@@ -376,7 +435,6 @@ class TextviewFragment : Fragment() {
                 startActivity(myIntent)
             }
         })
-        val plusIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_plus)
         tabLayout!!.addTabCustomButton(plusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 lifecycleScope.launch {
@@ -384,7 +442,6 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
-        val minusIcon = AppCompatResources.getDrawable(requireContext(), de.dlyt.yanndroid.oneui.R.drawable.ic_oui_minus)
         tabLayout!!.addTabCustomButton(minusIcon, object : CustomButtonClickListener(tabLayout) {
             override fun onClick(v: View) {
                 lifecycleScope.launch {
@@ -392,9 +449,11 @@ class TextviewFragment : Fragment() {
                 }
             }
         })
+        */
     }
 
     private fun initTipPopup() {
+        /*
         val menuItemView =
             (drawerLayout.findViewById<View>(de.dlyt.yanndroid.oneui.R.id.toolbar_layout_action_menu_item_container) as ViewGroup)
                 .getChildAt(0)
@@ -440,6 +499,7 @@ class TextviewFragment : Fragment() {
         tipPopupFoto.setMessage(getString(R.string.galleryTip))
         tipPopupPlus.setMessage(getString(R.string.increaseTextsize))
         tipPopupMinus.setMessage(getString(R.string.decreaseTextsize))
+         */
     }
 
     private fun updateTextSize(newTextSize: Int): Int {
@@ -460,9 +520,8 @@ class TextviewFragment : Fragment() {
         listView.layoutManager = LinearLayoutManager(context)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
-        val decoration = ItemDecoration()
+        val decoration = ItemDecoration(requireContext())
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(requireContext(), divider.resourceId)!!)
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
@@ -474,20 +533,20 @@ class TextviewFragment : Fragment() {
         if (enabled) {
             selecting = true
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
-            drawerLayout.setSelectModeBottomMenu(R.menu.remove_menu) { item: MenuItem ->
+            drawerLayout.setActionModeBottomMenu(R.menu.remove_menu)
+            drawerLayout.setActionModeBottomMenuListener { item: MenuItem ->
                 if (item.itemId == R.id.menuButtonRemove) {
                     personalHymn.sungOnList = hymnSungOnList.filterNotNull().filterIndexed { index, _ -> selected[index] == false }
                     lifecycleScope.launch { setPersonalHymn(personalHymn.copy()) }
                     setSelecting(false)
                     initList()
                 } else {
-                    item.badge = item.badge + 1
                     Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
                 }
                 true
             }
-            drawerLayout.showSelectMode()
-            drawerLayout.setSelectModeAllCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+            drawerLayout.showActionMode()
+            drawerLayout.setActionModeCheckboxListener { _, isChecked ->
                 if (checkAllListening) {
                     for (i in 0 until imageAdapter.itemCount - 1) {
                         selected[i] = isChecked
@@ -496,15 +555,15 @@ class TextviewFragment : Fragment() {
                 }
                 var count = 0
                 for (b in selected.values) if (b) count++
-                drawerLayout.setSelectModeCount(count)
+                drawerLayout.setActionModeCount(count, imageAdapter.itemCount - 1)
             }
             onBackPressedCallback.isEnabled = true
         } else {
             selecting = false
             for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
             imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
-            drawerLayout.setSelectModeCount(0)
-            drawerLayout.dismissSelectMode()
+            drawerLayout.setActionModeCount(0, imageAdapter.itemCount - 1)
+            drawerLayout.dismissActionMode()
             onBackPressedCallback.isEnabled = false
         }
     }
@@ -515,8 +574,7 @@ class TextviewFragment : Fragment() {
         checkAllListening = false
         var count = 0
         for (b in selected.values) if (b) count++
-        drawerLayout.setSelectModeAllChecked(count == imageAdapter.itemCount - 1)
-        drawerLayout.setSelectModeCount(count)
+        drawerLayout.setActionModeCount(count, imageAdapter.itemCount - 1)
         checkAllListening = true
     }
 
@@ -581,48 +639,26 @@ class TextviewFragment : Fragment() {
         }
     }
 
-    inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(context, true)
-        private val seslRoundedCornerBottom: SeslRoundedCorner
-        private var divider: Drawable? = null
-        private var dividerHeight = 0
-        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
-            super.seslOnDispatchDraw(canvas, recyclerView, state)
-            val childCount = recyclerView.childCount
-            val width = recyclerView.width
-
-            // draw divider for each item
-            for (i in 0 until childCount) {
-                val childAt = recyclerView.getChildAt(i)
-                val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
-                val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean =
-                    if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                        recyclerView.getChildAt(i + 1)
-                    ) as ImageAdapter.ViewHolder).isItem else false
-                if (divider != null && viewHolder.isItem && shallDrawDivider) {
-                    divider!!.setBounds(0, y, width, dividerHeight + y)
-                    divider!!.draw(canvas)
-                }
-                if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
-                        recyclerView.getChildAt(i - 1),
-                        canvas
-                    )
-                }
+    private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+        private val mDivider: Drawable
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            super.onDraw(c, parent, state)
+            for (i in 0 until parent.childCount) {
+                val child = parent.getChildAt(i)
+                val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
+                val bottom = mDivider.intrinsicHeight + top
+                mDivider.setBounds(parent.left, top, parent.right, bottom)
+                mDivider.draw(c)
             }
         }
 
-        fun setDivider(d: Drawable) {
-            divider = d
-            dividerHeight = d.intrinsicHeight
-            listView.invalidateItemDecorations()
-        }
-
         init {
-            seslRoundedCornerTop.roundedCorners = 3
-            seslRoundedCornerBottom = SeslRoundedCorner(context, true)
-            seslRoundedCornerBottom.roundedCorners = 12
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
+            mDivider = context.getDrawable(
+                if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
+                else androidx.appcompat.R.drawable.sesl_list_divider_light
+            )!!
         }
     }
 }

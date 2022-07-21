@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<de.dlyt.yanndroid.oneui.layout.SwitchBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<dev.oneuiproject.oneui.layout.SwitchBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/switchbarlayout_easteregg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:navigationIcon="@drawable/ic_oui_back"
+    app:navigationIcon="@drawable/ic_baseline_oui_back_24"
     app:title="Easter Eggs"
     app:subtitle="@string/app_name"
     >
 
-    <de.dlyt.yanndroid.oneui.widget.RoundNestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background_color"
+        android:background="@color/oui_background_color"
         android:fillViewport="true"
         android:orientation="vertical"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
-        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:roundedCorners="top_left|top_right">
 
         <RelativeLayout
@@ -35,22 +35,23 @@
                     style="?android:listSeparatorTextViewStyle"
                     android:text="@string/discoveredEasterEggs" />
 
-                <de.dlyt.yanndroid.oneui.view.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/easterEggList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/item_background_color"
+                    android:background="@color/oui_background_color"
                     android:scrollbars="vertical"/>
 
-                <com.google.android.material.divider.MaterialDivider
+                <!-- TODO com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"/-->
+                <View style="@style/DrawerDividerStyle" />
 
                 <Space
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/spacing_vertical_tiny" />
+                    android:layout_height="15dp" />
 
-                <com.google.android.material.button.MaterialButton
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/easterEggCommentButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,7 +70,7 @@
 
         </RelativeLayout>
 
-    </de.dlyt.yanndroid.oneui.widget.RoundNestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/easterEgg_fab"
@@ -78,8 +79,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="24.0dip"
         android:elevation="4.0dip"
-        app:srcCompat="@drawable/ic_oui4_help"
+        app:srcCompat="@drawable/ic_baseline_oui_help_outline_24"
         app:layout_location="root"
         android:contentDescription="@string/help" />
 
-</de.dlyt.yanndroid.oneui.layout.SwitchBarLayout>
+</dev.oneuiproject.oneui.layout.SwitchBarLayout>

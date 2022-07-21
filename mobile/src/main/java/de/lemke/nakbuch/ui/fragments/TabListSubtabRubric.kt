@@ -1,5 +1,6 @@
 package de.lemke.nakbuch.ui.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -11,16 +12,12 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
-import de.dlyt.yanndroid.oneui.layout.DrawerLayout
-import de.dlyt.yanndroid.oneui.sesl.recyclerview.LinearLayoutManager
-import de.dlyt.yanndroid.oneui.sesl.utils.SeslRoundedCorner
-import de.dlyt.yanndroid.oneui.view.RecyclerView
-import de.dlyt.yanndroid.oneui.view.ViewPager2
-import de.dlyt.yanndroid.oneui.widget.TabLayout
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.GetUserSettingsUseCase
 import de.lemke.nakbuch.domain.hymnUseCases.GetAllRubricsUseCase
@@ -29,6 +26,8 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import de.lemke.nakbuch.domain.model.Hymn
 import de.lemke.nakbuch.domain.model.Rubric
 import de.lemke.nakbuch.ui.TextviewActivity
+import dev.oneuiproject.oneui.layout.DrawerLayout
+import dev.oneuiproject.oneui.widget.MarginsTabLayout
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,8 +40,8 @@ class TabListSubtabRubric : Fragment() {
     private lateinit var buchMode: BuchMode
     private lateinit var listView: RecyclerView
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var subTabs: TabLayout
-    private lateinit var mainTabs: TabLayout
+    private lateinit var subTabs: MarginsTabLayout
+    private lateinit var mainTabs: MarginsTabLayout
     private lateinit var viewPager2List: ViewPager2
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var onBackPressedCallback: OnBackPressedCallback
@@ -97,9 +96,8 @@ class TabListSubtabRubric : Fragment() {
         val divider = TypedValue()
         requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(context)
-        val decoration = ItemDecoration()
+        val decoration = ItemDecoration(requireContext())
         listView.addItemDecoration(decoration)
-        decoration.setDivider(AppCompatResources.getDrawable(requireContext(), divider.resourceId)!!)
         listView.itemAnimator = null
         //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
         listView.seslSetFastScrollerEnabled(true)
@@ -192,53 +190,26 @@ class TabListSubtabRubric : Fragment() {
         }
     }
 
-    inner class ItemDecoration : RecyclerView.ItemDecoration() {
-        private val seslRoundedCornerTop: SeslRoundedCorner = SeslRoundedCorner(requireContext(), true)
-        private val seslRoundedCornerBottom: SeslRoundedCorner
-        private var divider: Drawable? = null
-        private var dividerHeight = 0
-        override fun seslOnDispatchDraw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
-            super.seslOnDispatchDraw(canvas, recyclerView, state)
-            val childCount = recyclerView.childCount
-            val width = recyclerView.width
-
-            // draw divider for each item
-            for (i in 0 until childCount) {
-                val childAt = recyclerView.getChildAt(i)
-                val viewHolder = recyclerView.getChildViewHolder(childAt) as ImageAdapter.ViewHolder
-                val y = childAt.y.toInt() + childAt.height
-                val shallDrawDivider: Boolean =
-                    if (recyclerView.getChildAt(i + 1) != null) (recyclerView.getChildViewHolder(
-                        recyclerView.getChildAt(i + 1)
-                    ) as ImageAdapter.ViewHolder).isItem else false
-                if (divider != null && viewHolder.isItem && shallDrawDivider) {
-                    divider!!.setBounds(0, y, width, dividerHeight + y)
-                    divider!!.draw(canvas)
-                }
-                if (!viewHolder.isItem) {
-                    if (recyclerView.getChildAt(i + 1) != null) seslRoundedCornerTop.drawRoundedCorner(
-                        recyclerView.getChildAt(i + 1),
-                        canvas
-                    )
-                    if (recyclerView.getChildAt(i - 1) != null) seslRoundedCornerBottom.drawRoundedCorner(
-                        recyclerView.getChildAt(i - 1),
-                        canvas
-                    )
-                }
+    private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+        private val mDivider: Drawable
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            super.onDraw(c, parent, state)
+            for (i in 0 until parent.childCount) {
+                val child = parent.getChildAt(i)
+                val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
+                val bottom = mDivider.intrinsicHeight + top
+                mDivider.setBounds(parent.left, top, parent.right, bottom)
+                mDivider.draw(c)
             }
-            seslRoundedCornerTop.drawRoundedCorner(canvas)
-        }
-
-        fun setDivider(d: Drawable) {
-            divider = d
-            dividerHeight = d.intrinsicHeight
-            listView.invalidateItemDecorations()
         }
 
         init {
-            seslRoundedCornerTop.roundedCorners = 3
-            seslRoundedCornerBottom = SeslRoundedCorner(requireContext(), true)
-            seslRoundedCornerBottom.roundedCorners = 12
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
+            mDivider = context.getDrawable(
+                if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
+                else androidx.appcompat.R.drawable.sesl_list_divider_light
+            )!!
         }
     }
 }

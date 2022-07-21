@@ -4,6 +4,18 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable-hdpi/ic_launcher_shortcut_jugendliederbuch.xml" value="0.217" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/drawer_item_list_ripple.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/drawer_item_selector.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/drawer_item_selector_bg.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/drawer_item_separator_bg.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_copy_outline_24.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_enable_outline_24.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_enable_outline_40.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_arrow_left_24.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_arrow_right_24.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_btn_delete_24.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_security_24.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_selected_24.xml" value="0.2645" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher.xml" value="0.2635" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_background.xml" value="0.2535" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_background_chorbuch.xml" value="0.2535" />
@@ -52,11 +64,13 @@
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/search_tab_listview_item.xml" value="0.3109375" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/layout/sesl_preference_badge.xml" value="0.3109375" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/fav_menu.xml" value="0.3109375" />
-        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/main.xml" value="0.3109375" />
-        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/remove_menu.xml" value="0.3109375" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/main.xml" value="0.6931106471816284" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/remove_menu.xml" value="0.4461798227100042" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/switchpreferencescreen_menu.xml" value="0.3109375" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/textview_bnv.xml" value="0.4461798227100042" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/textview_menu.xml" value="0.3109375" />
-        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/textview_menu_landscape.xml" value="2.933333333333333" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/menu/textview_menu_landscape.xml" value="0.7183908045977011" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/xml/preferences.xml" value="0.44763670064874883" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/wear/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.21" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/wear/src/main/res/drawable/ic_launcher.xml" value="0.21" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/wear/src/main/res/drawable/ic_launcher_background.xml" value="0.21" />

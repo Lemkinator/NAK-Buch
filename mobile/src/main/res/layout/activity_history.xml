@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<de.dlyt.yanndroid.oneui.layout.SwitchBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<dev.oneuiproject.oneui.layout.SwitchBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/switchbarlayout_history"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:navigationIcon="@drawable/ic_oui_back"
+    app:navigationIcon="@drawable/ic_baseline_oui_back_24"
     app:title="@string/history"
     app:subtitle="@string/app_name"
     >
 
-    <de.dlyt.yanndroid.oneui.view.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/historyList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/item_background_color"
+        android:background="@color/oui_background_color"
         android:scrollbars="vertical"
         />
 
-</de.dlyt.yanndroid.oneui.layout.SwitchBarLayout>
+</dev.oneuiproject.oneui.layout.SwitchBarLayout>

@@ -26,9 +26,9 @@
 -keep class de.lemke.nakbuch.** {*;}
 
 # One UI Design Library (de.dlyt.yanndroid.oneui)
--keep class de.dlyt.yanndroid.oneui.** { *; }
--keep class androidx.appcompat.widget.Sesl** { *; }
--keep class android.view.WindowInsetsController { *; }
+#-keep class de.dlyt.yanndroid.oneui.** { *; }
+#-keep class androidx.appcompat.widget.Sesl** { *; }
+#-keep class android.view.WindowInsetsController { *; }
 
 #https://github.com/square/okhttp/issues/6258#issuecomment-894168816
 -dontwarn org.bouncycastle.jsse.BCSSLSocket

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/bvn_note"
+        android:icon="@drawable/ic_baseline_oui_notes_new_24"
+        android:title="@string/notes"
+        tools:ignore="AlwaysShowAction"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/bvn_calendar"
+        android:icon="@drawable/ic_baseline_oui_calendar_24"
+        android:title="@string/sungOn"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/bvn_favorite"
+        android:icon="@drawable/ic_baseline_oui_favorite_outline_24"
+        android:title="@string/favourites"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/bvn_image"
+        android:icon="@drawable/ic_baseline_oui_image_visual_24"
+        android:title="@string/galleryTip"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/bvn_plus"
+        android:icon="@drawable/ic_baseline_oui_add_24"
+        android:title="@string/increaseTextsize"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/bvn_minus"
+        android:icon="@drawable/ic_baseline_oui_minus_24"
+        android:title="@string/decreaseTextsize"
+        android:showAsAction="always" />
+
+
+
+</menu>

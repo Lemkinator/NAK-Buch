@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<de.dlyt.yanndroid.oneui.layout.AboutPage xmlns:android="http://schemas.android.com/apk/res/android"
+<dev.oneuiproject.oneui.layout.AppInfoLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/about_page"
+    android:id="@+id/app_info_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    app:optional_text="@string/aboutPageOptionalText"
     tools:context=".ui.AboutActivity">
 
-    <de.dlyt.yanndroid.oneui.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fillViewport="true"
-        app:layout_behavior="@string/sesl_appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,32 +22,32 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/about_btn_open_in_store"
-                style="@style/ButtonStyle.AboutPage"
+                style="@style/OneUI.AppInfoButton"
                 android:text="@string/openInPlaystore"
-                app:icon="@drawable/ic_oui4_store" />
+                android:drawableStart="@drawable/ic_baseline_oui_galaxy_store_outline_24" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/about_btn_open_oneui_github"
-                style="@style/ButtonStyle.AboutPage"
+                style="@style/OneUI.AppInfoButton"
                 android:text="@string/oneUiLibaryGithub"
-                app:icon="@drawable/ic_oui_web_search" />
+                android:drawableStart="@drawable/ic_baseline_oui_web_search_24" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/about_btn_help"
-                style="@style/ButtonStyle.AboutPage"
+                style="@style/OneUI.AppInfoButton"
                 android:text="@string/help"
-                app:icon="@drawable/ic_oui4_help" />
+                android:drawableStart="@drawable/ic_baseline_oui_help_outline_24" />
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/about_btn_about_me"
-                style="@style/ButtonStyle.AboutPage"
+                style="@style/OneUI.AppInfoButton"
                 android:text="@string/aboutMe"
-                app:icon="@drawable/ic_oui4_contact" />
+                android:drawableStart="@drawable/ic_baseline_oui_contact_outline_24" />
 
         </LinearLayout>
 
-    </de.dlyt.yanndroid.oneui.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-</de.dlyt.yanndroid.oneui.layout.AboutPage>
+</dev.oneuiproject.oneui.layout.AppInfoLayout>
