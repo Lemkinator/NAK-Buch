@@ -207,15 +207,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         helpOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, HelpActivity::class.java))
+            drawerLayout.setDrawerOpen(false,true)
         }
         aboutAppOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, AboutActivity::class.java))
+            drawerLayout.setDrawerOpen(false,true)
         }
         aboutMeOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, AboutMeActivity::class.java))
+            drawerLayout.setDrawerOpen(false,true)
         }
         settingsOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+            drawerLayout.setDrawerOpen(false,true)
         }
         /* TODO
         searchHelpFAB.backgroundTintList =

@@ -3,7 +3,6 @@ package de.lemke.nakbuch.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
-import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -20,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SeslSwitchBar
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.allViews
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -90,14 +88,6 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
         switchBarLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
         switchBarLayout.toolbar.inflateMenu(R.menu.switchpreferencescreen_menu)
-        floatingActionButton = findViewById(R.id.easterEgg_fab)
-        floatingActionButton.rippleColor = resources.getColor(dev.oneuiproject.oneui.R.color.sesl_snackbar_action_ripple_color, theme) //TODO color
-        floatingActionButton.backgroundTintList = ColorStateList.valueOf(
-            resources.getColor(dev.oneuiproject.oneui.R.color.design_default_color_background, theme) //TODO color
-        )
-        floatingActionButton.supportImageTintList = ResourcesCompat.getColorStateList(
-            resources, dev.oneuiproject.oneui.R.color.design_default_color_on_background, theme //TODO color
-        )
         val easterEggTippDialog2 = AlertDialog.Builder(this)
             .setTitle(getString(R.string.tips))
             .setMessage(getString(R.string.easterEggTips))
@@ -127,6 +117,7 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
             .setNeutralButton(R.string.tips) { _: DialogInterface?, _: Int -> easterEggTippDialog1.show() }
             .setPositiveButton(R.string.ok, null)
             .create()
+        floatingActionButton = findViewById(R.id.easterEgg_fab)
         floatingActionButton.setOnClickListener { easterEggTippDialog.show() }
         floatingActionButton.setOnLongClickListener {
             lifecycleScope.launch {
@@ -184,8 +175,8 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
         easterEggsHeader.isEnabled = enabled
         easterEggsHeader.setTextColor(
             resources.getColor(
-                if (enabled) dev.oneuiproject.oneui.R.color.design_default_color_on_background //TODO color
-                else dev.oneuiproject.oneui.R.color.sesl_switch_thumb_on_disabled_color,
+                if (enabled) dev.oneuiproject.oneui.R.color.oui_primary_text_color //TODO color
+                else dev.oneuiproject.oneui.R.color.oui_grid_menu_dialog_item_icon_text_color,
                 this.theme
             )
         )

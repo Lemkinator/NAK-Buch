@@ -52,11 +52,7 @@
                     android:layout_weight="1"
                     android:animateLayoutChanges="true"
                     android:visibility="gone"
-                    app:cornerRadius="30dp"
-                    android:src="@drawable/ic_baseline_oui_keyboard_arrow_left_40"
-                    app:iconGravity="textTop"
-                    app:iconSize="45dp"
-                    app:strokeWidth="1dp" />
+                    android:src="@drawable/ic_baseline_oui_keyboard_arrow_left_40" />
 
                 <GridLayout
                     android:layout_width="wrap_content"
@@ -146,13 +142,7 @@
                     android:layout_marginEnd="5dp"
                     android:layout_weight="1"
                     android:visibility="gone"
-                    app:cornerRadius="30dp"
-                    android:src="@drawable/ic_baseline_oui_keyboard_arrow_right_40"
-                    android:drawableBottom="@drawable/ic_baseline_oui_keyboard_arrow_right_40"
-                    android:drawableTint="@color/blue"
-                    app:iconGravity="textTop"
-                    app:iconSize="45dp"
-                    app:strokeWidth="1dp" />
+                    android:src="@drawable/ic_baseline_oui_keyboard_arrow_right_40" />
 
             </LinearLayout>
 

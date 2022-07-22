@@ -1,18 +1,15 @@
 package de.lemke.nakbuch.ui
 
 import android.annotation.SuppressLint
-import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager.NameNotFoundException
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -36,7 +33,6 @@ import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.preference.internal.PreferenceRelatedCard
 import dev.oneuiproject.oneui.utils.PreferenceUtils.createRelatedCard
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -63,12 +59,12 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var confirmExitPref: CheckBoxPreference
         private lateinit var easterEggsPref: SeslSwitchPreferenceScreen
         private lateinit var historyPref: SeslSwitchPreferenceScreen
-        private lateinit var hintsPref: MultiSelectListPreference
+        //private lateinit var hintsPref: MultiSelectListPreference
         private lateinit var qualityPref: DropDownPreference
         private lateinit var resolutionPref: DropDownPreference
-        private lateinit var versionHiddenMenuPref: PreferenceScreen
+        //private lateinit var versionHiddenMenuPref: PreferenceScreen
         //private var tipCard: TipsCardViewPreference? = null
-        private var tipCardSpacing: PreferenceCategory? = null
+        //private var tipCardSpacing: PreferenceCategory? = null
         private var relatedCard: PreferenceRelatedCard? = null
         private var lastTimeVersionClicked: Long = 0
         private var clickCounter = 0
@@ -150,10 +146,10 @@ class SettingsActivity : AppCompatActivity() {
             confirmExitPref = findPreference("confirmExit")!!
             historyPref = findPreference("historyEnabled")!!
             easterEggsPref = findPreference("easterEggsEnabled")!!
-            hintsPref = findPreference("hints")!!
+            //hintsPref = findPreference("hints")!!
             resolutionPref = findPreference("imgResolution")!!
             qualityPref = findPreference("imgQuality")!!
-            versionHiddenMenuPref = findPreference("version_hidden_menu")!!
+            //versionHiddenMenuPref = findPreference("version_hidden_menu")!!
             //colorPickerPref = findPreference("color")!!
 
             historyPref.onPreferenceChangeListener = this
@@ -199,8 +195,8 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
             confirmExitPref.onPreferenceChangeListener = this
-            hintsPref.onPreferenceChangeListener = this
-            lifecycleScope.launch { hintsPref.values = getHints() }
+            //hintsPref.onPreferenceChangeListener = this
+            //lifecycleScope.launch { hintsPref.values = getHints() }
             resolutionPref.onPreferenceChangeListener = this
             qualityPref.onPreferenceChangeListener = this
             findPreference<Preference>("shortcut_gesangbuch")!!.onPreferenceClickListener =
@@ -216,7 +212,7 @@ class SettingsActivity : AppCompatActivity() {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacyWebsite))))
                     true
                 }
-            try {
+            /*try {
                 versionHiddenMenuPref.title =
                     settingsActivity.getString(dev.oneuiproject.oneui.R.string.version_info, settingsActivity.packageManager.getPackageInfo(
                         settingsActivity.packageName,
@@ -285,6 +281,7 @@ class SettingsActivity : AppCompatActivity() {
                     lastTimeVersionClicked = System.currentTimeMillis()
                     true
                 }
+            */
             /*
             tipCard = findPreference("tip_card_preference")
             tipCardSpacing = findPreference("spacing_tip_card")
@@ -388,14 +385,14 @@ class SettingsActivity : AppCompatActivity() {
                     return true
                 }
                 "hints" -> {
-                    lifecycleScope.launch {
+                    /*lifecycleScope.launch {
                         val hintSet = newValue as MutableSet<String>
                         setHints(hintSet)
                         hintsPref.values = hintSet
-                        //tipCard?.isVisible = hintSet.contains("tipcard")
-                        //tipCardSpacing?.isVisible = hintSet.contains("tipcard")
+                        tipCard?.isVisible = hintSet.contains("tipcard")
+                        tipCardSpacing?.isVisible = hintSet.contains("tipcard")
                     }
-                    return true
+                    return true*/
                 }
                 "imgResolution" -> {
                     val resolution = when (newValue as String) {

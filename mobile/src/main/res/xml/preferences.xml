@@ -69,13 +69,13 @@
         </SeslSwitchPreferenceScreen>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/hints">
-        <!--TipsCardViewPreference
+    <!--PreferenceCategory android:title="@string/hints">
+        <TipsCardViewPreference
             android:key="tip_card_preference"
             android:summary="@string/appHintTextShort"
             android:title="@string/appHintShort"
-            android:visibility="gone"/-->
-        <!--PreferenceCategory android:key="spacing_tip_card" /-->
+            android:visibility="gone"/>
+        <PreferenceCategory android:key="spacing_tip_card" />
 
         <MultiSelectListPreference
             android:dialogIcon="@drawable/ic_baseline_oui_tips_outline_24"
@@ -86,7 +86,7 @@
             android:summary="@string/toggleHints"
             android:title="@string/hints"
             app:icon="@drawable/ic_baseline_oui_tips_outline_24" />
-    </PreferenceCategory>
+    </PreferenceCategory-->
 
     <PreferenceCategory android:title="@string/imageSettings">
         <DropDownPreference
@@ -149,10 +149,10 @@
                 android:targetClass="de.lemke.nakbuch.ui.AboutActivity"
                 android:targetPackage="de.lemke.nakbuch" />
         </PreferenceScreen>
-        <PreferenceScreen
+        <!--PreferenceScreen
             android:key="version_hidden_menu"
             android:title="@string/version_info"
-            app:icon="@drawable/ic_baseline_oui_info_outline_24" />
+            app:icon="@drawable/ic_baseline_oui_info_outline_24" /-->
     </PreferenceCategory>
 
 </PreferenceScreen>
