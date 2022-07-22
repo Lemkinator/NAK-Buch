@@ -29,8 +29,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/oui_primary_text_color"
                     />
-                <!-- TODO android:textColor="@color/sesl_tooltip_foreground"-->
 
                 <TextView
                     android:id="@+id/tvCopyright"

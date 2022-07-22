@@ -29,8 +29,9 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:maxLines="1"
-                android:textSize="20sp" />
-            <!-- TODO android:textColor="@color/sesl_tooltip_foreground"-->
+                android:textSize="20sp"
+                android:textColor="@color/oui_primary_text_color"
+                />
 
 
             <LinearLayout

@@ -337,7 +337,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val mTabsClassName: Array<String> = resources.getStringArray(R.array.mainactivity_tab_class)
         val tabName = mTabsTagName[tabPosition]
         val fragment = fragmentManager.findFragmentByTag(tabName)
-        currentFragment?.let { fragmentManager.beginTransaction().detach(it).commit() }
+        try {
+            currentFragment?.let { fragmentManager.beginTransaction().detach(it).commit() }
+        } catch (e: IllegalStateException) {
+            //Fatal Exception: java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+            currentFragment?.let { fragmentManager.beginTransaction().detach(it).commitAllowingStateLoss() }
+        }
         if (fragment != null) {
             currentFragment = fragment
             try {

@@ -11,6 +11,9 @@
             app:entryValues="@array/preferences_darkmode_values"
             app:viewType="image" /-->
         <SwitchPreferenceCompat
+            android:key="dark_mode"
+            android:title="@string/darkMode" />
+        <SwitchPreferenceCompat
             android:key="dark_mode_auto"
             android:title="@string/systemDefault" />
     </PreferenceCategory>

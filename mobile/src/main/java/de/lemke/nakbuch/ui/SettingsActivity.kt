@@ -22,6 +22,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.util.SeslMisc
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,6 +57,7 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var pickTextsActivityResultLauncher: ActivityResultLauncher<String>
         private lateinit var pickFolderActivityResultLauncher: ActivityResultLauncher<Uri>
         //private lateinit var darkModePref: HorizontalRadioPreference
+        private lateinit var darkModePref: SwitchPreferenceCompat
         private lateinit var autoDarkModePref: SwitchPreferenceCompat
         //private lateinit var colorPickerPref: ColorPickerPreference
         private lateinit var confirmExitPref: CheckBoxPreference
@@ -118,7 +120,7 @@ class SettingsActivity : AppCompatActivity() {
                     val dialog = ProgressDialog(settingsActivity)
                     dialog.setCancelable(false)
                     dialog.setTitle("Eigene LiedTexte werden hinzugefügt...")
-                    //dialog.setButton(ProgressDialog.BUTTON_NEUTRAL, getString(R.string.ok)) { _: DialogInterface, _: Int -> dialog.dismiss() }
+                    dialog.setButton(ProgressDialog.BUTTON_NEUTRAL, getString(R.string.ok)) { _: DialogInterface, _: Int -> dialog.dismiss() }
                     dialog.show()
                     updateUserSettings { it.copy(usingPrivateTexts = true) }
                     val result = setPrivateTexts(uris)
@@ -143,6 +145,7 @@ class SettingsActivity : AppCompatActivity() {
         private fun initPreferences() {
             val darkMode = AppCompatDelegate.getDefaultNightMode()
             //darkModePref = findPreference("dark_mode")!!
+            darkModePref = findPreference("dark_mode")!!
             autoDarkModePref = findPreference("dark_mode_auto")!!
             confirmExitPref = findPreference("confirmExit")!!
             historyPref = findPreference("historyEnabled")!!
@@ -162,11 +165,14 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.isEnabled = darkMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             darkModePref.value = if (SeslMisc.isLightTheme(settingsActivity)) "0" else "1"
              */
+            darkModePref.onPreferenceChangeListener = this
+            darkModePref.isEnabled = darkMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            darkModePref.isChecked = !(SeslMisc.isLightTheme(settingsActivity))
             autoDarkModePref.onPreferenceChangeListener = this
             autoDarkModePref.isChecked = darkMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             lifecycleScope.launch {
-                val recentColors = getRecentColors().toMutableList()
                 /*
+                val recentColors = getRecentColors().toMutableList()
                 for (recent_color in recentColors) colorPickerPref.onColorSet(recent_color)
                 colorPickerPref.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _: Preference?, colorInt: Any ->
@@ -329,7 +335,7 @@ class SettingsActivity : AppCompatActivity() {
                 confirmExitPref.isChecked = getUserSettings().confirmExit
                 easterEggsPref.isChecked = getUserSettings().easterEggsEnabled
                 historyPref.isChecked = getUserSettings().historyEnabled
-                val showTipCard = getHints().contains("tipcard")
+                //val showTipCard = getHints().contains("tipcard")
                 //tipCard?.isVisible = showTipCard
                 //tipCardSpacing?.isVisible = showTipCard
             }
@@ -341,6 +347,10 @@ class SettingsActivity : AppCompatActivity() {
             //val currentDarkMode = ThemeUtil.getDarkMode(settingsActivity).toString()
             when (preference.key) {
                 "dark_mode" -> {
+                    val currentDarkMode = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+                    if (currentDarkMode == newValue as Boolean) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    return true
                     /*
                     if (currentDarkMode !== newValue) {
                         ThemeUtil.setDarkMode(
@@ -352,6 +362,11 @@ class SettingsActivity : AppCompatActivity() {
                      */
                 }
                 "dark_mode_auto" -> {
+                    if (newValue as Boolean) {
+                        darkModePref.isEnabled = false
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    } else darkModePref.isEnabled = true
+                    return true
                     /*
                     if (newValue as Boolean) {
                         darkModePref.isEnabled = false

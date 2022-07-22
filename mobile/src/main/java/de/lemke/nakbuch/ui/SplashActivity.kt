@@ -7,6 +7,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.animation.Animation
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
@@ -61,8 +62,7 @@ class SplashActivity : AppCompatActivity() {
                     devText.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                splashView.text = splashView.text + devText
-                //TODO: ((TextView) splashView.findViewById(R.id.oui_splash_text)).append(dev_text);
+                splashView.findViewById<TextView>(dev.oneuiproject.oneui.R.id.oui_splash_text).append(devText)
             }
         }
         splashView.setSplashAnimationListener(object : Animation.AnimationListener {
