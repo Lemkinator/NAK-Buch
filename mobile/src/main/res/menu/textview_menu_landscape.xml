@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
+<menu xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/increaseTextSize"
         android:title="@string/increaseTextsize"
         android:icon="@drawable/ic_baseline_oui_add_24"
-        android:showAsAction="always" />
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource" />
 
     <item
         android:id="@+id/decreaseTextSize"
         android:title="@string/decreaseTextsize"
         android:icon="@drawable/ic_baseline_oui_minus_24"
-        android:showAsAction="always" />
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource" />
 
     <item
         android:id="@+id/mute"
         android:title="@string/mute"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
 
     <item
         android:id="@+id/dnd"
         android:title="@string/dnd"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
 
     <item
         android:id="@+id/openOfficialApp"
         android:title="@string/openOfficialApp"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="never"
+        tools:ignore="AppCompatResource" />
 </menu>

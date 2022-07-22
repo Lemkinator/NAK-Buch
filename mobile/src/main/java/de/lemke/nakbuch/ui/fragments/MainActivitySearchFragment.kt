@@ -62,19 +62,15 @@ class MainActivitySearchFragment : Fragment() {
 
     private suspend fun initList() {
         searchList = getSearchList(buchMode, search).toMutableList()
-        searchList.add(Hymn.hymnPlaceholder)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
-        val divider = TypedValue()
-        requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(context)
-        val decoration = ItemDecoration(requireContext())
-        listView.addItemDecoration(decoration)
+        listView.addItemDecoration(ItemDecoration(requireContext()))
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
+        listView.seslSetLastRoundedCorner(true)
     }
 
     //Adapter for the Icon RecyclerView
@@ -83,13 +79,13 @@ class MainActivitySearchFragment : Fragment() {
 
         override fun getItemId(position: Int): Long = position.toLong()
 
-        override fun getItemViewType(position: Int): Int = if (searchList[position] != Hymn.hymnPlaceholder) 0 else 1
+        override fun getItemViewType(position: Int): Int = 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
             when (viewType) {
                 0 -> resId = R.layout.search_tab_listview_item
-                1 -> resId = R.layout.listview_bottom_spacing
+                //1 -> resId = R.layout.listview_bottom_spacing
             }
             val view = LayoutInflater.from(parent.context).inflate(resId, parent, false)
             return ViewHolder(view, viewType)
@@ -139,22 +135,22 @@ class MainActivitySearchFragment : Fragment() {
     }
 
     private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-        private val mDivider: Drawable
+        private val divider: Drawable
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
                 val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
-                val bottom = mDivider.intrinsicHeight + top
-                mDivider.setBounds(parent.left, top, parent.right, bottom)
-                mDivider.draw(c)
+                val bottom = divider.intrinsicHeight + top
+                divider.setBounds(parent.left, top, parent.right, bottom)
+                divider.draw(c)
             }
         }
 
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            mDivider = context.getDrawable(
+            divider = context.getDrawable(
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

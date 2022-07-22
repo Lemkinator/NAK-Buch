@@ -21,7 +21,6 @@ class HymnId private constructor(
     override fun hashCode(): Int = toInt()
 
     companion object {
-        val hymnIdPlaceholder = HymnId(-1, BuchMode.Gesangbuch)
         fun create(number: Int, buchMode: BuchMode?): HymnId? =
             if (buchMode == null || number < 1 || number > buchMode.hymnCount) null
             else HymnId(number, buchMode)

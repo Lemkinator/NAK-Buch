@@ -48,6 +48,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
 class TextviewFragment : Fragment() {
     private lateinit var rootView: View
@@ -76,7 +77,7 @@ class TextviewFragment : Fragment() {
     private lateinit var tipPopupMinus: TipPopup
     */
     private lateinit var onBackPressedCallback: OnBackPressedCallback
-    private lateinit var hymnSungOnList: MutableList<LocalDate?>
+    private lateinit var hymnSungOnList: MutableList<LocalDate>
     private lateinit var selected: HashMap<Int, Boolean>
     private var selecting = false
     private var checkAllListening = true
@@ -229,7 +230,7 @@ class TextviewFragment : Fragment() {
                     val date = LocalDate.of(year, month + 1, day)
                     if (!hymnSungOnList.contains(date)) {
                         hymnSungOnList.add(date)
-                        personalHymn.sungOnList = hymnSungOnList.filterNotNull().distinct().sortedDescending()
+                        personalHymn.sungOnList = hymnSungOnList.distinct().sortedDescending()
                         lifecycleScope.launch { setPersonalHymn(personalHymn.copy()) }
                         setSelecting(false)
                         initList()
@@ -299,16 +300,16 @@ class TextviewFragment : Fragment() {
         val noteIconColored = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_notes_new_24)
         noteIconColored?.colorFilter = PorterDuffColorFilter(
             MaterialColors.getColor(
-                requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO color
-                resources.getColor(R.color.orange, context?.theme)
+                requireContext(), androidx.appcompat.R.attr.colorPrimary,
+                resources.getColor(R.color.primary_color, context?.theme)
             ), PorterDuff.Mode.SRC_IN
         )
         val dateIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_calendar_24)
         val dateIconColored = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_calendar_24)
         dateIconColored!!.colorFilter = PorterDuffColorFilter(
             MaterialColors.getColor(
-                requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO color
-                resources.getColor(R.color.orange, context?.theme)
+                requireContext(), androidx.appcompat.R.attr.colorPrimary,
+                resources.getColor(R.color.primary_color, context?.theme)
             ), PorterDuff.Mode.SRC_IN
         )
         val favIconFilled = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_favorite_24)!!
@@ -512,31 +513,27 @@ class TextviewFragment : Fragment() {
 
     private fun initList() {
         hymnSungOnList = personalHymn.sungOnList.toMutableList()
-        hymnSungOnList.add(null) //Placeholder
         selected = HashMap()
-        for (i in hymnSungOnList.indices) selected[i] = false
-        val divider = TypedValue()
-        requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
+        hymnSungOnList.indices.forEach { i -> selected[i] = false }
         listView.layoutManager = LinearLayoutManager(context)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
-        val decoration = ItemDecoration(requireContext())
-        listView.addItemDecoration(decoration)
+        listView.addItemDecoration(ItemDecoration(requireContext()))
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
+        listView.seslSetLastRoundedCorner(true)
     }
 
     fun setSelecting(enabled: Boolean) {
         if (enabled) {
             selecting = true
-            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
+            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
             drawerLayout.setActionModeBottomMenu(R.menu.remove_menu)
             drawerLayout.setActionModeBottomMenuListener { item: MenuItem ->
                 if (item.itemId == R.id.menuButtonRemove) {
-                    personalHymn.sungOnList = hymnSungOnList.filterNotNull().filterIndexed { index, _ -> selected[index] == false }
+                    personalHymn.sungOnList = hymnSungOnList.filterIndexed { index, _ -> selected[index] == false }
                     lifecycleScope.launch { setPersonalHymn(personalHymn.copy()) }
                     setSelecting(false)
                     initList()
@@ -548,21 +545,17 @@ class TextviewFragment : Fragment() {
             drawerLayout.showActionMode()
             drawerLayout.setActionModeCheckboxListener { _, isChecked ->
                 if (checkAllListening) {
-                    for (i in 0 until imageAdapter.itemCount - 1) {
-                        selected[i] = isChecked
-                        imageAdapter.notifyItemChanged(i)
-                    }
+                    selected.replaceAll { _, _ -> isChecked }
+                    selected.forEach { (index, _) -> imageAdapter.notifyItemChanged(index) }
                 }
-                var count = 0
-                for (b in selected.values) if (b) count++
-                drawerLayout.setActionModeCount(count, imageAdapter.itemCount - 1)
+                drawerLayout.setActionModeCount(selected.values.count { it }, imageAdapter.itemCount)
             }
             onBackPressedCallback.isEnabled = true
         } else {
             selecting = false
-            for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
-            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
-            drawerLayout.setActionModeCount(0, imageAdapter.itemCount - 1)
+            selected.replaceAll { _, _ -> false }
+            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
+            drawerLayout.setActionModeCount(0, imageAdapter.itemCount)
             drawerLayout.dismissActionMode()
             onBackPressedCallback.isEnabled = false
         }
@@ -572,9 +565,7 @@ class TextviewFragment : Fragment() {
         selected[position] = !selected[position]!!
         imageAdapter.notifyItemChanged(position)
         checkAllListening = false
-        var count = 0
-        for (b in selected.values) if (b) count++
-        drawerLayout.setActionModeCount(count, imageAdapter.itemCount - 1)
+        drawerLayout.setActionModeCount(selected.values.count { it }, imageAdapter.itemCount)
         checkAllListening = true
     }
 
@@ -584,13 +575,13 @@ class TextviewFragment : Fragment() {
 
         override fun getItemId(position: Int): Long = position.toLong()
 
-        override fun getItemViewType(position: Int): Int = if (hymnSungOnList[position] == null) 1 else 0
+        override fun getItemViewType(position: Int): Int = 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
             when (viewType) {
                 0 -> resId = R.layout.listview_item
-                1 -> resId = R.layout.listview_bottom_spacing
+                //1 -> resId = R.layout.listview_bottom_spacing
             }
             val view = LayoutInflater.from(parent.context).inflate(resId, parent, false)
             return ViewHolder(view, viewType)
@@ -600,7 +591,7 @@ class TextviewFragment : Fragment() {
             if (holder.isItem) {
                 holder.checkBox.visibility = if (selecting) View.VISIBLE else View.GONE
                 holder.checkBox.isChecked = selected[position]!!
-                holder.textView.text = hymnSungOnList[position]!!.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
+                holder.textView.text = hymnSungOnList[position].format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL))
                 holder.parentView.setOnClickListener {
                     if (!selecting) setSelecting(true)
                     toggleItemSelected(position)
@@ -640,22 +631,22 @@ class TextviewFragment : Fragment() {
     }
 
     private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-        private val mDivider: Drawable
+        private val divider: Drawable
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
                 val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
-                val bottom = mDivider.intrinsicHeight + top
-                mDivider.setBounds(parent.left, top, parent.right, bottom)
-                mDivider.draw(c)
+                val bottom = divider.intrinsicHeight + top
+                divider.setBounds(parent.left, top, parent.right, bottom)
+                divider.draw(c)
             }
         }
 
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            mDivider = context.getDrawable(
+            divider = context.getDrawable(
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

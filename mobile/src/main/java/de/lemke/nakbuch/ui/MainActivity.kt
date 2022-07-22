@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -37,6 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -146,7 +148,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
         //DrawerLayout
         drawerLayout.setDrawerButtonIcon(getDrawable(R.drawable.ic_baseline_oui_info_outline_24))
-        drawerLayout.toolbar.inflateMenu(R.menu.main)
+        //drawerLayout.toolbar.inflateMenu(R.menu.main)
         drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java)) }
         drawerLayout.setDrawerButtonTooltip(getText(R.string.aboutApp))
         drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener {
@@ -319,6 +321,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 setFragment(currentTab)
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.main, menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

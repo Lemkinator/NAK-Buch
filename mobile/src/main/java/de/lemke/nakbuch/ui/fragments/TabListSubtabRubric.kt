@@ -9,9 +9,12 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.util.SeslRoundedCorner
+import androidx.appcompat.util.SeslSubheaderRoundedCorner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,14 +31,16 @@ import de.lemke.nakbuch.domain.model.Rubric
 import de.lemke.nakbuch.ui.TextviewActivity
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.widget.MarginsTabLayout
+import dev.oneuiproject.oneui.widget.Separator
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class TabListSubtabRubric : Fragment() {
     private var currentRubric: Rubric? = null
     private lateinit var rootView: View
-    private lateinit var hymns: MutableList<Hymn>
+    private lateinit var hymns: MutableList<Hymn?>
     private lateinit var rubrics: MutableList<Rubric>
     private lateinit var buchMode: BuchMode
     private lateinit var listView: RecyclerView
@@ -83,27 +88,23 @@ class TabListSubtabRubric : Fragment() {
 
     private suspend fun initList() {
         rubrics = getAllRubrics(buchMode).toMutableList()
-        rubrics.add(Rubric.rubricPlaceholder)
+        hymns = mutableListOf()
         onBackPressedCallback.isEnabled = false
         if (currentRubric != null) {
             hymns = getHymnsWithRubric(currentRubric!!).toMutableList()
-            hymns.add(0, Hymn.hymnPlaceholder)
-            hymns.add(Hymn.hymnPlaceholder)
+            hymns.add(0, null)
             onBackPressedCallback.isEnabled = true
         }
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
-        val divider = TypedValue()
-        requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
         listView.layoutManager = LinearLayoutManager(context)
-        val decoration = ItemDecoration(requireContext())
-        listView.addItemDecoration(decoration)
+        listView.addItemDecoration(ItemDecoration(requireContext()))
         listView.itemAnimator = null
         //listView.seslSetIndexTipEnabled(rubrikIndex == 0) //see ImageAdapter why
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
+        listView.seslSetLastRoundedCorner(true)
     }
 
     //Adapter for the Icon RecyclerView
@@ -117,14 +118,12 @@ class TabListSubtabRubric : Fragment() {
         override fun getItemViewType(position: Int): Int {
             return if (currentRubric == null) {
                 when {
-                    rubrics[position] == Rubric.rubricPlaceholder -> 1
-                    rubrics[position].isMain -> 2
+                    rubrics[position].isMain -> 1
                     else -> 0
                 }
             } else {
-                when {
-                    position == 0 -> 3
-                    hymns[position] == Hymn.hymnPlaceholder -> 1
+                when (position) {
+                    0 -> 2
                     else -> 0
                 }
             }
@@ -132,24 +131,21 @@ class TabListSubtabRubric : Fragment() {
 
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            var resId = 0
-            when (viewType) {
-                0 -> resId = R.layout.listview_item
-                1 -> resId = R.layout.listview_bottom_spacing
-                2 -> resId = R.layout.listview_header
-                3 -> resId = R.layout.listview_back_header
+            return when (viewType) {
+                0 -> ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.listview_item, parent, false), viewType)
+                1 -> ViewHolder(Separator(requireContext()), viewType)
+                2 -> ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.listview_back_header, parent, false), viewType)
+                else -> ViewHolder(Separator(requireContext()), viewType)
             }
-            val view = LayoutInflater.from(parent.context).inflate(resId, parent, false)
-            return ViewHolder(view, viewType)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             if (holder.isItem) {
                 if (currentRubric != null) {
-                    holder.textView.text = hymns[position].numberAndTitle
+                    holder.textView.text = hymns[position]?.numberAndTitle
                     holder.parentView.setOnClickListener {
                         startActivity(
-                            Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position].hymnId.toInt())
+                            Intent(rootView.context, TextviewActivity::class.java).putExtra("hymnId", hymns[position]!!.hymnId.toInt())
                         )
                     }
                 } else {
@@ -160,7 +156,11 @@ class TabListSubtabRubric : Fragment() {
                     }
                 }
             }
-            if (holder.isHeader) holder.textView.text = rubrics[position].name
+            if (holder.isSeparator) {
+                holder.textView.layoutParams =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                holder.textView.text = rubrics[position].name
+            }
             if (holder.isBackHeader) {
                 holder.textView.text = currentRubric!!.name
                 holder.parentView.setOnClickListener {
@@ -172,44 +172,63 @@ class TabListSubtabRubric : Fragment() {
 
         inner class ViewHolder internal constructor(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
             var isItem: Boolean = viewType == 0
-            var isHeader: Boolean = viewType == 2
-            var isBackHeader: Boolean = viewType == 3
+            var isSeparator: Boolean = viewType == 1
+            var isBackHeader: Boolean = viewType == 2
             lateinit var parentView: RelativeLayout
             lateinit var textView: TextView
 
             init {
-                if (isItem) {
-                    parentView = itemView as RelativeLayout
-                    textView = parentView.findViewById(R.id.icon_tab_item_text)
-                }
-                if (isHeader || isBackHeader) {
-                    parentView = itemView as RelativeLayout
-                    textView = parentView.findViewById(R.id.icon_tab_item_text)
+                when {
+                    isItem -> {
+                        parentView = itemView as RelativeLayout
+                        textView = parentView.findViewById(R.id.icon_tab_item_text)
+                    }
+                    isSeparator -> {
+                        textView = itemView as TextView
+                    }
+                    isBackHeader -> {
+                        parentView = itemView as RelativeLayout
+                        textView = parentView.findViewById(R.id.icon_tab_item_text)
+                    }
                 }
             }
         }
     }
 
-    private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-        private val mDivider: Drawable
+    inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+        private val divider: Drawable?
+        private val roundedCorner: SeslSubheaderRoundedCorner
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
-                val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
-                val bottom = mDivider.intrinsicHeight + top
-                mDivider.setBounds(parent.left, top, parent.right, bottom)
-                mDivider.draw(c)
+                val holder: ImageAdapter.ViewHolder = listView.getChildViewHolder(child) as ImageAdapter.ViewHolder
+                if (holder.isItem) {
+                    val top = (child.bottom + (child.layoutParams as MarginLayoutParams).bottomMargin)
+                    val bottom = divider!!.intrinsicHeight + top
+                    divider.setBounds(parent.left, top, parent.right, bottom)
+                    divider.draw(c)
+                }
+            }
+        }
+
+        override fun seslOnDispatchDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            for (i in 0 until parent.childCount) {
+                val child = parent.getChildAt(i)
+                val holder: ImageAdapter.ViewHolder = listView.getChildViewHolder(child) as ImageAdapter.ViewHolder
+                if (!holder.isItem) roundedCorner.drawRoundedCorner(child, c)
             }
         }
 
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            mDivider = context.getDrawable(
+            divider = context.getDrawable(
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!
+            roundedCorner = SeslSubheaderRoundedCorner(context)
+            roundedCorner.roundedCorners = SeslRoundedCorner.ROUNDED_CORNER_ALL
         }
     }
 }

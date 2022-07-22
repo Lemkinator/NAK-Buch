@@ -19,11 +19,4 @@ data class Hymn(
     }
 
     override fun hashCode(): Int = hymnId.hashCode()
-
-    companion object {
-        val hymnPlaceholder = Hymn(
-            HymnId.hymnIdPlaceholder,
-            Rubric.rubricPlaceholder, "Placeholder", "Placeholder", "Placeholder", "Placeholder", false
-        )
-    }
 }

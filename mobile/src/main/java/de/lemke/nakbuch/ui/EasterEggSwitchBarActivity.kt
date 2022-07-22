@@ -155,19 +155,14 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
                 (if (getUserSettings().easterEggTipsUsed) " (mit Tipps)" else "") +
                 " (${discoveredEasterEggs.size}/${easterEggComments.size - 1}):"
         easterEggCommentButton.text = easterEggComments[discoveredEasterEggs.size]
-        discoveredEasterEggs.add("") //placeholder
         listView.layoutManager = LinearLayoutManager(this)
         listView.adapter = ImageAdapter()
         listView.itemAnimator = null
         listView.seslSetFastScrollerEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
-        val divider = TypedValue()
-        theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        val decoration = ItemDecoration(this)
-        listView.addItemDecoration(decoration)
-
+        listView.seslSetLastRoundedCorner(true)
+        listView.addItemDecoration(ItemDecoration(this))
         refreshEnableDisableEasterEggView()
     }
 
@@ -196,13 +191,13 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
 
         override fun getItemId(position: Int): Long = position.toLong()
 
-        override fun getItemViewType(position: Int): Int = if (discoveredEasterEggs[position] == "") 1 else 0
+        override fun getItemViewType(position: Int): Int = 0 //if (discoveredEasterEggs[position] == "") 1 else 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
             when (viewType) {
                 0 -> resId = R.layout.listview_item
-                1 -> resId = R.layout.listview_bottom_spacing_small
+                //1 -> resId = R.layout.listview_bottom_spacing_small
             }
             val view = LayoutInflater.from(parent.context).inflate(resId, parent, false)
             return ViewHolder(view, viewType)
@@ -231,22 +226,22 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
     }
 
     private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-        private val mDivider: Drawable
+        private val divider: Drawable
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
                 val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
-                val bottom = mDivider.intrinsicHeight + top
-                mDivider.setBounds(parent.left, top, parent.right, bottom)
-                mDivider.draw(c)
+                val bottom = divider.intrinsicHeight + top
+                divider.setBounds(parent.left, top, parent.right, bottom)
+                divider.draw(c)
             }
         }
 
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            mDivider = context.getDrawable(
+            divider = context.getDrawable(
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!

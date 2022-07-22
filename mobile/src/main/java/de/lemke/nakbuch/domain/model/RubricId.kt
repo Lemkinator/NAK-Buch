@@ -17,7 +17,6 @@ class RubricId private constructor(
     }
 
     companion object {
-        val rubricIdPlaceholder = RubricId(-1, BuchMode.Gesangbuch)
         fun create(index: Int, buchMode: BuchMode?): RubricId? =
             if (buchMode == null || index < 0 || index >= buchMode.rubricListItemList.size || index >= buchMode.rubricTitlesList.size) null
             else RubricId(index, buchMode)

@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="@color/oui_background_color"
+        android:background="@color/oui_round_and_bgcolor"
         android:gravity="center_vertical"
         android:paddingStart="?android:listPreferredItemPaddingStart"
         android:paddingEnd="?android:listPreferredItemPaddingEnd">
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?textAppearanceHeadline6"
+                android:textAppearance="?textAppearanceListItem"
                 android:textStyle="bold"
                 />
         </RelativeLayout>

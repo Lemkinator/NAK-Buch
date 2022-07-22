@@ -21,8 +21,4 @@ data class Rubric(
     }
 
     override fun hashCode(): Int = rubricId.hashCode()
-
-    companion object {
-        val rubricPlaceholder = Rubric(RubricId.rubricIdPlaceholder, "Placeholder", true)
-    }
 }

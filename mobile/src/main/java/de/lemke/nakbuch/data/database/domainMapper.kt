@@ -31,9 +31,8 @@ fun hymnFromDb(hymnDb: HymnDb): Hymn =
     )
 
 fun hymnFromDb(hymnAndRubric: HymnAndRubric?): Hymn =
-    if (hymnAndRubric == null) Hymn.hymnPlaceholder
-    else Hymn(
-        hymnId = hymnAndRubric.hymn.hymnId,
+    Hymn(
+        hymnId = hymnAndRubric!!.hymn.hymnId,
         rubric = rubricFromDb(hymnAndRubric.rubric),
         numberAndTitle = hymnAndRubric.hymn.numberAndTitle,
         title = hymnAndRubric.hymn.title,
@@ -60,11 +59,10 @@ fun historyToDb(hymn: Hymn, dateTime: LocalDateTime): HistoryDb =
     HistoryDb(hymnId = hymn.hymnId, date = dateTime.toLocalDate(), dateTime = dateTime)
 
 fun personalHymnFromDb(personalHymnDb: PersonalHymnDb?): PersonalHymn =
-    if (personalHymnDb == null) PersonalHymn.personalHymnPlaceholder
-    else if (personalHymnDb.hymnData == null) PersonalHymn(hymnFromDb(personalHymnDb.hymn))
+    if (personalHymnDb!!.hymnData == null) PersonalHymn(hymnFromDb(personalHymnDb.hymn))
     else PersonalHymn(
         hymn = hymnFromDb(personalHymnDb.hymn),
-        favorite = personalHymnDb.hymnData.favorite == 1,
+        favorite = personalHymnDb.hymnData!!.favorite == 1,
         notes = personalHymnDb.hymnData.notes,
         sungOnList = personalHymnDb.sungOnList.map { it.date }.reversed(),
         photoList = personalHymnDb.photoList.sortedBy{it.position}.map { it.uri },

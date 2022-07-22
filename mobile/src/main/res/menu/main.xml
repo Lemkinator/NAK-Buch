@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
         <item
             android:id="@+id/search"
             android:icon="@drawable/ic_baseline_oui_search_24"
-            android:showAsAction="always"
+            app:showAsAction="always"
             android:title="@string/search"
-            tools:ignore="AlwaysShowAction" />
+            tools:ignore="AlwaysShowAction,AppCompatResource" />
 
         <item
             android:id="@+id/mute"
-            android:showAsAction="ifRoom"
-            android:title="@string/mute" />
+            app:showAsAction="never"
+            android:title="@string/mute"
+            tools:ignore="AppCompatResource" />
 
         <item
             android:id="@+id/dnd"
-            android:showAsAction="ifRoom"
-            android:title="@string/dnd" />
+            app:showAsAction="never"
+            android:title="@string/dnd"
+            tools:ignore="AppCompatResource" />
 
         <item
             android:id="@+id/openOfficialApp"
-            android:showAsAction="ifRoom"
-            android:title="@string/openOfficialApp" />
+            app:showAsAction="never"
+            android:title="@string/openOfficialApp"
+            tools:ignore="AppCompatResource" />
 </menu>

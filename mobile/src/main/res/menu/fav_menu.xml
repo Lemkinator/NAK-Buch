@@ -7,12 +7,13 @@
         android:id="@+id/addToFav"
         android:icon="@drawable/ic_baseline_oui_favorite_24"
         android:title="@string/addToFav"
-        tools:ignore="AlwaysShowAction"
-        android:showAsAction="always" />
+        tools:ignore="AlwaysShowAction,AppCompatResource"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/removeFromFav"
         android:icon="@drawable/ic_baseline_oui_delete_outline_24"
         android:title="@string/removeFromFav"
-        android:showAsAction="always" />
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource" />
 </menu>

@@ -79,7 +79,6 @@ class TabListSubtabAlphabetic : Fragment() {
         lifecycleScope.launch {
             buchMode = getUserSettings().buchMode
             hymnsAlphsort = getAllHymnsSortedAlphabetical(buchMode).toMutableList()
-            hymnsAlphsort.add(Hymn.hymnPlaceholder)
             initList()
             onBackPressedCallback = object : OnBackPressedCallback(false) {
                 override fun handleOnBackPressed() {
@@ -93,7 +92,7 @@ class TabListSubtabAlphabetic : Fragment() {
 
     private fun initList() {
         selected = HashMap()
-        for (i in hymnsAlphsort.indices) selected[i] = false
+        hymnsAlphsort.indices.forEach { i -> selected[i] = false }
         listView.layoutManager = LinearLayoutManager(context)
         imageAdapter = ImageAdapter()
         listView.adapter = imageAdapter
@@ -101,7 +100,7 @@ class TabListSubtabAlphabetic : Fragment() {
         listView.seslSetIndexTipEnabled(true)
         listView.seslSetFillBottomEnabled(true)
         listView.seslSetGoToTopEnabled(true)
-        listView.seslSetLastRoundedCorner(false)
+        listView.seslSetLastRoundedCorner(true)
         listView.seslSetLongPressMultiSelectionListener(object :
             RecyclerView.SeslLongPressMultiSelectionListener {
             override fun onItemSelected(view: RecyclerView, child: View, position: Int, id: Long) {
@@ -119,13 +118,9 @@ class TabListSubtabAlphabetic : Fragment() {
                 }
             }
         })
-        val divider = TypedValue()
-        val decoration = ItemDecoration(requireContext())
-        requireContext().theme.resolveAttribute(android.R.attr.listDivider, divider, true)
-        listView.addItemDecoration(decoration)
+        listView.addItemDecoration(ItemDecoration(requireContext()))
         val indexScrollView: SeslIndexScrollView = rootView.findViewById(R.id.indexScrollViewAlphabetical)
-        val list: MutableList<String> = mutableListOf()
-        for (i in 0 until hymnsAlphsort.size - 1) list.add(hymnsAlphsort[i].title)
+        val list: List<String> = hymnsAlphsort.map { it.title }
         val isRtl = resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
         indexScrollView.setIndexBarGravity(if (isRtl) SeslIndexScrollView.GRAVITY_INDEX_BAR_LEFT else SeslIndexScrollView.GRAVITY_INDEX_BAR_RIGHT)
         val indexer = SeslArrayIndexer(list, "ABCDEFGHIJKLMNOPQRSTUVWXYZÜ")
@@ -149,7 +144,7 @@ class TabListSubtabAlphabetic : Fragment() {
     fun setSelecting(enabled: Boolean) {
         if (enabled) {
             selecting = true
-            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
+            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
             drawerLayout.setActionModeBottomMenu(R.menu.fav_menu)
             drawerLayout.setActionModeBottomMenuListener { item: MenuItem ->
                 val onlySelected = HashMap(selected.filter { it.value })
@@ -182,14 +177,10 @@ class TabListSubtabAlphabetic : Fragment() {
             drawerLayout.showActionMode()
             drawerLayout.setActionModeCheckboxListener { _, isChecked ->
                 if (checkAllListening) {
-                    for (i in 0 until imageAdapter.itemCount - 1) {
-                        selected[i] = isChecked
-                        imageAdapter.notifyItemChanged(i)
-                    }
+                    selected.replaceAll { _, _ -> isChecked }
+                    selected.forEach { (index, _) -> imageAdapter.notifyItemChanged(index) }
                 }
-                var count = 0
-                for (b in selected.values) if (b) count++
-                drawerLayout.setActionModeCount(count, imageAdapter.itemCount - 1)
+                drawerLayout.setActionModeCount(selected.values.count { it }, imageAdapter.itemCount)
             }
             //drawerLayout.showSelectModeBottomBar(false)
             subTabs.isEnabled = false
@@ -199,9 +190,9 @@ class TabListSubtabAlphabetic : Fragment() {
         } else {
             selecting = false
             showBottomBarJob.cancel()
-            for (i in 0 until imageAdapter.itemCount - 1) selected[i] = false
-            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount - 1)
-            drawerLayout.setActionModeCount(0, imageAdapter.itemCount - 1)
+            selected.replaceAll { _, _ -> false }
+            imageAdapter.notifyItemRangeChanged(0, imageAdapter.itemCount)
+            drawerLayout.setActionModeCount(0, imageAdapter.itemCount)
             drawerLayout.dismissActionMode()
             subTabs.isEnabled = true
             mainTabs.isEnabled = true
@@ -214,9 +205,7 @@ class TabListSubtabAlphabetic : Fragment() {
         selected[position] = !selected[position]!!
         imageAdapter.notifyItemChanged(position)
         checkAllListening = false
-        var count = 0
-        for (b in selected.values) if (b) count++
-        drawerLayout.setActionModeCount(count, imageAdapter.itemCount - 1)
+        drawerLayout.setActionModeCount(selected.values.count { it }, imageAdapter.itemCount)
         checkAllListening = true
     }
 
@@ -231,12 +220,12 @@ class TabListSubtabAlphabetic : Fragment() {
         override fun getSectionForPosition(i: Int): Int = sectionForPosition[i]
         override fun getItemCount(): Int = hymnsAlphsort.size
         override fun getItemId(position: Int): Long = position.toLong()
-        override fun getItemViewType(position: Int): Int = if (hymnsAlphsort[position] != Hymn.hymnPlaceholder) 0 else 1
+        override fun getItemViewType(position: Int): Int = 0
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             var resId = 0
             when (viewType) {
                 0 -> resId = R.layout.listview_item
-                1 -> resId = R.layout.listview_bottom_spacing
+                //1 -> resId = R.layout.listview_bottom_spacing
             }
             return ViewHolder(LayoutInflater.from(parent.context).inflate(resId, parent, false), viewType)
         }
@@ -282,9 +271,7 @@ class TabListSubtabAlphabetic : Fragment() {
 
         init {
             for (i in hymnsAlphsort.indices) {
-                val letter: String =
-                    if (i != hymnsAlphsort.size - 1) hymnsAlphsort[i].title.substring(0, 1).uppercase(Locale.getDefault())
-                    else sections[sections.size - 1]
+                val letter: String = hymnsAlphsort[i].title.substring(0, 1).uppercase(Locale.getDefault())
                 if (i == 0 || sections[sections.size - 1] != letter) {
                     sections.add(letter)
                     positionForSection.add(i)
@@ -295,22 +282,22 @@ class TabListSubtabAlphabetic : Fragment() {
     }
 
     private class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-        private val mDivider: Drawable
+        private val divider: Drawable
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)
             for (i in 0 until parent.childCount) {
                 val child = parent.getChildAt(i)
                 val top = (child.bottom + (child.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin)
-                val bottom = mDivider.intrinsicHeight + top
-                mDivider.setBounds(parent.left, top, parent.right, bottom)
-                mDivider.draw(c)
+                val bottom = divider.intrinsicHeight + top
+                divider.setBounds(parent.left, top, parent.right, bottom)
+                divider.draw(c)
             }
         }
 
         init {
             val outValue = TypedValue()
             context.theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, outValue, true)
-            mDivider = context.getDrawable(
+            divider = context.getDrawable(
                 if (outValue.data == 0) androidx.appcompat.R.drawable.sesl_list_divider_dark
                 else androidx.appcompat.R.drawable.sesl_list_divider_light
             )!!
