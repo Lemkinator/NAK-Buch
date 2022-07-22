@@ -152,6 +152,27 @@ class TextviewFragment : Fragment() {
         drawerLayout = rootView.findViewById(R.id.drawer_layout_textview)
         drawerLayout.setNavigationButtonIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_back_24))
         drawerLayout.setExpandedSubtitle(hymnId.buchMode.toString())
+        drawerLayout.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.increaseTextSize -> lifecycleScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
+                R.id.decreaseTextSize -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
+                R.id.dnd -> doNotDisturb()
+                R.id.mute ->
+                    if (!mute()) Toast.makeText(
+                        context,
+                        requireContext().getString(R.string.failedToMuteStreams),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                R.id.openOfficialApp -> lifecycleScope.launch {
+                    if (hymnId.buchMode == BuchMode.Gesangbuch || hymnId.buchMode == BuchMode.Chorbuch) openBischoffApp(
+                        hymnId.buchMode,
+                        true
+                    )
+                    else discoverEasterEgg(konfettiView, R.string.easterEggWhichOfficialApp)
+                }
+            }
+            return@setOnMenuItemClickListener true
+        }
 
         lifecycleScope.launch {
             personalHymn = getPersonalHymn(hymnId)
@@ -289,9 +310,6 @@ class TextviewFragment : Fragment() {
     }
 
     private fun initBNV() {
-        if (tabLayout == null) tabLayout = rootView.findViewById(R.id.textView_tabLayout)
-        else tabLayout!!.removeAllTabs()
-
         val noteIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_notes_new_24)
         val noteIconColored = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_notes_new_24)
         noteIconColored?.colorFilter = PorterDuffColorFilter(
@@ -315,69 +333,78 @@ class TextviewFragment : Fragment() {
         val plusIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_add_24)
         val minusIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_minus_24)
 
-        lifecycleScope.launch {
-            val userSettings = getUserSettings()
-            if (userSettings.notesVisible) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(noteIconColored))
-            else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(noteIcon))
-            if (userSettings.sungOnVisible) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(dateIconColored))
-            else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(dateIcon))
-            if (personalHymn.favorite) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(favIconFilled))
-            else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(favIconOutline))
-            tabLayout!!.addTab(tabLayout!!.newTab().setIcon(camIcon))
-            tabLayout!!.addTab(tabLayout!!.newTab().setIcon(plusIcon))
-            tabLayout!!.addTab(tabLayout!!.newTab().setIcon(minusIcon))
+        if (tabLayout == null) {
+            tabLayout = rootView.findViewById(R.id.textView_tabLayout)
+            lifecycleScope.launch {
+                val userSettings = getUserSettings()
+                if (userSettings.notesVisible) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(noteIconColored))
+                else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(noteIcon))
+                if (userSettings.sungOnVisible) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(dateIconColored))
+                else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(dateIcon))
+                if (personalHymn.favorite) tabLayout!!.addTab(tabLayout!!.newTab().setIcon(favIconFilled))
+                else tabLayout!!.addTab(tabLayout!!.newTab().setIcon(favIconOutline))
+                tabLayout!!.addTab(tabLayout!!.newTab().setIcon(camIcon))
+                tabLayout!!.addTab(tabLayout!!.newTab().setIcon(plusIcon))
+                tabLayout!!.addTab(tabLayout!!.newTab().setIcon(minusIcon))
 
-            tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    when (tab.position) {
-                        0 -> lifecycleScope.launch {
-                            if ((updateUserSettings { it.copy(notesVisible = !it.notesVisible) }).notesVisible) {
-                                notesGroup.visibility = View.VISIBLE
-                                drawerLayout.setExpanded(false, true)
-                                nestedScrollView.post {
-                                    nestedScrollView.smoothScrollTo(0, (notesGroup.top + notesGroup.bottom - nestedScrollView.height) / 2)
+                tabLayout!!.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                    override fun onTabSelected(tab: TabLayout.Tab) {
+                        when (tab.position) {
+                            0 -> lifecycleScope.launch {
+                                if ((updateUserSettings { it.copy(notesVisible = !it.notesVisible) }).notesVisible) {
+                                    notesGroup.visibility = View.VISIBLE
+                                    drawerLayout.setExpanded(false, true)
+                                    nestedScrollView.post {
+                                        nestedScrollView.smoothScrollTo(0, (notesGroup.top + notesGroup.bottom - nestedScrollView.height) / 2)
+                                    }
+                                    tabLayout?.getTabAt(tab.position)?.icon = noteIconColored
+                                } else {
+                                    notesGroup.visibility = View.GONE
+                                    val inputManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                                    inputManager.hideSoftInputFromWindow(requireView().windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                                    tabLayout?.getTabAt(tab.position)?.icon = noteIcon
                                 }
-                                tabLayout?.getTabAt(tab.position)?.icon = noteIconColored
-                            } else {
-                                notesGroup.visibility = View.GONE
-                                val inputManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                                inputManager.hideSoftInputFromWindow(requireView().windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-                                tabLayout?.getTabAt(tab.position)?.icon = noteIcon
-                            }
 
-                        }
-                        1 -> lifecycleScope.launch {
-                            if ((updateUserSettings { it.copy(sungOnVisible = !it.sungOnVisible) }).sungOnVisible) {
-                                calendarGroup.visibility = View.VISIBLE
-                                drawerLayout.setExpanded(false, true)
-                                nestedScrollView.post {
-                                    nestedScrollView.smoothScrollTo(
-                                        0,
-                                        (calendarGroup.top + calendarGroup.bottom - nestedScrollView.height) / 2
-                                    )
-                                }
-                                tabLayout?.getTabAt(tab.position)?.icon = dateIconColored
-                            } else {
-                                calendarGroup.visibility = View.GONE
-                                tabLayout?.getTabAt(tab.position)?.icon = dateIcon
                             }
+                            1 -> lifecycleScope.launch {
+                                if ((updateUserSettings { it.copy(sungOnVisible = !it.sungOnVisible) }).sungOnVisible) {
+                                    calendarGroup.visibility = View.VISIBLE
+                                    drawerLayout.setExpanded(false, true)
+                                    nestedScrollView.post {
+                                        nestedScrollView.smoothScrollTo(
+                                            0,
+                                            (calendarGroup.top + calendarGroup.bottom - nestedScrollView.height) / 2
+                                        )
+                                    }
+                                    tabLayout?.getTabAt(tab.position)?.icon = dateIconColored
+                                } else {
+                                    calendarGroup.visibility = View.GONE
+                                    tabLayout?.getTabAt(tab.position)?.icon = dateIcon
+                                }
+                            }
+                            2 -> lifecycleScope.launch {
+                                personalHymn.favorite = !personalHymn.favorite
+                                tabLayout?.getTabAt(tab.position)?.icon = if (personalHymn.favorite) favIconFilled else favIconOutline
+                                setPersonalHymn(personalHymn.copy())
+                            }
+                            3 -> startActivity(Intent(context, ImgviewActivity::class.java).putExtra("hymnId", hymnId.toInt()))
+                            4 -> lifecycleScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
+                            5 -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
+                            else -> {}
                         }
-                        2 -> lifecycleScope.launch {
-                            personalHymn.favorite = !personalHymn.favorite
-                            tabLayout?.getTabAt(tab.position)?.icon = if (personalHymn.favorite) favIconFilled else favIconOutline
-                            setPersonalHymn(personalHymn.copy())
-                        }
-                        3 -> startActivity(Intent(context, ImgviewActivity::class.java).putExtra("hymnId", hymnId.toInt()))
-                        4 -> lifecycleScope.launch { updateTextSize(textSize + TEXTSIZE_STEP) }
-                        5 -> lifecycleScope.launch { updateTextSize(textSize - TEXTSIZE_STEP) }
-                        else -> {}
                     }
-                }
 
-                override fun onTabUnselected(tab: TabLayout.Tab) {}
-                override fun onTabReselected(tab: TabLayout.Tab) {}
-            })
+                    override fun onTabUnselected(tab: TabLayout.Tab) {}
+                    override fun onTabReselected(tab: TabLayout.Tab) {onTabSelected(tab)}
+                })
+            }
+
+        } else {
+            //tabLayout!!.removeAllTabs()
         }
+
+
+
 
         /*
         old
