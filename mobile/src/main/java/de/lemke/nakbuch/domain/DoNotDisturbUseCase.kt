@@ -48,8 +48,8 @@ class DoNotDisturbUseCase @Inject constructor(
                     e.printStackTrace()
                 }
             }
-            //TODO .setNegativeButtonColor(context.resources.getColor(R.color.red, null))
-            //TODO .setPositiveButtonColor(context.resources.getColor(R.color.green, null))
+            //.setNegativeButtonColor(context.resources.getColor(R.color.red, null))
+            //.setPositiveButtonColor(context.resources.getColor(R.color.green, null))
             .create()
         dialog.show()
     }

@@ -177,7 +177,7 @@ class TextviewFragment : Fragment() {
         lifecycleScope.launch {
             personalHymn = getPersonalHymn(hymnId)
             val color = MaterialColors.getColor(
-                requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO
+                requireContext(), androidx.appcompat.R.attr.colorPrimary,
                 requireContext().resources.getColor(R.color.primary_color, context?.theme)
             )
             val userSettings = getUserSettings()
@@ -198,7 +198,15 @@ class TextviewFragment : Fragment() {
                 }
             }
             editTextNotiz.setText(personalHymn.notes)
+            initBNV()
             initList()
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                tabLayout!!.isVisible = true
+                drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
+            } else {
+                tabLayout!!.isVisible = false
+                drawerLayout.toolbar.inflateMenu(R.menu.textview_menu_landscape)
+            }
             whyNoFullTextButton.setOnClickListener { startActivity(Intent(context, HelpActivity::class.java)) }
             jokeButton.setOnClickListener {
                 lifecycleScope.launch {
@@ -277,20 +285,26 @@ class TextviewFragment : Fragment() {
             calendarGroup.visibility = if (userSettings.sungOnVisible) View.VISIBLE else View.GONE
             textSize = userSettings.textSize
             updateTextSize(textSize)
-            personalHymn = getPersonalHymn(hymnId)
             initBNV()
+            personalHymn = getPersonalHymn(hymnId)
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                tabLayout!!.isVisible = true
-                drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
                 if (userSettings.showTextViewTips) {
                     /*updateUserSettings { it.copy(showTextViewTips = false) }
                     initTipPopup()
                     tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)*/
                 }
-            } else {
-                tabLayout!!.isVisible = false
-                drawerLayout.toolbar.inflateMenu(R.menu.textview_menu_landscape)
             }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            tabLayout!!.isVisible = true
+            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
+        } else {
+            tabLayout!!.isVisible = false
+            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu_landscape)
         }
     }
 
@@ -355,12 +369,16 @@ class TextviewFragment : Fragment() {
                                     notesGroup.visibility = View.VISIBLE
                                     drawerLayout.setExpanded(false, true)
                                     nestedScrollView.post {
-                                        nestedScrollView.smoothScrollTo(0, (notesGroup.top + notesGroup.bottom - nestedScrollView.height) / 2)
+                                        nestedScrollView.smoothScrollTo(
+                                            0,
+                                            (notesGroup.top + notesGroup.bottom - nestedScrollView.height) / 2
+                                        )
                                     }
                                     tabLayout?.getTabAt(tab.position)?.icon = noteIconColored
                                 } else {
                                     notesGroup.visibility = View.GONE
-                                    val inputManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                                    val inputManager =
+                                        requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                                     inputManager.hideSoftInputFromWindow(requireView().windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
                                     tabLayout?.getTabAt(tab.position)?.icon = noteIcon
                                 }
@@ -395,85 +413,21 @@ class TextviewFragment : Fragment() {
                     }
 
                     override fun onTabUnselected(tab: TabLayout.Tab) {}
-                    override fun onTabReselected(tab: TabLayout.Tab) {onTabSelected(tab)}
+                    override fun onTabReselected(tab: TabLayout.Tab) {
+                        onTabSelected(tab)
+                    }
                 })
             }
 
         } else {
             //tabLayout!!.removeAllTabs()
+            lifecycleScope.launch {
+                val userSettings = getUserSettings()
+                tabLayout?.getTabAt(0)?.icon = if (userSettings.notesVisible) noteIconColored else noteIcon
+                tabLayout?.getTabAt(1)?.icon = if (userSettings.sungOnVisible) dateIconColored else dateIcon
+                tabLayout?.getTabAt(2)?.icon = if (personalHymn.favorite) favIconFilled else favIconOutline
+            }
         }
-
-
-
-
-        /*
-        old
-        tabLayout!!.addTabCustomButton(noteIcon, object : CustomButtonClickListener(tabLayout) {
-            override fun onClick(v: View) {
-                lifecycleScope.launch {
-                    if ((updateUserSettings { it.copy(notesVisible = !it.notesVisible) }).notesVisible) {
-                        notesGroup.visibility = View.VISIBLE
-                        drawerLayout.setExpanded(false, true)
-                        nestedScrollView.post {
-                            nestedScrollView.smoothScrollTo(0, (notesGroup.top + notesGroup.bottom - nestedScrollView.height) / 2)
-                        }
-                    } else {
-                        notesGroup.visibility = View.GONE
-                        val inputManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        inputManager.hideSoftInputFromWindow(requireView().windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-                    }
-                    initBNV()
-                }
-            }
-        })
-        tabLayout!!.addTabCustomButton(dateIcon, object : CustomButtonClickListener(tabLayout) {
-            override fun onClick(v: View) {
-                lifecycleScope.launch {
-                    if ((updateUserSettings { it.copy(sungOnVisible = !it.sungOnVisible) }).sungOnVisible) {
-                        calendarGroup.visibility = View.VISIBLE
-                        drawerLayout.setExpanded(false, true)
-                        nestedScrollView.post {
-                            nestedScrollView.smoothScrollTo(0, (calendarGroup.top + calendarGroup.bottom - nestedScrollView.height) / 2)
-                        }
-                        initList()
-                    } else {
-                        calendarGroup.visibility = View.GONE
-                    }
-                    initBNV()
-                }
-            }
-        })
-        tabLayout!!.addTabCustomButton(if (personalHymn.favorite) favIconFilled else favIconOutline, object : CustomButtonClickListener(tabLayout) {
-            override fun onClick(v: View) {
-                lifecycleScope.launch {
-                    personalHymn.favorite = !personalHymn.favorite
-                    initBNV()
-                    setPersonalHymn(personalHymn.copy())
-                }
-            }
-        })
-        tabLayout!!.addTabCustomButton(camIcon, object : CustomButtonClickListener(tabLayout) {
-            override fun onClick(v: View) {
-                val myIntent = Intent(context, ImgviewActivity::class.java)
-                myIntent.putExtra("hymnId", hymnId.toInt())
-                startActivity(myIntent)
-            }
-        })
-        tabLayout!!.addTabCustomButton(plusIcon, object : CustomButtonClickListener(tabLayout) {
-            override fun onClick(v: View) {
-                lifecycleScope.launch {
-                    updateTextSize(textSize + TEXTSIZE_STEP)
-                }
-            }
-        })
-        tabLayout!!.addTabCustomButton(minusIcon, object : CustomButtonClickListener(tabLayout) {
-            override fun onClick(v: View) {
-                lifecycleScope.launch {
-                    updateTextSize(textSize - TEXTSIZE_STEP)
-                }
-            }
-        })
-        */
     }
 
     private fun initTipPopup() {

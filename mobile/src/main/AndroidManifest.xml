@@ -8,6 +8,8 @@
 
     <!--
     TODO / Ideas
+        drawer onBackPressed
+
         search list: show fav / notes?
         db import export? (db file? csv?) json schema
 

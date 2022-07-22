@@ -173,20 +173,14 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
 
     private fun refreshEnableDisableEasterEggView() {
         easterEggsHeader.isEnabled = enabled
-        easterEggsHeader.setTextColor(
-            resources.getColor(
-                if (enabled) dev.oneuiproject.oneui.R.color.oui_primary_text_color //TODO color
-                else dev.oneuiproject.oneui.R.color.oui_grid_menu_dialog_item_icon_text_color,
-                this.theme
-            )
-        )
+        easterEggsHeader.setTextColor(resources.getColor(dev.oneuiproject.oneui.R.color.oui_primary_text_color, this.theme))
         easterEggCommentButton.isEnabled = enabled
         easterEggCommentButton.setTextColor(
-            if (enabled) MaterialColors.getColor(
+            MaterialColors.getColor(
                 this,
-                androidx.appcompat.R.attr.colorPrimary, //TODO color
-                resources.getColor(dev.oneuiproject.oneui.R.color.design_default_color_on_background, this.theme)
-            ) else resources.getColor(dev.oneuiproject.oneui.R.color.sesl_switch_thumb_on_disabled_color, this.theme)
+                androidx.appcompat.R.attr.colorPrimary,
+                resources.getColor(R.color.primary_color, this.theme)
+            )
         )
         floatingActionButton.isEnabled = enabled
     }

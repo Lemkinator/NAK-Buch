@@ -95,7 +95,7 @@ class MainActivitySearchFragment : Fragment() {
             if (holder.isItem) {
                 val hymn = searchList[position]
                 val color = MaterialColors.getColor(
-                    requireContext(), androidx.appcompat.R.attr.colorPrimary, //TODO
+                    requireContext(), androidx.appcompat.R.attr.colorPrimary,
                     requireContext().resources.getColor(R.color.primary_color, context?.theme)
                 )
                 lifecycleScope.launch {

@@ -144,7 +144,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {
+                if (tab.text == getString(R.string.list)) {
+                    try {
+                        val subTabs: TabLayout = findViewById(R.id.sub_tabs)
+                        val newTabIndex = subTabs.selectedTabPosition + 1
+                        if (newTabIndex < subTabs.tabCount) {
+                            subTabs.getTabAt(newTabIndex)?.select()
+                        } else {
+                            subTabs.getTabAt(0)?.select()
+                        }
+                    } catch (e: Exception)  {}
+                }
+            }
         })
         //DrawerLayout
         drawerLayout.setDrawerButtonIcon(getDrawable(R.drawable.ic_baseline_oui_info_outline_24))
@@ -307,12 +319,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     fun setCurrentItem() {
         if (tabLayout.isEnabled) {
-            val tab = tabLayout.getTabAt(currentTab)
-            if (tab != null) {
-                tab.select()
-                setFragment(currentTab)
-            }
+            tabLayout.getTabAt(currentTab)?.select()
         }
+        setFragment(currentTab)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
