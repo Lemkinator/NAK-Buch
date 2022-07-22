@@ -162,10 +162,12 @@ class SettingsActivity : AppCompatActivity() {
             darkModePref.value = if (SeslMisc.isLightTheme(settingsActivity)) "0" else "1"
              */
             darkModePref.onPreferenceChangeListener = this
-            darkModePref.isEnabled = darkMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            darkModePref.isEnabled = darkMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM ||
+                    darkMode != AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
             darkModePref.isChecked = !(SeslMisc.isLightTheme(settingsActivity))
             autoDarkModePref.onPreferenceChangeListener = this
-            autoDarkModePref.isChecked = darkMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            autoDarkModePref.isChecked = darkMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM ||
+                    darkMode == AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
             lifecycleScope.launch {
                 /*
                 val recentColors = getRecentColors().toMutableList()

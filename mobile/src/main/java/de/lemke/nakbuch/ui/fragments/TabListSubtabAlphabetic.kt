@@ -125,6 +125,7 @@ class TabListSubtabAlphabetic : Fragment() {
         indexScrollView.setIndexBarGravity(if (isRtl) SeslIndexScrollView.GRAVITY_INDEX_BAR_LEFT else SeslIndexScrollView.GRAVITY_INDEX_BAR_RIGHT)
         val indexer = SeslArrayIndexer(list, "ABCDEFGHIJKLMNOPQRSTUVWXYZÜ")
         indexScrollView.setIndexer(indexer)
+        indexScrollView.setIndexBarTextMode(true)
         indexScrollView.setOnIndexBarEventListener(
             object : SeslIndexScrollView.OnIndexBarEventListener {
                 override fun onIndexChanged(sectionIndex: Int) {
@@ -135,8 +136,14 @@ class TabListSubtabAlphabetic : Fragment() {
                     }
                 }
 
-                override fun onPressed(v: Float) {}
-                override fun onReleased(v: Float) {}
+                override fun onPressed(v: Float) {
+                    subTabs.isEnabled = false
+                    viewPager2List.isUserInputEnabled = false
+                }
+                override fun onReleased(v: Float) {
+                    subTabs.isEnabled = true
+                    viewPager2List.isUserInputEnabled = true
+                }
             })
         indexScrollView.attachToRecyclerView(listView)
     }

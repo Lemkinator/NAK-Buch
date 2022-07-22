@@ -190,8 +190,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                     searchHelpFAB.visibility = View.VISIBLE
                 } else {
-                    setCurrentItem()
                     searchHelpFAB.visibility = View.GONE
+                    setCurrentItem()
                 }
             }
         })
@@ -223,13 +223,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
             drawerLayout.setDrawerOpen(false,true)
         }
-        /* TODO
-        searchHelpFAB.backgroundTintList =
-            ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_swipe_refresh_background, theme)
-        searchHelpFAB.supportImageTintList =
-            ResourcesCompat.getColorStateList(resources, de.dlyt.yanndroid.oneui.R.color.sesl_tablayout_selected_indicator_color, theme)
-
-         */
         //Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
         searchHelpFAB.setOnClickListener { searchDialog() }
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {

@@ -5,6 +5,8 @@ import android.content.IntentSender.SendIntentException
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -146,6 +148,19 @@ class AboutActivity : AppCompatActivity(), OnClickListener {
         } catch (e: SendIntentException) {
             e.printStackTrace()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(dev.oneuiproject.oneui.R.menu.app_info_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == dev.oneuiproject.oneui.R.id.menu_app_info) {
+            appInfoLayout.openSettingsAppInfo()
+            return true
+        }
+        return false
     }
 
     companion object {

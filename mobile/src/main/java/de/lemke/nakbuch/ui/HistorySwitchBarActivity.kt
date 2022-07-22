@@ -7,10 +7,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.RelativeLayout
 import android.widget.SectionIndexer
 import android.widget.TextView
@@ -62,15 +59,23 @@ class HistorySwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchChan
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
-        switchBarLayout.toolbar.inflateMenu(R.menu.switchpreferencescreen_menu)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.switchpreferencescreen_menu, menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        lifecycleScope.launch {
-            resetHistory()
-            initList()
+        if (item.itemId == R.id.menu_reset) {
+            lifecycleScope.launch {
+                resetHistory()
+                initList()
+            }
+            return true
         }
-        return true
+        return false
     }
 
     override fun onSwitchChanged(switchCompat: SwitchCompat, z: Boolean) {

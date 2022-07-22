@@ -7,10 +7,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -87,7 +84,6 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
         switchBarLayout.switchBar.addOnSwitchChangeListener(this)
         switchBarLayout.setNavigationButtonTooltip(getString(R.string.sesl_navigate_up))
         switchBarLayout.setNavigationButtonOnClickListener { onBackPressed() }
-        switchBarLayout.toolbar.inflateMenu(R.menu.switchpreferencescreen_menu)
         val easterEggTippDialog2 = AlertDialog.Builder(this)
             .setTitle(getString(R.string.tips))
             .setMessage(getString(R.string.easterEggTips))
@@ -133,12 +129,21 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        lifecycleScope.launch {
-            resetEasterEggs()
-            initList()
-        }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.switchpreferencescreen_menu, menu)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_reset) {
+            lifecycleScope.launch {
+                resetEasterEggs()
+                initList()
+            }
+            return true
+        }
+        return false
     }
 
     override fun onSwitchChanged(switchCompat: SwitchCompat, z: Boolean) {
