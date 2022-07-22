@@ -177,8 +177,6 @@ class TextviewFragment : Fragment() {
                 }
             }
             editTextNotiz.setText(personalHymn.notes)
-            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
-            initBNV()
             initList()
             whyNoFullTextButton.setOnClickListener { startActivity(Intent(context, HelpActivity::class.java)) }
             jokeButton.setOnClickListener {
@@ -261,11 +259,16 @@ class TextviewFragment : Fragment() {
             personalHymn = getPersonalHymn(hymnId)
             initBNV()
             if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                tabLayout!!.isVisible = true
+                drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
                 if (userSettings.showTextViewTips) {
                     /*updateUserSettings { it.copy(showTextViewTips = false) }
                     initTipPopup()
                     tipPopupMenu.show(TipPopup.DIRECTION_BOTTOM_LEFT)*/
                 }
+            } else {
+                tabLayout!!.isVisible = false
+                drawerLayout.toolbar.inflateMenu(R.menu.textview_menu_landscape)
             }
         }
     }
@@ -288,14 +291,7 @@ class TextviewFragment : Fragment() {
     private fun initBNV() {
         if (tabLayout == null) tabLayout = rootView.findViewById(R.id.textView_tabLayout)
         else tabLayout!!.removeAllTabs()
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu_landscape)
-            tabLayout!!.isVisible = false
-            return
-        } else {
-            drawerLayout.toolbar.inflateMenu(R.menu.textview_menu)
-            tabLayout!!.isVisible = true
-        }
+
         val noteIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_notes_new_24)
         val noteIconColored = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_notes_new_24)
         noteIconColored?.colorFilter = PorterDuffColorFilter(

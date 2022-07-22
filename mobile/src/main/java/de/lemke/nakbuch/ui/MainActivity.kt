@@ -148,7 +148,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
         //DrawerLayout
         drawerLayout.setDrawerButtonIcon(getDrawable(R.drawable.ic_baseline_oui_info_outline_24))
-        //drawerLayout.toolbar.inflateMenu(R.menu.main)
         drawerLayout.setDrawerButtonOnClickListener { startActivity(Intent().setClass(this@MainActivity, AboutActivity::class.java)) }
         drawerLayout.setDrawerButtonTooltip(getText(R.string.aboutApp))
         drawerLayout.setSearchModeListener(object : ToolbarLayout.SearchModeListener {
