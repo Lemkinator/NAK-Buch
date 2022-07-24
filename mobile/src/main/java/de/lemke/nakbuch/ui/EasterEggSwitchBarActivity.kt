@@ -26,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.lemke.nakbuch.R
 import de.lemke.nakbuch.domain.*
 import dev.oneuiproject.oneui.layout.SwitchBarLayout
+import dev.oneuiproject.oneui.utils.DialogUtils
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import javax.inject.Inject
@@ -94,23 +95,39 @@ class EasterEggSwitchBarActivity : AppCompatActivity(), SeslSwitchBar.OnSwitchCh
                 }
                 Toast.makeText(this@EasterEggSwitchBarActivity, "Zu Recht...", Toast.LENGTH_SHORT).show()
             }
-            //.setNegativeButtonColor(resources.getColor(R.color.red, theme))
             .setCancelable(false)
             .create()
         val easterEggTippDialog1 = AlertDialog.Builder(this)
             .setTitle(getString(R.string.tips))
             .setMessage(getString(R.string.confirmTips))
-            .setNegativeButton(R.string.showTips) { _: DialogInterface?, _: Int -> easterEggTippDialog2.show() }
+            .setNegativeButton(R.string.showTips) { _: DialogInterface?, _: Int ->
+                easterEggTippDialog2.show()
+                DialogUtils.setDialogButtonTextColor(
+                    easterEggTippDialog2,
+                    DialogInterface.BUTTON_NEGATIVE,
+                    resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, theme)
+                )
+            }
             .setPositiveButton(R.string.sesl_cancel) { _: DialogInterface?, _: Int ->
                 Toast.makeText(this@EasterEggSwitchBarActivity, "Besser isses auch...", Toast.LENGTH_SHORT).show()
             }
-            //.setNegativeButtonColor(resources.getColor(R.color.red, theme))
-            //.setPositiveButtonColor(resources.getColor(R.color.green, theme))
             .create()
         val easterEggTippDialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.easterEggs))
             .setMessage(getString(R.string.easterEggsHelp))
-            .setNeutralButton(R.string.tips) { _: DialogInterface?, _: Int -> easterEggTippDialog1.show() }
+            .setNeutralButton(R.string.tips) { _: DialogInterface?, _: Int ->
+                easterEggTippDialog1.show()
+                DialogUtils.setDialogButtonTextColor(
+                    easterEggTippDialog1,
+                    DialogInterface.BUTTON_NEGATIVE,
+                    resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, theme)
+                )
+                DialogUtils.setDialogButtonTextColor(
+                    easterEggTippDialog1,
+                    DialogInterface.BUTTON_POSITIVE,
+                    resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_green_color, theme)
+                )
+            }
             .setPositiveButton(R.string.ok, null)
             .create()
         floatingActionButton = findViewById(R.id.easterEgg_fab)

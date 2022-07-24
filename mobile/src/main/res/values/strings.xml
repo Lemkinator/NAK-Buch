@@ -215,6 +215,11 @@
     <!--Neue LiedTexte-->
     <string name="newTextsTitle">Neue Lied-Texte sind verfügbar</string>
     <string name="newTexts">Neue Lied-Texte sind verfügbar, du benutzt jedoch private Lied-Texte, weshalb diese nicht automatisch aktualisiert werden können.\nWenn du möchtest, kannst du in den Einstellungen deine privaten Lied-Texte mithilfe von neuen txt-Dateien ersetzen oder ein downgrade auf die aktualisierten urheberrechtlich freien Lieder machen.</string>
+
+    <string name="dev_options">Developer options</string>
+    <string name="secure_flag">Secure Flag</string>
+    <string name="secure_flag_summary">Block Screenshots and hide screen in recent Apps.</string>
+
     <!--sesl???-->
     <string name="search">Suche</string>
     <string name="settings">Einstellungen</string>

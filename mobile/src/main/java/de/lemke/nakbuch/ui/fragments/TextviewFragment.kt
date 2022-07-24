@@ -40,6 +40,7 @@ import de.lemke.nakbuch.domain.utils.TextChangedListener
 import de.lemke.nakbuch.ui.HelpActivity
 import de.lemke.nakbuch.ui.ImgviewActivity
 import dev.oneuiproject.oneui.layout.DrawerLayout
+import dev.oneuiproject.oneui.utils.DialogUtils
 import dev.oneuiproject.oneui.widget.MarginsTabLayout
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.xml.KonfettiView
@@ -211,15 +212,20 @@ class TextviewFragment : Fragment() {
             jokeButton.setOnClickListener {
                 lifecycleScope.launch {
                     discoverEasterEgg(konfettiView, R.string.easterEggEntryPremium)
-                    AlertDialog.Builder(requireContext())
+                    val dialog = AlertDialog.Builder(requireContext())
                         .setTitle(getString(R.string.jokeTitle))
                         .setMessage(getString(R.string.jokeMessage))
                         .setNegativeButton(getString(R.string.ForeverICantTakeAJoke)) { _: DialogInterface?, _: Int ->
                             lifecycleScope.launch { updateUserSettings { it.copy(jokeButtonVisible = false) } }
                         }
                         .setPositiveButton(getString(R.string.onlyThisTime), null)
-                        //.setNegativeButtonColor(resources.getColor(R.color.red, context?.theme))
-                        .show()
+                        .create()
+                    dialog.show()
+                    DialogUtils.setDialogButtonTextColor(
+                        dialog,
+                        DialogInterface.BUTTON_NEGATIVE,
+                        resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, context?.theme)
+                    )
                 }
                 jokeButton.visibility = View.GONE
             }
@@ -341,7 +347,7 @@ class TextviewFragment : Fragment() {
             ), PorterDuff.Mode.SRC_IN
         )
         val favIconFilled = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_favorite_24)!!
-        favIconFilled.colorFilter = PorterDuffColorFilter(resources.getColor(R.color.red, context?.theme), PorterDuff.Mode.SRC_IN)
+        favIconFilled.colorFilter = PorterDuffColorFilter(resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, context?.theme), PorterDuff.Mode.SRC_IN)
         val favIconOutline = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_favorite_outline_24)!!
         val camIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_image_visual_24)
         val plusIcon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_oui_add_24)

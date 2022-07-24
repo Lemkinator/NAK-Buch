@@ -32,6 +32,7 @@ import de.lemke.nakbuch.domain.model.BuchMode
 import dev.oneuiproject.oneui.dialog.ProgressDialog
 import dev.oneuiproject.oneui.layout.DrawerLayout
 import dev.oneuiproject.oneui.layout.ToolbarLayout
+import dev.oneuiproject.oneui.utils.DialogUtils
 import dev.oneuiproject.oneui.widget.MarginsTabLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var konfettiView: KonfettiView
     private lateinit var tabLayout: MarginsTabLayout
     private lateinit var searchHelpFAB: FloatingActionButton
+
     /*
     private lateinit var tipPopupDrawer: TipPopup
     private lateinit var tipPopupSearch: TipPopup
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     */
     private lateinit var gesangbuchOption: LinearLayout
     private lateinit var chorbuchOption: LinearLayout
-    private lateinit var jugendliederbuchOption : LinearLayout
+    private lateinit var jugendliederbuchOption: LinearLayout
     private lateinit var jbErgaenzungsheftOption: LinearLayout
     private lateinit var helpOption: LinearLayout
     private lateinit var aboutAppOption: LinearLayout
@@ -154,7 +156,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         } else {
                             subTabs.getTabAt(0)?.select()
                         }
-                    } catch (e: Exception)  {}
+                    } catch (e: Exception) {
+                    }
                 }
             }
         })
@@ -202,8 +205,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     searchHelpFAB.visibility = View.VISIBLE
                 } else {
                     searchHelpFAB.visibility = View.GONE
-                    setCurrentItem()
                 }
+                setCurrentItem()
             }
         })
         gesangbuchOption.setOnClickListener {
@@ -220,19 +223,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         helpOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, HelpActivity::class.java))
-            drawerLayout.setDrawerOpen(false,true)
+            drawerLayout.setDrawerOpen(false, true)
         }
         aboutAppOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, AboutActivity::class.java))
-            drawerLayout.setDrawerOpen(false,true)
+            drawerLayout.setDrawerOpen(false, true)
         }
         aboutMeOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, AboutMeActivity::class.java))
-            drawerLayout.setDrawerOpen(false,true)
+            drawerLayout.setDrawerOpen(false, true)
         }
         settingsOption.setOnClickListener {
             startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-            drawerLayout.setDrawerOpen(false,true)
+            drawerLayout.setDrawerOpen(false, true)
         }
         //Tooltip.setTooltipText(searchHelpFAB, getString(R.string.help))
         searchHelpFAB.setOnClickListener { searchDialog() }
@@ -411,46 +414,54 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 dialog.dismiss()
             }
         } else {
-            AlertDialog.Builder(this@MainActivity)
+            val dialog = AlertDialog.Builder(this@MainActivity)
                 .setTitle(getString(R.string.newTextsTitle))
                 .setMessage(getString(R.string.newTexts))
-                .setNegativeButton("Downgrade") { dialogInterface: DialogInterface, _: Int ->
-                    initDatabase(forceInit = true).invokeOnCompletion {
-                        dialogInterface.dismiss()
-                        lifecycleScope.launch { recreate() }
-                    }
-                }
-                //.setNegativeButtonColor(resources.getColor(R.color.red, this@MainActivity.theme))
-                //.setNegativeButtonProgress(true)
+                .setNegativeButton("Downgrade", null)
                 .setPositiveButton(getString(R.string.ok), null)
                 .setOnDismissListener { setCurrentItem() }
                 .create()
-                .show()
+            dialog.show()
+            DialogUtils.setDialogButtonTextColor(
+                dialog,
+                DialogInterface.BUTTON_NEGATIVE,
+                resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, theme)
+            )
+            DialogUtils.setDialogProgressForButton(dialog, DialogInterface.BUTTON_NEGATIVE) {
+                initDatabase(forceInit = true).invokeOnCompletion {
+                    dialog.dismiss()
+                    lifecycleScope.launch { recreate() }
+                }
+            }
         }
     }
 
     private suspend fun easterEggDialog() {
         if (getUserSettings().showEasterEggHint) {
-            AlertDialog.Builder(this@MainActivity)
+            val dialog = AlertDialog.Builder(this@MainActivity)
                 .setTitle(getString(R.string.easterEggs))
                 .setMessage(getString(R.string.easterEggsText))
-                .setNegativeButton(getString(R.string.deactivate)) { dialogInterface: DialogInterface, _: Int ->
-                    lifecycleScope.launch {
-                        updateUserSettings { it.copy(easterEggsEnabled = false, showEasterEggHint = false) }
-                        delay(700)
-                        dialogInterface.dismiss()
-                    }
-                }
+                .setNegativeButton(getString(R.string.deactivate), null)
                 .setPositiveButton(getString(R.string.ok)) { _: DialogInterface, _: Int ->
                     lifecycleScope.launch {
                         updateUserSettings { it.copy(showEasterEggHint = false) }
                     }
                 }
-                //.setNegativeButtonColor(resources.getColor(R.color.red, this@MainActivity.theme))
-                //.setNegativeButtonProgress(true)
                 .setOnDismissListener { lifecycleScope.launch { showTipPopup() } }
                 .create()
-                .show()
+            dialog.show()
+            DialogUtils.setDialogButtonTextColor(
+                dialog,
+                DialogInterface.BUTTON_NEGATIVE,
+                resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, theme)
+            )
+            DialogUtils.setDialogProgressForButton(dialog, DialogInterface.BUTTON_NEGATIVE) {
+                lifecycleScope.launch {
+                    updateUserSettings { it.copy(easterEggsEnabled = false, showEasterEggHint = false) }
+                    delay(700)
+                    dialog.dismiss()
+                }
+            }
         } else {
             showTipPopup()
         }

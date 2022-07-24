@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.qualifiers.ActivityContext
 import de.lemke.nakbuch.R
+import dev.oneuiproject.oneui.utils.DialogUtils
 import javax.inject.Inject
 
 class DoNotDisturbUseCase @Inject constructor(
@@ -48,9 +49,17 @@ class DoNotDisturbUseCase @Inject constructor(
                     e.printStackTrace()
                 }
             }
-            //.setNegativeButtonColor(context.resources.getColor(R.color.red, null))
-            //.setPositiveButtonColor(context.resources.getColor(R.color.green, null))
             .create()
         dialog.show()
+        DialogUtils.setDialogButtonTextColor(
+            dialog,
+            DialogInterface.BUTTON_NEGATIVE,
+            context.resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, context.theme)
+        )
+        DialogUtils.setDialogButtonTextColor(
+            dialog,
+            DialogInterface.BUTTON_POSITIVE,
+            context.resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_green_color, context.theme)
+        )
     }
 }

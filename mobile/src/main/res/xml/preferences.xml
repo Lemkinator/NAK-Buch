@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--suppress ALL -->
+<?xml version="1.0" encoding="utf-8"?><!--suppress ALL -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -111,23 +110,23 @@
     <PreferenceCategory android:title="@string/shortcuts">
         <Preference
             android:key="shortcut_gesangbuch"
-            android:title="@string/shortcutGesangbuch"
             android:summary="@string/shortcutGesangbuchSummary"
+            android:title="@string/shortcutGesangbuch"
             app:icon="@drawable/ic_baseline_oui_add_home_24" />
         <Preference
             android:key="shortcut_chorbuch"
-            android:title="@string/shortcutChorbuch"
             android:summary="@string/shortcutChorbuchSummary"
+            android:title="@string/shortcutChorbuch"
             app:icon="@drawable/ic_baseline_oui_add_home_24" />
         <Preference
             android:key="shortcut_jugendliederbuch"
-            android:title="@string/shortcutJugendliederbuch"
             android:summary="@string/shortcutJugendliederbuchSummary"
+            android:title="@string/shortcutJugendliederbuch"
             app:icon="@drawable/ic_baseline_oui_add_home_24" />
         <Preference
             android:key="shortcut_jb_ergaenzungsheft"
-            android:title="@string/shortcutJBErgaenzungsheft"
             android:summary="@string/shortcutJBErgaenzungsheftSummary"
+            android:title="@string/shortcutJBErgaenzungsheft"
             app:icon="@drawable/ic_baseline_oui_add_home_24" />
     </PreferenceCategory>
 
@@ -140,6 +139,27 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="dev_options"
+        android:title="@string/dev_options">
+        <PreferenceScreen
+            android:key="add_own_hymn_texts"
+            android:title="@string/addOwnHymnTexts"
+            app:icon="@drawable/ic_baseline_oui_file_type_folder_24" />
+        <PreferenceScreen
+            android:key="delete_own_hymn_texts"
+            android:title="@string/deleteOwnHymnTexts"
+            app:icon="@drawable/ic_baseline_oui_delete_outline_24" />
+        <PreferenceScreen
+            android:key="add_sheet_music"
+            android:title="@string/sheetMusic"
+            app:icon="@drawable/ic_baseline_oui_file_type_zip_24" />
+        <PreferenceScreen
+            android:key="delete_app_data"
+            android:title="@string/deleteAppDataAndExit"
+            app:icon="@drawable/ic_baseline_oui_restart_24" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/about">
         <PreferenceScreen
             android:key="about_app"
@@ -149,10 +169,6 @@
                 android:targetClass="de.lemke.nakbuch.ui.AboutActivity"
                 android:targetPackage="de.lemke.nakbuch" />
         </PreferenceScreen>
-        <!--PreferenceScreen
-            android:key="version_hidden_menu"
-            android:title="@string/version_info"
-            app:icon="@drawable/ic_baseline_oui_info_outline_24" /-->
     </PreferenceCategory>
 
 </PreferenceScreen>

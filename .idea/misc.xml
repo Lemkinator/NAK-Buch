@@ -13,10 +13,14 @@
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_calendar_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_compose_edit_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_copy_outline_24.xml" value="0.2645" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_dark_mode_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_enable_outline_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_enable_outline_34.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_enable_outline_40.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_favorite_outline_24.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_file_type_folder_24.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_file_type_zip_24.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_flag_outline_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_info_outline_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_arrow_left_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_arrow_left_40.xml" value="0.26" />
@@ -24,6 +28,7 @@
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_arrow_right_40.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_btn_delete_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_keyboard_btn_delete_38.xml" value="0.26" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_restart_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_search_24.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_security_24.xml" value="0.2645" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_baseline_oui_selected_24.xml" value="0.2645" />
@@ -31,7 +36,7 @@
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_background.xml" value="0.2535" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_background_chorbuch.xml" value="0.2535" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_background_gesangbuch.xml" value="0.2535" />
-        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_foreground.xml" value="0.72" />
+        <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_foreground.xml" value="0.26" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_foreground1.xml" value="0.2125" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_foreground2.xml" value="0.22" />
         <entry key="..\:/Users/leo/AndroidWorkspace/AndroidStudio/NAKBuch/mobile/src/main/res/drawable/ic_launcher_foreground3.xml" value="0.22" />

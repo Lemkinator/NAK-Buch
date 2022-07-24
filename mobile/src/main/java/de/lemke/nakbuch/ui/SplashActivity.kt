@@ -57,7 +57,7 @@ class SplashActivity : AppCompatActivity() {
             if (getUserSettings().devModeEnabled) {
                 val devText: Spannable = SpannableString(" Dev")
                 devText.setSpan(
-                    ForegroundColorSpan(getColor(R.color.orange)),
+                    ForegroundColorSpan(getColor(dev.oneuiproject.oneui.R.color.oui_functional_orange_color)),
                     0,
                     devText.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE

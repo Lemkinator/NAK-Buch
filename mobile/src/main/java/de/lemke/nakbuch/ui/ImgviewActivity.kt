@@ -29,6 +29,7 @@ import de.lemke.nakbuch.domain.model.HymnId
 import de.lemke.nakbuch.domain.model.PersonalHymn
 import de.lemke.nakbuch.domain.utils.ViewPagerAdapterImageView
 import dev.oneuiproject.oneui.layout.DrawerLayout
+import dev.oneuiproject.oneui.utils.DialogUtils
 import dev.oneuiproject.oneui.widget.MarginsTabLayout
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -137,7 +138,7 @@ class ImgviewActivity : AppCompatActivity() {
 
     private fun initBNV() {
         val favIconFilled = AppCompatResources.getDrawable(this, R.drawable.ic_baseline_oui_favorite_24)!!
-        favIconFilled.colorFilter = PorterDuffColorFilter(resources.getColor(R.color.red, this.theme), PorterDuff.Mode.SRC_IN)
+        favIconFilled.colorFilter = PorterDuffColorFilter(resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, this.theme), PorterDuff.Mode.SRC_IN)
         val favIconOutline = AppCompatResources.getDrawable(this, R.drawable.ic_baseline_oui_favorite_outline_24)!!
         val camIcon = AppCompatResources.getDrawable(this, R.drawable.ic_baseline_oui_camera_outline_24)
         val binIcon = AppCompatResources.getDrawable(this, R.drawable.ic_baseline_oui_delete_outline_24)
@@ -164,17 +165,21 @@ class ImgviewActivity : AppCompatActivity() {
                                         .setTitle(getString(R.string.deletePhoto) + "?")
                                         .setMessage(getString(R.string.deleteCurrentPhoto) + "?")
                                         .setNeutralButton(R.string.sesl_cancel, null)
-                                        .setNegativeButton(R.string.delete) { dialogInterface: DialogInterface, _: Int ->
-                                            lifecycleScope.launch {
-                                                deletePhoto(personalHymn, index)
-                                                dialogInterface.dismiss()
-                                                initViewPager(min(index, viewPagerAdapterImageView.count - 1))
-                                            }
-                                        }
-                                        //.setNegativeButtonColor(resources.getColor(R.color.red, this@ImgviewActivity.theme))
-                                        //.setNegativeButtonProgress(true)
+                                        .setNegativeButton(R.string.delete, null)
                                         .create()
                                     dialog.show()
+                                    DialogUtils.setDialogButtonTextColor(
+                                        dialog,
+                                        DialogInterface.BUTTON_NEGATIVE,
+                                        resources.getColor(dev.oneuiproject.oneui.R.color.oui_functional_red_color, theme)
+                                    )
+                                    DialogUtils.setDialogProgressForButton(dialog, DialogInterface.BUTTON_NEGATIVE) {
+                                        lifecycleScope.launch {
+                                            deletePhoto(personalHymn, index)
+                                            dialog.dismiss()
+                                            initViewPager(min(index, viewPagerAdapterImageView.count - 1))
+                                        }
+                                    }
                                 }
                             }
                             else -> {}
@@ -182,11 +187,12 @@ class ImgviewActivity : AppCompatActivity() {
                     }
 
                     override fun onTabUnselected(tab: TabLayout.Tab) {}
-                    override fun onTabReselected(tab: TabLayout.Tab) {onTabSelected(tab)}
+                    override fun onTabReselected(tab: TabLayout.Tab) {
+                        onTabSelected(tab)
+                    }
                 })
             }
-        }
-        else {
+        } else {
             //tabLayout!!.removeAllTabs()
 
         }
